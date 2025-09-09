@@ -1,13 +1,25 @@
 package com.simplecoding.cheforest.member.dto;
-import lombok.Data;
+
+import lombok.*;
+
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class MemberDetailDto {
     private Long memberIdx;
     private String id;
     private String email;
     private String nickname;
     private String profile;
+    private String role;
+    private String tempPasswordYn;
     private LocalDateTime joinDate;
+
+    // ✅ 소셜 로그인 추가 필드
+    private String socialId;
+    private String provider;
 }

@@ -1,6 +1,8 @@
 package com.simplecoding.cheforest.common;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import com.simplecoding.cheforest.member.dto.*;
 import com.simplecoding.cheforest.member.entity.Member;
@@ -19,8 +21,16 @@ import com.simplecoding.cheforest.recipe.entity.Recipe;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface MapStruct {
     // Member
-    Member toEntity(MemberRegisterDto dto);
-    MemberDetailDto toDto(Member entity);
+    // 회원가입: DTO -> 엔티티
+    Member toEntity(MemberSaveReq dto);
+
+    // 회원수정: DTO -> 엔티티 (기존 엔티티 덮어쓰기)
+    void updateEntity(MemberUpdateReq dto, @MappingTarget Member member);
+
+    // 엔티티 -> 상세조회 DTO
+    @Mapping(source = "createdAt", target = "joinDate")
+    @Mapping(source = "role", target = "role") // Enum → String 자동 변환
+    MemberDetailDto toDetailDto(Member member);
 
     // Board
     Board toEntity(BoardSaveDto dto);
