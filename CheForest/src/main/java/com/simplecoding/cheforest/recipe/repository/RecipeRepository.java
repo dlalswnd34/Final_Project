@@ -1,0 +1,10 @@
+package com.simplecoding.cheforest.recipe.repository;
+import com.simplecoding.cheforest.recipe.entity.Recipe;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface RecipeRepository extends JpaRepository<Recipe, String> {
+    boolean existsByRecipeId(String recipeId);
+    List<Recipe> findByCategoryKr(String categoryKr);
+}

@@ -1,22 +1,17 @@
 package com.simplecoding.cheforest.board.dto;
-
-import lombok.*;
+import lombok.Data;
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data
 public class BoardDetailDto {
     private Long boardId;
-    private String title;
-    private String content;
     private String category;
-    private Long likeCount;
-    private Long viewCount;
-    private Long writerId;
-    private String writerNickname;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String title;
+    private String prepare;
+    private String content;
+    private String thumbnail;
+    private LocalDateTime writeDate;
+    private Integer viewCount;
+    private String nickname;
+    private Integer likeCount;
 }

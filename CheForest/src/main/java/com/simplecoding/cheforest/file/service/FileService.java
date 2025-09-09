@@ -1,16 +1,39 @@
-package egovframework.example.file.service;
+package com.simplecoding.cheforest.file.service;
 
+import com.simplecoding.cheforest.file.dto.FileDto;
+import com.simplecoding.cheforest.file.entity.UploadFile;
+import com.simplecoding.cheforest.file.repository.UploadFileRepository;
+import com.simplecoding.cheforest.common.MapStruct;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
-public interface FileService {
-    void insertFile(FileVO fileVO); // 파일 등록 (BLOB 포함)
-    FileVO getFile(Long fileId); // 파일 1건 조회 (PK)
-    List<FileVO> getFilesByBoardId(Long boardId); // 게시글별 첨부파일 목록 (예: BOARD_ID로)
-    void deleteFile(Long fileId);    //  파일 삭제   
-    void updateFile(FileVO fileVO);  //  파일 수정
-    FileVO getProfileFileByMemberId(Long memberId); // 👈 회원 프로필 조회용
-    
-    // 7/11 민중 게시글삭제를위한 달려있는 모든 파일 삭제 기능
-    void deleteAllByTargetIdAndType(Long targetId, String useType); 
- }
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class FileService {
 
+    private final UploadFileRepository uploadFileRepository;
+    private final MapStruct mapper;
+
+    public FileDto save(FileDto dto) {
+        UploadFile file = mapper.toEntity(dto);
+        UploadFile saved = uploadFileRepository.save(file);
+        return mapper.toDto(saved);
+    }
+
+    public void delete(Long fileId) {
+        uploadFileRepository.deleteById(fileId);
+    }
+
+    public FileDto getFile(Long fileId) {
+        return uploadFileRepository.findById(fileId).map(mapper::toDto)
+                .orElseThrow(() -> new IllegalArgumentException("파일 없음"));
+    }
+
+    public List<FileDto> getFilesByTarget(Long targetId, String useType) {
+        return uploadFileRepository.findByUseTargetIdAndUseType(targetId, useType)
+                .stream().map(mapper::toDto).toList();
+    }
+}
