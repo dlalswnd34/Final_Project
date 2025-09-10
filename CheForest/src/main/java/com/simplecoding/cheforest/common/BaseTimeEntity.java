@@ -16,10 +16,8 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseTimeEntity {
     @CreatedDate
-    @Column(name = "CREATED_DATE", updatable = false)
-    private LocalDateTime createdDate;
-
+    @Column(updatable = false)
+    private LocalDateTime insertTime;
     @LastModifiedDate
-    @Column(name = "MODIFIED_DATE")
-    private LocalDateTime modifiedDate;
+    private LocalDateTime updateTime;
 }

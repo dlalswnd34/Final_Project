@@ -1,42 +1,46 @@
 package com.simplecoding.cheforest.board.entity;
 
 import com.simplecoding.cheforest.common.BaseTimeEntity;
+import com.simplecoding.cheforest.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Table(name = "BOARD")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor @Builder
+@SequenceGenerator(
+        name = "BOARD_SEQ_JPA",
+        sequenceName = "BOARD_SEQ",
+        allocationSize = 1
+)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Board extends BaseTimeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "BOARD_SEQ")
-    @SequenceGenerator(name = "BOARD_SEQ", sequenceName = "BOARD_SEQ", allocationSize = 1)
-    @Column(name = "BOARD_ID")
-    private Long boardId;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "BOARD_SEQ_JPA")
+    private Long id;  // 게시글 ID (PK)
 
-    @Column(name = "CATEGORY")
     private String category;
-
-    @Column(name = "TITLE")
     private String title;
-
-    @Column(name = "PREPARE")
-    private String prepare;
-
-    @Column(name = "CONTENT")
     private String content;
-
-    @Column(name = "THUMBNAIL")
     private String thumbnail;
 
-    @Column(name = "WRITE_DATE")
-    private String writeDate;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "WRITER_IDX", nullable = false)
+    private Member writer;
 
-    @Column(name = "VIEW_COUNT")
-    private Integer viewCount;
+    private String prepare;
+    @Builder.Default
+    private Long viewCount = 0L;
+    // 조회수 증가 메소드
+    public void increaseViewCount() {
+        this.viewCount = (this.viewCount == null ? 1 : this.viewCount + 1);
+    }
 
-    @Column(name = "WRITER_IDX")
-    private Long writerIdx;
+    @Builder.Default
+    private Long likeCount = 0L;
+
 }

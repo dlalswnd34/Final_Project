@@ -1,33 +1,53 @@
 package com.simplecoding.cheforest.review.controller;
 
-import com.simplecoding.cheforest.review.dto.*;
+import com.simplecoding.cheforest.member.entity.Member;
+import com.simplecoding.cheforest.review.dto.ReviewSaveReq;
+import com.simplecoding.cheforest.review.dto.ReviewUpdateReq;
 import com.simplecoding.cheforest.review.service.ReviewService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/review")
 public class ReviewController {
+
     private final ReviewService reviewService;
 
-    @PostMapping("/write")
-    public String write(@ModelAttribute ReviewSaveDto dto) {
-        reviewService.save(dto);
-        return "redirect:/board/" + dto.getBoardId();
+    // 댓글 등록
+    @PostMapping("/add")
+    public String addReview(@ModelAttribute ReviewSaveReq dto, HttpSession session) {
+        Member loginUser = (Member) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            return "redirect:/member/login";
+        }
+        reviewService.saveReview(dto, loginUser.getMemberIdx());
+        return "redirect:/board/view.do?boardId=" + dto.getBoardId();
     }
 
-    @PostMapping("/delete/{id}")
-    public String delete(@PathVariable("id") Long reviewId, @RequestParam("boardId") Long boardId) {
-        reviewService.delete(reviewId);
-        return "redirect:/board/" + boardId;
+    // 댓글 수정
+    @PostMapping("/edit")
+    public String editReview(@ModelAttribute ReviewUpdateReq dto, HttpSession session) {
+        Member loginUser = (Member) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            return "redirect:/member/login";
+        }
+        reviewService.updateReview(dto, loginUser.getMemberIdx());
+        return "redirect:/board/view.do?boardId=" + dto.getBoardId();
     }
 
-    @GetMapping("/list/{boardId}")
-    public String list(@PathVariable("boardId") Long boardId, Model model) {
-        model.addAttribute("reviews", reviewService.getReviews(boardId));
-        return "review/list";
+    // 댓글 삭제
+    @PostMapping("/delete")
+    public String deleteReview(@RequestParam Long reviewId,
+                               @RequestParam Long boardId,
+                               HttpSession session) {
+        Member loginUser = (Member) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            return "redirect:/member/login";
+        }
+        reviewService.deleteReview(reviewId, loginUser.getMemberIdx());
+        return "redirect:/board/view.do?boardId=" + boardId;
     }
 }

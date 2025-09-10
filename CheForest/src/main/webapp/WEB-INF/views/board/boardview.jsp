@@ -151,7 +151,7 @@
 					</c:when>
 					<c:otherwise>
 						<div class="comment-write-wrap">
-							<form action="/board/review/add.do" method="post"
+							<form action="/review/add" method="post"
 								class="comment-form">
 								<input type="hidden" name="boardId" value="${board.boardId}">
 								<textarea name="content" class="comment-textarea"
@@ -184,14 +184,14 @@
   수정
 </button>
     <!-- 삭제 폼(그대로 유지) -->
-    <form action="/board/review/delete.do" method="post" style="display:inline;">
+    <form action="/review/delete" method="post" style="display:inline;">
       <input type="hidden" name="reviewId" value="${review.reviewId}" />
       <input type="hidden" name="boardId" value="${board.boardId}" />
       <button type="submit" class="comment-delete-btn">삭제</button>
     </form>
   </div>
   <!-- 인라인 수정폼 (초기 숨김) -->
-  <form id="editForm${review.reviewId}" action="/board/review/edit.do" method="post" style="display:none; margin-top:5px;">
+  <form id="editForm${review.reviewId}" action="/review/edit" method="post" style="display:none; margin-top:5px;">
     <input type="hidden" name="reviewId" value="${review.reviewId}" />
     <input type="hidden" name="boardId" value="${board.boardId}" />
     <textarea name="content" id="editContent${review.reviewId}">${review.content}</textarea>
