@@ -1,32 +1,38 @@
 package com.simplecoding.cheforest.review.entity;
 
 import com.simplecoding.cheforest.common.BaseTimeEntity;
+import com.simplecoding.cheforest.board.entity.Board;
+import com.simplecoding.cheforest.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "BOARD_REVIEW")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor @Builder
+@SequenceGenerator(
+        name = "BOARD_REVIEW_SEQ_JPA",
+        sequenceName = "BOARD_REVIEW_SEQ",  // 실제 DB 시퀀스 이름
+        allocationSize = 1
+)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Review extends BaseTimeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "BOARD_REVIEW_SEQ")
-    @SequenceGenerator(name = "BOARD_REVIEW_SEQ", sequenceName = "BOARD_REVIEW_SEQ", allocationSize = 1)
-    @Column(name = "REVIEW_ID")
-    private Long reviewId;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "BOARD_REVIEW_SEQ_JPA")
+    private Long reviewId;   // PK
 
-    @Column(name = "BOARD_ID")
-    private Long boardId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "BOARD_ID", nullable = false,
+            foreignKey = @ForeignKey(name = "FK_BOARD_REVIEW_BOARD"))
+    private Board board;     // 게시글 참조
 
-    @Column(name = "WRITER_IDX")
-    private Long writerIdx;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "WRITER_IDX", nullable = false,
+            foreignKey = @ForeignKey(name = "FK_BOARD_REVIEW_MEMBER"))
+    private Member writer;   // 작성자 참조
 
-    @Column(name = "CONTENT")
-    private String content;
-
-    @Column(name = "WRITE_DATE")
-    private LocalDateTime writeDate;
+    private String content;  // 댓글 내용
 }

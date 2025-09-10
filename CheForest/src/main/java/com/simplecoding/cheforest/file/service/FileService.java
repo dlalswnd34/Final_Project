@@ -1,39 +1,130 @@
 package com.simplecoding.cheforest.file.service;
 
-import com.simplecoding.cheforest.file.dto.FileDto;
-import com.simplecoding.cheforest.file.entity.UploadFile;
-import com.simplecoding.cheforest.file.repository.UploadFileRepository;
 import com.simplecoding.cheforest.common.MapStruct;
+import com.simplecoding.cheforest.file.dto.FileDto;
+import com.simplecoding.cheforest.file.entity.FileEntity;
+import com.simplecoding.cheforest.file.repository.FileRepository;
+import com.simplecoding.cheforest.member.entity.Member;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class FileService {
 
-    private final UploadFileRepository uploadFileRepository;
-    private final MapStruct mapper;
+    private final FileRepository fileRepository;
+    private final MapStruct mapStruct;
+    private final EntityManager em; // Member 참조용
 
-    public FileDto save(FileDto dto) {
-        UploadFile file = mapper.toEntity(dto);
-        UploadFile saved = uploadFileRepository.save(file);
-        return mapper.toDto(saved);
+    // 실제 파일 저장 경로 (외부 경로)
+    private final String uploadDir = "C:/upload/";
+
+    // 단일 파일 저장
+    public FileDto saveFile(MultipartFile file, String useType, Long useTargetId, String usePosition, Long uploaderId) throws IOException {
+        if (file.isEmpty()) return null;
+
+        String orgFileName = file.getOriginalFilename();
+        String storedFileName = UUID.randomUUID() + "_" + orgFileName;
+
+        // 실제 저장 위치
+        File dest = new File(uploadDir + storedFileName);
+        if (!dest.getParentFile().exists()) {
+            dest.getParentFile().mkdirs();
+        }
+        file.transferTo(dest);
+
+        // 업로더 Member 참조
+        Member uploader = em.getReference(Member.class, uploaderId);
+
+        // DB에 저장할 경로는 웹에서 접근 가능한 상대경로
+        String webPath = "/upload/" + storedFileName;
+
+        FileEntity fileEntity = FileEntity.builder()
+                .fileName(storedFileName)
+                .filePath(webPath) // 웹 접근 경로 저장
+                .fileType(getFileExtension(orgFileName))
+                .useType(useType)
+                .useTargetId(useTargetId)
+                .usePosition(usePosition)
+                .uploader(uploader)
+                .build();
+
+        return mapStruct.toDto(fileRepository.save(fileEntity));
     }
 
-    public void delete(Long fileId) {
-        uploadFileRepository.deleteById(fileId);
+    // 여러 파일 저장 + 첫 번째 파일 ID 반환
+    public Long saveBoardFiles(Long boardId, Long uploaderId, List<MultipartFile> files) throws IOException {
+        if (files == null || files.isEmpty()) return null;
+
+        Long firstFileId = null;
+        for (MultipartFile file : files) {
+            if (file.isEmpty()) continue;
+
+            FileDto dto = saveFile(file, "BOARD", boardId, "CONTENT", uploaderId);
+            if (firstFileId == null && dto != null) {
+                firstFileId = dto.getId();
+            }
+        }
+        return firstFileId;
     }
 
+    // 파일 단건 조회
     public FileDto getFile(Long fileId) {
-        return uploadFileRepository.findById(fileId).map(mapper::toDto)
-                .orElseThrow(() -> new IllegalArgumentException("파일 없음"));
+        return fileRepository.findById(fileId)
+                .map(mapStruct::toDto)
+                .orElse(null);
     }
 
-    public List<FileDto> getFilesByTarget(Long targetId, String useType) {
-        return uploadFileRepository.findByUseTargetIdAndUseType(targetId, useType)
-                .stream().map(mapper::toDto).toList();
+    // 게시글별 파일 목록 조회
+    public List<FileDto> getFilesByBoardId(Long boardId) {
+        return fileRepository.findByUseTypeAndUseTargetId("BOARD", boardId)
+                .stream()
+                .map(mapStruct::toDto)
+                .collect(Collectors.toList());
+    }
+
+    // 파일 삭제 (DB + 실제 파일)
+    public void deleteFile(Long fileId) {
+        fileRepository.findById(fileId).ifPresent(file -> {
+            File f = new File(uploadDir + file.getFileName());
+            if (f.exists()) {
+                f.delete();
+            }
+            fileRepository.delete(file);
+        });
+    }
+
+    // 게시글 삭제 시 전체 삭제
+    public void deleteAllByTargetIdAndType(Long targetId, String useType) {
+        fileRepository.findByUseTypeAndUseTargetId(useType, targetId)
+                .forEach(file -> {
+                    File f = new File("C:/upload/" + file.getFileName());
+                    if (f.exists()) {
+                        f.delete();
+                    }
+                });
+        fileRepository.deleteByUseTargetIdAndUseType(targetId, useType);
+    }
+
+    // 프로필 최신 파일 조회
+    public FileDto getProfileFileByMemberId(Long memberId) {
+        return fileRepository.findTop1ByUseTypeAndUseTargetIdOrderByInsertTimeDesc("MEMBER", memberId)
+                .map(mapStruct::toDto)
+                .orElse(null);
+    }
+
+    private String getFileExtension(String fileName) {
+        if (fileName == null || !fileName.contains(".")) return "";
+        return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 }

@@ -3,46 +3,44 @@ package com.simplecoding.cheforest.file.controller;
 import com.simplecoding.cheforest.file.dto.FileDto;
 import com.simplecoding.cheforest.file.service.FileService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@Controller
+import java.io.IOException;
+
+@Slf4j
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/file")
 public class FileController {
 
     private final FileService fileService;
 
-    @PostMapping("/upload")
-    public String upload(@RequestParam("file") MultipartFile multipartFile,
-                         @RequestParam("useType") String useType,
-                         @RequestParam("useTargetId") Long useTargetId) {
-        try {
-            FileDto dto = new FileDto();
-            dto.setFileName(multipartFile.getOriginalFilename());
-            dto.setFileType(multipartFile.getContentType());
-            dto.setUseType(useType);
-            dto.setUseTargetId(useTargetId);
-            dto.setFileData(multipartFile.getBytes());
-            fileService.save(dto);
-            return "redirect:/";
-        } catch (Exception e) {
-            return "error";
+    // 파일 삭제
+    @DeleteMapping("/{fileId}")
+    public ResponseEntity<Void> deleteFile(@PathVariable Long fileId) {
+        fileService.deleteFile(fileId);
+        return ResponseEntity.ok().build();
+    }
+
+    // 프로필 업로드
+    @PostMapping("/profile-upload")
+    public ResponseEntity<FileDto> uploadProfileImage(
+            @RequestParam("memberId") Long memberId,
+            @RequestParam("profileImage") MultipartFile file
+    ) throws IOException {
+        // 기존 프로필 삭제
+        FileDto oldProfile = fileService.getProfileFileByMemberId(memberId);
+        if (oldProfile != null) {
+            fileService.deleteFile(oldProfile.getId());
         }
-    }
 
-    @GetMapping("/{id}")
-    public String getFile(@PathVariable("id") Long fileId, Model model) {
-        FileDto file = fileService.getFile(fileId);
-        model.addAttribute("file", file);
-        return "file/detail";
-    }
+        // 새 프로필 저장
+        FileDto newFile = fileService.saveFile(file, "MEMBER", memberId, "PROFILE", memberId);
 
-    @PostMapping("/delete/{id}")
-    public String delete(@PathVariable("id") Long fileId) {
-        fileService.delete(fileId);
-        return "redirect:/";
+        // 실제 Member 테이블 profile 컬럼 업데이트는 MemberService에서 따로 처리
+        return ResponseEntity.ok(newFile);
     }
 }

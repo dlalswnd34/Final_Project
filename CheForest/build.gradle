@@ -72,6 +72,12 @@ dependencies {
     implementation 'org.springframework.security:spring-security-taglibs'
 }
 
+def generated = "$buildDir/generated/sources/annotationProcessor/java/main"
+
+sourceSets {
+    main.java.srcDirs += [generated]
+}
+
 tasks.named('test') {
     useJUnitPlatform()
 }
