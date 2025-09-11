@@ -21,7 +21,7 @@ public class ReviewService {
 
     // 댓글 목록 조회
     public List<ReviewRes> getReviewsByBoardId(Long boardId) {
-        return reviewRepository.findByBoard_IdOrderByReviewIdDesc(boardId)
+        return reviewRepository.findByBoard_BoardIdOrderByReviewIdDesc(boardId)
                 .stream()
                 .map(mapStruct::toDto)
                 .collect(Collectors.toList());
