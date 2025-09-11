@@ -47,6 +47,7 @@ dependencies {
     testImplementation 'org.projectlombok:lombok'
 
     //    TODO: jsp 설정: spring boot 에는 제공하지 않음, 수작업으로 설정
+    implementation group: 'org.glassfish.web', name: 'jakarta.servlet.jsp.jstl', version: '2.0.0'
     implementation "org.apache.tomcat.embed:tomcat-embed-jasper"
     // TODO: JSTL은 2.0.0 대신 Jakarta EE 10 호환 버전 사용
     implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0'

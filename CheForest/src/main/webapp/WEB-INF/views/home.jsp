@@ -21,7 +21,7 @@
 	src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script type="text/javascript"
 	src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
-<jsp:include page="/WEB-INF/views/common/header2.jsp" />
+<jsp:include page="/common/header2.jsp" />
 </head>
 <body>
 
