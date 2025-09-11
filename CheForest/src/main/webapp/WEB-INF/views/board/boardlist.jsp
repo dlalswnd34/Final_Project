@@ -16,7 +16,7 @@
 <link rel="stylesheet" href="/css/boardlist.css">
 <link rel="stylesheet" href="/css/sidebar.css" />
 <link rel="stylesheet" href="/css/pagination.css">
-<jsp:include page="/WEB-INF/views/common/header.jsp" />
+<jsp:include page="/common/header.jsp" />
 </head>
 
 <body>
