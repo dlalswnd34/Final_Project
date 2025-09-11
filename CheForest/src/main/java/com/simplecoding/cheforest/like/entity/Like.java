@@ -1,38 +1,44 @@
 package com.simplecoding.cheforest.like.entity;
 
-import com.simplecoding.cheforest.common.BaseTimeEntity;
+import com.simplecoding.cheforest.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "BOARD_LIKE")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor @Builder
-public class Like extends BaseTimeEntity {
+@Table(name = "BOARD_LIKE",
+        uniqueConstraints = {
+                @UniqueConstraint(name="UQ_BOARD_LIKE",
+                                  columnNames = {"member_idx", "board_id", "recipe_id"})
+        })
+@SequenceGenerator(
+        name = "SEQ_BOARD_LIKE_JPA",
+        sequenceName = "SEQ_BOARD_LIKE",
+        allocationSize = 1
+)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Like {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BOARD_LIKE")
-    @SequenceGenerator(name = "SEQ_BOARD_LIKE", sequenceName = "SEQ_BOARD_LIKE", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BOARD_LIKE_JPA")
     @Column(name = "LIKE_ID")
-    private Long likeId;
+    private Long likeId;   // PK (시퀀스)
 
-    @Column(name = "BOARD_ID")
-    private Long boardId;
+    // 회원 (FK)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MEMBER_IDX", nullable = false)
+    private Member member;
 
-    @Column(name = "RECIPE_ID")
-    private Long recipeId;
+    private Long boardId;   // 게시글 ID (nullable)
 
-    @Column(name = "MEMBER_IDX")
-    private Long memberIdx;
+    private String recipeId;   // 레시피 ID (nullable)
 
-    @Column(name = "LIKE_DATE")
-    private LocalDateTime likeDate;
+    private String likeType;   // BOARD / RECIPE
 
-    @Column(name = "LIKE_TYPE")
-    private String likeType;
-
-    @Column(name = "LIKE_COUNT")
-    private Integer likeCount;
+    private LocalDateTime likeDate; // 등록일 (SYSDATE)
 }

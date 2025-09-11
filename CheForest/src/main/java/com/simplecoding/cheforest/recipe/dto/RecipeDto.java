@@ -1,20 +1,63 @@
 package com.simplecoding.cheforest.recipe.dto;
-import lombok.Data;
 
-@Data
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class RecipeDto {
+
     private String recipeId;
-    private String title;
-    private String category;
-    private String instruction;
-    private String thumbnail;
+
+    // 한글 정보
     private String titleKr;
     private String categoryKr;
     private String instructionKr;
-    private String ingredient;
-    private String measure;
-    private String area;
     private String ingredientKr;
     private String measureKr;
+
+    // 영어 정보
+    private String titleEn;
+    private String categoryEn;
+    private String instructionEn;
+    private String ingredientEn;
+    private String measureEn;
+
+    // 기타
+    private String thumbnail;
+    private String area;
     private Long likeCount;
+
+    // === 편의 메서드 (재료+계량 표시) ===
+    public List<String> getIngredientDisplayList() {
+        if (ingredientKr == null || ingredientKr.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String[] ingArr = ingredientKr.split(",");
+        String[] meaArr = (measureKr != null && !measureKr.trim().isEmpty())
+                ? measureKr.split(",")
+                : new String[0];
+
+        List<String> result = new ArrayList<>();
+
+        for (int i = 0; i < ingArr.length; i++) {
+            String ing = ingArr[i].trim();
+            String mea = (i < meaArr.length) ? meaArr[i].trim() : null;
+
+            if (mea != null && !mea.isEmpty()) {
+                result.add(ing + " (" + mea + ")");
+            } else {
+                result.add(ing);
+            }
+        }
+
+        return result;
+    }
 }

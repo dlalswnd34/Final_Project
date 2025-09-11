@@ -17,7 +17,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FileEntity extends BaseTimeEntity {
+public class File extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "FILE_SEQ_JPA")

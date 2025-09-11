@@ -2,7 +2,7 @@ package com.simplecoding.cheforest.file.service;
 
 import com.simplecoding.cheforest.common.MapStruct;
 import com.simplecoding.cheforest.file.dto.FileDto;
-import com.simplecoding.cheforest.file.entity.FileEntity;
+import com.simplecoding.cheforest.file.entity.File;
 import com.simplecoding.cheforest.file.repository.FileRepository;
 import com.simplecoding.cheforest.member.entity.Member;
 import jakarta.persistence.EntityManager;
@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -37,7 +36,7 @@ public class FileService {
         String storedFileName = UUID.randomUUID() + "_" + orgFileName;
 
         // 실제 저장 위치
-        File dest = new File(uploadDir + storedFileName);
+        java.io.File dest = new java.io.File(uploadDir + storedFileName);
         if (!dest.getParentFile().exists()) {
             dest.getParentFile().mkdirs();
         }
@@ -49,7 +48,7 @@ public class FileService {
         // DB에 저장할 경로는 웹에서 접근 가능한 상대경로
         String webPath = "/upload/" + storedFileName;
 
-        FileEntity fileEntity = FileEntity.builder()
+        File fileEntity = File.builder()
                 .fileName(storedFileName)
                 .filePath(webPath) // 웹 접근 경로 저장
                 .fileType(getFileExtension(orgFileName))
@@ -96,7 +95,7 @@ public class FileService {
     // 파일 삭제 (DB + 실제 파일)
     public void deleteFile(Long fileId) {
         fileRepository.findById(fileId).ifPresent(file -> {
-            File f = new File(uploadDir + file.getFileName());
+            java.io.File f = new java.io.File(uploadDir + file.getFileName());
             if (f.exists()) {
                 f.delete();
             }
@@ -108,7 +107,7 @@ public class FileService {
     public void deleteAllByTargetIdAndType(Long targetId, String useType) {
         fileRepository.findByUseTypeAndUseTargetId(useType, targetId)
                 .forEach(file -> {
-                    File f = new File("C:/upload/" + file.getFileName());
+                    java.io.File f = new java.io.File("C:/upload/" + file.getFileName());
                     if (f.exists()) {
                         f.delete();
                     }
@@ -126,5 +125,17 @@ public class FileService {
     private String getFileExtension(String fileName) {
         if (fileName == null || !fileName.contains(".")) return "";
         return fileName.substring(fileName.lastIndexOf(".") + 1);
+    }
+
+    // 회원 프로필 수정용
+    @Transactional
+    public FileDto replaceProfileImage(Long memberId, MultipartFile profileImage) throws IOException {
+        // 기존 프로필 최신 파일 조회 후 삭제
+        FileDto oldFile = getProfileFileByMemberId(memberId);
+        if (oldFile != null) {
+            deleteFile(oldFile.getId());
+        }
+        // 새 프로필 저장 (웹에서 접근 가능한 상대경로로 저장됨)
+        return saveFile(profileImage, "MEMBER", memberId, "PROFILE", memberId);
     }
 }

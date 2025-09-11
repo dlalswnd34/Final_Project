@@ -1,6 +1,9 @@
 package com.simplecoding.cheforest.common;
 
-import com.simplecoding.cheforest.file.entity.FileEntity;
+import com.simplecoding.cheforest.file.entity.File;
+import com.simplecoding.cheforest.like.dto.LikeRes;
+import com.simplecoding.cheforest.like.dto.LikeSaveReq;
+import com.simplecoding.cheforest.like.entity.Like;
 import org.mapstruct.*;
 import com.simplecoding.cheforest.member.dto.*;
 import com.simplecoding.cheforest.member.entity.Member;
@@ -9,10 +12,11 @@ import com.simplecoding.cheforest.board.entity.Board;
 import com.simplecoding.cheforest.review.dto.*;
 import com.simplecoding.cheforest.review.entity.Review;
 import com.simplecoding.cheforest.like.dto.LikeDto;
-import com.simplecoding.cheforest.like.entity.Like;
 import com.simplecoding.cheforest.file.dto.FileDto;
 import com.simplecoding.cheforest.recipe.dto.RecipeDto;
 import com.simplecoding.cheforest.recipe.entity.Recipe;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring",
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -62,16 +66,30 @@ public interface MapStruct {
 
     // ================= File =================
     @Mapping(source = "uploader.id", target = "uploaderId")
-    FileDto toDto(FileEntity fileEntity);
+    FileDto toDto(File file);
 
     @Mapping(source = "uploaderId", target = "uploader.id")
-    FileEntity toEntity(FileDto fileDto);
+    File toEntity(FileDto fileDto);
 
     // Like
-    Like toEntity(LikeDto dto);
-    LikeDto toDto(Like entity);
+    // Entity → DTO
+    LikeDto toDto(Like like);
+
+    // DTO → Entity
+    Like toEntity(LikeDto likeDto);
+
+    // SaveReq → Entity
+    Like toEntity(LikeSaveReq likeSaveReq);
+
+    // DTO → Res
+    LikeRes toRes(LikeDto likeDto);
 
     // Recipe
     Recipe toEntity(RecipeDto dto);
     RecipeDto toDto(Recipe entity);
+    List<RecipeDto> toDtoList(List<Recipe> entities);
+    List<Recipe> toEntityList(List<RecipeDto> dtos);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateFromDto(RecipeDto dto, @MappingTarget Recipe entity);
 }

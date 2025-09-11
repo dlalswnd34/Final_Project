@@ -1,13 +1,18 @@
 package com.simplecoding.cheforest.like.service;
 
-import com.simplecoding.cheforest.like.dto.LikeDto;
+import com.simplecoding.cheforest.board.entity.Board;
+import com.simplecoding.cheforest.board.repository.BoardRepository;
+import com.simplecoding.cheforest.like.dto.LikeRes;
+import com.simplecoding.cheforest.like.dto.LikeSaveReq;
 import com.simplecoding.cheforest.like.entity.Like;
 import com.simplecoding.cheforest.like.repository.LikeRepository;
-import com.simplecoding.cheforest.common.MapStruct;
+import com.simplecoding.cheforest.member.entity.Member;
+import com.simplecoding.cheforest.member.repository.MemberRepository;
+import com.simplecoding.cheforest.recipe.entity.Recipe;
+import com.simplecoding.cheforest.recipe.repository.RecipeRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -15,31 +20,123 @@ import java.util.List;
 public class LikeService {
 
     private final LikeRepository likeRepository;
-    private final MapStruct mapper;
+    private final MemberRepository memberRepository;
+    private final BoardRepository boardRepository;
+    private final RecipeRepository recipeRepository;
 
-    public LikeDto addLike(LikeDto dto) {
-        Like like = mapper.toEntity(dto);
-        Like saved = likeRepository.save(like);
-        return mapper.toDto(saved);
+    // 좋아요 여부 확인 (게시판)
+    public boolean existsBoardLike(Long memberIdx, Long boardId) {
+        Member member = memberRepository.findById(memberIdx).orElseThrow();
+        return likeRepository.existsByMemberAndBoardId(member, boardId);
     }
 
-    public void removeLike(Long likeId) {
-        likeRepository.deleteById(likeId);
+    // 좋아요 여부 확인 (레시피)
+    public boolean existsRecipeLike(Long memberIdx, String recipeId) {
+        Member member = memberRepository.findById(memberIdx).orElseThrow();
+        return likeRepository.existsByMemberAndRecipeId(member, recipeId);
     }
 
-    public List<LikeDto> getLikesByBoard(Long boardId) {
-        return likeRepository.findByBoardId(boardId).stream().map(mapper::toDto).toList();
+    // 좋아요 추가
+    public LikeRes addLike(LikeSaveReq req) {
+        Member member = memberRepository.findById(req.getMemberIdx()).orElseThrow();
+
+        if ("BOARD".equals(req.getLikeType())) {
+            Board board = boardRepository.findById(req.getBoardId()).orElseThrow();
+
+            Like like = Like.builder()
+                    .member(member)
+                    .boardId(board.getId())
+                    .likeType("BOARD")
+                    .build();
+            likeRepository.save(like);
+            likeRepository.increaseBoardLikeCount(board.getId());
+
+            Long latestCount = boardRepository.findById(board.getId())
+                    .orElseThrow().getLikeCount();
+
+            return LikeRes.builder()
+                    .likeId(like.getLikeId())
+                    .likeType("BOARD")
+                    .boardId(board.getId())
+                    .likeCount(latestCount)
+                    .build();
+
+        } else {
+            Recipe recipe = recipeRepository.findById(req.getRecipeId()).orElseThrow();
+
+            Like like = Like.builder()
+                    .member(member)
+                    .recipeId(recipe.getRecipeId())
+                    .likeType("RECIPE")
+                    .build();
+            likeRepository.save(like);
+            likeRepository.increaseRecipeLikeCount(recipe.getRecipeId());
+            // 최신 카운트 조회
+            Long latestCount = recipeRepository.findById(recipe.getRecipeId())
+                    .orElseThrow().getLikeCount();
+
+            return LikeRes.builder()
+                    .likeId(like.getLikeId())
+                    .likeType("RECIPE")
+                    .recipeId(recipe.getRecipeId())
+                    .likeCount(latestCount)
+                    .build();
+        }
     }
 
-    public List<LikeDto> getLikesByRecipe(Long recipeId) {
-        return likeRepository.findByRecipeId(recipeId).stream().map(mapper::toDto).toList();
+
+    // 좋아요 취소
+    public LikeRes removeLike(LikeSaveReq req) {
+        Member member = memberRepository.findById(req.getMemberIdx()).orElseThrow();
+
+        if ("BOARD".equals(req.getLikeType())) {
+            likeRepository.deleteByMemberAndBoardId(member, req.getBoardId());
+            likeRepository.decreaseBoardLikeCount(req.getBoardId());
+
+            Long latestCount = boardRepository.findById(req.getBoardId())
+                    .orElseThrow().getLikeCount();
+
+            return LikeRes.builder()
+                    .likeType("BOARD")
+                    .boardId(req.getBoardId())
+                    .likeCount(latestCount)
+                    .build();
+
+        } else {
+            likeRepository.deleteByMemberAndRecipeId(member, req.getRecipeId());
+            likeRepository.decreaseRecipeLikeCount(req.getRecipeId());
+
+            Long latestCount = recipeRepository.findById(req.getRecipeId())
+                    .orElseThrow().getLikeCount();
+
+            return LikeRes.builder()
+                    .likeType("RECIPE")
+                    .recipeId(req.getRecipeId())
+                    .likeCount(latestCount)
+                    .build();
+        }
     }
 
-    public boolean existsBoardLike(Long boardId, Long memberIdx) {
-        return likeRepository.existsByBoardIdAndMemberIdx(boardId, memberIdx);
+    // 좋아요 수 조회
+    public long countBoardLikes(Long boardId) {
+        return boardRepository.findById(boardId).orElseThrow().getLikeCount();
     }
 
-    public boolean existsRecipeLike(Long recipeId, Long memberIdx) {
-        return likeRepository.existsByRecipeIdAndMemberIdx(recipeId, memberIdx);
+    public long countRecipeLikes(String recipeId) {
+        return recipeRepository.findById(recipeId).orElseThrow().getLikeCount();
+    }
+
+    // 전체 삭제 (게시판/레시피/회원)
+    public void deleteAllByBoardId(Long boardId) {
+        likeRepository.deleteAllByBoardId(boardId);
+    }
+
+    public void deleteAllByRecipeId(String recipeId) {
+        likeRepository.deleteAllByRecipeId(recipeId);
+    }
+
+    public void deleteAllByMember(Long memberIdx) {
+        Member member = memberRepository.findById(memberIdx).orElseThrow();
+        likeRepository.deleteAllByMember(member);
     }
 }

@@ -1,51 +1,100 @@
 package com.simplecoding.cheforest.like.controller;
 
-import com.simplecoding.cheforest.like.dto.LikeDto;
+import com.simplecoding.cheforest.like.dto.LikeRes;
+import com.simplecoding.cheforest.like.dto.LikeSaveReq;
 import com.simplecoding.cheforest.like.service.LikeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequiredArgsConstructor
+@Slf4j
+@RestController
 @RequestMapping("/like")
+@RequiredArgsConstructor
 public class LikeController {
 
     private final LikeService likeService;
 
+    /** 👍 좋아요 등록 */
     @PostMapping("/add")
-    public String addLike(@ModelAttribute LikeDto dto) {
-        likeService.addLike(dto);
-        if ("BOARD".equals(dto.getLikeType())) {
-            return "redirect:/board/" + dto.getBoardId();
-        } else {
-            return "redirect:/recipe/" + dto.getRecipeId();
+    public LikeRes addLike(@RequestBody LikeSaveReq req) {
+        log.info("📥 addLike 요청: {}", req);
+
+        if ("BOARD".equalsIgnoreCase(req.getLikeType())) {
+            if (likeService.existsBoardLike(req.getMemberIdx(), req.getBoardId())) {
+                log.info("⚠️ 이미 좋아요 누름");
+                return LikeRes.builder()
+                        .likeType("BOARD")
+                        .boardId(req.getBoardId())
+                        .likeCount(likeService.countBoardLikes(req.getBoardId()))
+                        .build();
+            }
+        } else if ("RECIPE".equalsIgnoreCase(req.getLikeType())) {
+            if (likeService.existsRecipeLike(req.getMemberIdx(), req.getRecipeId())) {
+                log.info("⚠️ 이미 좋아요 누름");
+                return LikeRes.builder()
+                        .likeType("RECIPE")
+                        .recipeId(req.getRecipeId())
+                        .likeCount(likeService.countRecipeLikes(req.getRecipeId()))
+                        .build();
+            }
         }
+
+        return likeService.addLike(req);
     }
 
-    @PostMapping("/remove/{id}")
-    public String removeLike(@PathVariable("id") Long likeId,
-                             @RequestParam(required = false) Long boardId,
-                             @RequestParam(required = false) Long recipeId,
+    /** ❌ 좋아요 취소 */
+    @PostMapping("/remove")
+    public LikeRes removeLike(@RequestBody LikeSaveReq req) {
+        log.info("📥 removeLike 요청: {}", req);
+
+        if ("BOARD".equalsIgnoreCase(req.getLikeType())) {
+            if (!likeService.existsBoardLike(req.getMemberIdx(), req.getBoardId())) {
+                log.info("⚠️ 취소 요청했지만 좋아요 안 되어 있음");
+                return LikeRes.builder()
+                        .likeType("BOARD")
+                        .boardId(req.getBoardId())
+                        .likeCount(likeService.countBoardLikes(req.getBoardId()))
+                        .build();
+            }
+        } else if ("RECIPE".equalsIgnoreCase(req.getLikeType())) {
+            if (!likeService.existsRecipeLike(req.getMemberIdx(), req.getRecipeId())) {
+                log.info("⚠️ 취소 요청했지만 좋아요 안 되어 있음");
+                return LikeRes.builder()
+                        .likeType("RECIPE")
+                        .recipeId(req.getRecipeId())
+                        .likeCount(likeService.countRecipeLikes(req.getRecipeId()))
+                        .build();
+            }
+        }
+
+        return likeService.removeLike(req);
+    }
+
+    /** 📊 좋아요 수 조회 */
+    @GetMapping("/count")
+    public long getLikeCount(@RequestParam(required = false) Long boardId,
+                             @RequestParam(required = false) String recipeId,
                              @RequestParam String likeType) {
-        likeService.removeLike(likeId);
-        if ("BOARD".equals(likeType)) {
-            return "redirect:/board/" + boardId;
-        } else {
-            return "redirect:/recipe/" + recipeId;
+        if ("BOARD".equalsIgnoreCase(likeType) && boardId != null) {
+            return likeService.countBoardLikes(boardId);
+        } else if ("RECIPE".equalsIgnoreCase(likeType) && recipeId != null) {
+            return likeService.countRecipeLikes(recipeId);
         }
+        return 0L;
     }
 
-    @GetMapping("/board/{boardId}")
-    public String listBoardLikes(@PathVariable("boardId") Long boardId, Model model) {
-        model.addAttribute("likes", likeService.getLikesByBoard(boardId));
-        return "like/list";
-    }
-
-    @GetMapping("/recipe/{recipeId}")
-    public String listRecipeLikes(@PathVariable("recipeId") Long recipeId, Model model) {
-        model.addAttribute("likes", likeService.getLikesByRecipe(recipeId));
-        return "like/list";
+    /** 🔍 좋아요 여부 확인 */
+    @GetMapping("/check")
+    public boolean checkLike(@RequestParam Long memberIdx,
+                             @RequestParam String likeType,
+                             @RequestParam(required = false) Long boardId,
+                             @RequestParam(required = false) String recipeId) {
+        if ("BOARD".equalsIgnoreCase(likeType) && boardId != null) {
+            return likeService.existsBoardLike(memberIdx, boardId);
+        } else if ("RECIPE".equalsIgnoreCase(likeType) && recipeId != null) {
+            return likeService.existsRecipeLike(memberIdx, recipeId);
+        }
+        return false;
     }
 }
