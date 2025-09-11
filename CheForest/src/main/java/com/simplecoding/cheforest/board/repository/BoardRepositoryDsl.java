@@ -38,7 +38,7 @@ public class BoardRepositoryDsl {
         // content 조회 (DTO 매핑)
         List<BoardListDto> content = queryFactory
                 .select(Projections.constructor(BoardListDto.class,
-                        board.id,
+                        board.boardId,
                         board.category,
                         board.title,
                         member.nickname,
@@ -49,7 +49,7 @@ public class BoardRepositoryDsl {
                 .from(board)
                 .join(board.writer, member)  // Board ↔ Member 조인
                 .where(builder)
-                .orderBy(board.id.desc())
+                .orderBy(board.boardId.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -70,7 +70,7 @@ public class BoardRepositoryDsl {
 
         return queryFactory
                 .select(Projections.constructor(BoardDetailDto.class,
-                        board.id,
+                        board.boardId,
                         board.category,
                         board.title,
                         board.content,
@@ -83,7 +83,7 @@ public class BoardRepositoryDsl {
                 ))
                 .from(board)
                 .join(board.writer, member)
-                .where(board.id.eq(boardId))
+                .where(board.boardId.eq(boardId))
                 .fetchOne();
     }
 
@@ -94,7 +94,7 @@ public class BoardRepositoryDsl {
 
         return queryFactory
                 .select(Projections.constructor(BoardListDto.class,
-                        board.id,
+                        board.boardId,
                         board.category,
                         board.title,
                         member.nickname,
@@ -104,7 +104,7 @@ public class BoardRepositoryDsl {
                 ))
                 .from(board)
                 .join(board.writer, member)
-                .orderBy(board.likeCount.desc(), board.id.desc())
+                .orderBy(board.likeCount.desc(), board.boardId.desc())
                 .limit(4)
                 .fetch();
     }
@@ -116,7 +116,7 @@ public class BoardRepositoryDsl {
 
         return queryFactory
                 .select(Projections.constructor(BoardListDto.class,
-                        board.id,
+                        board.boardId,
                         board.category,
                         board.title,
                         member.nickname,
@@ -127,7 +127,7 @@ public class BoardRepositoryDsl {
                 .from(board)
                 .join(board.writer, member)
                 .where(board.category.eq(category))
-                .orderBy(board.likeCount.desc(), board.id.desc())
+                .orderBy(board.likeCount.desc(), board.boardId.desc())
                 .limit(4)
                 .fetch();
     }

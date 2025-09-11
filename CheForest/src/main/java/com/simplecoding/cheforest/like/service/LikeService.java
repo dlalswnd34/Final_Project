@@ -45,19 +45,19 @@ public class LikeService {
 
             Like like = Like.builder()
                     .member(member)
-                    .boardId(board.getId())
+                    .boardId(board.getBoardId())
                     .likeType("BOARD")
                     .build();
             likeRepository.save(like);
-            likeRepository.increaseBoardLikeCount(board.getId());
+            likeRepository.increaseBoardLikeCount(board.getBoardId());
 
-            Long latestCount = boardRepository.findById(board.getId())
+            Long latestCount = boardRepository.findById(board.getBoardId())
                     .orElseThrow().getLikeCount();
 
             return LikeRes.builder()
                     .likeId(like.getLikeId())
                     .likeType("BOARD")
-                    .boardId(board.getId())
+                    .boardId(board.getBoardId())
                     .likeCount(latestCount)
                     .build();
 
