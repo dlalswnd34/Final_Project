@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -17,64 +16,58 @@
 
 <jsp:include page="/common/header.jsp" />
 
-
 <div class="main-flex">
-    <!-- 사이드바 영역 -->
     <div class="sidebar">
         <jsp:include page="/common/sidebar.jsp" />
     </div>
 
-    <!-- 본문 컨텐츠 영역 -->
     <div class="content-area">
-
-        <!-- 카테고리 탭 (게시판 동일) -->
+        <!-- 카테고리 탭 -->
         <div class="category-tabs">
-            <a href="${pageContext.request.contextPath}/recipe/recipe.do"
-               class="category-tab${empty param.categoryKr ? ' active' : ''}">전체</a>
-            <a href="${pageContext.request.contextPath}/recipe/recipe.do?categoryKr=한식&pageIndex=1"
-               class="category-tab${param.categoryKr eq '한식' ? ' active' : ''}">한식</a>
-            <a href="${pageContext.request.contextPath}/recipe/recipe.do?categoryKr=양식&pageIndex=1"
-               class="category-tab${param.categoryKr eq '양식' ? ' active' : ''}">양식</a>
-            <a href="${pageContext.request.contextPath}/recipe/recipe.do?categoryKr=중식&pageIndex=1"
-               class="category-tab${param.categoryKr eq '중식' ? ' active' : ''}">중식</a>
-            <a href="${pageContext.request.contextPath}/recipe/recipe.do?categoryKr=일식&pageIndex=1"
-               class="category-tab${param.categoryKr eq '일식' ? ' active' : ''}">일식</a>
-            <a href="${pageContext.request.contextPath}/recipe/recipe.do?categoryKr=디저트&pageIndex=1"
-               class="category-tab${param.categoryKr eq '디저트' ? ' active' : ''}">디저트</a>
+            <a href="${pageContext.request.contextPath}/recipe/list"
+               class="category-tab${empty categoryKr ? ' active' : ''}">전체</a>
+            <a href="${pageContext.request.contextPath}/recipe/list?categoryKr=한식"
+               class="category-tab${categoryKr eq '한식' ? ' active' : ''}">한식</a>
+            <a href="${pageContext.request.contextPath}/recipe/list?categoryKr=양식"
+               class="category-tab${categoryKr eq '양식' ? ' active' : ''}">양식</a>
+            <a href="${pageContext.request.contextPath}/recipe/list?categoryKr=중식"
+               class="category-tab${categoryKr eq '중식' ? ' active' : ''}">중식</a>
+            <a href="${pageContext.request.contextPath}/recipe/list?categoryKr=일식"
+               class="category-tab${categoryKr eq '일식' ? ' active' : ''}">일식</a>
+            <a href="${pageContext.request.contextPath}/recipe/list?categoryKr=디저트"
+               class="category-tab${categoryKr eq '디저트' ? ' active' : ''}">디저트</a>
         </div>
 
         <!-- 검색창 -->
-        <form action="${pageContext.request.contextPath}/recipe/recipe.do"
-              method="get" class="search-area">
-            <input type="hidden" name="categoryKr" value="${param.categoryKr}" />
+        <form action="${pageContext.request.contextPath}/recipe/list" method="get" class="search-area">
+            <input type="hidden" name="categoryKr" value="${categoryKr}" />
             <input type="text" class="search-input" id="searchKeyword"
                    name="searchKeyword"
-                   value="${empty param.searchKeyword ? '' : param.searchKeyword}"
+                   value="<c:out value='${searchKeyword}'/>"
                    placeholder="레시피명으로 검색">
             <button type="submit" class="search-btn">
-                <div class="sbtn">
-                    <i class="bi bi-search"></i>
-                </div>
+                <i class="bi bi-search"></i>
             </button>
         </form>
-        <!-- 레시피 리스트 영역 -->
+
+        <!-- 레시피 리스트 -->
         <div class="recipe-list-section">
             <div class="recipe-grid">
-                <c:forEach var="recipeList" items="${recipeList}">
+                <c:forEach var="recipe" items="${recipeList}">
                     <div class="recipe-card">
-                        <a href="${pageContext.request.contextPath}/recipe/view.do?recipeId=${recipeList.recipeId}&categoryKr=${param.categoryKr}&pageIndex=${pageIndex}">
-                            <img src="${recipeList.thumbnail}"
-                        	     loading="lazy"
+                        <a href="${pageContext.request.contextPath}/recipe/view?recipeId=${recipe.recipeId}">
+                            <img src="<c:out value='${recipe.thumbnail}'/>"
+                                 loading="lazy"
                                  alt="썸네일" class="recipe-thumb-img" />
                             <div class="recipe-title">
-                                <b>${recipeList.titleKr}</b>
+                                <b><c:out value="${recipe.titleKr}"/></b>
                             </div>
                         </a>
                     </div>
                 </c:forEach>
-                 <c:if test="${empty recipeList}">
+                <c:if test="${empty recipeList}">
                     <div class="no-recipe-msg">레시피가 없습니다.</div>
-                </c:if> 
+                </c:if>
             </div>
         </div>
 
@@ -84,37 +77,28 @@
         </div>
     </div>
 </div>
-<!-- 페이지네이션 플러그인 -->
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/twbs-pagination@1.4.2/jquery.twbsPagination.min.js"></script>
 
 <script>
-$('#pagination').twbsPagination({
-    totalPages: ${paginationInfo.totalPageCount},
-    startPage: parseInt("${paginationInfo.currentPageNo}"),
-    visiblePages: 10,
-    initiateStartPageClick: false,
-    first: '&laquo;',
-    prev: '&lt;',
-    next: '&gt;',
-    last: '&raquo;',
-    onPageClick: function (event, page) {
-        var params = new URLSearchParams(window.location.search);
-        params.set('pageIndex', page);
-        window.location.search = params.toString();
-    }
-});
-
-// 카테고리 select 유지 JS (boardlist.js와 동일)
-document.addEventListener("DOMContentLoaded", function () {
-    const hiddenCategoryInput = document.querySelector("input[name='categoryKr']");
-    const currentCategory = new URLSearchParams(window.location.search).get("categoryKr");
-    if (hiddenCategoryInput && currentCategory) {
-        hiddenCategoryInput.value = currentCategory;
-    }
-});
+    $('#pagination').twbsPagination({
+        totalPages: ${totalPages},                // ✅ 컨트롤러에서 내려준 값 사용
+        startPage: ${currentPage + 1},            // JPA Page는 0-based → +1
+        visiblePages: 10,
+        initiateStartPageClick: false,
+        first: '&laquo;',
+        prev: '&lt;',
+        next: '&gt;',
+        last: '&raquo;',
+        onPageClick: function (event, page) {
+            var params = new URLSearchParams(window.location.search);
+            params.set('page', page - 1);         // JPA는 0-based
+            window.location.search = params.toString();
+        }
+    });
 </script>
-<!-- 꼬리말 jsp include-->
-	<jsp:include page="/common/footer.jsp"></jsp:include>
+
+<jsp:include page="/common/footer.jsp"/>
 </body>
 </html>

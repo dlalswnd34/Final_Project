@@ -1,23 +1,27 @@
 package com.simplecoding.cheforest.member.controller;
 
+import com.simplecoding.cheforest.file.service.FileService;
 import com.simplecoding.cheforest.member.dto.*;
 import com.simplecoding.cheforest.member.entity.Member;
-import com.simplecoding.cheforest.member.service.MemberService;
 import com.simplecoding.cheforest.member.service.EmailService;
+import com.simplecoding.cheforest.member.service.MemberService;
 import com.simplecoding.cheforest.member.service.social.KakaoLoginService;
-import com.simplecoding.cheforest.member.dto.SocialUserInfo;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 @Slf4j
 @Controller
@@ -27,6 +31,7 @@ public class MemberController {
     private final MemberService memberService;
     private final EmailService emailService;
     private final KakaoLoginService kakaoLoginService;
+    private final FileService fileService;
 
     // ✅ 회원가입 처리
     @PostMapping("/member/register")
@@ -217,6 +222,80 @@ public class MemberController {
         }
 
         return "member/findpasswordform";
+    }
+
+    // 수정페이지 열기
+    @GetMapping("/member/edit")
+    public String showEditForm(HttpSession session, Model model) {
+        // 세션에는 MemberDetailDto가 들어갑니다 (로그인 시 authenticate()로 저장)
+        MemberDetailDto loginUser = (MemberDetailDto) session.getAttribute("loginUser");
+        if (loginUser == null || loginUser.getMemberIdx() == null) {
+            return "redirect:/member/login";
+        }
+
+        // 최신 회원 정보 조회 (Service 시그니처 준수)
+        MemberDetailDto memberInfo = memberService.selectMemberByIdx(loginUser.getMemberIdx());
+
+        // 임시 비밀번호 경고
+        if ("Y".equals(memberInfo.getTempPasswordYn())) {
+            model.addAttribute("showTempPasswordWarning", true);
+        }
+
+        model.addAttribute("member", memberInfo);
+        // 기존 설계에 맞춰 view 이름은 필요에 맞게 사용: "member/edit" 또는 "mypage/mycorrection"
+        return "member/edit";
+    }
+
+    // 수정 처리
+    @PostMapping("/member/update")
+    public String updateMemberInfo(
+            @ModelAttribute MemberUpdateReq updateReq,                 // ✅ DTO로 직접 바인딩
+            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
+            @RequestParam(value = "originProfileImage", required = false) String originProfileImage,
+            HttpSession session,
+            RedirectAttributes rttr
+    ) throws IOException {
+
+        MemberDetailDto loginUser = (MemberDetailDto) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            return "redirect:/member/login";
+        }
+        Long memberIdx = loginUser.getMemberIdx();
+
+        // (선택) 비밀번호 확인 검증
+        if (updateReq.getPassword() != null && !updateReq.getPassword().isEmpty()) {
+            if (updateReq.getConfirmPassword() == null ||
+                    !updateReq.getPassword().equals(updateReq.getConfirmPassword())) {
+                rttr.addFlashAttribute("error", "비밀번호 확인이 일치하지 않습니다.");
+                return "redirect:/member/edit";
+            }
+        }
+
+        // 프로필 이미지 교체 처리
+        if (profileImage != null && !profileImage.isEmpty()) {
+            // ✅ FileService에 새로 추가한 replaceProfileImage 사용
+            var newFile = fileService.replaceProfileImage(memberIdx, profileImage);
+            // 저장된 웹 경로를 MemberUpdateReq.profile에 반영
+            updateReq.setProfile(newFile.getFilePath());
+        } else {
+            // 새 업로드가 없다면:
+            // 1) originProfileImage가 전달되면 그 값으로 유지,
+            // 2) 전달 안 되면 null 그대로 → Service에서 변경 안 함
+            if (originProfileImage != null && !originProfileImage.isBlank()) {
+                updateReq.setProfile(originProfileImage);
+            }
+        }
+
+        // 회원 정보 업데이트 (닉네임/비번/프로필 등)
+        memberService.updateMember(memberIdx, updateReq);
+
+        // 세션 갱신 (DB 최신값 재조회)
+        MemberDetailDto refreshed = memberService.selectMemberByIdx(memberIdx);
+        session.setAttribute("loginUser", refreshed);
+
+        rttr.addFlashAttribute("updateSuccess", true);
+        // 중간 설계 기준: 마이페이지 목록 화면으로 이동 (현재 컨트롤러는 "/mypage", 메서드는 "/mypage")
+        return "redirect:/mypage/mypage";
     }
 
     // 회원 탈퇴

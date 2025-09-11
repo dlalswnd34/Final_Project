@@ -1,67 +1,80 @@
 package com.simplecoding.cheforest.recipe.service;
 
+import com.simplecoding.cheforest.common.MapStruct;
 import com.simplecoding.cheforest.recipe.dto.RecipeDto;
 import com.simplecoding.cheforest.recipe.entity.Recipe;
 import com.simplecoding.cheforest.recipe.repository.RecipeRepository;
-import com.simplecoding.cheforest.common.MapStruct;
+import com.simplecoding.cheforest.recipe.util.ImageDownloader;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class RecipeService {
 
     private final RecipeRepository recipeRepository;
-    private final MapStruct mapper;
+    private final MapStruct mapStruct;
+    private final ImageDownloader imageDownloader;
 
-    public RecipeDto save(RecipeDto dto) {
-        Recipe recipe = mapper.toEntity(dto);
-        Recipe saved = recipeRepository.save(recipe);
-        return mapper.toDto(saved);
+    // 1. 페이징 + 검색
+    public Page<RecipeDto> getRecipeList(String categoryKr, String titleKr, Pageable pageable) {
+        return recipeRepository
+                .findByCategoryKrContainingAndTitleKrContaining(categoryKr, titleKr, pageable)
+                .map(mapStruct::toDto);
     }
 
-    public void delete(String recipeId) {
-        recipeRepository.deleteById(recipeId);
+    // 2. 상세 조회
+    public RecipeDto getRecipeDetail(String recipeId) {
+        Recipe recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new IllegalArgumentException("레시피 없음: " + recipeId));
+        return mapStruct.toDto(recipe);
     }
 
-    public RecipeDto getRecipe(String recipeId) {
-        return recipeRepository.findById(recipeId).map(mapper::toDto)
-                .orElseThrow(() -> new IllegalArgumentException("레시피 없음"));
+    // 3. 랜덤 레시피 조회
+    public List<RecipeDto> getRandomRecipes(String categoryKr, int count) {
+        return mapStruct.toDtoList(recipeRepository.findRandomByCategory(categoryKr, count));
     }
 
-    public List<RecipeDto> getAllRecipes() {
-        return recipeRepository.findAll().stream().map(mapper::toDto).toList();
+    // 4. 인기 레시피 TOP10
+    public List<RecipeDto> getBestRecipes() {
+        return mapStruct.toDtoList(recipeRepository.findTop10ByOrderByLikeCountDescRecipeIdDesc());
     }
 
-    public boolean existsRecipe(String recipeId) {
-        return recipeRepository.existsByRecipeId(recipeId);
-    }
+    // 5. 썸네일 다운로드 & 로컬 캐싱
+    public void downloadAndCacheAllImages() {
+        List<Recipe> recipes = recipeRepository.findAll();
 
-    // ✅ 카테고리별 랜덤 레시피
-    public List<RecipeDto> selectRandomRecipesByCategory(String category, int limit) {
-        List<RecipeDto> all = recipeRepository.findByCategoryKr(category)
-                .stream().map(mapper::toDto)
-                .collect(Collectors.toList());
-        Collections.shuffle(all); // 무작위 섞기
-        return all.stream().limit(limit).toList();
-    }
+        log.info("🔁 총 {}개의 레시피 썸네일 처리 시작", recipes.size());
 
-    // ✅ 인기 레시피 (좋아요 순 Top5 예시)
-    public List<RecipeDto> selectBestRecipes() {
-        return recipeRepository.findAll().stream()
-                .sorted((a, b) -> {
-                    Long likeA = (a.getLikeCount() == null ? 0L : a.getLikeCount());
-                    Long likeB = (b.getLikeCount() == null ? 0L : b.getLikeCount());
-                    return likeB.compareTo(likeA); // 내림차순
-                })
-                .limit(5)
-                .map(mapper::toDto)
-                .toList();
+        for (Recipe recipe : recipes) {
+            String recipeId = recipe.getRecipeId();
+            String imageUrl = recipe.getThumbnail();
+
+            if (imageUrl == null || imageUrl.isBlank()) {
+                log.warn("❌ [{}] 무시됨 - URL 없음", recipeId);
+                continue;
+            }
+
+            try {
+                String localPath = "images/recipes/" + recipeId;
+                imageDownloader.downloadImage(imageUrl, localPath);
+
+                // DB 업데이트
+                recipe.setThumbnail("/" + localPath + ".jpg");
+                recipeRepository.save(recipe);
+
+                log.info("✅ [{}] 처리 완료 - DB에 썸네일 경로 업데이트", recipeId);
+            } catch (Exception e) {
+                log.error("❌ [{}] 다운로드 실패 - URL: {}", recipeId, imageUrl, e);
+            }
+        }
+
+        log.info("✅ 전체 썸네일 처리 완료");
     }
 }
