@@ -1,4 +1,4 @@
-package egovframework.example.event.web;
+package com.simplecoding.cheforest.event.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class EventController {
 
-	@GetMapping("/event/test.do")
+	@GetMapping("/event/test")
 	public String showEventTest() {
 		
 		return "/event/test";

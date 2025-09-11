@@ -32,7 +32,7 @@
 	<!-- 로고 들어가야되는 위치 -->
 	<!-- 메뉴바 추가 -->
 	<div class="search-bar">
-		<form id="mainSearchForm" action="/search/all.do" method="get"
+		<form id="mainSearchForm" action="/search/all" method="get"
 			autocomplete="off">
 			<input type="text" id="searchKeyword" name="keyword"
 				placeholder="원하는 레시피를 검색해보세요 !" />
@@ -40,9 +40,9 @@
 	</div>
 	 <!-- 메뉴바 추가 -->
 	 <div class="home-shortcut-bar">
-		<a href="/recipe/recipe.do">레시피</a> <span>|</span> <a
-			href="/board/board.do">게시판</a> <span>|</span> <a
-			href="/event/test.do">이벤트</a>
+		<a href="/recipe/list">레시피</a> <span>|</span> <a
+			href="/board/list">게시판</a> <span>|</span> <a
+			href="/event/test">이벤트</a>
 	</div>  
 	<div class="scroll-down-wrapper">
 		<button class="scroll-down-btn" onclick="scrollToRecipes()">▼</button>
@@ -61,7 +61,7 @@
 				<div class="recipes slider">
 					<c:forEach var="recipe" items="${bestRecipes}">
 						<a class="recipe"
-							href="/recipe/view.do?recipeId=${recipe.recipeId}"> <img
+							href="/recipe/view?recipeId=${recipe.recipeId}"> <img
 							src="${recipe.thumbnail}" alt="${recipe.titleKr}">
 							<p class="title">${recipe.titleKr}</p>
 							<p class="like">❤ ${recipe.likeCount}</p>
@@ -78,13 +78,13 @@
 					class="section-title d-flex justify-content-between align-items-center">
 					<span><img src="/images/favicon.png" class="section-icon"
 						alt="메인로고">&nbsp;한식 레시피</span> <a
-						href="/recipe/recipe.do?categoryKr=한식&pageIndex=1"
+						href="/recipe/recipe?categoryKr=한식&pageIndex=1"
 						class="more-link">+</a>
 				</div>
 				<div class="recipes">
 					<c:forEach var="recipe" items="${koreanRecipe}">
 						<a class="recipe"
-							href="${pageContext.request.contextPath}/recipe/view.do?recipeId=${recipe.recipeId}">
+							href="${pageContext.request.contextPath}/recipe/view?recipeId=${recipe.recipeId}">
 							<img src="${recipe.thumbnail}" alt="${recipe.titleKr}">
 							<p class="title">${recipe.titleKr}</p>
 						</a>
@@ -100,13 +100,13 @@
 					class="section-title d-flex justify-content-between align-items-center">
 					<span><img src="/images/favicon.png" class="section-icon"
 						alt="메인로고">&nbsp;양식 레시피</span> <a
-						href="/recipe/recipe.do?categoryKr=양식&pageIndex=1"
+						href="/recipe/recipe?categoryKr=양식&pageIndex=1"
 						class="more-link">+</a>
 				</div>
 				<div class="recipes">
 					<c:forEach var="recipe" items="${westernRecipe}">
 						<a class="recipe"
-							href="${pageContext.request.contextPath}/recipe/view.do?recipeId=${recipe.recipeId}">
+							href="${pageContext.request.contextPath}/recipe/view?recipeId=${recipe.recipeId}">
 							<img src="${recipe.thumbnail}" alt="${recipe.titleKr}">
 							<p class="title">${recipe.titleKr}</p>
 						</a>
@@ -121,13 +121,13 @@
 					class="section-title d-flex justify-content-between align-items-center">
 					<span><img src="/images/favicon.png" class="section-icon"
 						alt="메인로고">&nbsp;중식 레시피</span> <a
-						href="/recipe/recipe.do?categoryKr=중식&pageIndex=1"
+						href="/recipe/recipe?categoryKr=중식&pageIndex=1"
 						class="more-link">+</a>
 				</div>
 				<div class="recipes">
 					<c:forEach var="recipe" items="${chineseRecipe}">
 						<a class="recipe"
-							href="${pageContext.request.contextPath}/recipe/view.do?recipeId=${recipe.recipeId}">
+							href="${pageContext.request.contextPath}/recipe/view?recipeId=${recipe.recipeId}">
 							<img src="${recipe.thumbnail}" alt="${recipe.titleKr}">
 							<p class="title">${recipe.titleKr}</p>
 						</a>
@@ -142,13 +142,13 @@
 					class="section-title d-flex justify-content-between align-items-center">
 					<span><img src="/images/favicon.png" class="section-icon"
 						alt="메인로고">&nbsp;일식 레시피</span> <a
-						href="/recipe/recipe.do?categoryKr=일식&pageIndex=1"
+						href="/recipe/recipe?categoryKr=일식&pageIndex=1"
 						class="more-link">+</a>
 				</div>
 				<div class="recipes">
 					<c:forEach var="recipe" items="${japaneseRecipe}">
 						<a class="recipe"
-							href="${pageContext.request.contextPath}/recipe/view.do?recipeId=${recipe.recipeId}">
+							href="${pageContext.request.contextPath}/recipe/view?recipeId=${recipe.recipeId}">
 							<img src="${recipe.thumbnail}" alt="${recipe.titleKr}">
 							<p class="title">${recipe.titleKr}</p>
 						</a>
@@ -163,13 +163,13 @@
 					class="section-title d-flex justify-content-between align-items-center">
 					<span><img src="/images/favicon.png" class="section-icon"
 						alt="메인로고">&nbsp;디저트 레시피</span> <a
-						href="/recipe/recipe.do?categoryKr=디저트&pageIndex=1"
+						href="/recipe/recipe?categoryKr=디저트&pageIndex=1"
 						class="more-link">+</a>
 				</div>
 				<div class="recipes">
 					<c:forEach var="recipe" items="${dessertRecipe}">
 						<a class="recipe"
-							href="${pageContext.request.contextPath}/recipe/view.do?recipeId=${recipe.recipeId}">
+							href="${pageContext.request.contextPath}/recipe/view?recipeId=${recipe.recipeId}">
 							<img src="${recipe.thumbnail}" alt="${recipe.titleKr}">
 							<p class="title">${recipe.titleKr}</p>
 						</a>
@@ -178,7 +178,7 @@
 			</div>
 		</div>
 	</section>
-	<jsp:include page="/WEB-INF/views/common/footer.jsp" />
+	<jsp:include page="/common/footer.jsp" />
 
 
 	<script>

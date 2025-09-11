@@ -22,4 +22,21 @@ public class HomeController {
 		model.addAttribute("bestRecipes", recipeService.getBestRecipes());
 		return "home"; // home.jsp
 	}
+
+	@GetMapping("/search/all")
+	public String search(Model model) {
+		return "search/searchAll";
+	}
+
+
+
+
+
+
+
+
+
+
+
+
 }

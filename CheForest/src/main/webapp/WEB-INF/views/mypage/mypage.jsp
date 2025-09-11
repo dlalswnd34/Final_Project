@@ -60,7 +60,7 @@
                 <tbody>
                 <c:forEach var="post" items="${myPosts}">
                     <tr>
-                        <td class="text-start"><a href="${pageContext.request.contextPath}/board/view.do?boardId=${post.boardId}" class="post-title-link">${post.title}</a></td>
+                        <td class="text-start"><a href="${pageContext.request.contextPath}/board/view?boardId=${post.boardId}" class="post-title-link">${post.title}</a></td>
                         <td class="text-center"><fmt:formatDate value="${post.writeDate}" pattern="yyyy-MM-dd" /></td>
                         <td class="text-center">${post.viewCount}</td>
                         <td class="text-center">${post.likeCount}</td>
@@ -112,7 +112,7 @@
                 <tbody>
                 <c:forEach var="recipe" items="${likedRecipes}">
                     <tr>
-                        <td class="text-start"><a href="${pageContext.request.contextPath}/recipe/view.do?recipeId=${recipe.recipeId}" class="post-title-link">${recipe.recipeTitle}</a></td>
+                        <td class="text-start"><a href="${pageContext.request.contextPath}/recipe/view?recipeId=${recipe.recipeId}" class="post-title-link">${recipe.recipeTitle}</a></td>
                         <td class="text-center">${recipe.recipeCategory}</td>
                         <td class="text-center">${recipe.viewCount}</td>
                         <td class="text-center">${recipe.recipeLikeCount}</td>
@@ -140,7 +140,7 @@
                 <tbody>
                 <c:forEach var="like" items="${likedPosts}">
                     <tr>
-                        <td class="text-start"><a href="${pageContext.request.contextPath}/board/view.do?boardId=${like.boardId}" class="post-title-link">${like.title}</a></td>
+                        <td class="text-start"><a href="${pageContext.request.contextPath}/board/view?boardId=${like.boardId}" class="post-title-link">${like.title}</a></td>
                         <td class="text-center">${like.writerName}</td>
                         <td class="text-center"><fmt:formatDate value="${like.writeDate}" pattern="yyyy-MM-dd" /></td>
                         <td class="text-center">${like.viewCount}</td>

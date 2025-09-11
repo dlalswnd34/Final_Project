@@ -42,7 +42,7 @@
         <!-- 문의 폼: 기본은 숨김, 버튼 클릭시 노출 -->
         <c:if test="${not empty sessionScope.loginUser}">
             <div class="faq-question-form" id="faq-question-form" style="display:none;">
-                <form id="questionForm" action="/faq/ask.do" method="post">
+                <form id="questionForm" action="/faq/ask" method="post">
                     <div class="qform-row">
                         <label>제목</label>
                         <input type="text" name="title" required class="qform-input">

@@ -22,14 +22,14 @@
             <c:when test="${not empty sessionScope.loginUser}">
                 <div class="top-text-links">
                     <%-- <span>${sessionScope.loginUser.nickname}님 환영합니다!</span> --%>
-                    <a href="/mypage/mypage.do">마이페이지</a>
-                    <a href="/member/logout.do">로그아웃</a>
+                    <a href="/mypage/mypage">마이페이지</a>
+                    <a href="/member/logout">로그아웃</a>
                 </div>
             </c:when>
             <c:otherwise>
                 <div class="top-text-links">
-                    <a href="/member/login.do">로그인</a>
-                    <a href="/member/login.do?mode=signup">회원가입</a>
+                    <a href="/member/login">로그인</a>
+                    <a href="/member/login?mode=signup">회원가입</a>
                 </div>
             </c:otherwise>
         </c:choose>
@@ -40,10 +40,10 @@
                 <i class="bi bi-grid-3x3-gap-fill"></i>
             </button>
             <div class="app-menu-dropdown" id="appMenuDropdown">
-                <a href="/recipe/recipe.do">레시피</a>
+                <a href="/recipe/recipe">레시피</a>
                 <!-- 7/14 hyj 전체 게시판으로 이동하도록 코드 수정 -->
-                <a href="${pageContext.request.contextPath}/board/board.do">게시판</a>
-                <a href="http://localhost:8080/event/test.do">이벤트</a>
+                <a href="${pageContext.request.contextPath}/board/board">게시판</a>
+                <a href="/event/test">이벤트</a>
             </div>
         </div>
     </div>

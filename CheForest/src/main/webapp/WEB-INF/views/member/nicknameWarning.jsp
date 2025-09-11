@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <c:if test="${not empty sessionScope.nicknameAutoRenamedYn}">
+<c:if test="${not empty sessionScope.nicknameAutoRenamedYn}">
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -19,7 +20,7 @@
             );
 
             if (result) {
-                location.href = "${pageContext.request.contextPath}/mypage/mycorrection.do";
+                location.href = "${pageContext.request.contextPath}/mypage/mycorrection";
             } else {
                 location.href = "${pageContext.request.contextPath}/";
             }

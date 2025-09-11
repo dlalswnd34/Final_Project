@@ -12,12 +12,12 @@
     <script>
         function goLogin() {
             const redirect = location.pathname + location.search;  // ⚠️ 그대로 사용 (search는 이미 인코딩된 상태)
-            location.href = '/member/login.do?redirect=' + encodeURIComponent(redirect);
+            location.href = '/member/login?redirect=' + encodeURIComponent(redirect);
         }
 
         function goLogout() {
             const redirect = location.pathname + location.search;
-            location.href = '/member/logout.do?redirect=' + encodeURIComponent(redirect);
+            location.href = '/member/logout?redirect=' + encodeURIComponent(redirect);
         }
     </script>
 </head>
@@ -41,13 +41,13 @@
                 <c:choose>
                     <c:when test="${fn:contains(pageContext.request.requestURI, '/mypage')}">
                         <button class="card-menu-btn edit-btn" type="button"
-                                onclick="location.href='/mypage/mycorrection.do'">
+                                onclick="location.href='/mypage/mycorrection'">
                             <i class="bi bi-person"></i>내 정보 수정
                         </button>
                     </c:when>
                     <c:otherwise>
                         <button class="card-menu-btn mypage-btn" type="button"
-                                onclick="location.href='/mypage/mypage.do'">
+                                onclick="location.href='/mypage/mypage'">
                             <i class="bi bi-person"></i>마이페이지
                         </button>
                     </c:otherwise>

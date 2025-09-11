@@ -49,7 +49,7 @@
       }
 
       $.ajax({
-        url: "/checkLike.do",
+        url: "/checkLike",
         type: "GET",
         data: { boardId, memberIdx },
         success: function (exists) {
@@ -60,7 +60,7 @@
       });
 
       $.ajax({
-        url: "/countLike.do",
+        url: "/countLike",
         type: "GET",
         data: { boardId },
         success: function (count) {
@@ -70,7 +70,7 @@
 
       $btn.on("click", function () {
         const isLiked = $btn.text() === "♥";
-        const url = isLiked ? "/cancelLike.do" : "/addLike.do";
+        const url = isLiked ? "/cancelLike" : "/addLike";
 
         $.ajax({
           url: url,
@@ -81,7 +81,7 @@
             $btn.text(isLiked ? "♡" : "♥").toggleClass("liked");
 
             $.ajax({
-              url: "/countLike.do",
+              url: "/countLike",
               type: "GET",
               data: { boardId },
               success: function (count) {

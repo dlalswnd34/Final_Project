@@ -26,7 +26,7 @@
 				<h3 class="mb-4">
 					<i class="bi bi-search"></i> 요리 게시글 작성
 				</h3>
-				<form action="${pageContext.request.contextPath}/board/add.do"
+				<form action="${pageContext.request.contextPath}/board/add"
 					method="post" enctype="multipart/form-data">
 					<!-- 카테고리 -->
 					<label for="category" class="form-label">카테고리</label> <select

@@ -24,7 +24,7 @@
 	<div class="main-flex">
 		<!-- 사이드바 영역 -->
 		<div class="sidebar">
-			<jsp:include page="/WEB-INF/views/common/sidebar.jsp" />
+			<jsp:include page="/common/sidebar.jsp" />
 		</div>
 
 		<!-- 본문 컨텐츠 영역 -->
@@ -33,25 +33,25 @@
 
 			<!-- 카테고리 탭 -->
 			<div class="category-tabs">
-				<a href="${pageContext.request.contextPath}/board/board.do"
+				<a href="${pageContext.request.contextPath}/board/board"
 					class="category-tab${empty param.category ? ' active' : ''}">전체</a>
 
 				<!-- 한식 탭: category가 정확히 '한식'일 때만 활성 -->
 				<a
-					href="${pageContext.request.contextPath}/board/board.do?category=한식"
+					href="${pageContext.request.contextPath}/board/board?category=한식"
 					class="category-tab${param.category eq '한식' ? ' active' : ''}">한식</a>
 
 				<a
-					href="${pageContext.request.contextPath}/board/board.do?category=양식"
+					href="${pageContext.request.contextPath}/board/board?category=양식"
 					class="category-tab${param.category eq '양식' ? ' active' : ''}">양식</a>
 				<a
-					href="${pageContext.request.contextPath}/board/board.do?category=중식"
+					href="${pageContext.request.contextPath}/board/board?category=중식"
 					class="category-tab${param.category eq '중식' ? ' active' : ''}">중식</a>
 				<a
-					href="${pageContext.request.contextPath}/board/board.do?category=일식"
+					href="${pageContext.request.contextPath}/board/board?category=일식"
 					class="category-tab${param.category eq '일식' ? ' active' : ''}">일식</a>
 				<a
-					href="${pageContext.request.contextPath}/board/board.do?category=디저트"
+					href="${pageContext.request.contextPath}/board/board?category=디저트"
 					class="category-tab${param.category eq '디저트' ? ' active' : ''}">디저트</a>
 
 			</div>
@@ -61,20 +61,20 @@
 				<c:when test="${empty sessionScope.loginUser}">
 					<!-- 비로그인 시: 로그인 페이지로 redirect 파라미터 포함 이동 -->
 					<a
-						href="${pageContext.request.contextPath}/member/login.do?redirect=/board/add.do"
+						href="${pageContext.request.contextPath}/member/login?redirect=/board/add"
 						class="write-btn"> <i class="bi bi-pencil-square"></i> 글쓰기
 					</a>
 				</c:when>
 				<c:otherwise>
 					<!-- 로그인 시: 바로 글쓰기 페이지 이동 -->
-					<a href="${pageContext.request.contextPath}/board/add.do"
+					<a href="${pageContext.request.contextPath}/board/add"
 						class="write-btn"> <i class="bi bi-pencil-square"></i> 글쓰기
 					</a>
 				</c:otherwise>
 			</c:choose>
 
 			<!-- 검색창 -->
-			<form action="${pageContext.request.contextPath}/board/board.do"
+			<form action="${pageContext.request.contextPath}/board/board"
 				method="get" class="search-area">
 
 				<!-- ✅ 현재 게시판 카테고리 유지 -->
@@ -103,7 +103,7 @@
 							<c:forEach var="board" items="${bestPosts}">
 								<div class="top-post-card">
 									<a
-										href="${pageContext.request.contextPath}/board/view.do?boardId=${board.boardId}">
+										href="${pageContext.request.contextPath}/board/view?boardId=${board.boardId}">
 										<!-- [수정1] 인기글 썸네일 – null일 때 기본이미지 --> <img
 										src="${empty board.thumbnail ? '/images/no-image.png' : board.thumbnail}"
 										class="top-thumb-img" alt="썸네일" />
@@ -137,7 +137,7 @@
 					<c:forEach var="board" items="${boards}">
 						<tr>
 							<td class="bold-cell" style="text-align: left;"><a
-								href="${pageContext.request.contextPath}/board/view.do?boardId=${board.boardId}"
+								href="${pageContext.request.contextPath}/board/view?boardId=${board.boardId}"
 								class="bold-cell">${board.title}</a></td>
 							<td class="bold-cell">${board.nickname}</td>
 							<td class="bold-cell"><fmt:formatDate
@@ -207,6 +207,6 @@ $('#pagination').twbsPagination({
   });
 </script>
 	<!-- 꼬리말 jsp include-->
-	<jsp:include page="/WEB-INF/views/common/footer.jsp"></jsp:include>
+	<jsp:include page="/common/footer.jsp"></jsp:include>
 </body>
 </html>

@@ -170,7 +170,7 @@ function showResult() {
     document.getElementById("r-text").textContent = bestCategory + "!";
     const categoryParam = typeToDbCategory[bestCategory] || "";
     document.getElementById("r-link").href =
-        ctx + "/recipe/recipe.do?categoryKr=" + encodeURIComponent(categoryParam);
+        ctx + "/recipe/recipe?categoryKr=" + encodeURIComponent(categoryParam);
 }
 </script>
 </body>

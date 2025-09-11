@@ -39,7 +39,7 @@
 
       $("#likeButton").on("click", function () {
         $.ajax({
-          url: contextPath + "/checkLike.do",
+          url: contextPath + "/checkLike",
           type: "GET",
           data: { boardId, memberIdx },
           success: function (exists) {
@@ -58,7 +58,7 @@
 
     function addLike() {
       $.ajax({
-        url: contextPath + "/addLike.do",
+        url: contextPath + "/addLike",
         type: "POST",
         contentType: "application/json",
         data: JSON.stringify({ boardId, memberIdx }),
@@ -74,7 +74,7 @@
 
     function removeLike() {
       $.ajax({
-        url: contextPath + "/cancelLike.do",
+        url: contextPath + "/cancelLike",
         type: "POST",
         contentType: "application/json",
         data: JSON.stringify({ boardId, memberIdx }),
@@ -90,7 +90,7 @@
 
     function getLikeCount() {
       $.ajax({
-        url: contextPath + "/countLike.do",
+        url: contextPath + "/countLike",
         type: "GET",
         data: { boardId },
         success: function (count) {
@@ -109,7 +109,7 @@
 
     function checkInitialStatus() {
       $.ajax({
-        url: contextPath + "/checkLike.do",
+        url: contextPath + "/checkLike",
         type: "GET",
         data: { boardId, memberIdx },
         success: function (exists) {

@@ -1,4 +1,4 @@
-package com.simplecoding.cheforest.mypage.web;
+package com.simplecoding.cheforest.mypage.controller;
 
 import com.simplecoding.cheforest.mypage.dto.*;
 import com.simplecoding.cheforest.mypage.service.MypageService;
