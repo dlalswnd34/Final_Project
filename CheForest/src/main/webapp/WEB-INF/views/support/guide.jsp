@@ -61,7 +61,7 @@
 	    // 탭 클릭 시 해당 카테고리 게시판 목록으로 이동
 	
 	    function moveCategory(category) {
-	        window.location.href = '/board/board.do?category=' + category;
+	        window.location.href = '/board/board?category=' + category;
 	    }
 	
 	    function updateCharCount() {
@@ -75,7 +75,7 @@
 	<!-- 스크립트 -->
 	<script>
 	function moveCategory(category) {
-	    window.location.href = '/board/board.do?category=' + category;
+	    window.location.href = '/board/board?category=' + category;
 	}
 
 	function fn_delete() {
@@ -90,13 +90,13 @@
 	    const memberIdx = $btn.data("member-idx");
 
 	    // ✅ 좋아요 수는 로그인 여부 상관없이 항상 표시
-	    $.get("/countLike.do", { boardId }, function (count) {
+	    $.get("/countLike", { boardId }, function (count) {
 	        $("#likeCountText").html("좋아요 <span>" + count + "</span>개");
 	    });
 
 	    // ✅ 로그인된 경우에만 상태 확인
 	    if (memberIdx && memberIdx !== "undefined" && memberIdx !== "null") {
-	        $.get("/checkLike.do", { boardId, memberIdx }, function (res) {
+	        $.get("/checkLike", { boardId, memberIdx }, function (res) {
 	            if (res === true || res === "true") {
 	                $btn.text("♥").addClass("liked");
 	            }
@@ -108,12 +108,12 @@
 	        if (!memberIdx || memberIdx === "undefined" || memberIdx === "null") {
 	            alert("로그인 후 이용해주세요 😊");
 	            const redirectUrl = encodeURIComponent(location.pathname + location.search);
-	            location.href = "/member/login.do?redirect=" + redirectUrl;
+	            location.href = "/member/login?redirect=" + redirectUrl;
 	            return;
 	        }
 
 	        const isLiked = $btn.text() === "♥";
-	        const url = isLiked ? "/cancelLike.do" : "/addLike.do";
+	        const url = isLiked ? "/cancelLike" : "/addLike";
 
 	        $.ajax({
 	            url,
@@ -124,7 +124,7 @@
 	                $btn.text(isLiked ? "♡" : "♥").toggleClass("liked");
 
 	                // ✅ 좋아요 수 새로고침
-	                $.get("/countLike.do", { boardId }, function (count) {
+	                $.get("/countLike", { boardId }, function (count) {
 	                    $("#likeCountText").html("좋아요 <span>" + count + "</span>개");
 	                });
 	            }

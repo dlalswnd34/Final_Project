@@ -10,7 +10,7 @@
 
 	<h2>한식 레시피</h2>
 	
-    <form action="/datako/save.do" method="post">
+    <form action="/datako/save" method="post">
         <button type="submit">적재</button>
     </form>
     

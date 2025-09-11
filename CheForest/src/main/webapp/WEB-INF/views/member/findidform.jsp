@@ -11,7 +11,7 @@
 <div class="wrapper">
   <div class="container">
     <div class="right-login">
-      <form class="form-box" method="post" action="${pageContext.request.contextPath}/member/findId.do" onsubmit="return validateEmailCode();">
+      <form class="form-box" method="post" action="${pageContext.request.contextPath}/member/findId" onsubmit="return validateEmailCode();">
         <h1>아이디 찾기</h1>
 
         <!-- 이메일 입력 및 인증 요청 -->
@@ -40,12 +40,12 @@
 
         <!-- 하단 링크 수정됨: 직접 JSP 호출 → 컨트롤러 매핑 -->
         <div class="find" style="margin-top: 10px; text-align: center;">
-          <a href="${pageContext.request.contextPath}/member/findidform.do" style="margin-right: 10px;">아이디 찾기</a>
-          <a href="${pageContext.request.contextPath}/member/findpasswordform.do">비밀번호 찾기</a>
+          <a href="${pageContext.request.contextPath}/member/findidform" style="margin-right: 10px;">아이디 찾기</a>
+          <a href="${pageContext.request.contextPath}/member/findpasswordform">비밀번호 찾기</a>
         </div>
 
         <div class="find" style="margin-top: 16px; text-align: center;">
-          <a href="${pageContext.request.contextPath}/member/login.do">로그인 화면으로</a>
+          <a href="${pageContext.request.contextPath}/member/login">로그인 화면으로</a>
         </div>
       </form>
     </div>
@@ -112,7 +112,7 @@
   	    return;
   	  }
 
-  	  fetch('${pageContext.request.contextPath}/member/sendEmailCode.do', {
+  	  fetch('${pageContext.request.contextPath}/member/sendEmailCode', {
   	    method: 'POST',
   	    headers: { 'Content-Type': 'application/json' },
 	  	body: JSON.stringify({
@@ -166,7 +166,7 @@
   	    return;
   	  }
 
-  	  fetch('${pageContext.request.contextPath}/member/verifyCode.do', {
+  	  fetch('${pageContext.request.contextPath}/member/verifyCode', {
   	    method: 'POST',
   	    headers: { 'Content-Type': 'application/json' },
   	    body: JSON.stringify({ code: emailCode })

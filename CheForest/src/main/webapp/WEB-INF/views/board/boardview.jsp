@@ -81,7 +81,7 @@
     <div class="post-section-title">사진</div>
     <div class="post-image-list">
         <c:forEach var="file" items="${fileList}">
-            <img src="/file/download.do?fileId=${file.fileId}" 
+            <img src="/file/download?fileId=${file.fileId}"
                  alt="요리사진" 
                  class="post-img-multi" />
         </c:forEach>
@@ -98,7 +98,7 @@
 			</div>
 			<!-- 🔒 POST 방식 삭제를 위한 숨겨진 form -->
 			<form id="deleteForm"
-				action="${pageContext.request.contextPath}/board/delete.do"
+				action="${pageContext.request.contextPath}/board/delete"
 				method="post" style="display: none;">
 				<input type="hidden" name="boardId" value="${board.boardId}" /> <input
 					type="hidden" name="category" value="${board.category}" />
@@ -107,11 +107,11 @@
 
         <!-- ====== 버튼 영역 (목록/수정/삭제) ====== -->
         <div class="post-btns" style="margin-top: 10px;">
-            <a href="/board/board.do?category=${board.category}" class="btn btn-secondary btn-sm">목록</a>
+            <a href="/board/board?category=${board.category}" class="btn btn-secondary btn-sm">목록</a>
             <c:if test="${loginUser.memberIdx eq board.writerIdx}">
-             <a href="/board/edition.do?boardId=${board.boardId}" class="btn btn-success btn-sm">수정</a>
+             <a href="/board/edition?boardId=${board.boardId}" class="btn btn-success btn-sm">수정</a>
 				<!-- 삭제버튼 중복해서 들어가있음 7월 8일 9시 53분 강승태 수정   -->
-				  <form action="${pageContext.request.contextPath}/board/delete.do" method="post" style="display:inline;">
+				  <form action="${pageContext.request.contextPath}/board/delete" method="post" style="display:inline;">
 				    <input type="hidden" name="boardId" value="${board.boardId}" />
 				    <input type="hidden" name="category" value="${board.category}" />
 				    <input type="hidden" name="searchKeyword" value="${param.searchKeyword}" />
@@ -121,7 +121,7 @@
 				</form> 
             </c:if>            
             <c:if test="${loginUser != null && fn:toUpperCase(loginUser.role) eq 'ADMIN'}">
-			  <form action="${pageContext.request.contextPath}/board/adminDelete.do" method="post" style="display:inline;">
+			  <form action="${pageContext.request.contextPath}/board/adminDelete" method="post" style="display:inline;">
 			    <input type="hidden" name="boardId" value="${board.boardId}" />
 			    <input type="hidden" name="category" value="${board.category}" />
 			    <input type="hidden" name="searchKeyword" value="${param.searchKeyword}" />
@@ -145,7 +145,7 @@
 				<c:choose>
 					<c:when test="${empty loginUser}">
 						<div class="comment-login-notice">
-							댓글을 남기시려면 <a href="/member/login.do" class="btn btn-dark btn-sm">로그인</a>
+							댓글을 남기시려면 <a href="/member/login" class="btn btn-dark btn-sm">로그인</a>
 							해주세요
 						</div>
 					</c:when>
@@ -215,7 +215,7 @@
     // 탭 클릭 시 해당 카테고리 게시판 목록으로 이동
 
     function moveCategory(category) {
-        window.location.href = '/board/board.do?category=' + category;
+        window.location.href = '/board/board?category=' + category;
     }
 
     function updateCharCount() {
@@ -238,7 +238,7 @@
 	<!-- 스크립트 -->
 	<script>
 	function moveCategory(category) {
-	    window.location.href = '/board/board.do?category=' + category;
+	    window.location.href = '/board/board?category=' + category;
 	}
 
 	function fn_delete() {

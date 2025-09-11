@@ -29,7 +29,7 @@
     <script>
         // ✅ TheMealDB 실행 버튼 클릭 시
         $("#callApiBtn").click(function () {
-            $.get("/wf.do", function (data) {
+            $.get("/wf", function (data) {
                 $("#result").css("color", "green").text(data);
             }).fail(function () {
                 $("#result").css("color", "red").text("API 호출 실패");
@@ -38,7 +38,7 @@
 
         // ✅ TheMealDB 중지 버튼 클릭 시
         $("#stopApiBtn").click(function () {
-            $.get("/stop.do", function (data) {
+            $.get("/stop", function (data) {
                 $("#result").css("color", "orange").text(data);
             }).fail(function () {
                 $("#result").css("color", "red").text("중지 요청 실패");
@@ -47,7 +47,7 @@
 
         // ✅ Spoonacular 실행 버튼 클릭 시
         $("#callSpoonacularBtn").click(function () {
-            $.get("/import.do", function (data) {
+            $.get("/import", function (data) {
                 $("#result").css("color", "green").text(data);
             }).fail(function () {
                 $("#result").css("color", "red").text("Spoonacular 호출 실패");
@@ -56,7 +56,7 @@
 
         // ✅ Spoonacular 중지 버튼 클릭 시
         $("#stopSpoonacularBtn").click(function () {
-            $.get("/import/stop.do", function (data) {
+            $.get("/import/stop", function (data) {
                 $("#result").css("color", "orange").text(data);
             }).fail(function () {
                 $("#result").css("color", "red").text("Spoonacular 중지 실패");

@@ -36,14 +36,14 @@
 						<span class="section-title">레시피 검색 결과</span>
 						<c:if test="${fn:length(recipeList) >= 8}">
 							<a
-								href="/recipe/recipe.do?categoryKr=${categoryKr}&searchKeyword=${searchKeyword}&pageIndex=1"
+								href="/recipe/recipe?categoryKr=${categoryKr}&searchKeyword=${searchKeyword}&pageIndex=1"
 								class="more-link">더 보기</a>
 						</c:if>
 					</div>
 					<div class="recipe-grid">
 						<c:forEach var="recipe" items="${recipeList}">
 							<div class="recipe-card">
-								<a href="/recipe/view.do?recipeId=${recipe.id}"> <img
+								<a href="/recipe/view?recipeId=${recipe.id}"> <img
 									src="${recipe.thumbnail}" alt="썸네일" class="recipe-thumb-img" />
 									<div class="recipe-title">
 										<b>${recipe.title}</b>
@@ -63,14 +63,14 @@
 						<span class="section-title">게시판 검색 결과</span>
 						<c:if test="${fn:length(boardList) >= 8}">
 							<a
-								href="/board/board.do?category=${category}&searchKeyword=${searchKeyword}&pageIndex=1"
+								href="/board/board?category=${category}&searchKeyword=${searchKeyword}&pageIndex=1"
 								class="more-link">더보기</a>
 						</c:if>
 					</div>
 					<div class="recipe-grid">
 						<c:forEach var="board" items="${boardList}">
 							<div class="recipe-card">
-								<a href="/board/view.do?boardId=${board.id}"> <img
+								<a href="/board/view?boardId=${board.id}"> <img
 									src="${empty board.thumbnail ? '/images/no-image.png' : board.thumbnail}"
 									alt="썸네일" class="recipe-thumb-img" />
 									<div class="recipe-title">

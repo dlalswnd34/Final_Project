@@ -21,7 +21,7 @@
     <div class="board-wrap">
     <div class="write-box">
         <h3 class="mb-4">🍳 요리 게시글 수정</h3>
-        <form id="addForm" action="${pageContext.request.contextPath}/board/edition.do" method="post" enctype="multipart/form-data">
+        <form id="addForm" action="${pageContext.request.contextPath}/board/edition" method="post" enctype="multipart/form-data">
             <input type="hidden" name="boardId" value="${boardVO.boardId}" />
             <input type="hidden" name="searchKeyword" value="${param.searchKeyword}" />
             <input type="hidden" name="pageIndex" value="${not empty param.pageIndex ? param.pageIndex : 1}" />
@@ -52,7 +52,7 @@
                 <div class="existing-images d-flex flex-wrap gap-2 mb-2">
                     <c:forEach var="file" items="${fileList}" varStatus="status">
                         <div class="existing-image-wrapper position-relative" style="display:inline-block;">
-                            <img src="/file/download.do?fileId=${file.fileId}" style="width:120px;height:90px;object-fit:cover;border-radius:10px;border:1px solid #ddd;">
+                            <img src="/file/download?fileId=${file.fileId}" style="width:120px;height:90px;object-fit:cover;border-radius:10px;border:1px solid #ddd;">
                             <button type="button" class="img-delete-btn btn-delete-existing" data-file-id="${file.fileId}">&times;</button>
                             <c:if test="${status.first}"><span class="badge bg-success" style="position:absolute;bottom:3px;left:3px;">썸네일</span></c:if>
                         </div>
@@ -77,11 +77,11 @@
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script>
 function fn_save() {
-    $("#addForm").attr("action","<c:out value='/board/edit.do' />").submit();
+    $("#addForm").attr("action","<c:out value='/board/edit' />").submit();
 }
 function fn_delete() {
     if (confirm("정말 삭제하시겠습니까? 복구되지 않습니다.")) {
-        $("#addForm").attr("action","<c:out value='/board/delete.do' />").submit();
+        $("#addForm").attr("action","<c:out value='/board/delete' />").submit();
     }
 }
 

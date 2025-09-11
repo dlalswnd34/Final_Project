@@ -25,10 +25,10 @@
 
     <div class="right-login">
       <!-- 로그인 폼 -->
-      <form class="form-box" id="loginForm" method="post" action="${pageContext.request.contextPath}/member/login.do">
+      <form class="form-box" id="loginForm" method="post" action="${pageContext.request.contextPath}/member/login">
         <input type="hidden" name="redirect" value="${param.redirect}" />
         <div class="home-icon-wrapper">
-		  <a href="${pageContext.request.contextPath}/home.do">
+		  <a href="${pageContext.request.contextPath}/home">
 		    <img class="gohome" src="${pageContext.request.contextPath}/images/home.png" alt="홈으로" />
 		  </a>
 		</div>
@@ -44,8 +44,8 @@
         <button class="submit-btn" type="submit">시작하기</button>
         <span class="toggle-link" onclick="toggleForm('signup')">회원가입</span>
         <div class="find">
-          <a href="${pageContext.request.contextPath}/member/findidform.do">아이디 찾기</a> &nbsp;
-          <a href="${pageContext.request.contextPath}/member/findpasswordform.do">비밀번호 찾기</a>
+          <a href="${pageContext.request.contextPath}/member/findidform">아이디 찾기</a> &nbsp;
+          <a href="${pageContext.request.contextPath}/member/findpasswordform">비밀번호 찾기</a>
         </div>
 		<div id="kakaoLoginContainer" style="margin-top: 10px;">
 		  <a href="${kakaoLink}">
@@ -57,9 +57,9 @@
       </form>
 
       <!-- 회원가입 폼 -->
-      <form class="form-box" id="signupForm" method="post" action="${pageContext.request.contextPath}/member/register.do" style="display: none;" onsubmit="return validateForm()">
+      <form class="form-box" id="signupForm" method="post" action="${pageContext.request.contextPath}/member/register" style="display: none;" onsubmit="return validateForm()">
         <div class="home-icon-wrapper">
-		  <a href="${pageContext.request.contextPath}/home.do">
+		  <a href="${pageContext.request.contextPath}/home">
 		    <img class="gohome" src="${pageContext.request.contextPath}/images/home.png" alt="홈으로" />
 		  </a>
 		</div>
@@ -202,7 +202,7 @@
 	    return;
 	  }
 
-	  fetch('${pageContext.request.contextPath}/member/idCheck.do?id=' + encodeURIComponent(id))
+	  fetch('${pageContext.request.contextPath}/member/idCheck?id=' + encodeURIComponent(id))
 	    .then(res => res.json())
 	    .then(result => {
 	      if (result.available) {
@@ -226,7 +226,7 @@
       alert("닉네임을 입력해주세요.");
       return;
     }
-    fetch('${pageContext.request.contextPath}/member/nicknameCheck.do?nickname=' + encodeURIComponent(nickname))
+    fetch('${pageContext.request.contextPath}/member/nicknameCheck?nickname=' + encodeURIComponent(nickname))
       .then(res => res.json()).then(result => {
         if (result.available) {
           nicknameChecked = true;
@@ -293,7 +293,7 @@
 	    return;
 	  }
 
-	  fetch('${pageContext.request.contextPath}/member/sendEmailCode.do', {
+	  fetch('${pageContext.request.contextPath}/member/sendEmailCode', {
 	    method: 'POST',
 	    headers: { 'Content-Type': 'application/json' },
 	    body: JSON.stringify({
@@ -339,7 +339,7 @@
 	    return;
 	  }
 
-	  fetch('${pageContext.request.contextPath}/member/verifyCode.do', {
+	  fetch('${pageContext.request.contextPath}/member/verifyCode', {
 	    method: 'POST',
 	    headers: { 'Content-Type': 'application/json' },
 	    body: JSON.stringify({ code: emailCode })

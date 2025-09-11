@@ -12,7 +12,7 @@
             
             if (result) {
                 // [예] → 내 정보 수정 페이지로 이동
-                location.href = "${pageContext.request.contextPath}/mypage/mycorrection.do";
+                location.href = "${pageContext.request.contextPath}/mypage/mycorrection";
             } else {
                 // [아니오] → 그냥 메인으로 이동
                 location.href = "${pageContext.request.contextPath}/";
