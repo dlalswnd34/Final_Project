@@ -72,10 +72,10 @@ public class BoardController {
         board.setWriter(loginUser);
         Board savedBoard = boardService.save(board);
 
-        Long firstFileId = fileService.saveBoardFiles(savedBoard.getId(), loginUser.getMemberIdx(), images);
+        Long firstFileId = fileService.saveBoardFiles(savedBoard.getBoardId(), loginUser.getMemberIdx(), images);
 
         if (firstFileId != null) {
-            boardService.updateThumbnail(savedBoard.getId(), "/file/download?fileId=" + firstFileId);
+            boardService.updateThumbnail(savedBoard.getBoardId(), "/file/download?fileId=" + firstFileId);
         }
 
         String encodedCategory = URLEncoder.encode(board.getCategory(), "UTF-8");
@@ -83,7 +83,7 @@ public class BoardController {
     }
 
     // 4. 수정 페이지
-    @GetMapping("/edit/{id}")
+    @GetMapping("/edition/{id}")
     public String editForm(@PathVariable Long id, Model model) {
         BoardDetailDto board = boardService.getBoardDetail(id); // 조회수 증가 제거 원하면 별도 메소드 사용
         model.addAttribute("board", board);
@@ -127,7 +127,7 @@ public class BoardController {
             }
         }
 
-        board.setId(id);
+        board.getBoardId();
         boardService.update(board);
 
         String encodedCategory = URLEncoder.encode(board.getCategory(), "UTF-8");

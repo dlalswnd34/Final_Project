@@ -1,8 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<%@ taglib uri="http://egovframework.gov/ctl/ui" prefix="ui"%>
-
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -18,7 +16,7 @@
 <link rel="stylesheet" href="/css/boardlist.css">
 <link rel="stylesheet" href="/css/sidebar.css" />
 <link rel="stylesheet" href="/css/pagination.css">
-<jsp:include page="/common/header.jsp" />
+<jsp:include page="/WEB-INF/views/common/header.jsp" />
 </head>
 
 <body>
@@ -26,7 +24,7 @@
 	<div class="main-flex">
 		<!-- 사이드바 영역 -->
 		<div class="sidebar">
-			<jsp:include page="/common/sidebar.jsp" />
+			<jsp:include page="/WEB-INF/views/common/sidebar.jsp" />
 		</div>
 
 		<!-- 본문 컨텐츠 영역 -->
@@ -209,6 +207,6 @@ $('#pagination').twbsPagination({
   });
 </script>
 	<!-- 꼬리말 jsp include-->
-	<jsp:include page="/common/footer.jsp"></jsp:include>
+	<jsp:include page="/WEB-INF/views/common/footer.jsp"></jsp:include>
 </body>
 </html>

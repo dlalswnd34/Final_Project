@@ -37,7 +37,7 @@ public interface MapStruct {
     @Mapping(target = "profile", source = "writer.profile")
     BoardDetailDto toDetailDto(Board board);
 
-    @Mapping(target = "id", ignore = true)         // PK는 DB 자동 생성
+    @Mapping(target = "boardId", ignore = true)   // PK는 DB 자동 생성
     @Mapping(target = "writer", ignore = true)    // 서비스에서 Member 주입
     @Mapping(target = "viewCount", constant = "0L")
     @Mapping(target = "likeCount", constant = "0L")
@@ -50,16 +50,18 @@ public interface MapStruct {
 
 
     // ================= Review =================
-    @Mapping(source = "boardId", target = "board.id")       // DTO boardId → 엔티티 board.id
+    // ReviewSaveReq → Review 엔티티
+    @Mapping(source = "boardId", target = "board.boardId")  // DTO의 boardId → Entity의 Board 객체 내부 PK
     @Mapping(source = "writerIdx", target = "writer.memberIdx")
     Review toEntity(ReviewSaveReq dto);
 
-    @Mapping(source = "board.id", target = "boardId")
+    // Review 엔티티 → ReviewRes DTO
+    @Mapping(source = "board.boardId", target = "boardId")
     @Mapping(source = "writer.memberIdx", target = "writerIdx")
     @Mapping(source = "writer.nickname", target = "nickname")
     ReviewRes toDto(Review entity);
 
-    @Mapping(source = "boardId", target = "board.id")
+    @Mapping(source = "boardId", target = "board.boardId")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(ReviewUpdateReq dto, @MappingTarget Review entity);
 

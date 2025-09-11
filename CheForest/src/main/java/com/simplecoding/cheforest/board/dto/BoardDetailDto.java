@@ -25,7 +25,7 @@ public class BoardDetailDto {  // 상세조회 dto
 
     public static BoardDetailDto fromEntity(Board board) {
         return BoardDetailDto.builder()
-                .id(board.getId())
+                .id(board.getBoardId())
                 .category(board.getCategory())
                 .title(board.getTitle())
                 .content(board.getContent())

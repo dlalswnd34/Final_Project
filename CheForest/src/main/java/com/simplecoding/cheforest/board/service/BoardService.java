@@ -46,8 +46,8 @@ public class BoardService {
 
     // 4. 게시글 수정
     public void update(Board board) {
-        Board existing = boardRepository.findById(board.getId())
-                .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + board.getId()));
+        Board existing = boardRepository.findById(board.getBoardId())
+                .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + board.getBoardId()));
         existing.setCategory(board.getCategory());
         existing.setTitle(board.getTitle());
         existing.setContent(board.getContent());
