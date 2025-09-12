@@ -56,20 +56,20 @@
 					<div class="dropdown" id="dropdown-recipe">
 
 						<a class="dropdown-toggle"
-							href="${pageContext.request.contextPath}/recipe/recipe">레시피</a>
+							href="${pageContext.request.contextPath}/recipe/list">레시피</a>
 
 						<div class="dropdown-menu">
 
 							<a class="dropdown-item"
-								href="/recipe/recipe?categoryKr=한식&pageIndex=1">한식<span
+								href="/recipe/list?categoryKr=한식&pageIndex=1">한식<span
 								class="eng"> |　Korean</span></a> <a class="dropdown-item"
-								href="/recipe/recipe?categoryKr=양식&pageIndex=1">양식<span
+								href="/recipe/list?categoryKr=양식&pageIndex=1">양식<span
 								class="eng"> |　Western</span></a> <a class="dropdown-item"
-								href="/recipe/recipe?categoryKr=중식&pageIndex=1">중식<span
+								href="/recipe/list?categoryKr=중식&pageIndex=1">중식<span
 								class="eng"> |　Chinese</span></a> <a class="dropdown-item"
-								href="/recipe/recipe?categoryKr=일식&pageIndex=1">일식<span
+								href="/recipe/list?categoryKr=일식&pageIndex=1">일식<span
 								class="eng"> |　Japanese</span></a> <a class="dropdown-item"
-								href="/recipe/recipe?categoryKr=디저트&pageIndex=1">디저트<span
+								href="/recipe/list?categoryKr=디저트&pageIndex=1">디저트<span
 								class="eng"> |　Dessert</span></a>
 
 						</div>
@@ -78,14 +78,14 @@
 					<!-- ✅ Board 드롭다운 (클릭 시 전체 게시판 이동) -->
 					<div class="dropdown" id="dropdown-board">
 						<a class="dropdown-toggle"
-							href="${pageContext.request.contextPath}/board/board">게시판</a>
+							href="${pageContext.request.contextPath}/board/list">게시판</a>
 						<div class="dropdown-menu">
 							<a class="dropdown-item" 
-								href="/board/board?category=한식">한식<span class="eng"> |　Korean</span></a> <a class="dropdown-item"
-								href="/board/board?category=양식">양식<span class="eng"> |　Western</span></a><a class="dropdown-item"
-								href="/board/board?category=중식">중식<span class="eng"> |　Chinese</span></a><a class="dropdown-item"
-								href="/board/board?category=일식">일식<span class="eng"> |　Japanese</span></a><a class="dropdown-item"
-								href="/board/board?category=디저트">디저트<span class="eng"> |　Dessert</span></a>
+								href="/board/list?category=한식">한식<span class="eng"> |　Korean</span></a> <a class="dropdown-item"
+								href="/board/list?category=양식">양식<span class="eng"> |　Western</span></a><a class="dropdown-item"
+								href="/board/list?category=중식">중식<span class="eng"> |　Chinese</span></a><a class="dropdown-item"
+								href="/board/list?category=일식">일식<span class="eng"> |　Japanese</span></a><a class="dropdown-item"
+								href="/board/list?category=디저트">디저트<span class="eng"> |　Dessert</span></a>
 						</div>
 					</div>
 

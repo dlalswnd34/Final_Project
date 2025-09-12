@@ -71,7 +71,7 @@ public class FileService {
 
             FileDto dto = saveFile(file, "BOARD", boardId, "CONTENT", uploaderId);
             if (firstFileId == null && dto != null) {
-                firstFileId = dto.getId();
+                firstFileId = dto.getFileId();
             }
         }
         return firstFileId;
@@ -133,7 +133,7 @@ public class FileService {
         // 기존 프로필 최신 파일 조회 후 삭제
         FileDto oldFile = getProfileFileByMemberId(memberId);
         if (oldFile != null) {
-            deleteFile(oldFile.getId());
+            deleteFile(oldFile.getFileId());
         }
         // 새 프로필 저장 (웹에서 접근 가능한 상대경로로 저장됨)
         return saveFile(profileImage, "MEMBER", memberId, "PROFILE", memberId);

@@ -21,7 +21,7 @@ public class File extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "FILE_SEQ_JPA")
-    private Long id;  // 파일 ID (PK)
+    private Long fileId;  // 파일 ID (PK)
 
     private String fileName;  // 원본 파일명
 

@@ -13,7 +13,7 @@ public interface MypageRepository extends JpaRepository<Member, Long> {
 
     // 내가 작성한 글 (Board)
     @Query("SELECT new com.simplecoding.cheforest.mypage.dto.MypageMyPostDto(" +
-            "b.id, b.title, b.insertTime, b.viewCount, b.likeCount) " +
+            "b.boardId, b.title, b.insertTime, b.viewCount, b.likeCount) " +
             "FROM Board b " +
             "WHERE b.writer.memberIdx = :memberIdx " +
             "AND (:keyword IS NULL OR b.title LIKE %:keyword%) " +
@@ -30,9 +30,9 @@ public interface MypageRepository extends JpaRepository<Member, Long> {
 
     // 내가 좋아요한 게시글
     @Query("SELECT new com.simplecoding.cheforest.mypage.dto.MypageLikedBoardDto(" +
-            "b.id, b.title, m.nickname, b.insertTime, b.viewCount, b.likeCount) " +
+            "b.boardId, b.title, m.nickname, b.insertTime, b.viewCount, b.likeCount) " +
             "FROM Like l " +
-            "JOIN Board b ON l.boardId = b.id " +
+            "JOIN Board b ON l.boardId = b.boardId " +
             "JOIN b.writer m " +
             "WHERE l.member.memberIdx = :memberIdx " +
             "AND l.likeType = 'BOARD' " +
@@ -43,7 +43,7 @@ public interface MypageRepository extends JpaRepository<Member, Long> {
                                               Pageable pageable);
 
     @Query("SELECT COUNT(l) FROM Like l " +
-            "JOIN Board b ON l.boardId = b.id " +
+            "JOIN Board b ON l.boardId = b.boardId " +
             "WHERE l.member.memberIdx = :memberIdx " +
             "AND l.likeType = 'BOARD' " +
             "AND (:keyword IS NULL OR b.title LIKE %:keyword%)")

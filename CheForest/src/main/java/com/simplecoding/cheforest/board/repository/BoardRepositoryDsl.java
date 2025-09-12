@@ -1,6 +1,5 @@
 package com.simplecoding.cheforest.board.repository;
 
-
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -14,7 +13,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-
 import java.util.List;
 
 @Repository
@@ -23,6 +21,7 @@ public class BoardRepositoryDsl {
 
     private final JPAQueryFactory queryFactory;
 
+    // 목록 조회
     public Page<BoardListDto> searchBoards(String keyword, String category, Pageable pageable) {
         QBoard board = QBoard.board;
         QMember member = QMember.member;
@@ -35,26 +34,26 @@ public class BoardRepositoryDsl {
             builder.and(board.category.eq(category));
         }
 
-        // content 조회 (DTO 매핑)
         List<BoardListDto> content = queryFactory
-                .select(Projections.constructor(BoardListDto.class,
-                        board.boardId,
-                        board.category,
-                        board.title,
-                        member.nickname,
-                        board.viewCount,
-                        board.likeCount,
-                        board.insertTime
+                .select(Projections.bean(BoardListDto.class,
+                        board.boardId.as("boardId"),
+                        board.category.as("category"),
+                        board.title.as("title"),
+                        member.nickname.as("nickname"),
+                        member.memberIdx.as("writerIdx"),
+                        board.viewCount.as("viewCount"),
+                        board.likeCount.as("likeCount"),
+                        board.thumbnail.as("thumbnail"),
+                        board.insertTime.as("insertTime")
                 ))
                 .from(board)
-                .join(board.writer, member)  // Board ↔ Member 조인
+                .join(board.writer, member)
                 .where(builder)
                 .orderBy(board.boardId.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        // total count 조회
         long total = queryFactory
                 .select(board.count())
                 .from(board)
@@ -64,22 +63,26 @@ public class BoardRepositoryDsl {
         return new PageImpl<>(content, pageable, total);
     }
 
+    // 상세 조회
     public BoardDetailDto findBoardDetail(Long boardId) {
         QBoard board = QBoard.board;
         QMember member = QMember.member;
 
         return queryFactory
-                .select(Projections.constructor(BoardDetailDto.class,
-                        board.boardId,
-                        board.category,
-                        board.title,
-                        board.content,
-                        board.thumbnail,
-                        member.nickname,
-                        board.prepare,
-                        board.viewCount,
-                        board.likeCount,
-                        board.insertTime
+                .select(Projections.bean(BoardDetailDto.class,
+                        board.boardId.as("boardId"),
+                        board.category.as("category"),
+                        board.title.as("title"),
+                        board.prepare.as("prepare"),
+                        board.content.as("content"),
+                        board.thumbnail.as("thumbnail"),
+                        member.nickname.as("nickname"),
+                        member.profile.as("profile"),
+                        member.memberIdx.as("writerIdx"),
+                        board.viewCount.as("viewCount"),
+                        board.likeCount.as("likeCount"),
+                        board.insertTime.as("insertTime"),
+                        board.updateTime.as("updateTime")
                 ))
                 .from(board)
                 .join(board.writer, member)
@@ -87,20 +90,22 @@ public class BoardRepositoryDsl {
                 .fetchOne();
     }
 
-    // 인기 게시글 TOP 4
+    // 인기글 TOP4
     public List<BoardListDto> findBestPosts() {
         QBoard board = QBoard.board;
         QMember member = QMember.member;
 
         return queryFactory
-                .select(Projections.constructor(BoardListDto.class,
-                        board.boardId,
-                        board.category,
-                        board.title,
-                        member.nickname,
-                        board.viewCount,
-                        board.likeCount,
-                        board.insertTime
+                .select(Projections.bean(BoardListDto.class,
+                        board.boardId.as("boardId"),
+                        board.category.as("category"),
+                        board.title.as("title"),
+                        member.nickname.as("nickname"),
+                        member.memberIdx.as("writerIdx"),
+                        board.viewCount.as("viewCount"),
+                        board.likeCount.as("likeCount"),
+                        board.thumbnail.as("thumbnail"),
+                        board.insertTime.as("insertTime")
                 ))
                 .from(board)
                 .join(board.writer, member)
@@ -109,20 +114,22 @@ public class BoardRepositoryDsl {
                 .fetch();
     }
 
-    // 카테고리별 인기 게시글 TOP 4
+    // 카테고리별 인기글 TOP4
     public List<BoardListDto> findBestPostsByCategory(String category) {
         QBoard board = QBoard.board;
         QMember member = QMember.member;
 
         return queryFactory
-                .select(Projections.constructor(BoardListDto.class,
-                        board.boardId,
-                        board.category,
-                        board.title,
-                        member.nickname,
-                        board.viewCount,
-                        board.likeCount,
-                        board.insertTime
+                .select(Projections.bean(BoardListDto.class,
+                        board.boardId.as("boardId"),
+                        board.category.as("category"),
+                        board.title.as("title"),
+                        member.nickname.as("nickname"),
+                        member.memberIdx.as("writerIdx"),
+                        board.viewCount.as("viewCount"),
+                        board.likeCount.as("likeCount"),
+                        board.thumbnail.as("thumbnail"),
+                        board.insertTime.as("insertTime")
                 ))
                 .from(board)
                 .join(board.writer, member)

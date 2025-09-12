@@ -1,18 +1,24 @@
 package com.simplecoding.cheforest.board.service;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import lombok.RequiredArgsConstructor;
-import java.util.List;
-import com.simplecoding.cheforest.board.dto.BoardListDto;
 import com.simplecoding.cheforest.board.dto.BoardDetailDto;
+import com.simplecoding.cheforest.board.dto.BoardListDto;
+import com.simplecoding.cheforest.board.dto.BoardSaveReq;
+import com.simplecoding.cheforest.board.dto.BoardUpdateReq;
 import com.simplecoding.cheforest.board.entity.Board;
 import com.simplecoding.cheforest.board.repository.BoardRepository;
 import com.simplecoding.cheforest.board.repository.BoardRepositoryDsl;
+import com.simplecoding.cheforest.common.MapStruct;
 import com.simplecoding.cheforest.file.service.FileService;
 import com.simplecoding.cheforest.like.service.LikeService;
+import com.simplecoding.cheforest.member.entity.Member;
+import com.simplecoding.cheforest.member.repository.MemberRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +29,8 @@ public class BoardService {
     private final BoardRepositoryDsl boardRepositoryDsl;
     private final FileService fileService;
     private final LikeService likeService;
+    private final MemberRepository memberRepository;
+    private final MapStruct mapStruct;
 
     // 1. 목록 조회 (검색 + 페이징)
     @Transactional(readOnly = true)
@@ -31,38 +39,49 @@ public class BoardService {
     }
 
     // 2. 상세 조회 (+ 조회수 증가)
+    @Transactional
     public BoardDetailDto getBoardDetail(Long boardId) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + boardId));
+        // ✅ DSL 사용
+        BoardDetailDto dto = boardRepositoryDsl.findBoardDetail(boardId);
+        if (dto == null) {
+            throw new IllegalArgumentException("게시글 없음: " + boardId);
+        }
 
-        board.increaseViewCount(); // ✅ 조회수 증가
-        return BoardDetailDto.fromEntity(board);
+        // 조회수 증가 (DB 반영)
+//        boardRepository.increaseViewCount(boardId);
+//        dto.setViewCount(dto.getViewCount() + 1);
+
+        return dto;
     }
 
     // 3. 게시글 등록
-    public Board save(Board board) {
-        return boardRepository.save(board);
+    public Long create(BoardSaveReq dto, String writerEmail) {
+        Member writer = memberRepository.findByEmail(writerEmail)
+                .orElseThrow(() -> new IllegalArgumentException("회원 없음: " + writerEmail));
+
+        Board board = mapStruct.toEntity(dto);
+        board.setWriter(writer);
+
+        boardRepository.save(board);
+        return board.getBoardId();
     }
 
     // 4. 게시글 수정
-    public void update(Board board) {
-        Board existing = boardRepository.findById(board.getBoardId())
-                .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + board.getBoardId()));
-        existing.setCategory(board.getCategory());
-        existing.setTitle(board.getTitle());
-        existing.setContent(board.getContent());
-        existing.setThumbnail(board.getThumbnail());
-        existing.setPrepare(board.getPrepare());
+    public void update(BoardUpdateReq dto, String writerEmail) {
+        Board existing = boardRepository.findById(dto.getBoardId())
+                .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + dto.getBoardId()));
+
+        Member writer = memberRepository.findByEmail(writerEmail)
+                .orElseThrow(() -> new IllegalArgumentException("회원 없음: " + writerEmail));
+        existing.setWriter(writer);
+
+        mapStruct.updateEntity(dto, existing); // ✅ @MappingTarget 활용
     }
 
     // 5. 게시글 삭제
     public void delete(Long boardId) {
-        // 1. 댓글 삭제는 ReviewService에서 담당할 예정
-        // 2. 좋아요 삭제
         likeService.deleteAllByBoardId(boardId);
-        // 3. 첨부파일 삭제
         fileService.deleteAllByTargetIdAndType(boardId, "board");
-        // 4. 게시글 삭제
         boardRepository.deleteById(boardId);
     }
 

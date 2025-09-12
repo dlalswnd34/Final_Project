@@ -9,8 +9,8 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
     // 로그인/중복검사
-    Optional<Member> findById(String id);
-    boolean existsById(String id);
+    Optional<Member> findByLoginId(String id);
+    boolean existsByLoginId(String id);
 
     // 이메일
     Optional<Member> findByEmail(String email);
@@ -30,7 +30,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findBySocialIdAndProvider(String socialId, String provider);
 
     // 사용자 확인 (비밀번호 찾기용)
-    Optional<Member> findByIdAndEmail(String id, String email);
+    Optional<Member> findByLoginIdAndEmail(String id, String email);
 
     // JPQL: 비밀번호만 조회
     @Query("select m.password from Member m where m.memberIdx = :memberIdx")
@@ -41,6 +41,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     String findTempPasswordYnByMemberIdx(Long memberIdx);
 
     // JPQL: 아이디 찾기 (이메일로 아이디 반환)
-    @Query("select m.id from Member m where m.email = :email")
+    @Query("select m.loginId from Member m where m.email = :email")
     String findIdByEmail(String email);
 }

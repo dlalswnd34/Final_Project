@@ -12,7 +12,7 @@ public class HomeController {
 
 	private final RecipeService recipeService;
 
-	@GetMapping("/")
+	@GetMapping({"/", "/home"})
 	public String home(Model model) {
 		model.addAttribute("koreanRecipe", recipeService.getRandomRecipes("한식", 5));
 		model.addAttribute("westernRecipe", recipeService.getRandomRecipes("양식", 5));

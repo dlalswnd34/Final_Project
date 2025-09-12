@@ -26,7 +26,6 @@ public class Like {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BOARD_LIKE_JPA")
-    @Column(name = "LIKE_ID")
     private Long likeId;   // PK (시퀀스)
 
     // 회원 (FK)

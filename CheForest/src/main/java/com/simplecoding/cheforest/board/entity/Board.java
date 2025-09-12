@@ -21,7 +21,6 @@ public class Board extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "BOARD_SEQ_JPA")
-    @Column(name = "BOARD_ID")
     private Long boardId;  // 게시글 ID (PK)
 
     private String category;

@@ -35,7 +35,7 @@
             <div class="useremail">${member.email}</div>
             <div class="joindate">
                 가입일:
-                <fmt:formatDate value="${member.joinDate}" pattern="yyyy-MM-dd" />
+                    ${loginUser.insertTime}
             </div>
             <div class="card-menu">
                 <c:choose>
