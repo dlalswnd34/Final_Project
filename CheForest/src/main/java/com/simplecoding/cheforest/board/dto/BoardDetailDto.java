@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class BoardDetailDto {  // 상세조회 dto
-    private Long id;
+    private Long boardId;
     private String category;
     private String title;
     private String prepare;
@@ -22,19 +22,5 @@ public class BoardDetailDto {  // 상세조회 dto
     private Long likeCount;
     private LocalDateTime insertTime;
     private LocalDateTime updateTime;
-
-    public static BoardDetailDto fromEntity(Board board) {
-        return BoardDetailDto.builder()
-                .id(board.getBoardId())
-                .category(board.getCategory())
-                .title(board.getTitle())
-                .content(board.getContent())
-                .thumbnail(board.getThumbnail())
-                .nickname(board.getWriter().getNickname())
-                .prepare(board.getPrepare())
-                .viewCount(board.getViewCount())
-                .likeCount(board.getLikeCount())
-                .insertTime(board.getInsertTime())
-                .build();
-    }
+    private Long writerIdx;
 }

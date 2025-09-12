@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 public class MemberDetailDto {
     private Long memberIdx;
-    private String id;
+    private String loginId;
     private String email;
     private String nickname;
     private String profile;

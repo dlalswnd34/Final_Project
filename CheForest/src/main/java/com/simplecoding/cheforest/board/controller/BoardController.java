@@ -2,11 +2,13 @@ package com.simplecoding.cheforest.board.controller;
 
 import com.simplecoding.cheforest.board.dto.BoardDetailDto;
 import com.simplecoding.cheforest.board.dto.BoardListDto;
-import com.simplecoding.cheforest.board.entity.Board;
+import com.simplecoding.cheforest.board.dto.BoardSaveReq;
+import com.simplecoding.cheforest.board.dto.BoardUpdateReq;
 import com.simplecoding.cheforest.board.service.BoardService;
 import com.simplecoding.cheforest.file.dto.FileDto;
 import com.simplecoding.cheforest.file.service.FileService;
-import com.simplecoding.cheforest.member.entity.Member;
+import com.simplecoding.cheforest.member.dto.MemberDetailDto;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -17,7 +19,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
@@ -25,14 +26,13 @@ import java.util.List;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/board")
 public class BoardController {
 
     private final BoardService boardService;
     private final FileService fileService;
 
     // 1. 목록 조회
-    @GetMapping("/list")
+    @GetMapping("/board/list")
     public String list(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String keyword,
@@ -40,7 +40,8 @@ public class BoardController {
             Model model
     ) {
         Page<BoardListDto> boards = boardService.searchBoards(keyword, category, pageable);
-        model.addAttribute("boards", boards);
+        model.addAttribute("boards", boards.getContent());
+        model.addAttribute("pageInfo", boards);
 
         List<BoardListDto> bestPosts = (category == null || category.isBlank())
                 ? boardService.getBestPosts()
@@ -51,118 +52,107 @@ public class BoardController {
     }
 
     // 2. 글 작성 폼
-    @GetMapping("/add")
+    @GetMapping("/board/add")
     public String showAddForm(Model model) {
-        model.addAttribute("board", new Board());
+        model.addAttribute("board", new BoardSaveReq());
         return "board/boardwrite";
     }
 
     // 3. 글 등록
-    @PostMapping("/add")
+    @PostMapping("/board/add")
     public String add(
-            @ModelAttribute Board board,
+            @ModelAttribute BoardSaveReq dto,
             @RequestParam(value = "images", required = false) List<MultipartFile> images,
             HttpSession session
     ) throws IOException {
-        Member loginUser = (Member) session.getAttribute("loginUser");
+        MemberDetailDto loginUser = (MemberDetailDto) session.getAttribute("loginUser");
         if (loginUser == null) {
             return "redirect:/member/login";
         }
 
-        board.setWriter(loginUser);
-        Board savedBoard = boardService.save(board);
+        Long boardId = boardService.create(dto, loginUser.getEmail());
 
-        Long firstFileId = fileService.saveBoardFiles(savedBoard.getBoardId(), loginUser.getMemberIdx(), images);
-
+        Long firstFileId = fileService.saveBoardFiles(boardId, loginUser.getMemberIdx(), images);
         if (firstFileId != null) {
-            boardService.updateThumbnail(savedBoard.getBoardId(), "/file/download?fileId=" + firstFileId);
+            boardService.updateThumbnail(boardId, "/file/download?fileId=" + firstFileId);
         }
 
-        String encodedCategory = URLEncoder.encode(board.getCategory(), "UTF-8");
+        String encodedCategory = URLEncoder.encode(dto.getCategory(), "UTF-8");
         return "redirect:/board/list?category=" + encodedCategory;
     }
 
     // 4. 수정 페이지
-    @GetMapping("/edition/{id}")
-    public String editForm(@PathVariable Long id, Model model) {
-        BoardDetailDto board = boardService.getBoardDetail(id); // 조회수 증가 제거 원하면 별도 메소드 사용
+    @GetMapping("/board/edition")
+    public String editForm(@RequestParam("boardId") Long boardId, Model model) {
+        BoardDetailDto board = boardService.getBoardDetail(boardId);
         model.addAttribute("board", board);
 
-        List<FileDto> fileList = fileService.getFilesByBoardId(id);
+        List<FileDto> fileList = fileService.getFilesByBoardId(boardId);
         model.addAttribute("fileList", fileList);
 
         return "board/boardupdate";
     }
 
     // 5. 글 수정
-    @PostMapping("/edit/{id}")
+    @PostMapping("/board/edit")
     public String update(
-            @PathVariable Long id,
-            @ModelAttribute Board board,
+            @ModelAttribute BoardUpdateReq dto,
             @RequestParam(value = "images", required = false) List<MultipartFile> images,
             @RequestParam(value = "deleteImageIds", required = false) List<Long> deleteImageIds,
             HttpSession session
     ) throws IOException {
-        Member loginUser = (Member) session.getAttribute("loginUser");
+        MemberDetailDto loginUser = (MemberDetailDto) session.getAttribute("loginUser");
         if (loginUser == null) {
             return "redirect:/member/login";
         }
 
+        // 삭제할 파일 처리
         if (deleteImageIds != null) {
-            for (Long fileId : deleteImageIds) {
-                fileService.deleteFile(fileId);
-            }
+            deleteImageIds.forEach(fileService::deleteFile);
         }
 
-        Long firstFileId = fileService.saveBoardFiles(id, loginUser.getMemberIdx(), images);
-
+        // 새 파일 업로드
+        Long firstFileId = fileService.saveBoardFiles(dto.getBoardId(), loginUser.getMemberIdx(), images);
         if (firstFileId != null) {
-            boardService.updateThumbnail(id, "/file/download?fileId=" + firstFileId);
-        } else {
-            List<FileDto> remainFiles = fileService.getFilesByBoardId(id);
-            if (!remainFiles.isEmpty()) {
-                boardService.updateThumbnail(id, "/file/download?fileId=" + remainFiles.get(0).getId());
-            } else {
-                boardService.updateThumbnail(id, "/img/no-image.png");
-            }
+            boardService.updateThumbnail(dto.getBoardId(), "/file/download?fileId=" + firstFileId);
         }
 
-        board.getBoardId();
-        boardService.update(board);
+        // DB 업데이트
+        boardService.update(dto, loginUser.getEmail());
 
-        String encodedCategory = URLEncoder.encode(board.getCategory(), "UTF-8");
+        String encodedCategory = URLEncoder.encode(dto.getCategory(), "UTF-8");
         return "redirect:/board/list?category=" + encodedCategory;
     }
 
     // 6. 글 삭제
-    @PostMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
-        boardService.delete(id);
+    @PostMapping("/board/delete")
+    public String delete(@RequestParam("boardId") Long boardId) {
+        boardService.delete(boardId);
         return "redirect:/board/list";
     }
 
     // 7. 관리자 삭제
-    @PostMapping("/admin/delete/{id}")
-    public String adminDelete(@PathVariable Long id, HttpSession session) {
-        Member loginUser = (Member) session.getAttribute("loginUser");
+    @PostMapping("/board/adminDelete")
+    public String adminDelete(@RequestParam("boardId") Long boardId, HttpSession session) {
+        MemberDetailDto loginUser = (MemberDetailDto) session.getAttribute("loginUser");
         if (loginUser == null || !"ADMIN".equals(loginUser.getRole())) {
             return "redirect:/board/list?error=unauthorized";
         }
-        boardService.adminDelete(id);
+        boardService.adminDelete(boardId);
         return "redirect:/board/list";
     }
 
     // 8. 상세 조회
-    @GetMapping("/view/{id}")
-    public String view(@PathVariable Long id, Model model, HttpSession session) {
-        BoardDetailDto board = boardService.getBoardDetail(id);
+    @GetMapping("/board/view")
+    public String view(@RequestParam("boardId") Long boardId, Model model, HttpSession session) {
+        BoardDetailDto board = boardService.getBoardDetail(boardId);
         model.addAttribute("board", board);
 
-        Member loginUser = (Member) session.getAttribute("loginUser");
+        MemberDetailDto loginUser = (MemberDetailDto) session.getAttribute("loginUser");
         model.addAttribute("loginUser", loginUser);
 
-        List<FileDto> fileList = fileService.getFilesByBoardId(id);
-        model.addAttribute("fileList", fileList);
+//        List<FileDto> fileList = fileService.getFilesByBoardId(boardId);
+//        model.addAttribute("fileList", fileList);
 
         return "board/boardview";
     }

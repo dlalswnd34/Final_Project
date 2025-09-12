@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class MemberSaveReq {
-    private String id;             // 아이디
+    private String loginId;             // 아이디
     private String email;          // 이메일
     private String emailCode;      // 이메일 인증번호
     private String password;       // 비밀번호

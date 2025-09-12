@@ -25,7 +25,7 @@ public class MemberService {
 
     // 회원가입
     public void register(MemberSaveReq req) {
-        if (memberRepository.existsById(req.getId())) {
+        if (memberRepository.existsByLoginId(req.getLoginId())) {
             throw new IllegalArgumentException("이미 사용중인 아이디입니다.");
         }
         if (memberRepository.existsByEmail(req.getEmail())) {
@@ -38,7 +38,7 @@ public class MemberService {
         String hashedPassword = passwordEncoder.encode(req.getPassword());
 
         Member member = Member.builder()
-                .id(req.getId())
+                .loginId(req.getLoginId())
                 .email(req.getEmail())
                 .password(hashedPassword)
                 .nickname(req.getNickname())
@@ -52,7 +52,7 @@ public class MemberService {
 
     // 로그인
     public MemberDetailDto authenticate(MemberLoginReq req) {
-        Member member = memberRepository.findById(req.getId())
+        Member member = memberRepository.findByLoginId(req.getLoginId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이디입니다."));
 
         if (!passwordEncoder.matches(req.getPassword(), member.getPassword())) {
@@ -72,7 +72,7 @@ public class MemberService {
 
     // 아이디 중복검사
     public boolean isIdAvailable(String id) {
-        return !memberRepository.existsById(id);
+        return !memberRepository.existsByLoginId(id);
     }
 
     // 이메일 중복검사
@@ -115,7 +115,7 @@ public class MemberService {
 
     // 비밀번호 찾기 (임시 비밀번호 발급)
     public String resetPassword(String id, String email) {
-        Member member = memberRepository.findByIdAndEmail(id, email)
+        Member member = memberRepository.findByLoginIdAndEmail(id, email)
                 .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
 
         String tempPassword = UUID.randomUUID().toString().substring(0, 8);

@@ -40,9 +40,9 @@
                 <i class="bi bi-grid-3x3-gap-fill"></i>
             </button>
             <div class="app-menu-dropdown" id="appMenuDropdown">
-                <a href="/recipe/recipe">레시피</a>
+                <a href="/recipe/list">레시피</a>
                 <!-- 7/14 hyj 전체 게시판으로 이동하도록 코드 수정 -->
-                <a href="${pageContext.request.contextPath}/board/board">게시판</a>
+                <a href="${pageContext.request.contextPath}/board/list">게시판</a>
                 <a href="/event/test">이벤트</a>
             </div>
         </div>

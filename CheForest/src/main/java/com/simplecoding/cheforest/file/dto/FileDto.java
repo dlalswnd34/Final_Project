@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class FileDto {
-    private Long id;             // 파일 아이디 (PK)
+    private Long fileId;             // 파일 아이디 (PK)
     private String fileName;     // 원본 파일명
     private String filePath;     // 저장 경로
     private String fileType;     // 확장자
@@ -18,5 +18,6 @@ public class FileDto {
     private LocalDateTime updateTime; // 수정일시
 
     // 업로더 회원 ID (Member 참조 대신 DTO는 단순 ID만 가짐)
-    private Long uploaderId;
+    private Long uploaderIdx;        // 업로더 회원 PK
+    private String uploaderLoginId;  // 업로더 로그인 ID
 }

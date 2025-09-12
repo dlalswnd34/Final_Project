@@ -34,7 +34,7 @@ public class FileController {
         // 기존 프로필 삭제
         FileDto oldProfile = fileService.getProfileFileByMemberId(memberId);
         if (oldProfile != null) {
-            fileService.deleteFile(oldProfile.getId());
+            fileService.deleteFile(oldProfile.getFileId());
         }
 
         // 새 프로필 저장

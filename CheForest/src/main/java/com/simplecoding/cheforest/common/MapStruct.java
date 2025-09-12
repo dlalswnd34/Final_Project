@@ -25,29 +25,36 @@ public interface MapStruct {
     Member toEntity(MemberSaveReq dto);
 
     void updateEntity(MemberUpdateReq dto, @MappingTarget Member member);
-
+    @Mapping(source = "loginId", target = "loginId")
+    @Mapping(source = "memberIdx", target = "memberIdx")
     MemberDetailDto toDetailDto(Member member);
 
 
     // ================= Board =================
+    // 목록 조회 DTO 변환
     @Mapping(target = "nickname", source = "writer.nickname")
+    @Mapping(target = "writerIdx", source = "writer.memberIdx")
     BoardListDto toListDto(Board board);
 
+    // 상세 조회 DTO 변환
+    @Mapping(target = "boardId", source = "boardId")
     @Mapping(target = "nickname", source = "writer.nickname")
     @Mapping(target = "profile", source = "writer.profile")
+    @Mapping(target = "writerIdx", source = "writer.memberIdx")
     BoardDetailDto toDetailDto(Board board);
 
-    @Mapping(target = "boardId", ignore = true)   // PK는 DB 자동 생성
+    // 저장용 DTO → 엔티티
+    @Mapping(target = "boardId", ignore = true)   // PK 자동 생성
     @Mapping(target = "writer", ignore = true)    // 서비스에서 Member 주입
     @Mapping(target = "viewCount", constant = "0L")
     @Mapping(target = "likeCount", constant = "0L")
     Board toEntity(BoardSaveReq dto);
 
-    @Mapping(target = "writer", ignore = true)
-    @Mapping(target = "viewCount", ignore = true)
-    @Mapping(target = "likeCount", ignore = true)
-    Board toEntity(BoardUpdateReq dto);
-
+    // 수정용 DTO → 기존 엔티티 업데이트
+    @Mapping(target = "writer", ignore = true)    // 작성자 교체는 서비스에서 처리
+    @Mapping(target = "viewCount", ignore = true) // 조회수는 건드리지 않음
+    @Mapping(target = "likeCount", ignore = true) // 좋아요 수도 건드리지 않음
+    void updateEntity(BoardUpdateReq dto, @MappingTarget Board entity);
 
     // ================= Review =================
     // ReviewSaveReq → Review 엔티티
@@ -67,10 +74,14 @@ public interface MapStruct {
 
 
     // ================= File =================
-    @Mapping(source = "uploader.id", target = "uploaderId")
+    // Entity → DTO
+    @Mapping(source = "uploader.memberIdx", target = "uploaderIdx")
+    @Mapping(source = "uploader.loginId", target = "uploaderLoginId")
     FileDto toDto(File file);
 
-    @Mapping(source = "uploaderId", target = "uploader.id")
+    // DTO → Entity
+    @Mapping(source = "uploaderIdx", target = "uploader.memberIdx")
+    @Mapping(source = "uploaderLoginId", target = "uploader.loginId")
     File toEntity(FileDto fileDto);
 
     // Like

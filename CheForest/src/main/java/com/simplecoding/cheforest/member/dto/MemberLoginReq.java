@@ -8,6 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class MemberLoginReq {
-    private String id;        // 아이디
+    private String loginId;        // 아이디
     private String password;  // 비밀번호
 }

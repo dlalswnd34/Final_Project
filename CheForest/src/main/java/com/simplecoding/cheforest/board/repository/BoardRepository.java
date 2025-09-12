@@ -21,11 +21,11 @@ public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecific
 
     // 조회수 증가
     @Modifying
-    @Query("update Board b set b.viewCount = b.viewCount + 1 where b.id = :id")
-    void increaseViewCount(@Param("id") Long id);
+    @Query("update Board b set b.viewCount = b.viewCount + 1 where b.boardId = :boardId")
+    void increaseViewCount(@Param("boardId") Long boardId);
 
     // 썸네일 업데이트
     @Modifying
-    @Query("update Board b set b.thumbnail = :thumbnail where b.id = :id")
-    void updateThumbnail(@Param("id") Long id, @Param("thumbnail") String thumbnail);
+    @Query("update Board b set b.thumbnail = :thumbnail where b.boardId = :boardId")
+    void updateThumbnail(@Param("boardId") Long boardId, @Param("thumbnail") String thumbnail);
 }
