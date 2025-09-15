@@ -1,0 +1,40 @@
+package com.simplecoding.cheforest.auth.security;
+
+import com.simplecoding.cheforest.auth.entity.Member;
+import lombok.Getter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
+
+@Getter
+public class CustomUserDetails implements UserDetails {
+
+    private final Member member;
+
+    public CustomUserDetails(Member member) {
+        this.member = member;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(() -> "ROLE_" + member.getRole().name());
+    }
+
+    @Override
+    public String getPassword() {
+        return member.getPassword();
+    }
+
+    @Override
+    public String getUsername() {
+        return member.getLoginId();
+    }
+
+    // 아래 4개는 계정 상태 제어 (true 고정으로 두면 기본 활성)
+    @Override public boolean isAccountNonExpired() { return true; }
+    @Override public boolean isAccountNonLocked() { return true; }
+    @Override public boolean isCredentialsNonExpired() { return true; }
+    @Override public boolean isEnabled() { return true; }
+}

@@ -19,17 +19,20 @@
     <!-- ✅ 상단 바 -->
     <div class="top-nav-wrapper">
         <c:choose>
-            <c:when test="${not empty sessionScope.loginUser}">
+            <c:when test="${pageContext.request.userPrincipal != null}">
                 <div class="top-text-links">
                     <%-- <span>${sessionScope.loginUser.nickname}님 환영합니다!</span> --%>
                     <a href="/mypage/mypage">마이페이지</a>
-                    <a href="/member/logout">로그아웃</a>
+                    <form action="${pageContext.request.contextPath}/auth/logout" method="post" style="display:inline;">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                        <button type="submit" style="background:none;border:none;color:blue;cursor:pointer;">로그아웃</button>
+                    </form>
                 </div>
             </c:when>
             <c:otherwise>
                 <div class="top-text-links">
-                    <a href="/member/login">로그인</a>
-                    <a href="/member/login?mode=signup">회원가입</a>
+                    <a href="/auth/login">로그인</a>
+                    <a href="/auth/login?mode=signup">회원가입</a>
                 </div>
             </c:otherwise>
         </c:choose>

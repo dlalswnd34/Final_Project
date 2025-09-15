@@ -1,12 +1,14 @@
 package com.simplecoding.cheforest.common;
 
+import com.simplecoding.cheforest.auth.dto.MemberDetailDto;
+import com.simplecoding.cheforest.auth.dto.MemberSignupDto;
+import com.simplecoding.cheforest.auth.dto.MemberUpdateDto;
 import com.simplecoding.cheforest.file.entity.File;
 import com.simplecoding.cheforest.like.dto.LikeRes;
 import com.simplecoding.cheforest.like.dto.LikeSaveReq;
 import com.simplecoding.cheforest.like.entity.Like;
 import org.mapstruct.*;
-import com.simplecoding.cheforest.member.dto.*;
-import com.simplecoding.cheforest.member.entity.Member;
+import com.simplecoding.cheforest.auth.entity.Member;
 import com.simplecoding.cheforest.board.dto.*;
 import com.simplecoding.cheforest.board.entity.Board;
 import com.simplecoding.cheforest.review.dto.*;
@@ -22,13 +24,14 @@ import java.util.List;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface MapStruct {
     // ================= Member =================
-    Member toEntity(MemberSaveReq dto);
+    // 회원가입 DTO -> Member 엔티티
+    Member toEntity(MemberSignupDto dto);
 
-    void updateEntity(MemberUpdateReq dto, @MappingTarget Member member);
-    @Mapping(source = "loginId", target = "loginId")
-    @Mapping(source = "memberIdx", target = "memberIdx")
+    // Member 엔티티 -> 상세 DTO (세션/조회용)
     MemberDetailDto toDetailDto(Member member);
 
+    // 회원정보 수정 DTO -> Member 엔티티 (필드 덮어쓰기)
+    void updateEntity(MemberUpdateDto dto, @MappingTarget Member member);
 
     // ================= Board =================
     // 목록 조회 DTO 변환

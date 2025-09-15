@@ -1,4 +1,4 @@
-package com.simplecoding.cheforest.member.entity;
+package com.simplecoding.cheforest.auth.entity;
 
 import com.simplecoding.cheforest.common.BaseTimeEntity;
 import jakarta.persistence.*;
