@@ -18,6 +18,4 @@ public class BoardListDto {  // 목록조회 dto
     private Long likeCount;
     private String thumbnail;
     private LocalDateTime insertTime; // 작성일
-
-
 }

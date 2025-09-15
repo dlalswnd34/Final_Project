@@ -1,7 +1,7 @@
 package com.simplecoding.cheforest.mypage.repository;
 
 import com.simplecoding.cheforest.mypage.dto.*;
-import com.simplecoding.cheforest.member.entity.Member;
+import com.simplecoding.cheforest.auth.entity.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;

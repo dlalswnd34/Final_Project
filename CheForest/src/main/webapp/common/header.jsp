@@ -31,11 +31,11 @@
 <script>
         function goLogin() {
             const redirect = location.pathname + location.search;
-            location.href = '/member/login?redirect=' + encodeURIComponent(redirect);
+            location.href = '/auth/login?redirect=' + encodeURIComponent(redirect);
         }
         function goLogout() {
             const redirect = location.pathname + location.search;
-            location.href = '/member/logout?redirect=' + encodeURIComponent(redirect);
+            location.href = '/auth/logout?redirect=' + encodeURIComponent(redirect);
         }
     </script>
 </head>
@@ -80,7 +80,7 @@
 						<a class="dropdown-toggle"
 							href="${pageContext.request.contextPath}/board/list">게시판</a>
 						<div class="dropdown-menu">
-							<a class="dropdown-item" 
+							<a class="dropdown-item"
 								href="/board/list?category=한식">한식<span class="eng"> |　Korean</span></a> <a class="dropdown-item"
 								href="/board/list?category=양식">양식<span class="eng"> |　Western</span></a><a class="dropdown-item"
 								href="/board/list?category=중식">중식<span class="eng"> |　Chinese</span></a><a class="dropdown-item"
@@ -123,12 +123,15 @@
 				</div>
 
 				<c:choose>
-					<c:when test="${not empty sessionScope.loginUser}">
+					<c:when test="${pageContext.request.userPrincipal != null}">
 						<c:url var="mypageUrl" value="/mypage/mypage" />
 						<button class="head-mypage-btn"
 							onclick="location.href='${mypageUrl}'">마이페이지</button>
-						<button class="head-logout-btn" type="button" onclick="goLogout()">로그아웃</button>
-					</c:when>
+                        <form action="${pageContext.request.contextPath}/auth/logout" method="post" style="display:inline;">
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                            <button type="submit" style="background:none;border:none;color:blue;cursor:pointer;">로그아웃</button>
+                        </form>
+                    </c:when>
 					<c:otherwise>
 						<button class="login-btn" type="button" onclick="goLogin()">로그인</button>
 					</c:otherwise>
@@ -143,8 +146,11 @@
 					<c:choose>
 						<c:when test="${not empty sessionScope.loginUser}">
 							<a href="/mypage/mypage">마이페이지</a>
-							<a href="javascript:void(0);" onclick="goLogout()">로그아웃</a>
-						</c:when>
+                            <form action="${pageContext.request.contextPath}/auth/logout" method="post" style="display:inline;">
+                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                <button type="submit" style="background:none;border:none;color:blue;cursor:pointer;">로그아웃</button>
+                            </form>
+                        </c:when>
 						<c:otherwise>
 							<a href="javascript:void(0);" onclick="goLogin()">로그인</a>
 						</c:otherwise>

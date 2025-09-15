@@ -16,14 +16,11 @@
 </head>
 <body>
 <div class="main-flex">
-    <!-- 사이드바 -->
     <div class="sidebar">
         <jsp:include page="/common/sidebar.jsp" />
     </div>
 
-    <!-- 오른쪽 컨텐츠 영역 -->
     <div class="content-area">
-        <!-- ====== 탭 메뉴 ====== -->
         <div class="tab-menu">
             <div id="tab-myPosts" class="active" onclick="showSection('myPostsSection', this)">
                 <i class="bi bi-pencil-square"></i>
@@ -32,12 +29,11 @@
             <div id="tab-likedPosts" onclick="showSection('likedPostsSection', this)">
                 <i class="bi bi-heart-fill"></i>
                 <span>좋아요 남긴 글
-                    <span class="like-count">(<span id="likedCountNum">${likedRecipesTotalCount}</span>개)</span>
+                    <span class="like-count">(<span id="likedCountNum">${likedRecipesTotalCount + likedPostsTotalCount}</span>개)</span>
                 </span>
             </div>
         </div>
 
-        <!-- 내가 작성한 글 -->
         <div id="myPostsSection" style="display: block;">
             <form id="myPostsSearchForm" method="get" action="${pageContext.request.contextPath}/mypage/mypage" class="search-area" style="margin-bottom:0;">
                 <input type="hidden" name="tab" value="myboard"/>
@@ -61,7 +57,8 @@
                 <c:forEach var="post" items="${myPosts}">
                     <tr>
                         <td class="text-start"><a href="${pageContext.request.contextPath}/board/view?boardId=${post.boardId}" class="post-title-link">${post.title}</a></td>
-                        <td class="text-center"><fmt:formatDate value="${post.writeDate}" pattern="yyyy-MM-dd" /></td>
+                            <%-- [수정] 날짜 형식을 'YYYY-MM-DD'로 변경하고 'T'를 제거합니다. --%>
+                        <td class="text-center">${post.insertTime.toLocalDate()}</td>
                         <td class="text-center">${post.viewCount}</td>
                         <td class="text-center">${post.likeCount}</td>
                     </tr>
@@ -73,13 +70,11 @@
                 </c:if>
                 </tbody>
             </table>
-            <!-- 페이지네이션 (내가 작성한 글만) -->
             <div class="flex-center" id="paginationMyPostsWrap" style="display: flex;">
                 <ul class="pagination" id="paginationMyPosts"></ul>
             </div>
         </div>
 
-        <!-- 좋아요 남긴 글 (서브탭 포함) -->
         <div id="likedPostsSection" style="display: none;">
             <form id="likedPostsSearchForm" method="get" action="${pageContext.request.contextPath}/mypage/mypage" class="search-area" style="margin-bottom:0;">
                 <input type="hidden" name="tab" value="mylike"/>
@@ -90,7 +85,6 @@
                     <i class="bi bi-search"></i>
                 </button>
             </form>
-            <!-- 좋아요 레시피/게시글 서브탭 -->
             <div class="like-subtabs mb-3">
                 <div id="subtab-likedRecipe" class="like-subtab active" onclick="showLikeTab('likedRecipeTable', this)">
                     <i class="bi bi-bookmark-heart"></i> 레시피
@@ -99,34 +93,31 @@
                     <i class="bi bi-file-earmark-text"></i> 게시글
                 </div>
             </div>
-            <!-- 좋아요한 레시피 테이블 -->
             <table id="likedRecipeTable" class="table table-hover post-table" style="display: table;">
                 <thead>
                 <tr>
                     <th class="text-center" style="width: 55%;">레시피명</th>
-                    <th class="text-center" style="width: 20%;">카테고리</th>
-                    <th class="text-center" style="width: 15%;">조회수</th>
+                    <th class="text-center" style="width: 25%;">카테고리</th>
                     <th class="text-center" style="width: 10%;">좋아요</th>
                 </tr>
                 </thead>
                 <tbody>
                 <c:forEach var="recipe" items="${likedRecipes}">
                     <tr>
-                        <td class="text-start"><a href="${pageContext.request.contextPath}/recipe/view?recipeId=${recipe.recipeId}" class="post-title-link">${recipe.recipeTitle}</a></td>
-                        <td class="text-center">${recipe.recipeCategory}</td>
-                        <td class="text-center">${recipe.viewCount}</td>
-                        <td class="text-center">${recipe.recipeLikeCount}</td>
+                            <%-- [수정] DTO의 실제 필드명(titleKr, categoryKr, likeCount)과 일치시킵니다. --%>
+                        <td class="text-start"><a href="${pageContext.request.contextPath}/recipe/view?recipeId=${recipe.recipeId}" class="post-title-link">${recipe.titleKr}</a></td>
+                        <td class="text-center">${recipe.categoryKr}</td>
+                        <td class="text-center">${recipe.likeCount}</td>
                     </tr>
                 </c:forEach>
                 <c:if test="${empty likedRecipes}">
                     <tr>
-                        <td colspan="4" class="text-secondary text-center">좋아요를 남긴 레시피가 없습니다.</td>
+                        <td colspan="3" class="text-secondary text-center">좋아요를 남긴 레시피가 없습니다.</td>
                     </tr>
                 </c:if>
                 </tbody>
             </table>
 
-            <!-- 좋아요한 게시글 테이블 -->
             <table id="likedBoardTable" class="table table-hover post-table" style="display: none;">
                 <thead>
                 <tr>
@@ -142,7 +133,8 @@
                     <tr>
                         <td class="text-start"><a href="${pageContext.request.contextPath}/board/view?boardId=${like.boardId}" class="post-title-link">${like.title}</a></td>
                         <td class="text-center">${like.writerName}</td>
-                        <td class="text-center"><fmt:formatDate value="${like.writeDate}" pattern="yyyy-MM-dd" /></td>
+                            <%-- [수정] 날짜 형식을 통일하고 LocalDateTime 에러를 방지합니다. --%>
+                        <td class="text-center">${like.writeDate.toLocalDate()}</td>
                         <td class="text-center">${like.viewCount}</td>
                         <td class="text-center">${like.likeCount}</td>
                     </tr>
@@ -154,7 +146,6 @@
                 </c:if>
                 </tbody>
             </table>
-            <!-- 페이지네이션 (좋아요한 글만) -->
             <div class="flex-center" id="paginationLikedPostsWrap" style="display: none;">
                 <ul class="pagination" id="paginationLikedPosts"></ul>
             </div>
@@ -168,10 +159,11 @@
     </script>
 </c:if>
 
-<!-- ====== 스크립트 ====== -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twbs-pagination/1.4.2/jquery.twbsPagination.min.js"></script>
 <script>
+    // [참고] 이 스크립트 부분은 '좋아요' 탭의 페이지네이션 문제를 해결하기 위해 추가적인 수정이 필요합니다.
+    // 현재 코드는 화면 표시 에러만 해결된 상태입니다.
     function initPagination(selector, totalPages, startPage, visiblePages, tabName, pageParamName) {
         if ($(selector).data('twbs-pagination')) {
             $(selector).twbsPagination('destroy');
@@ -190,7 +182,6 @@
                 params.set('tab', tabName);
                 params.set(pageParamName, page);
 
-                // 검색어 유지
                 var searchInputId = (tabName === 'myboard') ? 'searchMyPosts' : 'searchLikedPosts';
                 var searchValue = document.getElementById(searchInputId) ? document.getElementById(searchInputId).value : '';
                 params.set('searchKeyword', searchValue);
@@ -201,7 +192,6 @@
     }
 
     $(function() {
-        // 초기 페이지네이션 (Spring Data Page<T> 기준)
         initPagination(
             '#paginationMyPosts',
             parseInt('${myPostsPaginationInfo.totalPages}'),

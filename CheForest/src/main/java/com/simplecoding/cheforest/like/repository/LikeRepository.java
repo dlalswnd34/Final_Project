@@ -1,7 +1,7 @@
 package com.simplecoding.cheforest.like.repository;
 
 import com.simplecoding.cheforest.like.entity.Like;
-import com.simplecoding.cheforest.member.entity.Member;
+import com.simplecoding.cheforest.auth.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -45,12 +45,12 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
 
     // 게시판 좋아요 수 증가
     @Modifying
-    @Query("UPDATE Board b SET b.likeCount = b.likeCount + 1 WHERE b.id = :boardId")
+    @Query("UPDATE Board b SET b.likeCount = b.likeCount + 1 WHERE b.boardId = :boardId")
     void increaseBoardLikeCount(Long boardId);
 
     // 게시판 좋아요 수 감소
     @Modifying
-    @Query("UPDATE Board b SET b.likeCount = b.likeCount - 1 WHERE b.id = :boardId")
+    @Query("UPDATE Board b SET b.likeCount = b.likeCount - 1 WHERE b.boardId = :boardId")
     void decreaseBoardLikeCount(Long boardId);
 
     // 레시피 좋아요 수 증가

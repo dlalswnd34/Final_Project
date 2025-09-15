@@ -4,7 +4,7 @@ import com.simplecoding.cheforest.common.MapStruct;
 import com.simplecoding.cheforest.file.dto.FileDto;
 import com.simplecoding.cheforest.file.entity.File;
 import com.simplecoding.cheforest.file.repository.FileRepository;
-import com.simplecoding.cheforest.member.entity.Member;
+import com.simplecoding.cheforest.auth.entity.Member;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

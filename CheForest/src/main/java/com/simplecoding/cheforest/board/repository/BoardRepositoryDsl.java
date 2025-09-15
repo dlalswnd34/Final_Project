@@ -6,7 +6,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.simplecoding.cheforest.board.dto.BoardDetailDto;
 import com.simplecoding.cheforest.board.dto.BoardListDto;
 import com.simplecoding.cheforest.board.entity.QBoard;
-import com.simplecoding.cheforest.member.entity.QMember;
+import com.simplecoding.cheforest.auth.entity.QMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

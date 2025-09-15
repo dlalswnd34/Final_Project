@@ -1,6 +1,6 @@
 package com.simplecoding.cheforest.like.entity;
 
-import com.simplecoding.cheforest.member.entity.Member;
+import com.simplecoding.cheforest.auth.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 

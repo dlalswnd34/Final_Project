@@ -7,13 +7,13 @@ import com.simplecoding.cheforest.board.dto.BoardUpdateReq;
 import com.simplecoding.cheforest.board.service.BoardService;
 import com.simplecoding.cheforest.file.dto.FileDto;
 import com.simplecoding.cheforest.file.service.FileService;
-import com.simplecoding.cheforest.member.dto.MemberDetailDto;
-import jakarta.servlet.http.HttpSession;
+import com.simplecoding.cheforest.auth.dto.MemberDetailDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -63,13 +63,8 @@ public class BoardController {
     public String add(
             @ModelAttribute BoardSaveReq dto,
             @RequestParam(value = "images", required = false) List<MultipartFile> images,
-            HttpSession session
+            @AuthenticationPrincipal MemberDetailDto loginUser
     ) throws IOException {
-        MemberDetailDto loginUser = (MemberDetailDto) session.getAttribute("loginUser");
-        if (loginUser == null) {
-            return "redirect:/member/login";
-        }
-
         Long boardId = boardService.create(dto, loginUser.getEmail());
 
         Long firstFileId = fileService.saveBoardFiles(boardId, loginUser.getMemberIdx(), images);
@@ -99,13 +94,8 @@ public class BoardController {
             @ModelAttribute BoardUpdateReq dto,
             @RequestParam(value = "images", required = false) List<MultipartFile> images,
             @RequestParam(value = "deleteImageIds", required = false) List<Long> deleteImageIds,
-            HttpSession session
+            @AuthenticationPrincipal MemberDetailDto loginUser
     ) throws IOException {
-        MemberDetailDto loginUser = (MemberDetailDto) session.getAttribute("loginUser");
-        if (loginUser == null) {
-            return "redirect:/member/login";
-        }
-
         // 삭제할 파일 처리
         if (deleteImageIds != null) {
             deleteImageIds.forEach(fileService::deleteFile);
@@ -133,8 +123,8 @@ public class BoardController {
 
     // 7. 관리자 삭제
     @PostMapping("/board/adminDelete")
-    public String adminDelete(@RequestParam("boardId") Long boardId, HttpSession session) {
-        MemberDetailDto loginUser = (MemberDetailDto) session.getAttribute("loginUser");
+    public String adminDelete(@RequestParam("boardId") Long boardId,
+                              @AuthenticationPrincipal MemberDetailDto loginUser) {
         if (loginUser == null || !"ADMIN".equals(loginUser.getRole())) {
             return "redirect:/board/list?error=unauthorized";
         }
@@ -144,15 +134,11 @@ public class BoardController {
 
     // 8. 상세 조회
     @GetMapping("/board/view")
-    public String view(@RequestParam("boardId") Long boardId, Model model, HttpSession session) {
+    public String view(@RequestParam("boardId") Long boardId, Model model,
+                       @AuthenticationPrincipal MemberDetailDto loginUser) {
         BoardDetailDto board = boardService.getBoardDetail(boardId);
         model.addAttribute("board", board);
-
-        MemberDetailDto loginUser = (MemberDetailDto) session.getAttribute("loginUser");
         model.addAttribute("loginUser", loginUser);
-
-//        List<FileDto> fileList = fileService.getFilesByBoardId(boardId);
-//        model.addAttribute("fileList", fileList);
 
         return "board/boardview";
     }

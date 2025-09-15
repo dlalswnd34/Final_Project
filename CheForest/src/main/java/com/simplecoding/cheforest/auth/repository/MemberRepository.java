@@ -1,6 +1,6 @@
-package com.simplecoding.cheforest.member.repository;
+package com.simplecoding.cheforest.auth.repository;
 
-import com.simplecoding.cheforest.member.entity.Member;
+import com.simplecoding.cheforest.auth.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
