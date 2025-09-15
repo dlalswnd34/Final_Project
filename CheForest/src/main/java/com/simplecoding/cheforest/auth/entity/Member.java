@@ -29,15 +29,13 @@ public class Member extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     private Role role;        // USER / ADMIN
-
     private String nickname;
     private String profile;
-
-    @Builder.Default
     private String tempPasswordYn = "N";  // 기본값 N
-
     private String socialId;   // 카카오, 구글, 네이버 식별자
     private String provider;   // "KAKAO", "GOOGLE", "NAVER"
+    private Long point = 0L;      // 누적 포인트
+    private String grade = "씨앗"; // 회원 등급
 
     public enum Role {
         USER, ADMIN
