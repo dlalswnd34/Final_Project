@@ -1,8 +1,11 @@
 package com.simplecoding.cheforest.mypage.controller;
 
+import com.simplecoding.cheforest.auth.entity.Member;
+import com.simplecoding.cheforest.auth.repository.MemberRepository;
 import com.simplecoding.cheforest.mypage.dto.*;
 import com.simplecoding.cheforest.mypage.service.MypageService;
 import com.simplecoding.cheforest.auth.security.CustomUserDetails;
+import com.simplecoding.cheforest.point.service.PointService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
@@ -18,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 public class MypageController {
 
     private final MypageService mypageService;
+    private final PointService pointService;
+    private final MemberRepository memberRepository;
 
     // 마이페이지 메인 (내 글 + 좋아요)
     @GetMapping("/mypage")
@@ -60,5 +65,20 @@ public class MypageController {
         model.addAttribute("tab", tab);
 
         return "mypage/mypage";
+    }
+
+    @GetMapping("/points")
+    public String myPoints(@AuthenticationPrincipal CustomUserDetails user, Model model) {
+        Member member = memberRepository.findById(user.getMemberIdx())
+                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+
+        model.addAttribute("currentPoint", member.getPoint());
+        model.addAttribute("currentGrade", member.getGrade());
+        model.addAttribute("todayPoint", pointService.getTodayPoints(member.getMemberIdx()));
+        model.addAttribute("weekPoint", pointService.getWeekPoints(member.getMemberIdx()));
+        model.addAttribute("nextGradePoint", pointService.getNextGradePoint(member.getPoint()));
+        model.addAttribute("recentHistories", pointService.getRecentHistories(member.getMemberIdx()));
+
+        return "mypage/points"; // JSP or Thymeleaf 페이지
     }
 }

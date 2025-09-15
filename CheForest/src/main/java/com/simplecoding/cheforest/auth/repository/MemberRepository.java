@@ -3,7 +3,9 @@ package com.simplecoding.cheforest.auth.repository;
 import com.simplecoding.cheforest.auth.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
@@ -43,4 +45,11 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     // JPQL: 아이디 찾기 (이메일로 아이디 반환)
     @Query("select m.loginId from Member m where m.email = :email")
     String findIdByEmail(String email);
+
+    // 포인트 상위 10명 (랭킹)
+    List<Member> findTop10ByOrderByPointDesc();
+
+    // 특정 회원의 랭킹 (내 순위 구하기)
+    @Query("SELECT COUNT(m) + 1 FROM Member m WHERE m.point > :point")
+    Long findMyRank(@Param("point") Long point);
 }

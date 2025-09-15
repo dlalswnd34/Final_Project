@@ -17,6 +17,11 @@ public class CustomUserDetails implements UserDetails {
         this.member = member;
     }
 
+    // PK 꺼내는 메서드 추가
+    public Long getMemberIdx() {
+        return member.getMemberIdx();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(() -> "ROLE_" + member.getRole().name());
