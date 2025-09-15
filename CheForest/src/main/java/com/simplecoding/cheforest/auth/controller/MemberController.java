@@ -24,7 +24,6 @@ public class MemberController {
     // ================= 로그인 페이지 =================
     @GetMapping("/auth/login")
     public String loginView() {
-        log.info("👉 [테스트] loginView 호출됨"); // 로그 메시지도 살짝 바꿔서 구별해봅시다.
         return "auth/login";
     }
 
@@ -75,7 +74,7 @@ public class MemberController {
         }
         try {
             memberService.update(dto);
-            model.addAttribute("msg", "✅ 회원정보가 수정되었습니다.");
+            model.addAttribute("msg", "회원정보가 수정되었습니다.");
         } catch (IllegalArgumentException e) {
             model.addAttribute("msg", "❌ " + e.getMessage());
             return "mypage/edit";
