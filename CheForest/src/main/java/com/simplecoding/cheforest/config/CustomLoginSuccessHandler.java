@@ -56,13 +56,20 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
             return;
         }
 
-        // ✅ SavedRequest 확인
+// ✅ SavedRequest 확인
         SavedRequest savedRequest = new HttpSessionRequestCache().getRequest(request, response);
 
         if (savedRequest != null) {
             String targetUrl = savedRequest.getRedirectUrl();
-            log.info("로그인 성공 → 원래 요청한 페이지로 이동: {}", targetUrl);
-            response.sendRedirect(targetUrl);
+
+            // 🚨 /error 로 시작하면 홈으로 강제 이동
+            if (targetUrl != null && !targetUrl.contains("/error")) {
+                log.info("로그인 성공 → 원래 요청한 페이지로 이동: {}", targetUrl);
+                response.sendRedirect(targetUrl);
+            } else {
+                log.info("로그인 성공 → 잘못된 redirectUrl 감지, 홈으로 이동");
+                response.sendRedirect("/");
+            }
         } else {
             log.info("로그인 성공 → 기본 홈으로 이동");
             response.sendRedirect("/");
