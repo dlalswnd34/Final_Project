@@ -130,7 +130,7 @@
                     <h2 class="text-4xl font-black brand-gradient">인기 레시피</h2>
                 </div>
                 <p class="text-gray-600 max-w-2xl mx-auto">
-                    요리사들이 가장 사랑하는 레시피를 만나보세요. 좋아요와 조회수가 높은 검증된 맛있는 요리들입니다.
+                    CheForest 사용자들이 가장 사랑하는 레시피를 만나보세요. 좋아요가 높은 검증된 맛있는 요리들입니다.
                 </p>
             </div>
 
