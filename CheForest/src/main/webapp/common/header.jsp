@@ -1,221 +1,246 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-
-<%-- 🆕 요청 URI와 쿼리스트링 가져오기 --%>
-<c:set var="uri"
-	value="${empty requestScope['javax.servlet.forward.request_uri'] ? pageContext.request.requestURI : requestScope['javax.servlet.forward.request_uri']}" />
-<c:set var="query"
-	value="${empty requestScope['javax.servlet.forward.query_string'] ? pageContext.request.queryString : requestScope['javax.servlet.forward.query_string']}" />
-<c:choose>
-	<c:when test="${not fn:contains(uri, '/WEB-INF')}">
-		<c:set var="fullUrl" value="${uri}${query != null ? '?' : ''}${query}" />
-	</c:when>
-	<c:otherwise>
-		<c:set var="fullUrl" value='/' />
-	</c:otherwise>
-</c:choose>
-
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<title>header</title>
-<link rel="icon" type="image/png" href="/images/favicon.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="/css/header.css">
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-	rel="stylesheet">
-<link rel="stylesheet" href="/css/style.css">
-
-<script>
-        function goLogin() {
-            const redirect = location.pathname + location.search;
-            location.href = '/auth/login?redirect=' + encodeURIComponent(redirect);
-        }
-        function goLogout() {
-            const redirect = location.pathname + location.search;
-            location.href = '/auth/logout?redirect=' + encodeURIComponent(redirect);
-        }
-    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/header.css">
 </head>
 <body>
+    <!-- CheForest 머리말 화면 -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- 상단: 로고, 검색창, 사용자 메뉴 -->
+            <div class="flex items-center justify-between h-16">
+                <!-- 로고 -->
+                <div class="logo-container flex items-center space-x-4 cursor-pointer" onclick="showPage('home')">
+                    <div class="relative">
+                        <i data-lucide="chef-hat" class="h-12 w-12 text-orange-500"></i>
+                    </div>
+                    <h1 class="text-3xl font-black tracking-tight brand-gradient">
+                        CheForest
+                    </h1>
+                </div>
 
-	<div class="main-navbar-bg">
-		<nav class="main-navbar">
-			<!-- 왼쪽 로고 + 메뉴 -->
-			<div class="navbar-left">
-				<a href="/" class="main-logo"> <!-- 로고 이미지 -->
-					<div class="logoi">
-						<img src="<%=request.getContextPath()%>/images/home/header.png"
-							alt="메인로고">
-					</div>
-				</a>
-				<div class="main-menu">
-					<!-- Recipe 드롭다운 -->
-					<div class="dropdown" id="dropdown-recipe">
+                <!-- 중앙 검색바 -->
+                <div class="hidden md:flex flex-1 justify-center px-8">
+                    <div class="relative w-full max-w-lg">
+                        <div class="relative">
+                            <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4"></i>
+                            <input
+                                type="text"
+                                placeholder="레시피, 재료, 요리법 검색..."
+                                class="search-input pl-10 pr-12 py-2 w-full border-2 border-gray-200 rounded-full bg-gray-50 cursor-pointer"
+                            />
+                            <button 
+                                class="search-btn absolute right-1 top-1/2 transform -translate-y-1/2 h-7 px-3 btn-orange text-white rounded-full text-sm"
+                            >
+                                <i data-lucide="search" class="h-3 w-3"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-						<a class="dropdown-toggle"
-							href="${pageContext.request.contextPath}/recipe/list">레시피</a>
+                <!-- 우측 사용자 메뉴 -->
+                <div class="flex items-center space-x-2">
+                    <!-- 모바일 검색 -->
+                    <button 
+                        class="md:hidden text-orange-500 hover:bg-orange-50 p-2 rounded-lg transition-colors"
+                        onclick="showPage('search')"
+                        title="검색"
+                    >
+                        <i data-lucide="search" class="h-5 w-5"></i>
+                    </button>
+                    
+                    <!-- 관리자 모드 버튼 -->
+                    <button 
+                        class="hidden sm:flex text-orange-500 hover:bg-orange-50 p-2 rounded-lg transition-colors"
+                        onclick="showPage('admin')"
+                        title="관리자 모드"
+                    >
+                        <i data-lucide="shield" class="h-6 w-6"></i>
+                    </button>
+                    
+                    <!-- 등급 안내 -->
+                    <button 
+                        class="text-orange-500 hover:bg-orange-50 p-2 rounded-lg transition-colors"
+                        onclick="showPage('grade')"
+                        title="등급 안내"
+                    >
+                        <i data-lucide="award" class="h-6 w-6"></i>
+                    </button>
+                    
+                    <button 
+                        class="hidden sm:flex text-orange-500 hover:bg-orange-50 p-2 rounded-lg transition-colors"
+                        onclick="showPage('mypage')"
+                        title="마이페이지"
+                    >
+                        <i data-lucide="user" class="h-6 w-6"></i>
+                    </button>
+                    
+                    <button 
+                        onclick="showPage('login')"
+                        class="hidden sm:flex btn-orange text-white px-4 py-2 rounded-lg font-medium"
+                    >
+                        로그인
+                    </button>
+                    
+                    <button 
+                        class="sm:hidden text-orange-500 hover:bg-orange-50 p-2 rounded-lg transition-colors"
+                        onclick="toggleMobileMenu()"
+                    >
+                        <i data-lucide="menu" class="h-5 w-5"></i>
+                    </button>
+                </div>
+            </div>
 
-						<div class="dropdown-menu">
+            <!-- 하단: 메인 네비게이션 -->
+            <nav class="hidden sm:flex items-center justify-center space-x-8 py-3">
+                <button 
+                    onclick="showPage('home')"
+                    class="nav-item relative font-medium transition-colors text-gray-700 hover:text-orange-500"
+                    data-page="home"
+                >
+                    홈
+                    <span class="nav-underline"></span>
+                </button>
 
-							<a class="dropdown-item"
-								href="/recipe/list?categoryKr=한식&pageIndex=1">한식<span
-								class="eng"> |　Korean</span></a> <a class="dropdown-item"
-								href="/recipe/list?categoryKr=양식&pageIndex=1">양식<span
-								class="eng"> |　Western</span></a> <a class="dropdown-item"
-								href="/recipe/list?categoryKr=중식&pageIndex=1">중식<span
-								class="eng"> |　Chinese</span></a> <a class="dropdown-item"
-								href="/recipe/list?categoryKr=일식&pageIndex=1">일식<span
-								class="eng"> |　Japanese</span></a> <a class="dropdown-item"
-								href="/recipe/list?categoryKr=디저트&pageIndex=1">디저트<span
-								class="eng"> |　Dessert</span></a>
+                <button 
+                    onclick="showPage('recipes')"
+                    class="nav-item relative font-medium transition-colors text-gray-700 hover:text-orange-500"
+                    data-page="recipes"
+                >
+                    <div class="text-center">
+                        <div class="text-sm leading-tight">CheForest</div>
+                        <div class="text-sm leading-tight">레시피</div>
+                    </div>
+                    <span class="nav-underline"></span>
+                </button>
 
-						</div>
-					</div>
+                <button 
+                    onclick="showPage('board')"
+                    class="nav-item relative font-medium transition-colors text-gray-700 hover:text-orange-500"
+                    data-page="board"
+                >
+                    <div class="text-center">
+                        <div class="text-sm leading-tight">사용자</div>
+                        <div class="text-sm leading-tight">레시피</div>
+                    </div>
+                    <span class="nav-underline"></span>
+                </button>
 
-					<!-- ✅ Board 드롭다운 (클릭 시 전체 게시판 이동) -->
-					<div class="dropdown" id="dropdown-board">
-						<a class="dropdown-toggle"
-							href="${pageContext.request.contextPath}/board/list">게시판</a>
-						<div class="dropdown-menu">
-							<a class="dropdown-item"
-								href="/board/list?category=한식">한식<span class="eng"> |　Korean</span></a> <a class="dropdown-item"
-								href="/board/list?category=양식">양식<span class="eng"> |　Western</span></a><a class="dropdown-item"
-								href="/board/list?category=중식">중식<span class="eng"> |　Chinese</span></a><a class="dropdown-item"
-								href="/board/list?category=일식">일식<span class="eng"> |　Japanese</span></a><a class="dropdown-item"
-								href="/board/list?category=디저트">디저트<span class="eng"> |　Dessert</span></a>
-						</div>
-					</div>
+                <div class="relative group">
+                    <button 
+                        onclick="showPage('ingredients')"
+                        onmouseenter="showIngredientsDropdown()"
+                        onmouseleave="hideIngredientsDropdown()"
+                        class="nav-item relative flex items-center space-x-1 font-medium transition-colors text-gray-700 hover:text-orange-500"
+                        data-page="ingredients"
+                    >
+                        <span>계절 식재료</span>
+                        <!-- <i data-lucide="chevron-down" class="h-4 w-4"></i>
+                        <span class="nav-underline"></span> -->
+                    </button>
+                    
+                    <!-- 드롭다운 메뉴
+                    <div 
+                        id="ingredientsDropdown"
+                        class="absolute top-full left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-xl opacity-0 invisible transform -translate-y-2 transition-all duration-200 z-50"
+                        onmouseenter="showIngredientsDropdown()"
+                        onmouseleave="hideIngredientsDropdown()"
+                    >
+                        <div class="py-2">
+                            <button 
+                                onclick="showPage('ingredients')"
+                                class="w-full text-left px-6 py-3 text-base text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors font-medium"
+                            >
+                                <span class="text-lg mr-3">🌸</span>
+                                봄철 식재료
+                            </button>
+                            <button 
+                                onclick="showPage('ingredients')"
+                                class="w-full text-left px-6 py-3 text-base text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors font-medium"
+                            >
+                                <span class="text-lg mr-3">☀️</span>
+                                여름철 식재료
+                            </button>
+                            <button 
+                                onclick="showPage('ingredients')"
+                                class="w-full text-left px-6 py-3 text-base text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors font-medium"
+                            >
+                                <span class="text-lg mr-3">🍂</span>
+                                가을철 식재료
+                            </button>
+                            <button 
+                                onclick="showPage('ingredients')"
+                                class="w-full text-left px-6 py-3 text-base text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors font-medium"
+                            >
+                                <span class="text-lg mr-3">❄️</span>
+                                겨울철 식재료
+                            </button>
+                        </div>
+                    </div> -->
+                </div>
 
-					<!-- Event -->
-					<div class="dropdown" id="dropdown-event">
-						<button class="dropdown-toggle" type="button">이벤트</button>
-						<div class="dropdown-menu">
-							<a class="dropdown-item" href="/event/test">레시피 추천</a>
-							<!-- <a
-								class="dropdown-item" href="/event/recipe">Recipe Event</a> -->
-						</div>
-					</div>
+                <button 
+                    onclick="showPage('events')"
+                    class="nav-item relative font-medium transition-colors text-gray-700 hover:text-orange-500"
+                    data-page="events"
+                >
+                    이벤트
+                    <span class="nav-underline"></span>
+                </button>
 
-					<!-- Support -->
-					<div class="dropdown" id="dropdown-qna">
-						<button class="dropdown-toggle" type="button">고객지원</button>
-						<div class="dropdown-menu">
-							<a class="dropdown-item" href="/guide">홈페이지 가이드</a> <a
-								class="dropdown-item" href="/qna">Q&A</a>
-						</div>
-					</div>
-				</div>
-			</div>
+                <button 
+                    onclick="showPage('qna')"
+                    class="nav-item relative font-medium transition-colors text-gray-700 hover:text-orange-500"
+                    data-page="qna"
+                >
+                    Q&A
+                    <span class="nav-underline"></span>
+                </button>
+            </nav>
 
-			<!-- 오른쪽 검색창 + 로그인/로그아웃 -->
-			<div class="navbar-right">
-				<div class="navbar-search">
-					<form action="/search/all" method="get" autocomplete="off">
-						<input type="text" name="keyword" class="ssearch-box"
-							placeholder="통합 검색" value="${param.keyword}">
-						<button class="ssearch-btn" type="submit">
-							<i class="bi bi-search"></i>
-						</button>
-					</form>
-				</div>
+            <!-- 모바일 네비게이션 -->
+            <nav id="mobileMenu" class="hidden sm:hidden py-3 border-t border-gray-200">
+                <div class="flex flex-col space-y-2">
+                    <button onclick="showPage('home')" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">홈</button>
+                    <button onclick="showPage('recipes')" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">
+                        <div>
+                            <div>CheForest</div>
+                            <div>레시피</div>
+                        </div>
+                    </button>
+                    <button onclick="showPage('board')" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">
+                        <div>
+                            <div>사용자</div>
+                            <div>레시피</div>
+                        </div>
+                    </button>
+                    <button onclick="showPage('ingredients')" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">계절 식재료</button>
+                    <button onclick="showPage('grade')" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">등급 안내</button>
+                    <button onclick="showPage('events')" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">이벤트</button>
+                    <button onclick="showPage('qna')" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">Q&A</button>
+                    <button onclick="showPage('admin')" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">🛡️ 관리자 모드</button>
+                    <button onclick="showPage('mypage')" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">👤 마이페이지</button>
+                    
+                    <div class="pt-4 border-t border-gray-200 mt-4">
+                        <button onclick="showPage('login')" class="w-full btn-orange text-white py-2 px-4 rounded-lg font-medium">로그인</button>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
 
-				<c:choose>
-					<c:when test="${pageContext.request.userPrincipal != null}">
-						<c:url var="mypageUrl" value="/mypage/mypage" />
-						<button class="head-mypage-btn"
-							onclick="location.href='${mypageUrl}'">마이페이지</button>
-                        <form action="${pageContext.request.contextPath}/auth/logout" method="post" style="display:inline;">
-                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                            <button type="submit" style="background:none;border:none;color:blue;cursor:pointer;">로그아웃</button>
-                        </form>
-                    </c:when>
-					<c:otherwise>
-						<button class="login-btn" type="button" onclick="goLogin()">로그인</button>
-					</c:otherwise>
-				</c:choose>
-			</div>
-			<!-- 햄버거(앱) 메뉴 : 모바일에서만 보임 -->
-			<div class="app-menu-container">
-				<button class="app-menu-toggle" onclick="toggleAppMenu()">
-					<i class="bi bi-list"></i>
-				</button>
-				<div class="app-menu-dropdown" id="appMenuDropdown">
-					<c:choose>
-						<c:when test="${not empty sessionScope.loginUser}">
-							<a href="/mypage/mypage">마이페이지</a>
-                            <form action="${pageContext.request.contextPath}/auth/logout" method="post" style="display:inline;">
-                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                                <button type="submit" style="background:none;border:none;color:blue;cursor:pointer;">로그아웃</button>
-                            </form>
-                        </c:when>
-						<c:otherwise>
-							<a href="javascript:void(0);" onclick="goLogin()">로그인</a>
-						</c:otherwise>
-					</c:choose>
-				</div>
-			</div>
-		</nav>
-	</div>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="/js/common.js"></script>
+    <script src="/js/header.js"></script>
 
-	<!-- ✅ 드롭다운 동작 -->
-	<script>
-    const dropdowns = document.querySelectorAll('.dropdown');
-    dropdowns.forEach(dropdown => {
-        dropdown.addEventListener('mouseenter', function () {
-            dropdowns.forEach(dd => {
-                if (dd !== this) dd.querySelector('.dropdown-menu').classList.remove('show');
-            });
-            this.querySelector('.dropdown-menu').classList.add('show');
-        });
-        dropdown.addEventListener('mouseleave', function () {
-            this.querySelector('.dropdown-menu').classList.remove('show');
-        });
-
-        const toggle = dropdown.querySelector('.dropdown-toggle');
-        if (toggle.tagName === 'A') {
-            toggle.addEventListener('click', function (e) {
-                if (dropdown.id !== 'dropdown-board' && dropdown.id !== 'dropdown-recipe') {
-                    e.preventDefault(); // ❗Board 외에는 기본 링크 막고 토글만
-                }
-                dropdowns.forEach(dd => {
-                    if (dd !== dropdown) dd.querySelector('.dropdown-menu').classList.remove('show');
-                });
-                dropdown.querySelector('.dropdown-menu').classList.toggle('show');
-            });
-        }
-    });
-
-    // 바깥 클릭 시 닫기
-    document.body.addEventListener('click', function (e) {
-        if (!e.target.closest('.dropdown')) {
-            dropdowns.forEach(dd => dd.querySelector('.dropdown-menu').classList.remove('show'));
-        }
-    });
-    // 공백 검색시 빈 값 공백 방지
-    document.querySelector('.navbar-search form').addEventListener('submit', function(e) {
-        const value = this.keyword.value.trim();
-        if (!value) {
-          alert('검색어를 입력하세요!');
-          this.keyword.focus();
-          e.preventDefault();
-        }
-      });
-    function toggleAppMenu() {
-    	  const menu = document.getElementById('appMenuDropdown');
-    	  menu.classList.toggle('show');
-    	}
-    	// 메뉴 밖 클릭시 닫힘
-    	document.addEventListener('click', function(event) {
-    	  const menu = document.getElementById('appMenuDropdown');
-    	  const btn = document.querySelector('.app-menu-toggle');
-    	  if (!menu || !btn) return;
-    	  if (!menu.contains(event.target) && !btn.contains(event.target)) {
-    	    menu.classList.remove('show');
-    	  }
-    	});
-</script>
 </body>
 </html>

@@ -20,16 +20,16 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
                                 HttpServletResponse response,
                                 Authentication authentication) throws IOException {
 
-        // 세션에 저장된 provider (예: "KAKAO", "GOOGLE", "NAVER", "LOCAL")
+        // ✅ 세션에 저장된 provider (LOCAL, KAKAO, GOOGLE, NAVER)
         String provider = (String) request.getSession().getAttribute("provider");
 
-        // 기본 리다이렉트 URL (prevPage > 서비스 메인)
-        String redirectUrl = (String) request.getSession().getAttribute("prevPage");
-        if (redirectUrl == null) {
+        // ✅ 기본 redirect (Referer > 홈)
+        String redirectUrl = request.getHeader("Referer");
+        if (redirectUrl == null || redirectUrl.contains("/auth")) {
             redirectUrl = "/";
         }
 
-        // ✅ 소셜 로그아웃 URL 처리
+        // ✅ 소셜 로그아웃 URL
         String providerLogoutUrl = null;
         if ("KAKAO".equalsIgnoreCase(provider)) {
             providerLogoutUrl =
@@ -42,10 +42,10 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
             providerLogoutUrl = "https://nid.naver.com/nidlogin.logout";
         }
 
-        // 세션 초기화
+        // ✅ 세션 무효화
         request.getSession().invalidate();
 
-        // ✅ Provider 로그아웃 → 없으면 prevPage/홈으로
+        // ✅ Provider 로그아웃 → 없으면 redirectUrl
         if (providerLogoutUrl != null) {
             response.sendRedirect(providerLogoutUrl);
         } else {

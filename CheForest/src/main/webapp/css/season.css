@@ -1,0 +1,214 @@
+/* CheForest 계절별 식재료 페이지 스타일 */
+
+/* 계절별 배경 그라데이션 */
+.season-bg-spring {
+    background: linear-gradient(135deg, #ecfdf5 0%, #fdf2f8 100%);
+}
+
+.season-bg-summer {
+    background: linear-gradient(135deg, #fefce8 0%, #fff7ed 100%);
+}
+
+.season-bg-autumn {
+    background: linear-gradient(135deg, #fff7ed 0%, #fef2f2 100%);
+}
+
+.season-bg-winter {
+    background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+}
+
+/* 식재료 카드 애니메이션 */
+.ingredient-card {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 펄스 애니메이션 */
+.pulse-dot {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* 계절 탭 호버 효과 */
+.season-tab:hover {
+    transform: scale(1.02);
+}
+
+.season-tab.active {
+    transform: scale(1.05);
+}
+
+/* 이미지 오버레이 효과 */
+.image-overlay {
+    background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.4) 0%,
+        rgba(0, 0, 0, 0.1) 50%,
+        transparent 100%
+    );
+}
+
+/* 스무스 전환 효과 */
+.smooth-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 반응형 그리드 */
+@media (max-width: 640px) {
+    .ingredient-card {
+        margin-bottom: 1rem;
+    }
+    
+    #season-tabs {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .season-tab {
+        flex: 1;
+        min-width: fit-content;
+    }
+}
+
+@media (max-width: 768px) {
+    #ingredients-grid {
+        grid-template-columns: repeat(1, 1fr);
+        gap: 1rem;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    #ingredients-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1025px) and (max-width: 1280px) {
+    #ingredients-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* 계절별 텍스트 색상 유틸리티 */
+.text-spring {
+    color: #059669;
+}
+
+.text-summer {
+    color: #d97706;
+}
+
+.text-autumn {
+    color: #dc2626;
+}
+
+.text-winter {
+    color: #2563eb;
+}
+
+/* 계절별 보더 색상 */
+.border-spring {
+    border-color: #6ee7b7;
+}
+
+.border-summer {
+    border-color: #fed7aa;
+}
+
+.border-autumn {
+    border-color: #fecaca;
+}
+
+.border-winter {
+    border-color: #93c5fd;
+}
+
+/* 계절별 배지 그라데이션 */
+.badge-spring {
+    background: linear-gradient(135deg, #10b981 0%, #ec4899 100%);
+}
+
+.badge-summer {
+    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+}
+
+.badge-autumn {
+    background: linear-gradient(135deg, #f97316 0%, #dc2626 100%);
+}
+
+.badge-winter {
+    background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+}
+
+/* 로딩 애니메이션 */
+.loading-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* 카드 호버 섀도우 */
+.ingredient-card:hover {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* 버튼 액티브 효과 */
+.recipe-button:active {
+    transform: scale(0.95);
+}
+
+
+
+/* 스크롤 인디케이터 */
+.scroll-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(
+        90deg,
+        #10b981 0%,
+        #f59e0b 25%,
+        #f97316 50%,
+        #3b82f6 75%,
+        #6366f1 100%
+    );
+    transform-origin: left;
+    z-index: 1000;
+}
+
+/* 접근성 */
+@media (prefers-reduced-motion: reduce) {
+    .ingredient-card,
+    .pulse-dot,
+    .season-tab {
+        animation: none;
+        transition: none;
+    }
+}

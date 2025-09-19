@@ -1,6 +1,7 @@
 package com.simplecoding.cheforest.config;
 
 import com.simplecoding.cheforest.auth.security.CustomOAuth2UserService;
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,18 +29,16 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
+                        .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()   // jsp redirection 허용
+                        .dispatcherTypeMatchers(DispatcherType.INCLUDE).permitAll()   // jsp:include 허용
                         .requestMatchers(
-                                "/",
-                                "/home",
+                                "/", "/home",
                                 "/auth/**",
-                                "/css/**",
-                                "/js/**",
-                                "/images/**",
-                                "/WEB-INF/views/**",
-                                "/fragments/**"
+                                "/css/**", "/js/**", "/images/**",
+                                "/favicon.ico", "/fragments/**"
                         ).permitAll()
                         .requestMatchers("/recipe/**", "/board/**", "/event/**", "/search/**").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated()
                 )
                 // ✅ 일반 로그인 설정
@@ -48,7 +47,7 @@ public class SecurityConfig {
                         .loginProcessingUrl("/auth/login")
                         .usernameParameter("loginId")
                         .passwordParameter("password")
-                        .successHandler(customLoginSuccessHandler) // 공용 SuccessHandler 적용
+                        .successHandler(customLoginSuccessHandler) // 성공 핸들러
                         .failureUrl("/auth/login?error=true")
                         .permitAll()
                 )
@@ -56,19 +55,14 @@ public class SecurityConfig {
                 .oauth2Login(oauth -> oauth
                         .loginPage("/auth/login")
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                        .successHandler(customLoginSuccessHandler) // 공용 SuccessHandler 적용
+                        .successHandler(customLoginSuccessHandler) // 성공 핸들러
                 )
+                // ✅ 로그아웃 설정
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
-                        .logoutSuccessHandler(customLogoutSuccessHandler) // ✅ prevPage 지원 로그아웃
+                        .logoutSuccessHandler(customLogoutSuccessHandler)
                         .permitAll()
-                )
-                // ✅ prevPage 저장 (중요!)
-                .exceptionHandling(ex -> ex.authenticationEntryPoint((req, res, e) -> {
-                    // 원래 가려던 URL 저장
-                    req.getSession().setAttribute("prevPage", req.getRequestURI());
-                    res.sendRedirect("/auth/login");
-                }));
+                );
 
         return http.build();
     }

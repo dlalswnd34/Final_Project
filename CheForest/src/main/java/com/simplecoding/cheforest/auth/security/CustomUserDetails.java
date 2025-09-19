@@ -22,9 +22,10 @@ public class CustomUserDetails implements UserDetails {
         return member.getMemberIdx();
     }
 
+//   권한 정보는 멤버엔티티에 ROLE 필드에서 가지고 옴
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(() -> "ROLE_" + member.getRole().name());
+        return List.of(() -> member.getRole().name());
     }
 
     @Override
