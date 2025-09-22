@@ -9,9 +9,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -45,6 +48,11 @@ public class RecipeService {
     public List<RecipeDto> getBestRecipes() {
         return mapStruct.toDtoList(recipeRepository.findTop10ByOrderByLikeCountDescRecipeIdDesc());
     }
+    // 4. 인기 레시피 TOP10
+    public List<RecipeDto> getBest3Recipes() {
+        return mapStruct.toDtoList(recipeRepository.findTop3ByOrderByLikeCountDescRecipeIdDesc());
+    }
+
 
     // 5. 썸네일 다운로드 & 로컬 캐싱
     public void downloadAndCacheAllImages() {
@@ -76,5 +84,23 @@ public class RecipeService {
         }
 
         log.info("✅ 전체 썸네일 처리 완료");
+    }
+    // 6. 카테고리 목록 조회
+    public List<String> getAllCategories() {
+        return recipeRepository.findDistinctCategories();
+    }
+    // 7. 카테고리별 레시피 개수
+    public Map<String, Long> getCategoryCounts() {
+        List<Recipe> recipes = recipeRepository.findAll();
+        return recipes.stream()
+                .collect(Collectors.groupingBy(Recipe::getCategoryKr, Collectors.counting()));
+    }
+    @Transactional
+    public void viewCount(String recipeId) {
+        Recipe recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new IllegalArgumentException("레시피 없음: " + recipeId));
+
+        recipe.setViewCount(recipe.getViewCount() + 1);
+        recipeRepository.save(recipe);
     }
 }

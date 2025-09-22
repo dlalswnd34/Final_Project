@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class EventController {
 
-	@GetMapping("/event/test")
+	@GetMapping("/event/events")
 	public String showEventTest() {
 		
-		return "/event/test";
+		return "/event/events";
 	}
 }

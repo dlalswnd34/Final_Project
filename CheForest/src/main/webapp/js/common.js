@@ -7,10 +7,33 @@ window.CheForest = window.CheForest || {};
 // 페이지 네비게이션 함수
 function showPage(page) {
     console.log('Navigate to:', page);
-    // JSP에서 실제 페이지 이동 로직을 구현
-    // 예: window.location.href = page + '.jsp';
+    switch (page) {
+        case 'home':
+            window.location.href = '/';
+            break;
+        case 'recipes':
+            window.location.href = '/recipe/list';
+            break;
+        case 'board':
+            window.location.href = '/board/list';
+            break;
+        case 'qna':
+            window.location.href = '/support/qna';
+            break;
+        case 'events':
+            window.location.href = '/event/events';
+            break;
+        case 'mypage':
+            window.location.href = '/mypage/mypage';
+            break;
+        case 'login':
+            window.location.href = '/auth/login';
+            break;
+        default:
+            // 기본적으로 page.jsp로 이동
+            window.location.href = '/' + page + '.jsp';
+    }
 }
-
 // 네비게이션 활성화 상태 업데이트
 function updateActiveNavigation(page) {
     // 모든 네비게이션 아이템에서 활성화 상태 제거
@@ -513,10 +536,10 @@ window.navigateTo = function(page) {
             window.location.href = 'index.jsp';
             break;
         case 'recipes':
-            window.location.href = 'recipe.jsp';
+            window.location.href = 'recipelist.jsp';
             break;
         case 'board':
-            window.location.href = 'board.jsp';
+            window.location.href = 'boardlist.jsp';
             break;
         case 'ingredients':
             window.location.href = 'ingredients.jsp';

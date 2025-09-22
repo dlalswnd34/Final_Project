@@ -267,3 +267,6 @@
 .category-sidebar::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(to bottom, #db2777, #ea580c);
 }
+body, html {
+    font-family: 'Noto Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+}

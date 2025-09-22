@@ -28,4 +28,15 @@ public interface RecipeRepository extends JpaRepository<Recipe, String> {
 
     // 4. 인기 레시피 (TOP 10 by LIKE_COUNT)
     List<Recipe> findTop10ByOrderByLikeCountDescRecipeIdDesc();
-}
+
+    // 5. 인기 레시피 (TOP 3 by LIKE_COUNT)
+    List<Recipe> findTop3ByOrderByLikeCountDescRecipeIdDesc();
+
+    // 6. 카테고리 목록 (중복 제거)
+    @Query("SELECT DISTINCT r.categoryKr FROM Recipe r ORDER BY r.categoryKr")
+    List<String> findDistinctCategories();
+    // 7. 카테고리별 레시피 개수
+    @Query("SELECT r.categoryKr, COUNT(r) FROM Recipe r GROUP BY r.categoryKr")
+    List<Object[]> countRecipesByCategory();
+    }
+

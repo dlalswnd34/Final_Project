@@ -31,6 +31,7 @@ public class HomeController {
         model.addAttribute("japaneseRecipe", recipeService.getRandomRecipes("일식", 5));
         model.addAttribute("dessertRecipe", recipeService.getRandomRecipes("디저트", 5));
         model.addAttribute("bestRecipes", recipeService.getBestRecipes());
+        model.addAttribute("best3Recipes", recipeService.getBest3Recipes());
 
         // 랭킹
         List<Member> topMembers = rankingService.getTopRanking(10);
