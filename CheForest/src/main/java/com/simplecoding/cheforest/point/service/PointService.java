@@ -2,9 +2,7 @@ package com.simplecoding.cheforest.point.service;
 
 import com.simplecoding.cheforest.auth.entity.Member;
 import com.simplecoding.cheforest.auth.repository.MemberRepository;
-import com.simplecoding.cheforest.point.entity.MemberGrade;
 import com.simplecoding.cheforest.point.entity.PointHistory;
-import com.simplecoding.cheforest.point.repository.MemberGradeRepository;
 import com.simplecoding.cheforest.point.repository.PointHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,7 +20,6 @@ public class PointService {
 
     private final PointHistoryRepository pointHistoryRepository;
     private final MemberRepository memberRepository;
-    private final MemberGradeRepository memberGradeRepository;
 
     // ✅ 포인트 적립 + 등급 자동 갱신
     public void addPoint(Member member, String actionType, Long point) {
@@ -37,13 +34,20 @@ public class PointService {
         Long newPoint = member.getPoint() + point;
         member.setPoint(newPoint);
 
-        // 3. 등급 갱신
-        MemberGrade grade = memberGradeRepository.findGradeByPoint(newPoint);
-        if (grade != null) {
-            member.setGrade(grade.getName());
-        }
+        // 3. 등급 자동 계산
+        member.setGrade(calculateGrade(newPoint));
 
         memberRepository.save(member);
+    }
+
+    // ✅ 등급 계산 (5단계 자동)
+    private String calculateGrade(Long point) {
+        if (point == null) return "씨앗";
+        if (point < 1000) return "씨앗";
+        else if (point < 2000) return "뿌리";
+        else if (point < 3000) return "새싹";
+        else if (point < 4000) return "나무";
+        else return "숲";
     }
 
     // ✅ 오늘 포인트 합산
@@ -64,9 +68,11 @@ public class PointService {
     // ✅ 다음 등급까지 남은 점수
     @Transactional(readOnly = true)
     public Long getNextGradePoint(Long currentPoint) {
-        MemberGrade nextGrade = memberGradeRepository.findNextGrades(currentPoint)
-                .stream().findFirst().orElse(null);
-        return (nextGrade != null) ? (nextGrade.getMinPoint() - currentPoint) : 0L;
+        if (currentPoint == null) return 1000L;
+        if (currentPoint >= 4000) return 0L; // 숲은 최고 등급
+
+        long remainder = currentPoint % 1000;
+        return 1000 - remainder;
     }
 
     // ✅ 최근 적립 내역 5개

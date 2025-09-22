@@ -10,18 +10,19 @@
     <title>CheForest 레시피</title>
     <link rel="stylesheet" href="/css/common.css">
     <link rel="stylesheet" href="/css/recipe.css">
-    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
+<jsp:include page="/common/header.jsp"/>
 <body>
 <div class="min-h-screen bg-white">
-
     <!-- 페이지 헤더 -->
-    <section class="bg-gradient-to-r from-pink-500 to-orange-500 text-white py-12 page-header">
+    <section class="bg-gradient-to-r from-pink-500 to-orange-500 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center">
                 <div class="flex items-center justify-center mb-4">
                     <i data-lucide="book-open" class="h-10 w-10 mr-3"></i>
-                    <h1 class="text-4xl font-bold">CheForest 레시피</h1>
+                    <h1 class="text-4xl">CheForest 레시피</h1>
                 </div>
                 <p class="text-lg opacity-90 max-w-2xl mx-auto">
                     요리의 즐거움을 함께하세요! 다양한 카테고리의 검증된 레시피들을 만나보세요.
@@ -30,19 +31,22 @@
         </div>
     </section>
 
-    <!-- 검색 -->
-    <section class="py-8 bg-gray-50">
+    <!-- 검색 및 필터 섹션 -->
+    <section class="py-8" style="background-color: rgba(156, 163, 175, 0.1);">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <form method="get" action="/recipe/list" class="relative flex-1 w-full lg:max-w-md mx-auto">
-                <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5"></i>
-                <input
-                        type="text"
-                        name="searchKeyword"
-                        value="${searchKeyword}"
-                        placeholder="레시피, 재료, 요리법 검색..."
-                        class="recipe-search-input pl-10 pr-4 py-3 w-full border-2 border-gray-200 focus:border-orange-500 rounded-lg bg-white"
-                />
-            </form>
+            <div class="flex flex-col lg:flex-row gap-6 items-center">
+                <!-- 검색바 -->
+                <div class="relative flex-1 w-full lg:max-w-md">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5"></i>
+                    <input
+                            type="text"
+                            name="searchKeyword"
+                            value="${searchKeyword}"
+                            placeholder="레시피, 재료, 요리법 검색..."
+                            class="recipe-search-input pl-10 pr-4 py-3 w-full border-2 border-gray-200 focus:border-orange-500 rounded-lg bg-white"
+                    />
+                </div>
+            </div>
         </div>
     </section>
 
@@ -50,40 +54,15 @@
     <section class="py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col lg:flex-row gap-8">
-
-                <!-- 사이드바 -->
+                <!-- 사이드바 - 카테고리 -->
                 <aside class="lg:w-64">
                     <div class="bg-white border border-gray-200 rounded-lg p-6 sticky top-24">
                         <h3 class="font-semibold mb-4 flex items-center">
                             <i data-lucide="chef-hat" class="h-5 w-5 mr-2 text-orange-500"></i>
                             카테고리
                         </h3>
-                        <div class="space-y-2">
-                            <!-- 전체 -->
-                            <a href="/recipe/list"
-                               class="category-button flex items-center justify-between px-3 py-2 rounded-lg ${empty categoryKr ? 'active' : ''}">
-                                <span class="flex items-center space-x-2">🍽 <span>전체</span></span>
-                                <span class="category-count text-sm">${totalCount}</span>
-                            </a>
-
-                            <!-- 고정된 카테고리 -->
-                            <c:forEach var="cat" items="${fn:split('한식,일식,중식,양식,디저트', ',')}">
-                                <a href="/recipe/list?categoryKr=${cat}"
-                                   class="category-button flex items-center justify-between px-3 py-2 rounded-lg ${categoryKr == cat ? 'active' : ''}">
-                                    <span class="flex items-center space-x-2">
-                                        <c:choose>
-                                            <c:when test="${cat eq '한식'}">🍜</c:when>
-                                            <c:when test="${cat eq '일식'}">🍣</c:when>
-                                            <c:when test="${cat eq '중식'}">🥟</c:when>
-                                            <c:when test="${cat eq '양식'}">🍝</c:when>
-                                            <c:when test="${cat eq '디저트'}">🍰</c:when>
-                                            <c:otherwise>🍴</c:otherwise>
-                                        </c:choose>
-                                        <span>${cat}</span>
-                                    </span>
-                                    <span class="category-count text-sm">${recipeCountMap[cat]}</span>
-                                </a>
-                            </c:forEach>
+                        <div class="space-y-2" id="categoryList">
+                            <!-- 카테고리 버튼들이 JavaScript로 동적 생성됩니다 -->
                         </div>
                     </div>
                 </aside>
@@ -253,12 +232,14 @@
     </section>
 </div>
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         lucide.createIcons();
     });
 </script>
+<script src="/js/common.js"></script>
+<script src="/js/recipe.js"></script>
+
+<jsp:include page="/common/footer.jsp"/>
 </body>
 </html>

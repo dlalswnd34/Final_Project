@@ -50,8 +50,7 @@ public class Recipe {
     @Column(nullable = false)
     private Long viewCount = 0L;
 
-    // ✅ 조리시간
-    @Column(name = "COOK_TIME")
     private Integer cookTime;
-
+    private String difficulty;
 }
+

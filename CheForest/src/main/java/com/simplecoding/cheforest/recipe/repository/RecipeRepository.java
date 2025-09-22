@@ -26,11 +26,14 @@ public interface RecipeRepository extends JpaRepository<Recipe, String> {
     @Query("SELECT r.recipeId, r.thumbnail FROM Recipe r")
     List<Object[]> findAllRecipeThumb();
 
-    // 4. 인기 레시피 (TOP 10 by LIKE_COUNT)
-    List<Recipe> findTop10ByOrderByLikeCountDescRecipeIdDesc();
+    // 4. 좋아요 0 초과 TOP4(홈화면용)
+    List<Recipe> findTop4ByLikeCountGreaterThanOrderByLikeCountDescViewCountDescRecipeIdDesc(long minLikeCount);
 
-    // 5. 인기 레시피 (TOP 3 by LIKE_COUNT)
+    // 5. 전체 인기 레시피 (TOP 3 by LIKE_COUNT)
     List<Recipe> findTop3ByOrderByLikeCountDescRecipeIdDesc();
+
+    // 5-1. 카테고리별 TOP3
+    List<Recipe> findTop3ByCategoryKrAndLikeCountGreaterThanOrderByLikeCountDescViewCountDescRecipeIdDesc(String categoryKr, long minLikeCount);
 
     // 6. 카테고리 목록 (중복 제거)
     @Query("SELECT DISTINCT r.categoryKr FROM Recipe r ORDER BY r.categoryKr")
@@ -39,4 +42,3 @@ public interface RecipeRepository extends JpaRepository<Recipe, String> {
     @Query("SELECT r.categoryKr, COUNT(r) FROM Recipe r GROUP BY r.categoryKr")
     List<Object[]> countRecipesByCategory();
     }
-

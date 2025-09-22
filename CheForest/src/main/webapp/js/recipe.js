@@ -22,7 +22,7 @@ const categories = [
 function getRecipeCards() {
     const popularCards = Array.from(document.querySelectorAll('#popularGrid .popular-recipe-card'));
     const regularCards = Array.from(document.querySelectorAll('#regularGrid .recipe-card'));
-    
+
     return {
         popular: popularCards,
         regular: regularCards,
@@ -35,16 +35,16 @@ function shouldShowRecipeCard(card) {
     const category = card.dataset.category;
     const title = card.dataset.title?.toLowerCase() || '';
     const description = card.dataset.description?.toLowerCase() || '';
-    
+
     // 카테고리 필터
     const matchesCategory = selectedCategory === 'all' || category === selectedCategory;
-    
+
     // 검색 필터
     const searchLower = searchQuery.toLowerCase();
-    const matchesSearch = !searchQuery || 
-                         title.includes(searchLower) || 
-                         description.includes(searchLower);
-    
+    const matchesSearch = !searchQuery ||
+        title.includes(searchLower) ||
+        description.includes(searchLower);
+
     return matchesCategory && matchesSearch;
 }
 
@@ -59,7 +59,7 @@ function sortRecipeCards(cards) {
         const bViews = parseInt(b.dataset.views) || 0;
         const aCreated = new Date(a.dataset.created).getTime();
         const bCreated = new Date(b.dataset.created).getTime();
-        
+
         switch (sortBy) {
             case 'popularity':
                 return bLikes - aLikes;
@@ -85,7 +85,7 @@ function renderCategories() {
     // 각 카테고리별 총 카드 개수 계산
     const cards = getRecipeCards();
     const categoryCounts = {};
-    
+
     cards.all.forEach(card => {
         const category = card.dataset.category;
         categoryCounts[category] = (categoryCounts[category] || 0) + 1;
@@ -94,8 +94,8 @@ function renderCategories() {
     categoryList.innerHTML = categories.map(category => `
         <button
             class="category-button w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200 ${
-                selectedCategory === category.id ? 'active' : 'text-gray-700 hover:bg-gray-50'
-            }"
+        selectedCategory === category.id ? 'active' : 'text-gray-700 hover:bg-gray-50'
+    }"
             onclick="switchRecipeCategory('${category.id}')"
         >
             <span class="text-lg">${category.icon}</span>
@@ -112,9 +112,9 @@ function renderPopularRecipes() {
     const cards = getRecipeCards();
     const popularSection = document.getElementById('popularSection');
     const popularCount = document.getElementById('popularCount');
-    
+
     let visibleCount = 0;
-    
+
     cards.popular.forEach(card => {
         if (shouldShowRecipeCard(card)) {
             card.style.display = 'block';
@@ -123,7 +123,7 @@ function renderPopularRecipes() {
             card.style.display = 'none';
         }
     });
-    
+
     if (visibleCount > 0) {
         popularSection.style.display = 'block';
         popularCount.textContent = `TOP ${visibleCount}`;
@@ -136,18 +136,18 @@ function renderPopularRecipes() {
 function renderRegularRecipes() {
     const cards = getRecipeCards();
     const regularCount = document.getElementById('regularCount');
-    
+
     // 필터링
     const visibleCards = cards.regular.filter(card => shouldShowRecipeCard(card));
-    
+
     // 정렬
     const sortedCards = sortRecipeCards([...visibleCards]);
-    
+
     // 모든 카드 숨기기
     cards.regular.forEach(card => {
         card.style.display = 'none';
     });
-    
+
     // 정렬된 순서대로 표시
     const regularGrid = document.getElementById('regularGrid');
     if (regularGrid && sortedCards.length > 0) {
@@ -157,7 +157,7 @@ function renderRegularRecipes() {
             regularGrid.appendChild(card); // 순서 재배치
         });
     }
-    
+
     regularCount.textContent = `${visibleCards.length}개`;
 }
 
@@ -166,10 +166,10 @@ function toggleNoResultsSection() {
     const cards = getRecipeCards();
     const noResultsSection = document.getElementById('noResultsSection');
     const loadMoreSection = document.getElementById('loadMoreSection');
-    
+
     const visiblePopular = cards.popular.filter(card => shouldShowRecipeCard(card)).length;
     const visibleRegular = cards.regular.filter(card => shouldShowRecipeCard(card)).length;
-    
+
     if (visiblePopular === 0 && visibleRegular === 0) {
         noResultsSection.style.display = 'block';
         loadMoreSection.style.display = 'none';
@@ -183,11 +183,11 @@ function toggleNoResultsSection() {
 function updateRecipeCount() {
     const cards = getRecipeCards();
     const recipeCount = document.getElementById('recipeCount');
-    
+
     const visiblePopular = cards.popular.filter(card => shouldShowRecipeCard(card)).length;
     const visibleRegular = cards.regular.filter(card => shouldShowRecipeCard(card)).length;
     const totalVisible = visiblePopular + visibleRegular;
-    
+
     if (recipeCount) {
         recipeCount.textContent = `총 ${totalVisible}개의 레시피 • 인기 ${visiblePopular}개, 일반 ${visibleRegular}개`;
     }
@@ -197,7 +197,7 @@ function updateRecipeCount() {
 function updateCategoryTitle() {
     const categoryTitle = document.getElementById('categoryTitle');
     const selectedCategoryData = categories.find(c => c.id === selectedCategory);
-    
+
     if (categoryTitle && selectedCategoryData) {
         categoryTitle.textContent = `${selectedCategoryData.name} 레시피`;
     }
@@ -209,7 +209,7 @@ function updateCategoryTitle() {
 function switchRecipeCategory(categoryId) {
     selectedCategory = categoryId;
     updateRecipeContent();
-    
+
     // 카테고리 버튼 활성화 상태 업데이트
     renderCategories();
 }
@@ -227,13 +227,13 @@ function handleRecipeSearch() {
 function fixCategoryBadges() {
     // 모든 카테고리 배지 찾기 및 수정
     const badges = document.querySelectorAll('span');
-    
+
     badges.forEach(badge => {
         const text = badge.textContent.trim();
-        const hasGenericBg = badge.classList.contains('bg-white/90') || 
-                           badge.classList.contains('bg-red-500/90') || 
-                           badge.classList.contains('bg-green-500/90');
-        
+        const hasGenericBg = badge.classList.contains('bg-white/90') ||
+            badge.classList.contains('bg-red-500/90') ||
+            badge.classList.contains('bg-green-500/90');
+
         if (hasGenericBg) {
             // 카테고리별 스타일 적용
             if (text === '한식') {
@@ -262,10 +262,10 @@ function updateRecipeContent() {
     renderPopularRecipes();
     renderRegularRecipes();
     toggleNoResultsSection();
-    
+
     // 카테고리 배지 스타일 적용
     fixCategoryBadges();
-    
+
     // Lucide 아이콘 재초기화
     if (window.CheForest && window.CheForest.common) {
         window.CheForest.common.initializeLucideIcons();
@@ -286,7 +286,7 @@ function setupRecipeSearchEvents() {
                 handleRecipeSearch();
             }, 300);
         });
-        
+
         // Enter 키 이벤트
         searchInput.addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
@@ -302,21 +302,21 @@ function setupRecipeSearchEvents() {
 function initializeRecipePage() {
     // 카테고리 렌더링
     renderCategories();
-    
+
     // 초기 레시피 콘텐츠 렌더링
     updateRecipeContent();
-    
+
     // 검색 이벤트 설정
     setupRecipeSearchEvents();
-    
+
     // 카테고리 배지 스타일 적용 (초기화 시에도 실행)
     fixCategoryBadges();
-    
+
     // 현재 네비게이션 상태 업데이트
     if (window.CheForest && window.CheForest.common) {
         window.CheForest.common.updateActiveNavigation('recipes');
     }
-    
+
     console.log('✅ 레시피 페이지 초기화 완료! (HTML 기반 필터링 + 카테고리 배지 스타일 적용)');
 }
 
