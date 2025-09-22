@@ -39,5 +39,3 @@ public interface RecipeRepository extends JpaRepository<Recipe, String> {
     @Query("SELECT r.categoryKr, COUNT(r) FROM Recipe r GROUP BY r.categoryKr")
     List<Object[]> countRecipesByCategory();
     }
-
-
