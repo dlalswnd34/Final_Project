@@ -1,8 +1,9 @@
-package com.simplecoding.cheforest;
+package com.simplecoding.cheforest.home.controller;
 
 import com.simplecoding.cheforest.auth.entity.Member;
 import com.simplecoding.cheforest.auth.repository.MemberRepository;
 import com.simplecoding.cheforest.auth.security.CustomUserDetails;
+import com.simplecoding.cheforest.home.service.HomeService;
 import com.simplecoding.cheforest.point.service.RankingService;
 import com.simplecoding.cheforest.recipe.service.RecipeService;
 import lombok.RequiredArgsConstructor;
@@ -22,15 +23,14 @@ public class HomeController {
     private final RecipeService recipeService;
     private final RankingService rankingService;
     private final MemberRepository memberRepository;
+    private final HomeService homeService;
 
     @GetMapping("/")
     public String home(@AuthenticationPrincipal CustomUserDetails user, Model model) {
-        model.addAttribute("koreanRecipe", recipeService.getRandomRecipes("한식", 5));
-        model.addAttribute("westernRecipe", recipeService.getRandomRecipes("양식", 5));
-        model.addAttribute("chineseRecipe", recipeService.getRandomRecipes("중식", 5));
-        model.addAttribute("japaneseRecipe", recipeService.getRandomRecipes("일식", 5));
-        model.addAttribute("dessertRecipe", recipeService.getRandomRecipes("디저트", 5));
-        model.addAttribute("best4Recipes", recipeService.getBest4Recipes());
+
+        model.addAttribute("popularRecipes", homeService.getPopularRecipes());
+        model.addAttribute("categoryRecipes", homeService.getCategoryTop3Recipes());
+        model.addAttribute("categoryBoards", homeService.getCategoryLatestBoards());
 
         // 랭킹
         List<Member> topMembers = rankingService.getTopRanking(10);

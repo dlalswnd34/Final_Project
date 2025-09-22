@@ -1,6 +1,7 @@
 package com.simplecoding.cheforest.recipe.service;
 
 import com.simplecoding.cheforest.common.MapStruct;
+import com.simplecoding.cheforest.recipe.dto.RecipeCardDTO;
 import com.simplecoding.cheforest.recipe.dto.RecipeDto;
 import com.simplecoding.cheforest.recipe.entity.Recipe;
 import com.simplecoding.cheforest.recipe.repository.RecipeRepository;
@@ -44,10 +45,25 @@ public class RecipeService {
         return mapStruct.toDtoList(recipeRepository.findRandomByCategory(categoryKr, count));
     }
 
-    // 4. 인기 레시피 TOP4
-    public List<RecipeDto> getBest4Recipes() {
-        return mapStruct.toDtoList(recipeRepository.findTop4ByOrderByLikeCountDescRecipeIdDesc());
+    public List<RecipeCardDTO> getPopularTop4() {
+        return recipeRepository
+                .findTop4ByLikeCountGreaterThanOrderByLikeCountDescViewCountDescRecipeIdDesc(0L)
+                .stream()
+                .map(r -> RecipeCardDTO.builder()
+                        .id(r.getRecipeId())
+                        .title(r.getTitleKr())
+                        .thumbnail(r.getThumbnail())
+                        .categoryName(r.getCategoryKr())
+                        .writerNickname("CheForest 관리자")   // API데이터: 작성자 없음 → 고정값
+                        .cookTime(r.getCookTime())
+                        .difficulty(r.getDifficulty())
+                        .viewCount(r.getViewCount())
+                        .likeCount(r.getLikeCount())
+                        .build()
+                )
+                .toList();
     }
+
     // 4. 인기 레시피 TOP10
     public List<RecipeDto> getBest3Recipes() {
         return mapStruct.toDtoList(recipeRepository.findTop3ByOrderByLikeCountDescRecipeIdDesc());

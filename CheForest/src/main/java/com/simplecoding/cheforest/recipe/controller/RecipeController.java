@@ -36,7 +36,7 @@ public class RecipeController {
             @RequestParam(defaultValue = "") String categoryKr,
             @RequestParam(defaultValue = "") String searchKeyword,
             @RequestParam(defaultValue = "0") int page,   // 0-based
-            @RequestParam(defaultValue = "12") int size,  // 페이지당 개수
+            @RequestParam(defaultValue = "9") int size,  // 페이지당 개수
             Model model) {
 
         Pageable pageable = PageRequest.of(page, size);

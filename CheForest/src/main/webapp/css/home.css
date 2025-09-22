@@ -1,5 +1,25 @@
 /* CheForest Home Page Styles */
-/* 홈페이지 컴포넌트 전용 스타일 */
+/* 홈페이지 JSP 전용 스타일 */
+
+/* 브랜드 그라데이션 텍스트 */
+.brand-gradient {
+    background: linear-gradient(135deg, #ec4899, #f97316);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* 오렌지 버튼 스타일 */
+.btn-orange {
+    background-color: #f97316;
+    transition: all 0.2s ease;
+}
+
+.btn-orange:hover {
+    background: linear-gradient(to right, #ec4899, #f97316);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 25px rgba(249, 115, 22, 0.3);
+}
 
 /* 슬라이드 애니메이션 */
 .slide-transition {

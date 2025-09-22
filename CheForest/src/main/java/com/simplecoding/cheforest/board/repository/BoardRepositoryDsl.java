@@ -1,12 +1,16 @@
 package com.simplecoding.cheforest.board.repository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.simplecoding.cheforest.board.dto.BoardDetailDto;
+import com.simplecoding.cheforest.board.dto.BoardLatestRowDTO;
 import com.simplecoding.cheforest.board.dto.BoardListDto;
 import com.simplecoding.cheforest.board.entity.QBoard;
 import com.simplecoding.cheforest.auth.entity.QMember;
+import com.simplecoding.cheforest.review.entity.QReview;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -136,6 +140,33 @@ public class BoardRepositoryDsl {
                 .where(board.category.eq(category))
                 .orderBy(board.likeCount.desc(), board.boardId.desc())
                 .limit(4)
+                .fetch();
+    }
+
+    // 카테고리별 최신글 + 댓글수 (limit 지정)
+    public List<BoardLatestRowDTO> findLatestByCategory(String category, int limit) {
+        QBoard board = QBoard.board;
+        QMember member = QMember.member;
+        QReview review = QReview.review;
+
+        return queryFactory
+                .select(Projections.bean(BoardLatestRowDTO.class,
+                        board.boardId.as("id"),
+                        board.title.as("title"),
+                        member.nickname.coalesce("알 수 없음").as("writerNickname"),
+                        board.insertTime.as("insertTime"),
+                        ExpressionUtils.as(   // ← 여기서 alias 붙이기
+                                JPAExpressions.select(review.count())
+                                        .from(review)
+                                        .where(review.board.boardId.eq(board.boardId)),
+                                "commentCount"
+                        )
+                ))
+                .from(board)
+                .leftJoin(board.writer, member)
+                .where(board.category.eq(category))
+                .orderBy(board.insertTime.desc())
+                .limit(limit)
                 .fetch();
     }
 }

@@ -46,7 +46,50 @@
 }
 
 .header-btn:hover {
-    background-color: rgba(249, 115, 22, 0.1);
+    background: linear-gradient(to right, #ec4899, #f97316) !important;
+    color: white !important;
+}
+
+/* 오렌지 아이콘 버튼들의 호버 효과 */
+.header-icon-btn {
+    transition: all 0.2s ease;
+    color: #f97316 !important;
+}
+
+.header-icon-btn:hover {
+    background: linear-gradient(to right, #ec4899, #f97316) !important;
+    color: white !important;
+}
+
+/* 검색 버튼 호버 효과 */
+.search-btn {
+    background-color: #f97316 !important;
+    transition: all 0.2s ease;
+}
+
+.search-btn:hover {
+    background: linear-gradient(to right, #ec4899, #f97316) !important;
+}
+
+/* 로그인 버튼 호버 효과 */
+.login-btn {
+    background-color: #f97316 !important;
+    transition: all 0.2s ease;
+}
+
+.login-btn:hover {
+    background: linear-gradient(to right, #ec4899, #f97316) !important;
+}
+
+/* 모바일 메뉴 버튼 호버 효과 */
+.mobile-menu-btn {
+    transition: all 0.2s ease;
+    color: #f97316 !important;
+}
+
+.mobile-menu-btn:hover {
+    background: linear-gradient(to right, #ec4899, #f97316) !important;
+    color: white !important;
 }
 
 /* 로고 호버 효과 */
