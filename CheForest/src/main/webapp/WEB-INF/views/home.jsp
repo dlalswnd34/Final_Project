@@ -1,13 +1,15 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="/css/common.css">
-    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/home.css">
 </head>
 <jsp:include page="/common/header.jsp"/>
 <body>
@@ -130,162 +132,111 @@
                     <h2 class="text-4xl font-black brand-gradient">인기 레시피</h2>
                 </div>
                 <p class="text-gray-600 max-w-2xl mx-auto">
-                    CheForest 사용자들이 가장 사랑하는 레시피를 만나보세요. 좋아요가 높은 검증된 맛있는 요리들입니다.
+                    요리사들이 가장 사랑하는 레시피를 만나보세요. 좋아요와 조회수가 높은 검증된 맛있는 요리들입니다.
                 </p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- 레시피 카드 1 - 집에서 만드는 불고기 -->
-                <div class="recipe-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer" onclick="showPage('recipe-detail')">
-                    <div class="relative">
-                        <img src="https://images.unsplash.com/photo-1584278858536-52532423b9ea?w=400&h=300&fit=crop&auto=format" 
-                            alt="집에서 만드는 불고기" 
-                            class="recipe-image w-full h-48 object-cover">
-                        <div class="absolute top-3 left-3">
-                            <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">한식</span>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="text-lg mb-2 hover:text-orange-500 transition-colors">집에서 만드는 불고기</h3>
-                        <p class="text-sm text-gray-600 mb-3">by 요리사 김민수</p>
-                        
-                        <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
-                            <div class="flex items-center space-x-1">
-                                <i data-lucide="clock" class="w-4 h-4"></i>
-                                <span>30분</span>
+                <%-- 인기 레시피 카드 반복 --%>
+                <c:forEach var="recipe" items="${popularRecipes}" varStatus="status">
+                    <div class="recipe-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer" onclick="location.href='${pageContext.request.contextPath}/recipe/detail?id=${recipe.recipeId}'">
+                        <div class="relative">
+                            <img src="${recipe.imageUrl}"
+                                 alt="<c:out value='${recipe.title}'/>"
+                                 class="recipe-image w-full h-48 object-cover">
+                            <div class="absolute top-3 left-3">
+                            <span class="bg-${recipe.categoryColor}-100 text-${recipe.categoryColor}-800 px-3 py-1 rounded-full text-sm font-medium">
+                                <c:out value="${recipe.categoryName}"/>
+                            </span>
                             </div>
-                            <span class="text-xs bg-gray-100 px-2 py-1 rounded">보통</span>
                         </div>
+                        <div class="p-4">
+                            <h3 class="text-lg mb-2 hover:text-orange-500 transition-colors">
+                                <c:out value="${recipe.title}"/>
+                            </h3>
+                            <p class="text-sm text-gray-600 mb-3">
+                                by <c:out value="${recipe.authorName}"/>
+                            </p>
 
-                        <div class="flex items-center justify-between pt-3 border-t border-gray-200">
-                            <div class="flex items-center space-x-3 text-sm">
-                                <div class="flex items-center space-x-1 text-gray-500">
-                                    <i data-lucide="eye" class="w-4 h-4"></i>
-                                    <span>12.5k</span>
+                            <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
+                                <div class="flex items-center space-x-1">
+                                    <i data-lucide="clock" class="w-4 h-4"></i>
+                                    <span>${recipe.cookingTime}분</span>
                                 </div>
-                                <div class="flex items-center space-x-1 text-red-500">
-                                    <i data-lucide="heart" class="w-4 h-4"></i>
-                                    <span>892</span>
-                                </div>
+                                <span class="text-xs bg-gray-100 px-2 py-1 rounded">
+                                <c:out value="${recipe.difficulty}"/>
+                            </span>
                             </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- 레시피 카드 2 - 크리미 카르보나라 파스타 -->
-                <div class="recipe-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer" onclick="showPage('recipe-detail')">
-                    <div class="relative">
-                        <img src="https://images.unsplash.com/photo-1651585594107-859f80b4ca3a?w=400&h=300&fit=crop&auto=format" 
-                            alt="크리미 카르보나라 파스타" 
-                            class="recipe-image w-full h-48 object-cover">
-                        <div class="absolute top-3 left-3">
-                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">양식</span>
+                            <div class="flex items-center justify-between pt-3 border-t border-gray-200">
+                                <div class="flex items-center space-x-3 text-sm">
+                                    <div class="flex items-center space-x-1 text-gray-500">
+                                        <i data-lucide="eye" class="w-4 h-4"></i>
+                                        <span>
+                                        <c:choose>
+                                            <c:when test="${recipe.viewCount >= 1000}">
+                                                <fmt:formatNumber value="${recipe.viewCount / 1000}" maxFractionDigits="1"/>k
+                                            </c:when>
+                                            <c:otherwise>
+                                                ${recipe.viewCount}
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </span>
+                                    </div>
+                                    <div class="flex items-center space-x-1 text-red-500">
+                                        <i data-lucide="heart" class="w-4 h-4"></i>
+                                        <span>${recipe.likeCount}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="p-4">
-                        <h3 class="text-lg mb-2 hover:text-orange-500 transition-colors">크리미 카르보나라 파스타</h3>
-                        <p class="text-sm text-gray-600 mb-3">by 셰프 이영희</p>
-                        
-                        <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
-                            <div class="flex items-center space-x-1">
-                                <i data-lucide="clock" class="w-4 h-4"></i>
-                                <span>20분</span>
-                            </div>
-                            <span class="text-xs bg-gray-100 px-2 py-1 rounded">쉬움</span>
-                        </div>
+                </c:forEach>
 
-                        <div class="flex items-center justify-between pt-3 border-t border-gray-200">
-                            <div class="flex items-center space-x-3 text-sm">
-                                <div class="flex items-center space-x-1 text-gray-500">
-                                    <i data-lucide="eye" class="w-4 h-4"></i>
-                                    <span>9.9k</span>
-                                </div>
-                                <div class="flex items-center space-x-1 text-red-500">
-                                    <i data-lucide="heart" class="w-4 h-4"></i>
-                                    <span>756</span>
-                                </div>
+                <%-- 인기 레시피가 없는 경우 기본 카드 --%>
+                <c:if test="${empty popularRecipes}">
+                    <%-- 기본 인기 레시피 카드들 (하드코딩) --%>
+                    <div class="recipe-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer">
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1584278858536-52532423b9ea?w=400&h=300&fit=crop&auto=format"
+                                 alt="집에서 만드는 불고기"
+                                 class="recipe-image w-full h-48 object-cover">
+                            <div class="absolute top-3 left-3">
+                                <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">한식</span>
                             </div>
                         </div>
-                    </div>
-                </div>
+                        <div class="p-4">
+                            <h3 class="text-lg mb-2 hover:text-orange-500 transition-colors">집에서 만드는 불고기</h3>
+                            <p class="text-sm text-gray-600 mb-3">by 요리사 김민수</p>
 
-                <!-- 레시피 카드 3 - 매콤한 궁보계정 -->
-                <div class="recipe-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer" onclick="showPage('recipe-detail')">
-                    <div class="relative">
-                        <img src="https://images.unsplash.com/photo-1597890698474-8de5af43b1aa?w=400&h=300&fit=crop&auto=format" 
-                            alt="매콤한 궁보계정" 
-                            class="recipe-image w-full h-48 object-cover">
-                        <div class="absolute top-3 left-3">
-                            <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">중식</span>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="text-lg mb-2 hover:text-orange-500 transition-colors">매콤한 궁보계정</h3>
-                        <p class="text-sm text-gray-600 mb-3">by 요리연구가 박진우</p>
-                        
-                        <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
-                            <div class="flex items-center space-x-1">
-                                <i data-lucide="clock" class="w-4 h-4"></i>
-                                <span>25분</span>
+                            <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
+                                <div class="flex items-center space-x-1">
+                                    <i data-lucide="clock" class="w-4 h-4"></i>
+                                    <span>30분</span>
+                                </div>
+                                <span class="text-xs bg-gray-100 px-2 py-1 rounded">보통</span>
                             </div>
-                            <span class="text-xs bg-gray-100 px-2 py-1 rounded">보통</span>
-                        </div>
 
-                        <div class="flex items-center justify-between pt-3 border-t border-gray-200">
-                            <div class="flex items-center space-x-3 text-sm">
-                                <div class="flex items-center space-x-1 text-gray-500">
-                                    <i data-lucide="eye" class="w-4 h-4"></i>
-                                    <span>8.2k</span>
-                                </div>
-                                <div class="flex items-center space-x-1 text-red-500">
-                                    <i data-lucide="heart" class="w-4 h-4"></i>
-                                    <span>634</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 레시피 카드 4 - 연어 데리야키 -->
-                <div class="recipe-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer" onclick="showPage('recipe-detail')">
-                    <div class="relative">
-                        <img src="https://images.unsplash.com/photo-1700706259342-3b4f681f9bfe?w=400&h=300&fit=crop&auto=format" 
-                            alt="연어 데리야키" 
-                            class="recipe-image w-full h-48 object-cover">
-                        <div class="absolute top-3 left-3">
-                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">일식</span>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="text-lg mb-2 hover:text-orange-500 transition-colors">연어 데리야키</h3>
-                        <p class="text-sm text-gray-600 mb-3">by 일식전문가 최수진</p>
-                        
-                        <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
-                            <div class="flex items-center space-x-1">
-                                <i data-lucide="clock" class="w-4 h-4"></i>
-                                <span>15분</span>
-                            </div>
-                            <span class="text-xs bg-gray-100 px-2 py-1 rounded">쉬움</span>
-                        </div>
-
-                        <div class="flex items-center justify-between pt-3 border-t border-gray-200">
-                            <div class="flex items-center space-x-3 text-sm">
-                                <div class="flex items-center space-x-1 text-gray-500">
-                                    <i data-lucide="eye" class="w-4 h-4"></i>
-                                    <span>7.6k</span>
-                                </div>
-                                <div class="flex items-center space-x-1 text-red-500">
-                                    <i data-lucide="heart" class="w-4 h-4"></i>
-                                    <span>543</span>
+                            <div class="flex items-center justify-between pt-3 border-t border-gray-200">
+                                <div class="flex items-center space-x-3 text-sm">
+                                    <div class="flex items-center space-x-1 text-gray-500">
+                                        <i data-lucide="eye" class="w-4 h-4"></i>
+                                        <span>12.5k</span>
+                                    </div>
+                                    <div class="flex items-center space-x-1 text-red-500">
+                                        <i data-lucide="heart" class="w-4 h-4"></i>
+                                        <span>892</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </c:if>
             </div>
 
             <div class="text-center mt-10">
-                <button class="btn-orange text-white px-8 py-3 rounded-lg transition-all duration-200">
+                <button class="btn-orange text-white px-8 py-3 rounded-lg transition-all duration-200"
+                        onclick="location.href='${pageContext.request.contextPath}/recipes'">
                     더 많은 레시피 보기
                 </button>
             </div>
@@ -307,26 +258,26 @@
 
             <!-- 카테고리 선택 -->
             <div class="flex flex-wrap justify-center gap-4 mb-8">
-                <button class="category-btn active flex items-center space-x-3 px-6 py-3 rounded-xl transition-all duration-300 font-semibold border bg-gradient-to-r from-pink-500 to-orange-500 text-white shadow-2xl shadow-pink-500/30 border-transparent transform scale-105 hover:shadow-2xl hover:shadow-pink-500/40" onclick="switchCategory('korean')">
-                    <span class="text-2xl">🥢</span>
-                    <span class="whitespace-nowrap">한식</span>
-                </button>
-                <button class="category-btn flex items-center space-x-3 px-6 py-3 rounded-xl transition-all duration-300 font-semibold border bg-white text-gray-700 shadow-lg shadow-gray-200/50 border-gray-100 hover:shadow-2xl hover:shadow-orange-500/30 hover:bg-gradient-to-r hover:from-pink-500 hover:to-orange-500 hover:text-white hover:transform hover:scale-105 hover:border-transparent" onclick="switchCategory('western')">
-                    <span class="text-2xl">🍝</span>
-                    <span class="whitespace-nowrap">양식</span>
-                </button>
-                <button class="category-btn flex items-center space-x-3 px-6 py-3 rounded-xl transition-all duration-300 font-semibold border bg-white text-gray-700 shadow-lg shadow-gray-200/50 border-gray-100 hover:shadow-2xl hover:shadow-orange-500/30 hover:bg-gradient-to-r hover:from-pink-500 hover:to-orange-500 hover:text-white hover:transform hover:scale-105 hover:border-transparent" onclick="switchCategory('chinese')">
-                    <span class="text-2xl">🥟</span>
-                    <span class="whitespace-nowrap">중식</span>
-                </button>
-                <button class="category-btn flex items-center space-x-3 px-6 py-3 rounded-xl transition-all duration-300 font-semibold border bg-white text-gray-700 shadow-lg shadow-gray-200/50 border-gray-100 hover:shadow-2xl hover:shadow-orange-500/30 hover:bg-gradient-to-r hover:from-pink-500 hover:to-orange-500 hover:text-white hover:transform hover:scale-105 hover:border-transparent" onclick="switchCategory('japanese')">
-                    <span class="text-2xl">🍣</span>
-                    <span class="whitespace-nowrap">일식</span>
-                </button>
-                <button class="category-btn flex items-center space-x-3 px-6 py-3 rounded-xl transition-all duration-300 font-semibold border bg-white text-gray-700 shadow-lg shadow-gray-200/50 border-gray-100 hover:shadow-2xl hover:shadow-orange-500/30 hover:bg-gradient-to-r hover:from-pink-500 hover:to-orange-500 hover:text-white hover:transform hover:scale-105 hover:border-transparent" onclick="switchCategory('dessert')">
-                    <span class="text-2xl">🧁</span>
-                    <span class="whitespace-nowrap">디저트</span>
-                </button>
+                <%-- 카테고리 버튼 반복 --%>
+                <c:forEach var="category" items="${categories}" varStatus="status">
+                    <button class="category-btn ${status.index == 0 ? 'active' : ''} flex items-center space-x-3 px-6 py-3 rounded-xl transition-all duration-300 font-semibold border ${status.index == 0 ? 'bg-gradient-to-r from-pink-500 to-orange-500 text-white shadow-2xl shadow-pink-500/30 border-transparent transform scale-105 hover:shadow-2xl hover:shadow-pink-500/40' : 'bg-white text-gray-700 shadow-lg shadow-gray-200/50 border-gray-100 hover:shadow-2xl hover:shadow-orange-500/30 hover:bg-gradient-to-r hover:from-pink-500 hover:to-orange-500 hover:text-white hover:transform hover:scale-105 hover:border-transparent'}"
+                            onclick="switchCategory('${category.code}')">
+                        <span class="text-2xl"><c:out value="${category.emoji}"/></span>
+                        <span class="whitespace-nowrap"><c:out value="${category.name}"/></span>
+                    </button>
+                </c:forEach>
+
+                <%-- 기본 카테고리 (데이터가 없는 경우) --%>
+                <c:if test="${empty categories}">
+                    <button class="category-btn active flex items-center space-x-3 px-6 py-3 rounded-xl transition-all duration-300 font-semibold border bg-gradient-to-r from-pink-500 to-orange-500 text-white shadow-2xl shadow-pink-500/30 border-transparent transform scale-105 hover:shadow-2xl hover:shadow-pink-500/40" onclick="switchCategory('korean')">
+                        <span class="text-2xl">🥢</span>
+                        <span class="whitespace-nowrap">한식</span>
+                    </button>
+                    <button class="category-btn flex items-center space-x-3 px-6 py-3 rounded-xl transition-all duration-300 font-semibold border bg-white text-gray-700 shadow-lg shadow-gray-200/50 border-gray-100 hover:shadow-2xl hover:shadow-orange-500/30 hover:bg-gradient-to-r hover:from-pink-500 hover:to-orange-500 hover:text-white hover:transform hover:scale-105 hover:border-transparent" onclick="switchCategory('western')">
+                        <span class="text-2xl">🍝</span>
+                        <span class="whitespace-nowrap">양식</span>
+                    </button>
+                </c:if>
             </div>
 
             <!-- 선택된 카테고리의 탭 콘텐츠 -->
@@ -348,57 +299,52 @@
                             <div class="p-6">
                                 <div class="flex items-center justify-between mb-6">
                                     <h3 class="text-xl" id="categoryTitle">
-                                        한식 CheForest 레시피
+                                        ${currentCategory != null ? currentCategory.name : '한식'} CheForest 레시피
                                     </h3>
-                                    <button class="text-orange-500 hover:text-transparent hover:bg-gradient-to-r hover:from-pink-500 hover:to-orange-500 hover:bg-clip-text flex items-center space-x-1 transition-all duration-200">
+                                    <button class="text-orange-500 hover:text-transparent hover:bg-gradient-to-r hover:from-pink-500 hover:to-orange-500 hover:bg-clip-text flex items-center space-x-1 transition-all duration-200"
+                                            onclick="location.href='${pageContext.request.contextPath}/recipes?category=${currentCategory != null ? currentCategory.code : 'korean'}'">
                                         <span>전체보기</span>
                                         <i data-lucide="arrow-right" class="w-4 h-4"></i>
                                     </button>
                                 </div>
-                                
+
                                 <div class="space-y-4" id="recipesList">
-                                    <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer" onclick="showPage('recipe-detail')">
-                                        <div class="flex-1">
-                                            <h4 class="font-medium mb-1">간단한 김치찌개</h4>
-                                            <p class="text-sm text-gray-600">by 김요리사</p>
-                                        </div>
-                                        <div class="flex items-center space-x-4 text-sm">
-                                            <div class="flex items-center space-x-1">
-                                                <i data-lucide="star" class="w-4 h-4 fill-yellow-400 text-yellow-400"></i>
-                                                <span>4.8</span>
-                                                <span class="text-gray-500">(234)</span>
+                                    <%-- 카테고리별 레시피 목록 --%>
+                                    <c:forEach var="recipe" items="${categoryRecipes}" varStatus="status">
+                                        <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer"
+                                             onclick="location.href='${pageContext.request.contextPath}/recipe/detail?id=${recipe.recipeId}'">
+                                            <div class="flex-1">
+                                                <h4 class="font-medium mb-1"><c:out value="${recipe.title}"/></h4>
+                                                <p class="text-sm text-gray-600">by <c:out value="${recipe.authorName}"/></p>
                                             </div>
-                                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">1위</span>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer" onclick="showPage('recipe-detail')">
-                                        <div class="flex-1">
-                                            <h4 class="font-medium mb-1">부드러운 갈비찜</h4>
-                                            <p class="text-sm text-gray-600">by 박셰프</p>
-                                        </div>
-                                        <div class="flex items-center space-x-4 text-sm">
-                                            <div class="flex items-center space-x-1">
-                                                <i data-lucide="star" class="w-4 h-4 fill-yellow-400 text-yellow-400"></i>
-                                                <span>4.9</span>
-                                                <span class="text-gray-500">(189)</span>
+                                            <div class="flex items-center space-x-4 text-sm">
+                                                <div class="flex items-center space-x-1">
+                                                    <i data-lucide="star" class="w-4 h-4 fill-yellow-400 text-yellow-400"></i>
+                                                    <span><fmt:formatNumber value="${recipe.rating}" maxFractionDigits="1"/></span>
+                                                    <span class="text-gray-500">(${recipe.reviewCount})</span>
+                                                </div>
+                                                <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">${status.index + 1}위</span>
                                             </div>
-                                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">2위</span>
                                         </div>
-                                    </div>
-                                    <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer" onclick="showPage('recipe-detail')">
-                                        <div class="flex-1">
-                                            <h4 class="font-medium mb-1">매콤한 떡볶이</h4>
-                                            <p class="text-sm text-gray-600">by 이요리연구가</p>
-                                        </div>
-                                        <div class="flex items-center space-x-4 text-sm">
-                                            <div class="flex items-center space-x-1">
-                                                <i data-lucide="star" class="w-4 h-4 fill-yellow-400 text-yellow-400"></i>
-                                                <span>4.7</span>
-                                                <span class="text-gray-500">(312)</span>
+                                    </c:forEach>
+
+                                    <%-- 기본 레시피 목록 (데이터가 없는 경우) --%>
+                                    <c:if test="${empty categoryRecipes}">
+                                        <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer">
+                                            <div class="flex-1">
+                                                <h4 class="font-medium mb-1">간단한 김치찌개</h4>
+                                                <p class="text-sm text-gray-600">by 김요리사</p>
                                             </div>
-                                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">3위</span>
+                                            <div class="flex items-center space-x-4 text-sm">
+                                                <div class="flex items-center space-x-1">
+                                                    <i data-lucide="star" class="w-4 h-4 fill-yellow-400 text-yellow-400"></i>
+                                                    <span>4.8</span>
+                                                    <span class="text-gray-500">(234)</span>
+                                                </div>
+                                                <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">1위</span>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </c:if>
                                 </div>
                             </div>
                         </div>
@@ -409,45 +355,51 @@
                             <div class="p-6">
                                 <div class="flex items-center justify-between mb-6">
                                     <h3 class="text-xl" id="communityTitle">
-                                        한식 사용자 레시피
+                                        ${currentCategory != null ? currentCategory.name : '한식'} 사용자 레시피
                                     </h3>
-                                    <button class="text-orange-500 hover:text-transparent hover:bg-gradient-to-r hover:from-pink-500 hover:to-orange-500 hover:bg-clip-text flex items-center space-x-1 transition-all duration-200">
+                                    <button class="text-orange-500 hover:text-transparent hover:bg-gradient-to-r hover:from-pink-500 hover:to-orange-500 hover:bg-clip-text flex items-center space-x-1 transition-all duration-200"
+                                            onclick="location.href='${pageContext.request.contextPath}/board?category=${currentCategory != null ? currentCategory.code : 'korean'}'">
                                         <span>전체보기</span>
                                         <i data-lucide="arrow-right" class="w-4 h-4"></i>
                                     </button>
                                 </div>
-                                
+
                                 <div class="space-y-4">
-                                    <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer">
-                                        <div class="flex-1">
-                                            <h4 class="font-medium mb-1">요리 초보 질문있어요!</h4>
-                                            <p class="text-sm text-gray-600">by 요리새싹</p>
+                                    <%-- 커뮤니티 게시글 목록 --%>
+                                    <c:forEach var="post" items="${communityPosts}">
+                                        <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer"
+                                             onclick="location.href='${pageContext.request.contextPath}/board/detail?id=${post.postId}'">
+                                            <div class="flex-1">
+                                                <h4 class="font-medium mb-1"><c:out value="${post.title}"/></h4>
+                                                <p class="text-sm text-gray-600">by <c:out value="${post.authorName}"/></p>
+                                            </div>
+                                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                                <span>답글 ${post.commentCount}개</span>
+                                                <span>
+                                                <c:choose>
+                                                    <c:when test="${post.timeAgo < 60}">방금 전</c:when>
+                                                    <c:when test="${post.timeAgo < 3600}">${post.timeAgo / 60}분 전</c:when>
+                                                    <c:when test="${post.timeAgo < 86400}">${post.timeAgo / 3600}시간 전</c:when>
+                                                    <c:otherwise>${post.timeAgo / 86400}일 전</c:otherwise>
+                                                </c:choose>
+                                            </span>
+                                            </div>
                                         </div>
-                                        <div class="flex items-center space-x-4 text-sm text-gray-500">
-                                            <span>답글 23개</span>
-                                            <span>2시간 전</span>
+                                    </c:forEach>
+
+                                    <%-- 기본 커뮤니티 게시글 (데이터가 없는 경우) --%>
+                                    <c:if test="${empty communityPosts}">
+                                        <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer">
+                                            <div class="flex-1">
+                                                <h4 class="font-medium mb-1">요리 초보 질문있어요!</h4>
+                                                <p class="text-sm text-gray-600">by 요리새싹</p>
+                                            </div>
+                                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                                <span>답글 23개</span>
+                                                <span>2시간 전</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer">
-                                        <div class="flex-1">
-                                            <h4 class="font-medium mb-1">김치찌개 맛있게 끓이는 팁</h4>
-                                            <p class="text-sm text-gray-600">by 김치마스터</p>
-                                        </div>
-                                        <div class="flex items-center space-x-4 text-sm text-gray-500">
-                                            <span>답글 45개</span>
-                                            <span>5시간 전</span>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer">
-                                        <div class="flex-1">
-                                            <h4 class="font-medium mb-1">이번 주말 요리 모임 어떠세요?</h4>
-                                            <p class="text-sm text-gray-600">by 요리모임장</p>
-                                        </div>
-                                        <div class="flex items-center space-x-4 text-sm text-gray-500">
-                                            <span>답글 12개</span>
-                                            <span>1일 전</span>
-                                        </div>
-                                    </div>
+                                    </c:if>
                                 </div>
                             </div>
                         </div>
@@ -458,137 +410,131 @@
     </section>
 
     <!-- 이벤트 & 클래스 섹션 - Events.tsx 기반 -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <!-- 섹션 헤더 -->
-        <div class="text-center mb-12">
-            <div class="flex items-center justify-center mb-4">
-                <i data-lucide="trophy" class="h-8 w-8 text-orange-500 mr-3"></i>
-                <h2 class="text-4xl font-black brand-gradient">이벤트 & 클래스</h2>
-            </div>
-            <p class="text-gray-600 max-w-2xl mx-auto">
-                CheForest에서 진행하는 특별한 이벤트와 요리 클래스에 참여해보세요! 
-                전문 셰프와 함께하는 클래스부터 푸짐한 상금의 공모전까지 다양한 기회가 기다립니다.
-            </p>
-        </div>
-
-        <!-- 이벤트 카드 그리드 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- 이벤트 카드 1 - 레시피 공모전 -->
-            <div class="event-card bg-white border-2 border-gray-200 hover:border-orange-500 transition-all duration-300 hover:shadow-xl rounded-lg overflow-hidden group">
-                <div class="relative">
-                    <img src="https://images.unsplash.com/photo-1741980983785-d879e5c4f50c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZWNpcGUlMjBjb250ZXN0JTIwYXdhcmQlMjBwcml6ZXxlbnwxfHx8fDE3NTc1NzgyNzl8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral" 
-                        alt="2024 CheForest 레시피 공모전" 
-                        class="event-image w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
-                    <div class="absolute top-4 left-4">
-                        <span class="bg-green-500 text-white px-3 py-1 rounded font-medium">모집중</span>
-                    </div>
-                    <div class="absolute top-4 right-4">
-                        <span class="bg-white/90 text-gray-700 px-3 py-1 rounded font-medium">공모전</span>
-                    </div>
+    <section class="py-16 bg-gradient-to-br from-pink-50 via-white to-orange-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <div class="flex items-center justify-center mb-4">
+                    <i data-lucide="calendar" class="h-8 w-8 text-orange-500 mr-3"></i>
+                    <h2 class="text-4xl font-black brand-gradient">이벤트 & 클래스</h2>
                 </div>
-
-                <div class="p-6">
-                    <h3 class="text-xl font-semibold mb-2 group-hover:text-orange-500 transition-colors">
-                        2024 CheForest 레시피 공모전
-                    </h3>
-                    <p class="text-gray-600 line-clamp-2 mb-4">
-                        창의적이고 건강한 레시피로 도전하세요! 우승자에게는 100만원 상금과 CheForest 명예의 전당에 이름이 등록됩니다.
-                    </p>
-
-                    <!-- 이벤트 정보 -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm mb-4">
-                        <div class="flex items-center text-gray-600">
-                            <i data-lucide="calendar" class="h-4 w-4 mr-2 text-orange-500"></i>
-                            <span>2024-01-15 ~ 2024-02-29</span>
-                        </div>
-                        <div class="flex items-center text-gray-600">
-                            <i data-lucide="clock" class="h-4 w-4 mr-2 text-orange-500"></i>
-                            <span>24시간 접수</span>
-                        </div>
-                        <div class="flex items-center text-gray-600">
-                            <i data-lucide="users" class="h-4 w-4 mr-2 text-orange-500"></i>
-                            <span>1,247명 참여</span>
-                        </div>
-                        <div class="flex items-center text-gray-600">
-                            <i data-lucide="chef-hat" class="h-4 w-4 mr-2 text-orange-500"></i>
-                            <span>총 상금 300만원</span>
-                        </div>
-                    </div>
-
-                    <!-- 액션 버튼 -->
-                    <div class="flex gap-3 pt-2">
-                        <button class="flex-1 btn-orange text-white py-2 px-4 rounded-lg font-medium">
-                            지금 참여하기
-                        </button>
-                        <button class="border border-orange-500 text-orange-500 hover:bg-orange-50 py-2 px-4 rounded-lg font-medium">
-                            자세히 보기
-                        </button>
-                    </div>
-                </div>
+                <p class="text-gray-600 max-w-2xl mx-auto">
+                    CheForest에서 진행하는 특별한 이벤트와 요리 클래스에 참여해보세요.
+                </p>
             </div>
 
-            <!-- 이벤트 카드 2 - 요리 클래스 -->
-            <div class="event-card bg-white border-2 border-gray-200 hover:border-orange-500 transition-all duration-300 hover:shadow-xl rounded-lg overflow-hidden group">
-                <div class="relative">
-                    <img src="https://images.unsplash.com/photo-1681889870636-3f58e5288e03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb29raW5nJTIwd29ya3Nob3AlMjBtYXN0ZXJjbGFzc3xlbnwxfHx8fDE3NTc1NzgyODJ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral" 
-                        alt="프리미엄 셰프와 함께하는 요리 클래스" 
-                        class="event-image w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
-                    <div class="absolute top-4 left-4">
-                        <span class="bg-red-500 text-white px-3 py-1 rounded font-medium">마감임박</span>
-                    </div>
-                    <div class="absolute top-4 right-4">
-                        <span class="bg-white/90 text-gray-700 px-3 py-1 rounded font-medium">클래스</span>
-                    </div>
-                </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <%-- 이벤트 카드 반복 --%>
+                <c:forEach var="event" items="${activeEvents}">
+                    <div class="group relative bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer"
+                         onclick="location.href='${pageContext.request.contextPath}/events/detail?id=${event.eventId}'">
+                        <div class="relative h-64 overflow-hidden">
+                            <img src="${event.imageUrl}"
+                                 alt="<c:out value='${event.title}'/>"
+                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
 
-                <div class="p-6">
-                    <h3 class="text-xl font-semibold mb-2 group-hover:text-orange-500 transition-colors">
-                        프리미엄 셰프와 함께하는 요리 클래스
-                    </h3>
-                    <p class="text-gray-600 line-clamp-2 mb-4">
-                        미슐랭 스타 셰프와 함께하는 특별한 요리 클래스! 프랑스 정통 요리법을 배우고 고급 요리 스킬을 익혀보세요.
-                    </p>
+                            <div class="absolute top-4 left-4">
+                            <span class="bg-gradient-to-r from-pink-500 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-medium">
+                                <c:out value="${event.type}"/>
+                            </span>
+                            </div>
 
-                    <!-- 이벤트 정보 -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm mb-4">
-                        <div class="flex items-center text-gray-600">
-                            <i data-lucide="calendar" class="h-4 w-4 mr-2 text-orange-500"></i>
-                            <span>2024-01-20</span>
+                            <c:if test="${event.isPopular}">
+                                <div class="absolute top-4 right-4">
+                                    <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-medium">인기</span>
+                                </div>
+                            </c:if>
+
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
-                        <div class="flex items-center text-gray-600">
-                            <i data-lucide="clock" class="h-4 w-4 mr-2 text-orange-500"></i>
-                            <span>오후 2:00 - 5:00</span>
-                        </div>
-                        <div class="flex items-center text-gray-600">
-                            <i data-lucide="users" class="h-4 w-4 mr-2 text-orange-500"></i>
-                            <span>20명 한정</span>
-                        </div>
-                        <div class="flex items-center text-gray-600">
-                            <i data-lucide="chef-hat" class="h-4 w-4 mr-2 text-orange-500"></i>
-                            <span>수료증 발급</span>
+
+                        <div class="p-6">
+                            <h3 class="text-xl mb-3 group-hover:text-orange-500 transition-colors">
+                                <c:out value="${event.title}"/>
+                            </h3>
+                            <p class="text-gray-600 mb-4 line-clamp-2">
+                                <c:out value="${event.description}"/>
+                            </p>
+
+                            <div class="flex items-center justify-between text-sm">
+                                <div class="flex items-center space-x-4 text-gray-500">
+                                    <div class="flex items-center space-x-1">
+                                        <i data-lucide="calendar" class="w-4 h-4"></i>
+                                        <span><fmt:formatDate value="${event.startDate}" pattern="MM.dd"/></span>
+                                    </div>
+                                    <div class="flex items-center space-x-1">
+                                        <i data-lucide="users" class="w-4 h-4"></i>
+                                        <span>${event.participantCount}/${event.maxParticipants}</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <c:choose>
+                                        <c:when test="${event.isFree}">
+                                            <span class="text-green-600 font-medium">무료</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                        <span class="text-orange-500 font-medium">
+                                            <fmt:formatNumber value="${event.price}" type="currency" currencySymbol="₩"/>
+                                        </span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                </c:forEach>
 
-                    <!-- 액션 버튼 -->
-                    <div class="flex gap-3 pt-2">
-                        <button class="flex-1 btn-orange text-white py-2 px-4 rounded-lg font-medium">
-                            신청하기
-                        </button>
-                        <button class="border border-orange-500 text-orange-500 hover:bg-orange-50 py-2 px-4 rounded-lg font-medium">
-                            자세히 보기
-                        </button>
+                <%-- 기본 이벤트 카드 (데이터가 없는 경우) --%>
+                <c:if test="${empty activeEvents}">
+                    <div class="group relative bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer">
+                        <div class="relative h-64 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&h=400&fit=crop&auto=format"
+                                 alt="요리 클래스"
+                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+
+                            <div class="absolute top-4 left-4">
+                            <span class="bg-gradient-to-r from-pink-500 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-medium">
+                                쿠킹 클래스
+                            </span>
+                            </div>
+                        </div>
+
+                        <div class="p-6">
+                            <h3 class="text-xl mb-3 group-hover:text-orange-500 transition-colors">
+                                홈메이드 파스타 만들기
+                            </h3>
+                            <p class="text-gray-600 mb-4 line-clamp-2">
+                                이탈리아 전통 방식으로 직접 면을 뽑아 만드는 정통 파스타 클래스입니다.
+                            </p>
+
+                            <div class="flex items-center justify-between text-sm">
+                                <div class="flex items-center space-x-4 text-gray-500">
+                                    <div class="flex items-center space-x-1">
+                                        <i data-lucide="calendar" class="w-4 h-4"></i>
+                                        <span>12.25</span>
+                                    </div>
+                                    <div class="flex items-center space-x-1">
+                                        <i data-lucide="users" class="w-4 h-4"></i>
+                                        <span>8/12</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-orange-500 font-medium">₩35,000</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </c:if>
             </div>
-        </div>
 
-        <!-- 더 많은 이벤트 버튼 -->
-        <div class="text-center mt-12">
-            <button class="bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white px-8 py-3 rounded-lg font-medium text-lg">
-                더 많은 이벤트 보기
-            </button>
+            <div class="text-center mt-10">
+                <button class="btn-orange text-white px-8 py-3 rounded-lg transition-all duration-200"
+                        onclick="location.href='${pageContext.request.contextPath}/events'">
+                    모든 이벤트 보기
+                </button>
+            </div>
         </div>
     </section>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->

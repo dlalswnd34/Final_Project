@@ -44,9 +44,9 @@ public class RecipeService {
         return mapStruct.toDtoList(recipeRepository.findRandomByCategory(categoryKr, count));
     }
 
-    // 4. 인기 레시피 TOP10
-    public List<RecipeDto> getBestRecipes() {
-        return mapStruct.toDtoList(recipeRepository.findTop10ByOrderByLikeCountDescRecipeIdDesc());
+    // 4. 인기 레시피 TOP4
+    public List<RecipeDto> getBest4Recipes() {
+        return mapStruct.toDtoList(recipeRepository.findTop4ByOrderByLikeCountDescRecipeIdDesc());
     }
     // 4. 인기 레시피 TOP10
     public List<RecipeDto> getBest3Recipes() {

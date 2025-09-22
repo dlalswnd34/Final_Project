@@ -40,3 +40,4 @@ public interface RecipeRepository extends JpaRepository<Recipe, String> {
     List<Object[]> countRecipesByCategory();
     }
 
+

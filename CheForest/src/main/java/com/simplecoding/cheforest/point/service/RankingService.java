@@ -2,8 +2,6 @@ package com.simplecoding.cheforest.point.service;
 
 import com.simplecoding.cheforest.auth.entity.Member;
 import com.simplecoding.cheforest.auth.repository.MemberRepository;
-import com.simplecoding.cheforest.point.entity.MemberGrade;
-import com.simplecoding.cheforest.point.repository.MemberGradeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +14,6 @@ import java.util.List;
 public class RankingService {
 
     private final MemberRepository memberRepository;
-    private final MemberGradeRepository memberGradeRepository;
 
     // 상위 10명 랭킹
     public List<Member> getTopRanking(int limit) {
@@ -28,9 +25,13 @@ public class RankingService {
         return memberRepository.findMyRank(member.getPoint());
     }
 
-    // 회원 등급 조회
+    // 회원 등급 조회 (5단계 자동 계산)
     public String getMemberGrade(Long point) {
-        MemberGrade grade = memberGradeRepository.findGradeByPoint(point);
-        return (grade != null) ? grade.getName() : "등급없음";
+        if (point == null) return "씨앗";
+        if (point < 1000) return "씨앗";
+        else if (point < 2000) return "뿌리";
+        else if (point < 3000) return "새싹";
+        else if (point < 4000) return "나무";
+        else return "숲";
     }
 }
