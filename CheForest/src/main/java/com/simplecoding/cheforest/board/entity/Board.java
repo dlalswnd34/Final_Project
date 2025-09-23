@@ -43,4 +43,6 @@ public class Board extends BaseTimeEntity {
     @Builder.Default
     private Long likeCount = 0L;
 
+    private Integer cookTime;
+    private String difficulty;
 }

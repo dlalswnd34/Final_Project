@@ -12,10 +12,13 @@ public class BoardListDto {  // 목록조회 dto
     private Long boardId;
     private String category;
     private String title;
-    private String nickname;       // 작성자 닉네임
+    private String nickname;
     private Long writerIdx;
     private Long viewCount;
     private Long likeCount;
     private String thumbnail;
-    private LocalDateTime insertTime; // 작성일
+    private LocalDateTime insertTime;
+    private Integer cooktime;
+    private String difficulty;
+    private String createdAgo;
 }

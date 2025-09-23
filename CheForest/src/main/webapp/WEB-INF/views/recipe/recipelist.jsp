@@ -287,18 +287,18 @@
                                             </c:url>
                                             <a href="${prevBlockUrl}" class="px-3 py-1 border rounded ${blockStart==0?'pointer-events-none opacity-50':''}">«</a>
 
-                                            <!-- ‹ 이전 페이지 (한 칸) -->
-                                            <c:set var="prevPage" value="${currentPageSafe - 1}"/>
-                                            <c:if test="${prevPage < 0}">
-                                                <c:set var="prevPage" value="0"/>
-                                            </c:if>
-                                            <c:url var="prevUrl" value="/recipe/list">
-                                                <c:param name="page" value="${prevPage}"/>
-                                                <c:param name="size" value="${sizeSafe}"/>
-                                                <c:param name="categoryKr" value="${categoryKr}"/>
-                                                <c:param name="searchKeyword" value="${searchKeyword}"/>
-                                            </c:url>
-                                            <a href="${prevUrl}" class="px-3 py-1 border rounded ${currentPageSafe==0?'pointer-events-none opacity-50':''}">‹</a>
+<%--                                            <!-- ‹ 이전 페이지 (한 칸) -->--%>
+<%--                                            <c:set var="prevPage" value="${currentPageSafe - 1}"/>--%>
+<%--                                            <c:if test="${prevPage < 0}">--%>
+<%--                                                <c:set var="prevPage" value="0"/>--%>
+<%--                                            </c:if>--%>
+<%--                                            <c:url var="prevUrl" value="/recipe/list">--%>
+<%--                                                <c:param name="page" value="${prevPage}"/>--%>
+<%--                                                <c:param name="size" value="${sizeSafe}"/>--%>
+<%--                                                <c:param name="categoryKr" value="${categoryKr}"/>--%>
+<%--                                                <c:param name="searchKeyword" value="${searchKeyword}"/>--%>
+<%--                                            </c:url>--%>
+<%--                                            <a href="${prevUrl}" class="px-3 py-1 border rounded ${currentPageSafe==0?'pointer-events-none opacity-50':''}">‹</a>--%>
 
                                             <!-- 현재 블록 1~10 -->
                                             <c:forEach var="i" begin="${blockStart}" end="${blockEnd}">
@@ -310,23 +310,23 @@
                                                 </c:url>
                                                 <a href="${pageUrl}"
                                                    class="px-3 py-1 border rounded
-                ${currentPageSafe == i ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-700'}">
+                                                         ${currentPageSafe == i ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-700'}">
                                                         ${i + 1}
                                                 </a>
                                             </c:forEach>
 
-                                            <!-- › 다음 페이지 (한 칸) -->
-                                            <c:set var="nextPage" value="${currentPageSafe + 1}"/>
-                                            <c:if test="${nextPage > totalPagesSafe - 1}">
-                                                <c:set var="nextPage" value="${totalPagesSafe - 1}"/>
-                                            </c:if>
-                                            <c:url var="nextUrl" value="/recipe/list">
-                                                <c:param name="page" value="${nextPage}"/>
-                                                <c:param name="size" value="${sizeSafe}"/>
-                                                <c:param name="categoryKr" value="${categoryKr}"/>
-                                                <c:param name="searchKeyword" value="${searchKeyword}"/>
-                                            </c:url>
-                                            <a href="${nextUrl}" class="px-3 py-1 border rounded ${currentPageSafe==totalPagesSafe-1?'pointer-events-none opacity-50':''}">›</a>
+<%--                                            <!-- › 다음 페이지 (한 칸) -->--%>
+<%--                                            <c:set var="nextPage" value="${currentPageSafe + 1}"/>--%>
+<%--                                            <c:if test="${nextPage > totalPagesSafe - 1}">--%>
+<%--                                                <c:set var="nextPage" value="${totalPagesSafe - 1}"/>--%>
+<%--                                            </c:if>--%>
+<%--                                            <c:url var="nextUrl" value="/recipe/list">--%>
+<%--                                                <c:param name="page" value="${nextPage}"/>--%>
+<%--                                                <c:param name="size" value="${sizeSafe}"/>--%>
+<%--                                                <c:param name="categoryKr" value="${categoryKr}"/>--%>
+<%--                                                <c:param name="searchKeyword" value="${searchKeyword}"/>--%>
+<%--                                            </c:url>--%>
+<%--                                            <a href="${nextUrl}" class="px-3 py-1 border rounded ${currentPageSafe==totalPagesSafe-1?'pointer-events-none opacity-50':''}">›</a>--%>
 
                                             <!-- » 다음 블록 (10칸 점프) -->
                                             <c:set var="nextBlockPage" value="${blockStart + blockSize}"/>

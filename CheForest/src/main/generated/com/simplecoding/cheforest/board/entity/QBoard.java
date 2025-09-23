@@ -30,6 +30,10 @@ public class QBoard extends EntityPathBase<Board> {
 
     public final StringPath content = createString("content");
 
+    public final NumberPath<Integer> cookTime = createNumber("cookTime", Integer.class);
+
+    public final StringPath difficulty = createString("difficulty");
+
     //inherited
     public final DateTimePath<java.time.LocalDateTime> insertTime = _super.insertTime;
 

@@ -50,7 +50,7 @@ public class RecipeController {
         // ✅ 전체 총합(필터와 무관, ‘전체’ 뱃지에 쓰는 값)
         long allTotalCount = recipeService.countAllRecipes();
 
-        // (선택) 사이드바 노출 순서 고정
+        // (선택) 사이드바 노출 순서 고정(추후 수정)
         List<String> categoryOrder = java.util.Arrays.asList("한식","양식","중식","일식","디저트");
 
         model.addAttribute("recipeList", recipePage.getContent());

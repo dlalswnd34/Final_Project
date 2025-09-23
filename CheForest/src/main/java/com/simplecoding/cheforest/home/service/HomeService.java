@@ -78,7 +78,7 @@ public class HomeService {
                 .title(r.getTitleKr())
                 .thumbnail(r.getThumbnail())
                 .categoryName(r.getCategoryKr())
-                .writerNickname("CheForest") // API 데이터엔 작성자 없음
+                .writerNickname("CheForest 관리자") // API 데이터엔 작성자 없음
                 .cookTime(r.getCookTime())
                 .difficulty(r.getDifficulty())
                 .viewCount(r.getViewCount())

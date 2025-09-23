@@ -34,8 +34,9 @@ public class BoardRepositoryDsl {
         if (keyword != null && !keyword.isBlank()) {
             builder.and(board.title.containsIgnoreCase(keyword));
         }
-        if (category != null && !category.isBlank()) {
-            builder.and(board.category.eq(category));
+
+        if (category != null && !category.isBlank() && !"all".equalsIgnoreCase(category)) {
+            builder.and(board.category.eq(category.trim()));
         }
 
         List<BoardListDto> content = queryFactory
@@ -51,7 +52,7 @@ public class BoardRepositoryDsl {
                         board.insertTime.as("insertTime")
                 ))
                 .from(board)
-                .join(board.writer, member)
+                .leftJoin(board.writer, member)
                 .where(builder)
                 .orderBy(board.boardId.desc())
                 .offset(pageable.getOffset())
@@ -63,6 +64,14 @@ public class BoardRepositoryDsl {
                 .from(board)
                 .where(builder)
                 .fetchOne();
+
+        // ✅ 디버깅을 위해 이 로그를 추가해주세요!
+        System.out.println("==========================================");
+        System.out.println(">>> [searchBoards] Debug Log");
+        System.out.println(">>> Category Param: " + category);
+        System.out.println(">>> Total Count from Query: " + total);
+        System.out.println(">>> Content Size from Query: " + content.size());
+        System.out.println("==========================================");
 
         return new PageImpl<>(content, pageable, total);
     }
@@ -94,7 +103,7 @@ public class BoardRepositoryDsl {
                 .fetchOne();
     }
 
-    // 인기글 TOP4
+    // 인기글 TOP3
     public List<BoardListDto> findBestPosts() {
         QBoard board = QBoard.board;
         QMember member = QMember.member;
@@ -114,11 +123,11 @@ public class BoardRepositoryDsl {
                 .from(board)
                 .join(board.writer, member)
                 .orderBy(board.likeCount.desc(), board.boardId.desc())
-                .limit(4)
+                .limit(3)
                 .fetch();
     }
 
-    // 카테고리별 인기글 TOP4
+    // 카테고리별 인기글 TOP3
     public List<BoardListDto> findBestPostsByCategory(String category) {
         QBoard board = QBoard.board;
         QMember member = QMember.member;
@@ -139,7 +148,7 @@ public class BoardRepositoryDsl {
                 .join(board.writer, member)
                 .where(board.category.eq(category))
                 .orderBy(board.likeCount.desc(), board.boardId.desc())
-                .limit(4)
+                .limit(3)
                 .fetch();
     }
 
