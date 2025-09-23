@@ -79,6 +79,6 @@ public class MypageController {
         model.addAttribute("nextGradePoint", pointService.getNextGradePoint(member.getPoint()));
         model.addAttribute("recentHistories", pointService.getRecentHistories(member.getMemberIdx()));
 
-        return "mypage/points"; // JSP or Thymeleaf 페이지
+        return "mypage/points";
     }
 }

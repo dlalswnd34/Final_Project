@@ -152,9 +152,9 @@
                                      class="recipe-image w-full h-48 object-cover"
                                      onerror="handleImageError(this)">
                                 <div class="absolute top-3 left-3">
-          <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
-            <c:out value="${recipe.categoryName}"/>
-          </span>
+                                  <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                                    <c:out value="${recipe.categoryName}"/>
+                                  </span>
                                 </div>
                             </div>
 
@@ -172,8 +172,8 @@
                                         <span><c:out value="${recipe.cookTime}"/>분</span>
                                     </div>
                                     <span class="text-xs bg-gray-100 px-2 py-1 rounded">
-            <c:out value="${recipe.difficulty}"/>
-          </span>
+                                        <c:out value="${recipe.difficulty}"/>
+                                      </span>
                                 </div>
 
                                 <div class="flex items-center justify-between pt-3 border-t border-gray-200">

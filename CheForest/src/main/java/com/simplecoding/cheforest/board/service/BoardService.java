@@ -109,4 +109,17 @@ public class BoardService {
                 .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + boardId));
         board.setThumbnail(thumbnailPath);
     }
+
+    public Long countMyPosts(Member member) {
+        return boardRepository.countByWriter(member);
+    }
+
+//    총 게시글 수
+    public long getTotalCount() {
+        return boardRepository.count();
+    }
+//    카테고리별 게시글 수
+    public long getCountByCategory(String category) {
+        return boardRepository.countByCategory(category);
+    }
 }

@@ -1,5 +1,6 @@
 package com.simplecoding.cheforest.board.repository;
 
+import com.simplecoding.cheforest.auth.entity.Member;
 import com.simplecoding.cheforest.board.entity.Board;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,10 +14,18 @@ public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecific
     // 카테고리별 검색 + 제목 검색은 JpaSpecificationExecutor/QueryDSL로 처리
 
     // 좋아요 순 Top 4
-    List<Board> findTop4ByOrderByLikeCountDesc();
+    List<Board> findTop3ByOrderByLikeCountDesc();
 
     // 카테고리별 좋아요 순 Top 4
-    List<Board> findTop4ByCategoryOrderByLikeCountDesc(String category);
+    List<Board> findTop3ByCategoryOrderByLikeCountDesc(String category);
+
+    Long countByWriter(Member writer);
+
+//    전체 게시글 수
+    long count();
+
+//    카테고리별 게시글 수
+    long countByCategory(String category);
 
     // 특정 회원이 작성한 게시글
     List<Board> findByWriter_MemberIdx(Long memberIdx);

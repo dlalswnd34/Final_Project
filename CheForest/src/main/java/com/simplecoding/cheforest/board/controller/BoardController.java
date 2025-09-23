@@ -1,5 +1,7 @@
 package com.simplecoding.cheforest.board.controller;
 
+import com.simplecoding.cheforest.auth.security.CustomUserDetails;
+import com.simplecoding.cheforest.auth.service.MemberService;
 import com.simplecoding.cheforest.board.dto.BoardDetailDto;
 import com.simplecoding.cheforest.board.dto.BoardListDto;
 import com.simplecoding.cheforest.board.dto.BoardSaveReq;
@@ -8,6 +10,7 @@ import com.simplecoding.cheforest.board.service.BoardService;
 import com.simplecoding.cheforest.file.dto.FileDto;
 import com.simplecoding.cheforest.file.service.FileService;
 import com.simplecoding.cheforest.auth.dto.MemberDetailDto;
+import com.simplecoding.cheforest.mypage.service.MypageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,7 +24,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -30,6 +35,7 @@ public class BoardController {
 
     private final BoardService boardService;
     private final FileService fileService;
+    private final MypageService mypageService;
 
     // 1. 목록 조회
     @GetMapping("/board/list")
@@ -37,6 +43,7 @@ public class BoardController {
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String keyword,
             @PageableDefault(size = 10) Pageable pageable,
+            @AuthenticationPrincipal CustomUserDetails loginUser,
             Model model
     ) {
         Page<BoardListDto> boards = boardService.searchBoards(keyword, category, pageable);
@@ -47,6 +54,20 @@ public class BoardController {
                 ? boardService.getBestPosts()
                 : boardService.getBestPostsByCategory(category);
         model.addAttribute("bestPosts", bestPosts);
+
+        if (loginUser != null) {
+            Long memberIdx = loginUser.getMember().getMemberIdx();
+
+            long myPostsCount = mypageService.getMyPostsCount(memberIdx, null);
+            long likedPostsCount = mypageService.getLikedBoardsCount(memberIdx, null);
+            long receivedLikesCount = mypageService.getReceivedBoardLikes(memberIdx);
+            long myCommentsCount = mypageService.getMyCommentsCount(memberIdx, null);
+
+            model.addAttribute("myPostsTotalCount", myPostsCount);
+            model.addAttribute("likedPostsTotalCount", likedPostsCount);
+            model.addAttribute("receivedLikesTotalCount", receivedLikesCount);
+            model.addAttribute("myCommentsTotalCount", myCommentsCount);
+        }
 
         return "board/boardlist";
     }
@@ -141,6 +162,20 @@ public class BoardController {
         model.addAttribute("loginUser", loginUser);
 
         return "board/boardview";
+    }
+
+//    카테고리별 총 게시글 보이게하는 api
+    @GetMapping("/board/counts")
+    @ResponseBody
+    public Map<String, Long> getBoardCounts() {
+        Map<String, Long> counts = new HashMap<>();
+        counts.put("all", boardService.getTotalCount());
+        counts.put("한식", boardService.getCountByCategory("한식"));
+        counts.put("양식", boardService.getCountByCategory("양식"));
+        counts.put("중식", boardService.getCountByCategory("중식"));
+        counts.put("일식", boardService.getCountByCategory("일식"));
+        counts.put("디저트", boardService.getCountByCategory("디저트"));
+        return counts;
     }
 
     // ===== 추가 페이지 이동 =====

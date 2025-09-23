@@ -18,7 +18,7 @@ function showPage(page) {
             window.location.href = '/board/list';
             break;
         case 'qna':
-            window.location.href = '/support/qna';
+            window.location.href = '/qna';
             break;
         case 'events':
             window.location.href = '/event/events';
@@ -28,6 +28,9 @@ function showPage(page) {
             break;
         case 'login':
             window.location.href = '/auth/login';
+            break;
+        case 'board-write':
+            window.location.href = '/board/add';
             break;
         default:
             // 기본적으로 page.jsp로 이동

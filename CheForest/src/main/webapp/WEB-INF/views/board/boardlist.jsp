@@ -73,22 +73,22 @@
             </div>
         </section>
 
-        <!-- 카테고리 네비게이션 -->
-        <section class="py-6 border-b border-gray-200">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="flex items-center">
-                        <i data-lucide="filter" class="h-5 w-5 mr-2 text-orange-500"></i>
-                        카테고리
-                    </h3>
-                </div>
-                
-                <!-- 카테고리 버튼들 -->
-                <div class="flex flex-wrap gap-3" id="boardCategoryButtons">
-                    <!-- 카테고리 버튼들이 JavaScript로 동적 생성됩니다 -->
-                </div>
-            </div>
-        </section>
+<%--        <!-- 카테고리 네비게이션 -->--%>
+<%--        <section class="py-6 border-b border-gray-200">--%>
+<%--            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">--%>
+<%--                <div class="flex items-center justify-between mb-6">--%>
+<%--                    <h3 class="flex items-center">--%>
+<%--                        <i data-lucide="filter" class="h-5 w-5 mr-2 text-orange-500"></i>--%>
+<%--                        카테고리--%>
+<%--                    </h3>--%>
+<%--                </div>--%>
+<%--                --%>
+<%--                <!-- 카테고리 버튼들 -->--%>
+<%--                <div class="flex flex-wrap gap-3" id="boardCategoryButtons">--%>
+<%--                    <!-- 카테고리 버튼들이 JavaScript로 동적 생성됩니다 -->--%>
+<%--                </div>--%>
+<%--            </div>--%>
+<%--        </section>--%>
 
         <!-- 레시피 목록 -->
         <section class="py-8">
@@ -130,7 +130,7 @@
                                                     <sec:authentication property="principal.member.nickname"/>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    게스트
+                                                    로그인 후 이용해주세요.
                                                 </c:otherwise>
                                             </c:choose>
                                         </h3>
@@ -152,33 +152,33 @@
                                                     <img src="<c:url value='/images/grades/tree.png'/>" class="w-4 h-4" alt="나무"/>
                                                     <span class="text-xs text-orange-600">나무 등급</span>
                                                 </c:when>
-                                                <c:when test="${pageContext.request.userPrincipal.principal.member.grade eq '꽃'}">
-                                                    <img src="<c:url value='/images/grades/flower.png'/>" class="w-4 h-4" alt="꽃"/>
+                                                <c:when test="${pageContext.request.userPrincipal.principal.member.grade eq '숲'}">
+                                                    <img src="<c:url value='/images/grades/flower.png'/>" class="w-4 h-4" alt="숲"/>
                                                     <span class="text-xs text-orange-600">숲 등급</span>
                                                 </c:when>
-                                                <c:otherwise>
-                                                    <span class="text-xs text-gray-500">등급 없음</span>
-                                                </c:otherwise>
                                             </c:choose>
-                                        </div>
-                                        <div class="flex items-center justify-center space-x-1">
-                                            <span class="text-sm">🌿</span>
-                                            <p class="text-xs text-orange-600">뿌리 등급</p>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="space-y-3">
+                                    <sec:authorize access="isAuthenticated()">
                                     <div class="grid grid-cols-2 gap-3 text-center">
                                         <div>
-                                            <div class="text-orange-700">12</div>
-                                            <div class="text-xs text-orange-600">레시피</div>
+                                            <div class="text-orange-700">
+                                                <c:out value="${myPostsTotalCount}" />
+                                            </div>
+                                            <div class="text-xs text-orange-600">작성 레시피</div>
                                         </div>
                                         <div>
-                                            <div class="text-orange-700">89</div>
-                                            <div class="text-xs text-orange-600">좋아요</div>
+                                            <div class="text-orange-700">
+                                                <c:out value="${likedPostsTotalCount}" />
+                                            </div>
+                                            <div class="text-xs text-orange-600">좋아요한 글 수</div>
                                         </div>
                                     </div>
+                                    </sec:authorize>
                                     <div class="pt-2 border-t border-orange-200 space-y-2">
+                                        <sec:authorize access="isAuthenticated()">
                                         <!-- 나의 Q&A 버튼 -->
                                         <button class="w-full flex items-center justify-center px-3 py-2 bg-white border border-orange-200 hover:bg-orange-50 hover:border-orange-300 transition-all rounded-lg group">
                                             <i data-lucide="help-circle" class="h-4 w-4 text-orange-500 group-hover:text-orange-600 mr-2"></i>
@@ -189,66 +189,104 @@
                                             <i data-lucide="user" class="h-4 w-4 text-orange-500 group-hover:text-orange-600 mr-2"></i>
                                             <span class="text-sm text-orange-600 group-hover:text-orange-700">마이페이지</span>
                                         </button>
+                                        </sec:authorize>
                                         <!-- 로그아웃 버튼 -->
-                                        <button class="w-full flex items-center justify-center px-3 py-2 bg-white border border-orange-200 hover:bg-orange-50 hover:border-orange-300 transition-all rounded-lg group">
-                                            <i data-lucide="log-out" class="h-4 w-4 text-orange-500 group-hover:text-orange-600 mr-2"></i>
-                                            <span class="text-sm text-orange-600 group-hover:text-orange-700">로그아웃</span>
-                                        </button>
+                                        <sec:authorize access="isAnonymous()">
+                                            <button onclick="location.href='/auth/login'"
+                                                    class="w-full flex items-center justify-center px-3 py-2 bg-white border border-orange-200 hover:bg-orange-50 hover:border-orange-300 transition-all rounded-lg group">
+                                                <i data-lucide="log-in" class="h-4 w-4 text-orange-500 group-hover:text-orange-600 mr-2"></i>
+                                                <span class="text-sm text-orange-600 group-hover:text-orange-700">로그인</span>
+                                            </button>
+                                        </sec:authorize>
+
+                                        <sec:authorize access="isAuthenticated()">
+                                            <form action="<c:url value='/logout'/>" method="post">
+                                                <button type="submit"
+                                                        class="w-full flex items-center justify-center px-3 py-2 bg-white border border-orange-200 hover:bg-orange-50 hover:border-orange-300 transition-all rounded-lg group">
+                                                    <i data-lucide="log-out" class="h-4 w-4 text-orange-500 group-hover:text-orange-600 mr-2"></i>
+                                                    <span class="text-sm text-orange-600 group-hover:text-orange-700">로그아웃</span>
+                                                </button>
+                                            </form>
+                                        </sec:authorize>
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- 사이드바 - 카테고리 -->
+                            <aside class="lg:w-64">
+                                <div class="bg-white border border-gray-200 rounded-lg p-6 sticky top-24">
+                                    <h3 class="font-semibold mb-4 flex items-center">
+                                        <i data-lucide="chef-hat" class="h-5 w-5 mr-2 text-orange-500"></i>
+                                        카테고리
+                                    </h3>
+
+                                    <!-- 게시판 카테고리 버튼: JS에서 동적 렌더링 -->
+                                    <div class="space-y-2" id="boardCategoryButtons">
+                                        <!-- board.js에서 자동으로 버튼 생성 -->
+                                    </div>
+                                </div>
+                            </aside>
 
                             <!-- 나의 활동 -->
-                            <div class="bg-white border border-gray-200 rounded-lg">
-                                <div class="p-4 border-b border-gray-200">
-                                    <h3 class="flex items-center">
-                                        <i data-lucide="book-open" class="h-5 w-5 mr-2 text-orange-500"></i>
-                                        나의 활동
-                                    </h3>
-                                </div>
-                                <div class="p-4 space-y-3">
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-gray-500">작성한 레시피</span>
-                                        <span class="text-orange-600">12개</span>
+                            <sec:authorize access="isAuthenticated()">
+                                <div class="bg-white border border-gray-200 rounded-lg">
+                                    <div class="p-4 border-b border-gray-200">
+                                        <h3 class="flex items-center">
+                                            <i data-lucide="book-open" class="h-5 w-5 mr-2 text-orange-500"></i>
+                                            나의 활동
+                                        </h3>
                                     </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-gray-500">받은 좋아요</span>
-                                        <span class="text-orange-600">89개</span>
+                                    <!-- ✅ 로그인한 경우: 통계 표시 -->
+                                        <div class="p-4 space-y-3">
+                                            <div class="flex justify-between items-center">
+                                                <span class="text-sm text-gray-500">작성한 레시피</span>
+                                                <span class="text-orange-600">
+                                                    <c:out value="${myPostsTotalCount}" default="0" />개
+                                                </span>
+                                            </div>
+                                            <div class="flex justify-between items-center">
+                                                <span class="text-sm text-gray-500">받은 좋아요</span>
+                                                <span class="text-orange-600">
+                                                    <c:out value="${receivedLikesTotalCount}" default="0" />개
+                                                </span>
+                                            </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-gray-500">작성한 댓글 수</span>
+                                            <span class="text-orange-600">
+                                                <c:out value="${myCommentsTotalCount}" default="0" />개
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-gray-500">작성한 댓글 수</span>
-                                        <span class="text-orange-600">156개</span>
-                                    </div>
-                                </div>
-                            </div>
+                                 </div>
+                            </sec:authorize>
 
-                            <!-- 커뮤니티 통계 -->
-                            <div class="bg-white border border-gray-200 rounded-lg">
-                                <div class="p-4 border-b border-gray-200">
-                                    <h3 class="flex items-center">
-                                        <i data-lucide="trending-up" class="h-5 w-5 mr-2 text-orange-500"></i>
-                                        커뮤니티 통계
-                                    </h3>
-                                </div>
-                                <div class="p-4 space-y-3">
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-gray-500">총 레시피</span>
-                                        <span class="text-orange-600" id="sidebarTotalRecipes">6개</span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-gray-500">활성 사용자</span>
-                                        <span class="text-orange-600">247명</span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-gray-500">오늘 등록</span>
-                                        <span class="text-orange-600">12개</span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-gray-500">이번 주</span>
-                                        <span class="text-orange-600">84개</span>
-                                    </div>
-                                </div>
-                            </div>
+<%--                            <!-- 커뮤니티 통계 -->--%>
+<%--                            <div class="bg-white border border-gray-200 rounded-lg">--%>
+<%--                                <div class="p-4 border-b border-gray-200">--%>
+<%--                                    <h3 class="flex items-center">--%>
+<%--                                        <i data-lucide="trending-up" class="h-5 w-5 mr-2 text-orange-500"></i>--%>
+<%--                                        커뮤니티 통계--%>
+<%--                                    </h3>--%>
+<%--                                </div>--%>
+<%--                                <div class="p-4 space-y-3">--%>
+<%--                                    <div class="flex justify-between items-center">--%>
+<%--                                        <span class="text-sm text-gray-500">총 레시피</span>--%>
+<%--                                        <span class="text-orange-600" id="sidebarTotalRecipes">6개</span>--%>
+<%--                                    </div>--%>
+<%--                                    <div class="flex justify-between items-center">--%>
+<%--                                        <span class="text-sm text-gray-500">활성 사용자</span>--%>
+<%--                                        <span class="text-orange-600">247명</span>--%>
+<%--                                    </div>--%>
+<%--                                    <div class="flex justify-between items-center">--%>
+<%--                                        <span class="text-sm text-gray-500">오늘 등록</span>--%>
+<%--                                        <span class="text-orange-600">12개</span>--%>
+<%--                                    </div>--%>
+<%--                                    <div class="flex justify-between items-center">--%>
+<%--                                        <span class="text-sm text-gray-500">이번 주</span>--%>
+<%--                                        <span class="text-orange-600">84개</span>--%>
+<%--                                    </div>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
                         </div>
                     </div>
 
@@ -296,11 +334,7 @@
                                 </p>
                             </div>
                             <div class="flex items-center space-x-3">
-                                <button class="xl:hidden bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm">
-                                    <i data-lucide="message-circle" class="h-4 w-4 mr-2 inline"></i>
-                                    채팅
-                                </button>
-                                <button onclick="showPage('recipe-create')" class="btn-orange text-white px-4 py-2 rounded-lg">
+                                <button onclick="showPage('board-write')" class="btn-orange text-white px-4 py-2 rounded-lg">
                                     <i data-lucide="chef-hat" class="h-4 w-4 mr-2 inline"></i>
                                     레시피 작성하기
                                 </button>
