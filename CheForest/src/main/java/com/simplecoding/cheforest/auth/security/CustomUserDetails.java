@@ -3,6 +3,7 @@ package com.simplecoding.cheforest.auth.security;
 import com.simplecoding.cheforest.auth.entity.Member;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -25,7 +26,7 @@ public class CustomUserDetails implements UserDetails {
 //   권한 정보는 멤버엔티티에 ROLE 필드에서 가지고 옴
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(() -> member.getRole().name());
+        return List.of(new SimpleGrantedAuthority(member.getRole().name()));
     }
 
     @Override

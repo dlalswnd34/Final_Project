@@ -9,6 +9,6 @@ public class EventController {
 	@GetMapping("/event/events")
 	public String showEventTest() {
 		
-		return "/event/events";
+		return "event/events";
 	}
 }
