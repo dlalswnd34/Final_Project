@@ -9,11 +9,11 @@ let boardSortBy = 'popularity';
 // 카테고리 데이터
 const boardCategories = [
     { id: 'all', name: '전체', icon: '🍽️', color: 'bg-gray-100 text-gray-800' },
-    { id: 'korean', name: '한식', icon: '🥢', color: 'korean' },
-    { id: 'western', name: '양식', icon: '🍝', color: 'western' },
-    { id: 'chinese', name: '중식', icon: '🥟', color: 'chinese' },
-    { id: 'japanese', name: '일식', icon: '🍣', color: 'japanese' },
-    { id: 'dessert', name: '디저트', icon: '🧁', color: 'dessert' }
+    { id: '한식', name: '한식', icon: '🥢', color: 'korean' },
+    { id: '양식', name: '양식', icon: '🍝', color: 'western' },
+    { id: '중식', name: '중식', icon: '🥟', color: 'chinese' },
+    { id: '일식', name: '일식', icon: '🍣', color: 'japanese' },
+    { id: '디저트', name: '디저트', icon: '🧁', color: 'dessert' }
 ];
 
 // === HTML 카드 기반 필터링 함수들 ===
@@ -78,40 +78,38 @@ function sortBoardCards(cards) {
 // === UI 업데이트 함수들 ===
 
 // 카테고리 버튼 렌더링
-function renderBoardCategories() {
+// function renderBoardCategories() {
+//     const categoryButtons = document.getElementById('boardCategoryButtons');
+//     if (!categoryButtons) return;
+
+// 각 카테고리별 총 카드 개수 계산
+function renderBoardCategories(categoryCounts = {}) {   // ← 기본값 {} 추가
     const categoryButtons = document.getElementById('boardCategoryButtons');
     if (!categoryButtons) return;
 
-    // 각 카테고리별 총 카드 개수 계산
-    const cards = getBoardRecipeCards();
-    const categoryCounts = {};
-    
-    cards.all.forEach(card => {
-        const category = card.dataset.category;
-        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
-    });
-
     categoryButtons.innerHTML = boardCategories.map(category => `
-        <button
-            class="board-category-button flex items-center space-x-2 px-4 py-2 rounded-lg border transition-all ${
-                boardSelectedCategory === category.id 
-                    ? 'active bg-gradient-to-r from-pink-500 to-orange-500 text-white border-transparent shadow-lg' 
-                    : 'bg-white border-gray-200 hover:border-orange-300 hover:bg-orange-50 text-gray-700'
-            }"
-            onclick="switchBoardCategory('${category.id}')"
-        >
-            <span class="text-base">${category.icon}</span>
-            <span>${category.name}</span>
-            <span class="board-category-count text-xs px-2 py-0.5 rounded-full ${
-                boardSelectedCategory === category.id 
-                    ? 'bg-white/20 text-white' 
-                    : 'bg-gray-100 text-gray-700'
-            }">
-                ${category.id === 'all' ? cards.all.length : (categoryCounts[category.id] || 0)}
-            </span>
-        </button>
+    <button
+        class="board-category-button w-full flex items-center space-x-2 px-4 py-2 rounded-lg border transition-all ${
+        boardSelectedCategory === category.id
+            ? 'active bg-gradient-to-r from-pink-500 to-orange-500 text-white border-transparent shadow-lg'
+            : 'bg-white border-gray-200 hover:border-orange-300 hover:bg-orange-50 text-gray-700'
+    }"
+        onclick="switchBoardCategory('${category.id}')"
+    >
+        <span class="text-base">${category.icon}</span>
+        <span>${category.name}</span>
+        <span class="board-category-count text-xs px-2 py-0.5 rounded-full ${
+        boardSelectedCategory === category.id
+            ? 'bg-white/20 text-white'
+            : 'bg-gray-100 text-gray-700'
+    }">
+            ${categoryCounts[category.id] || 0}
+        </span>
+    </button>
     `).join('');
 }
+
+
 
 // 카테고리 셀렉트 옵션 렌더링
 function renderBoardCategorySelect() {
@@ -199,27 +197,20 @@ function toggleBoardNoResultsSection() {
 
 // 게시판 레시피 개수 업데이트
 function updateBoardRecipeCount() {
-    const cards = getBoardRecipeCards();
     const recipeCount = document.getElementById('boardRecipeCount');
-    const totalRecipeCount = document.getElementById('totalRecipeCount');
-    const sidebarTotalRecipes = document.getElementById('sidebarTotalRecipes');
-    
-    const visiblePopular = cards.popular.filter(card => shouldShowCard(card)).length;
-    const visibleRegular = cards.regular.filter(card => shouldShowCard(card)).length;
-    const totalVisible = visiblePopular + visibleRegular;
-    
-    if (recipeCount) {
-        recipeCount.textContent = `총 ${totalVisible}개의 커뮤니티 레시피 • 인기 ${visiblePopular}개, 일반 ${visibleRegular}개`;
-    }
-    
-    if (totalRecipeCount) {
-        totalRecipeCount.textContent = `${cards.all.length}개의 레시피`;
-    }
-    
-    if (sidebarTotalRecipes) {
-        sidebarTotalRecipes.textContent = `${cards.all.length}개`;
-    }
+
+    fetch('/board/counts')
+        .then(response => response.json())
+        .then(counts => {
+            const currentCount = counts[boardSelectedCategory] || 0;
+            recipeCount.textContent = `총 ${currentCount}개의 커뮤니티 레시피`;
+
+            // 버튼 갱신도 같이!
+            renderBoardCategories(counts);
+        })
+        .catch(error => console.error("Error fetching recipe counts:", error));
 }
+
 
 // 카테고리 제목 업데이트
 function updateBoardCategoryTitle() {

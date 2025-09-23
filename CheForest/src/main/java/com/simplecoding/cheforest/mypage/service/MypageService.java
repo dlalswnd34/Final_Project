@@ -24,27 +24,35 @@ public class MypageService {
         return mypageRepository.findMyPosts(memberIdx, keyword, pageable);
     }
 
-    public int getMyPostsCount(Long memberIdx, String keyword) {
+    public long getMyPostsCount(Long memberIdx, String keyword) {
         return mypageRepository.countMyPosts(memberIdx, keyword);
     }
 
     // 내가 좋아요한 게시글
     public Page<MypageLikedBoardDto> getLikedBoards(Long memberIdx, String keyword, Pageable pageable) {
-        log.info("좋아요한 게시글 조회 - memberIdx={}, keyword={}", memberIdx, keyword);
         return mypageRepository.findLikedBoards(memberIdx, keyword, pageable);
     }
 
-    public int getLikedBoardsCount(Long memberIdx, String keyword) {
+    public long getLikedBoardsCount(Long memberIdx, String keyword) {
         return mypageRepository.countLikedBoards(memberIdx, keyword);
     }
 
     // 내가 좋아요한 레시피
     public Page<MypageLikedRecipeDto> getLikedRecipes(Long memberIdx, String keyword, Pageable pageable) {
-        log.info("좋아요한 레시피 조회 - memberIdx={}, keyword={}", memberIdx, keyword);
         return mypageRepository.findLikedRecipes(memberIdx, keyword, pageable);
     }
 
-    public int getLikedRecipesCount(Long memberIdx, String keyword) {
+    public long getLikedRecipesCount(Long memberIdx, String keyword) {
         return mypageRepository.countLikedRecipes(memberIdx, keyword);
+    }
+
+    // 내가 받은 좋아요 수
+    public int getReceivedBoardLikes(Long memberIdx) {
+        return mypageRepository.countReceivedBoardLikes(memberIdx);
+    }
+
+    // 내가 작성한 댓글 수
+    public int getMyCommentsCount(Long memberIdx, String keyword) {
+        return mypageRepository.countMyComments(memberIdx, keyword);
     }
 }

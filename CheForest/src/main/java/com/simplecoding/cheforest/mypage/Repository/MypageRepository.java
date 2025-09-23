@@ -70,4 +70,19 @@ public interface MypageRepository extends JpaRepository<Member, Long> {
             "AND (:keyword IS NULL OR r.titleKr LIKE %:keyword%)")
     int countLikedRecipes(@Param("memberIdx") Long memberIdx,
                           @Param("keyword") String keyword);
+
+    // 내가 받은 좋아요 (내가 작성한 게시글 기준)
+    @Query("SELECT COUNT(l) " +
+            "FROM Like l " +
+            "JOIN Board b ON l.boardId = b.boardId " +
+            "WHERE b.writer.memberIdx = :memberIdx " +
+            "AND l.likeType = 'BOARD'")
+    int countReceivedBoardLikes(@Param("memberIdx") Long memberIdx);
+
+    // 내가 작성한 댓글 수
+    @Query("SELECT COUNT(r) FROM Review r " +
+            "WHERE r.writer.memberIdx = :memberIdx " +
+            "AND (:keyword IS NULL OR r.content LIKE %:keyword%)")
+    int countMyComments(@Param("memberIdx") Long memberIdx,
+                        @Param("keyword") String keyword);
 }
