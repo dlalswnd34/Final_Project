@@ -14,6 +14,7 @@ import com.simplecoding.cheforest.mypage.service.MypageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,19 +43,25 @@ public class BoardController {
     public String list(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String keyword,
-            @PageableDefault(size = 10) Pageable pageable,
+            @PageableDefault(size = 9) Pageable pageable,
             @AuthenticationPrincipal CustomUserDetails loginUser,
             Model model
     ) {
+        // 👉 현재 카테고리/검색 로그
+        log.info("👉 category = '{}'", category);
+
+        // ✅ 일반 게시글 목록
         Page<BoardListDto> boards = boardService.searchBoards(keyword, category, pageable);
         model.addAttribute("boards", boards.getContent());
         model.addAttribute("pageInfo", boards);
 
+        // ✅ 인기글
         List<BoardListDto> bestPosts = (category == null || category.isBlank())
                 ? boardService.getBestPosts()
                 : boardService.getBestPostsByCategory(category);
         model.addAttribute("bestPosts", bestPosts);
 
+        // ✅ 로그인 사용자 관련 통계
         if (loginUser != null) {
             Long memberIdx = loginUser.getMember().getMemberIdx();
 
@@ -71,6 +78,8 @@ public class BoardController {
 
         return "board/boardlist";
     }
+
+
 
     // 2. 글 작성 폼
     @GetMapping("/board/add")

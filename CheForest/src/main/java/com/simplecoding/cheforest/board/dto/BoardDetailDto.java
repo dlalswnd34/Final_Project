@@ -16,11 +16,13 @@ public class BoardDetailDto {  // 상세조회 dto
     private String prepare;
     private String content;
     private String thumbnail;
-    private String nickname;       // 작성자 닉네임
-    private String profile;        // 작성자 프로필
+    private String nickname;
+    private String profile;
     private Long viewCount;
     private Long likeCount;
     private LocalDateTime insertTime;
     private LocalDateTime updateTime;
     private Long writerIdx;
+    private Integer cookTime;
+    private String difficulty;
 }

@@ -35,7 +35,16 @@ public class BoardService {
     // 1. 목록 조회 (검색 + 페이징)
     @Transactional(readOnly = true)
     public Page<BoardListDto> searchBoards(String keyword, String category, Pageable pageable) {
-        return boardRepositoryDsl.searchBoards(keyword, category, pageable);
+
+        Page<BoardListDto> result = boardRepositoryDsl.searchBoards(keyword, category, pageable);
+
+        result.forEach(dto -> {
+            if (dto.getInsertTime() != null) {
+                dto.setCreatedAgo(toAgo(dto.getInsertTime()));
+            }
+        });
+
+        return result;
     }
 
     // 2. 상세 조회 (+ 조회수 증가)
@@ -95,12 +104,24 @@ public class BoardService {
     // 7. 인기글 조회
     @Transactional(readOnly = true)
     public List<BoardListDto> getBestPosts() {
-        return boardRepositoryDsl.findBestPosts();
+        List<BoardListDto> posts = boardRepositoryDsl.findBestPosts();
+        posts.forEach(dto -> {
+            if (dto.getInsertTime() != null) {
+                dto.setCreatedAgo(toAgo(dto.getInsertTime()));
+            }
+        });
+        return posts;
     }
 
     @Transactional(readOnly = true)
     public List<BoardListDto> getBestPostsByCategory(String category) {
-        return boardRepositoryDsl.findBestPostsByCategory(category);
+        List<BoardListDto> posts = boardRepositoryDsl.findBestPostsByCategory(category);
+        posts.forEach(dto -> {
+            if (dto.getInsertTime() != null) {
+                dto.setCreatedAgo(toAgo(dto.getInsertTime()));
+            }
+        });
+        return posts;
     }
 
     // 8. 썸네일 업데이트
@@ -121,5 +142,29 @@ public class BoardService {
 //    카테고리별 게시글 수
     public long getCountByCategory(String category) {
         return boardRepository.countByCategory(category);
+    }
+
+//    전처리
+    private String toAgo(java.time.LocalDateTime created) {
+        java.time.Duration duration = java.time.Duration.between(created, java.time.LocalDateTime.now());
+
+        long minutes = duration.toMinutes();
+        if (minutes < 1) return "방금 전";
+        if (minutes < 60) return minutes + "분 전";
+
+        long hours = minutes / 60;
+        if (hours < 24) return hours + "시간 전";
+
+        long days = hours / 24;
+        if (days < 7) return days + "일 전";
+
+        long weeks = days / 7;
+        if (weeks < 5) return weeks + "주 전";
+
+        long months = days / 30;
+        if (months < 12) return months + "개월 전";
+
+        long years = days / 365;
+        return years + "년 전";
     }
 }

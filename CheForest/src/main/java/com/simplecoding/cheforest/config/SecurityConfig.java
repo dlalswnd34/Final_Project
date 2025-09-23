@@ -35,7 +35,7 @@ public class SecurityConfig {
                                 "/", "/home",
                                 "/auth/**",
                                 "/css/**", "/js/**", "/images/**",
-                                "/favicon.ico", "/fragments/**"
+                                "/favicon.ico", "/fragments/**", "/error"
                         ).permitAll()
                         .requestMatchers("/recipe/**", "/board/**", "/qna/**", "/event/**", "/search/**").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")

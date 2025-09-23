@@ -13,11 +13,6 @@ public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecific
 
     // 카테고리별 검색 + 제목 검색은 JpaSpecificationExecutor/QueryDSL로 처리
 
-    // 좋아요 순 Top 4
-    List<Board> findTop3ByOrderByLikeCountDesc();
-
-    // 카테고리별 좋아요 순 Top 4
-    List<Board> findTop3ByCategoryOrderByLikeCountDesc(String category);
 
     Long countByWriter(Member writer);
 
@@ -39,4 +34,5 @@ public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecific
     @Modifying
     @Query("update Board b set b.thumbnail = :thumbnail where b.boardId = :boardId")
     void updateThumbnail(@Param("boardId") Long boardId, @Param("thumbnail") String thumbnail);
+
 }

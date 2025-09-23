@@ -9,4 +9,6 @@ public class BoardUpdateReq {
     private String prepare;
     private String content;
     private String thumbnail;
+    private Integer cookTime;
+    private String difficulty;
 }
