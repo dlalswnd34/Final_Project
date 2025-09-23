@@ -30,35 +30,48 @@ public class RecipeController {
         return "✅ 이미지 캐싱 완료!";
     }
 
-    // ✅ 2. 레시피 목록 조회 (카테고리 + 검색 + 페이징)
+    // ✅ 2. 레시피 목록 조회 (카테고리 + 검색 + 페이징 + 전체총합)
     @GetMapping("/list")
     public String showRecipeList(
             @RequestParam(defaultValue = "") String categoryKr,
             @RequestParam(defaultValue = "") String searchKeyword,
-            @RequestParam(defaultValue = "0") int page,   // 0-based
-            @RequestParam(defaultValue = "9") int size,  // 페이지당 개수
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "9") int size,
             Model model) {
 
         Pageable pageable = PageRequest.of(page, size);
+
+        // (필터 반영) 현재 페이지 데이터
         Page<RecipeDto> recipePage = recipeService.getRecipeList(categoryKr, searchKeyword, pageable);
 
-        // ✅ 인기 레시피 3개
-        List<RecipeDto> best3Recipes = recipeService.getBest3Recipes();
+        // 카테고리별 개수 맵  {"한식":77, "양식":87, ...}
+        Map<String, Long> recipeCountMap = recipeService.getCategoryCounts();
 
-        // ✅ 카테고리 목록 (예: 한식, 양식, 중식, 일식, 디저트)
-        List<String> categoryList = recipeService.getAllCategories();
-        long totalCount = recipePage.getTotalElements();
+        // ✅ 전체 총합(필터와 무관, ‘전체’ 뱃지에 쓰는 값)
+        long allTotalCount = recipeService.countAllRecipes();
+
+        // (선택) 사이드바 노출 순서 고정
+        List<String> categoryOrder = java.util.Arrays.asList("한식","양식","중식","일식","디저트");
+
         model.addAttribute("recipeList", recipePage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", recipePage.getTotalPages());
         model.addAttribute("categoryKr", categoryKr);
         model.addAttribute("searchKeyword", searchKeyword);
-        model.addAttribute("best3Recipes", best3Recipes);
-        model.addAttribute("categoryList", categoryList);
-        Map<String, Long> recipeCountMap = recipeService.getCategoryCounts();
+
+        // 상단 “전체 레시피 n개”는 현재 필터/검색 기준
+        model.addAttribute("totalCount", recipePage.getTotalElements());
+
+        // ✅ 새로 추가
+        model.addAttribute("allTotalCount", allTotalCount);
         model.addAttribute("recipeCountMap", recipeCountMap);
-        model.addAttribute("totalCount", totalCount);
-        return "recipe/recipelist";  // ✅ /WEB-INF/jsp/recipe/recipelist.jsp
+        model.addAttribute("categoryOrder", categoryOrder);
+
+        // 기존
+        model.addAttribute("best3Recipes", recipeService.getBest3Recipes());
+        model.addAttribute("categoryList", recipeService.getAllCategories());
+
+        return "recipe/recipelist";
     }
 
     // ✅ 3. 레시피 상세 조회

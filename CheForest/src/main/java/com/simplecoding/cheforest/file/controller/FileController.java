@@ -43,4 +43,20 @@ public class FileController {
         // 실제 Member 테이블 profile 컬럼 업데이트는 MemberService에서 따로 처리
         return ResponseEntity.ok(newFile);
     }
+
+    // 프로필 이미지 조회
+    @GetMapping("/profile/{fileId}")
+    public ResponseEntity<byte[]> getProfileImage(@PathVariable Long fileId) throws IOException {
+        FileDto fileDto = fileService.getFile(fileId);
+
+        if (fileDto == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        byte[] fileData = fileService.loadFileData(fileDto); // 실제 byte[] 리턴하는 메서드 필요
+        return ResponseEntity.ok()
+                .header("Content-Type", fileService.getMimeType(fileDto.getFileType()))
+                .header("Content-Disposition", "inline; filename=\"" + fileDto.getFileName() + "\"")
+                .body(fileData);
+    }
 }

@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -10,6 +11,7 @@
     <link rel="stylesheet" href="/css/board.css">
 </head>
 <body>
+<jsp:include page="/common/header.jsp"/>
     <!-- CheForest 사용자 레시피 게시판 페이지 -->
     <div class="min-h-screen bg-white">
         <!-- 페이지 헤더 -->
@@ -62,9 +64,8 @@
                         </select>
 
                         <select id="boardSortSelect" class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
-                            <option value="popularity">인기순</option>
-                            <option value="rating">평점순</option>
                             <option value="newest">최신순</option>
+                            <option value="popularity">인기순</option>
                             <option value="views">조회수순</option>
                         </select>
                     </div>
@@ -99,11 +100,67 @@
                             <!-- 내 프로필 -->
                             <div class="border-orange-200 bg-gradient-to-br from-orange-50 to-pink-50 border rounded-lg p-6">
                                 <div class="flex flex-col items-center text-center space-y-3 pb-3">
-                                    <div class="w-16 h-16 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center text-white text-lg">
-                                        김요
-                                    </div>
+                                    <!-- 로그인 했을 때 -->
+                                    <sec:authorize access="isAuthenticated()">
+                                        <c:choose>
+                                            <c:when test="${not empty pageContext.request.userPrincipal
+                                            and not empty pageContext.request.userPrincipal.principal.member.profile}">
+                                                <img src="<c:url value='${pageContext.request.userPrincipal.principal.member.profile}'/>"
+                                                     class="w-16 h-16 rounded-full object-cover"
+                                                     alt="프로필 사진"/>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <img src="<c:url value='/images/default_profile.png'/>"
+                                                     class="w-16 h-16 rounded-full object-cover"
+                                                     alt="기본 프로필"/>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </sec:authorize>
+
+                                    <!-- 로그인 안 했을 때 -->
+                                    <sec:authorize access="isAnonymous()">
+                                        <img src="<c:url value='/images/default_profile.png'/>"
+                                             class="w-16 h-16 rounded-full object-cover"
+                                             alt="기본 프로필"/>
+                                    </sec:authorize>
                                     <div>
-                                        <h3 class="text-orange-800">김요리사</h3>
+                                        <h3 class="text-orange-800">
+                                            <c:choose>
+                                                <c:when test="${pageContext.request.userPrincipal != null}">
+                                                    <sec:authentication property="principal.member.nickname"/>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    게스트
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </h3>
+                                        <div class="flex items-center justify-center space-x-1">
+                                            <c:choose>
+                                                <c:when test="${pageContext.request.userPrincipal.principal.member.grade eq '씨앗'}">
+                                                    <img src="<c:url value='/images/grades/seed.png'/>" class="w-4 h-4" alt="씨앗"/>
+                                                    <span class="text-xs text-orange-600">씨앗 등급</span>
+                                                </c:when>
+                                                <c:when test="${pageContext.request.userPrincipal.principal.member.grade eq '뿌리'}">
+                                                    <img src="<c:url value='/images/grades/root.png'/>" class="w-4 h-4" alt="뿌리"/>
+                                                    <span class="text-xs text-orange-600">뿌리 등급</span>
+                                                </c:when>
+                                                <c:when test="${pageContext.request.userPrincipal.principal.member.grade eq '새싹'}">
+                                                    <img src="<c:url value='/images/grades/sprout.png'/>" class="w-4 h-4" alt="새싹"/>
+                                                    <span class="text-xs text-orange-600">새싹 등급</span>
+                                                </c:when>
+                                                <c:when test="$ㅓ{pageContext.request.userPrincipal.principal.member.grade eq '나무'}">
+                                                    <img src="<c:url value='/images/grades/tree.png'/>" class="w-4 h-4" alt="나무"/>
+                                                    <span class="text-xs text-orange-600">나무 등급</span>
+                                                </c:when>
+                                                <c:when test="${pageContext.request.userPrincipal.principal.member.grade eq '꽃'}">
+                                                    <img src="<c:url value='/images/grades/flower.png'/>" class="w-4 h-4" alt="꽃"/>
+                                                    <span class="text-xs text-orange-600">숲 등급</span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="text-xs text-gray-500">등급 없음</span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
                                         <div class="flex items-center justify-center space-x-1">
                                             <span class="text-sm">🌿</span>
                                             <p class="text-xs text-orange-600">뿌리 등급</p>
@@ -715,5 +772,7 @@
         // 페이지 로드 시 실행
         document.addEventListener('DOMContentLoaded', loadBoardContent);
     </script>
+<jsp:include page="/common/footer.jsp"/>
+
 </body>
 </html>

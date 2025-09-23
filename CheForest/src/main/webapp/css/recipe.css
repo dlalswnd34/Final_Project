@@ -6,6 +6,12 @@
     transition: all 0.3s ease;
 }
 
+.emoji-icon {
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
 .category-button:hover {
     background-color: rgba(249, 115, 22, 0.05);
     transform: translateX(2px);

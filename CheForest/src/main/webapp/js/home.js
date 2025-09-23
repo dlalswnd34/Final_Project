@@ -57,25 +57,35 @@ function resetSlideTimer() {
 function switchCategory(category) {
     activeCategory = category;
 
-    // 버튼 상태 업데이트
+    // 1) 버튼 상태 업데이트 (onclick 호출/이벤트 양쪽 지원)
     document.querySelectorAll('.category-btn').forEach(btn => {
         btn.classList.remove('active');
-        // 기본 스타일로 리셋
-        btn.classList.remove('bg-gradient-to-r', 'from-pink-500', 'to-orange-500', 'text-white', 'shadow-2xl', 'shadow-pink-500/30', 'border-transparent', 'transform', 'scale-105');
-        btn.classList.add('bg-white', 'text-gray-700', 'shadow-lg', 'shadow-gray-200/50', 'border-gray-100');
+        btn.classList.remove('bg-gradient-to-r','from-pink-500','to-orange-500','text-white','shadow-2xl','shadow-pink-500/30','border-transparent','transform','scale-105');
+        btn.classList.add('bg-white','text-gray-700','shadow-lg','shadow-gray-200/50','border-gray-100');
     });
-
-    // 클릭된 버튼 활성화
-    const clickedBtn = event.target.closest('.category-btn');
-    if (clickedBtn) {
-        clickedBtn.classList.add('active');
-        clickedBtn.classList.remove('bg-white', 'text-gray-700', 'shadow-lg', 'shadow-gray-200/50', 'border-gray-100');
-        clickedBtn.classList.add('bg-gradient-to-r', 'from-pink-500', 'to-orange-500', 'text-white', 'shadow-2xl', 'shadow-pink-500/30', 'border-transparent', 'transform', 'scale-105');
+    const btn = document.querySelector(`.category-btn[data-category="${category}"]`) || document.querySelector(`button[onclick*="${category}"]`);
+    if (btn) {
+        btn.classList.add('active');
+        btn.classList.remove('bg-white','text-gray-700','shadow-lg','shadow-gray-200/50','border-gray-100');
+        btn.classList.add('bg-gradient-to-r','from-pink-500','to-orange-500','text-white','shadow-2xl','shadow-pink-500/30','border-transparent','transform','scale-105');
     }
 
-    // JSP에서 AJAX 호출 또는 페이지 새로고침으로 카테고리 데이터 로드
-    updateCategoryContent(category);
+    // 2) 모든 카테고리 pane 숨기고, 선택된 것만 보이기
+    document.querySelectorAll('#recipesList .category-pane').forEach(p => p.classList.add('hidden'));
+    document.querySelectorAll('#communityTab .category-pane').forEach(p => p.classList.add('hidden'));
+    const rPane = document.getElementById(`recipes-${category}`);
+    const cPane = document.getElementById(`community-${category}`);
+    if (rPane) rPane.classList.remove('hidden');
+    if (cPane) cPane.classList.remove('hidden');
+
+    // 3) 제목 텍스트 갱신
+    const names = { korean: '한식', western: '양식', chinese: '중식', japanese: '일식', dessert: '디저트' };
+    const categoryTitle   = document.getElementById('categoryTitle');
+    const communityTitle  = document.getElementById('communityTitle');
+    if (categoryTitle && names[category])  categoryTitle.textContent  = `${names[category]} CheForest 레시피`;
+    if (communityTitle && names[category]) communityTitle.textContent = `${names[category]} 사용자 레시피`;
 }
+
 
 // 탭 전환
 function switchTab(tab) {

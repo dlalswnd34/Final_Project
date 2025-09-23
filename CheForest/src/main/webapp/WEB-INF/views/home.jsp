@@ -268,21 +268,106 @@
                                     </div>
 
                                     <div class="space-y-4" id="recipesList">
-                                        <!-- 레시피 목록 아이템 - 하나의 구조만 (JSP에서 반복 처리) -->
-                                        <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer">
-                                            <div class="flex-1">
-                                                <h4 class="font-medium mb-1">레시피 제목 자리</h4>
-                                                <p class="text-sm text-gray-600">by 작성자 닉네임 자리</p>
-                                            </div>
-                                            <div class="flex items-center space-x-4 text-sm">
-                                                <div class="flex items-center space-x-1">
-                                                    <i data-lucide="heart" class="w-4 h-4 fill-red-400 text-red-400"></i>
-                                                    <span>좋아요 수 자리</span>
-                                                    <span class="text-gray-500">(리뷰수 자리)</span>
+                                        <!-- 한식 -->
+                                        <div id="recipes-korean" class="category-pane">
+                                            <c:forEach var="r" items="${categoryRecipes['한식']}" varStatus="st">
+                                                <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer">
+                                                    <div class="flex-1">
+                                                        <h4 class="font-medium mb-1"><c:out value="${r.title}"/></h4>
+                                                        <p class="text-sm text-gray-600">by <c:out value="${r.writerNickname}"/></p>
+                                                    </div>
+                                                    <div class="flex items-center space-x-4 text-sm">
+                                                        <div class="flex items-center space-x-1">
+                                                            <i data-lucide="heart" class="w-4 h-4 fill-red-400 text-red-400"></i>
+                                                            <span><c:out value="${r.likeCount}"/></span>
+                                                            <span class="text-gray-500">(조회수 <c:out value="${r.viewCount}"/>)</span>
+                                                        </div>
+                                                        <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">${st.index + 1}위</span>
+                                                    </div>
                                                 </div>
-                                                <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">순위 자리</span>
-                                            </div>
+                                            </c:forEach>
                                         </div>
+
+                                        <!-- 양식 -->
+                                        <div id="recipes-western" class="category-pane hidden">
+                                            <c:forEach var="r" items="${categoryRecipes['양식']}" varStatus="st">
+                                                <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer">
+                                                    <div class="flex-1">
+                                                        <h4 class="font-medium mb-1"><c:out value="${r.title}"/></h4>
+                                                        <p class="text-sm text-gray-600">by <c:out value="${r.writerNickname}"/></p>
+                                                    </div>
+                                                    <div class="flex items-center space-x-4 text-sm">
+                                                        <div class="flex items-center space-x-1">
+                                                            <i data-lucide="heart" class="w-4 h-4 fill-red-400 text-red-400"></i>
+                                                            <span><c:out value="${r.likeCount}"/></span>
+                                                            <span class="text-gray-500">(조회수 <c:out value="${r.viewCount}"/>)</span>
+                                                        </div>
+                                                        <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">${st.index + 1}위</span>
+                                                    </div>
+                                                </div>
+                                            </c:forEach>
+                                        </div>
+
+                                        <!-- 중식 -->
+                                        <div id="recipes-chinese" class="category-pane hidden">
+                                            <c:forEach var="r" items="${categoryRecipes['중식']}" varStatus="st">
+                                                <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer">
+                                                    <div class="flex-1">
+                                                        <h4 class="font-medium mb-1"><c:out value="${r.title}"/></h4>
+                                                        <p class="text-sm text-gray-600">by <c:out value="${r.writerNickname}"/></p>
+                                                    </div>
+                                                    <div class="flex items-center space-x-4 text-sm">
+                                                        <div class="flex items-center space-x-1">
+                                                            <i data-lucide="heart" class="w-4 h-4 fill-red-400 text-red-400"></i>
+                                                            <span><c:out value="${r.likeCount}"/></span>
+                                                            <span class="text-gray-500">(조회수 <c:out value="${r.viewCount}"/>)</span>
+                                                        </div>
+                                                        <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">${st.index + 1}위</span>
+                                                    </div>
+                                                </div>
+                                            </c:forEach>
+                                        </div>
+
+                                        <!-- 일식 -->
+                                        <div id="recipes-japanese" class="category-pane hidden">
+                                            <c:forEach var="r" items="${categoryRecipes['일식']}" varStatus="st">
+                                                <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer">
+                                                    <div class="flex-1">
+                                                        <h4 class="font-medium mb-1"><c:out value="${r.title}"/></h4>
+                                                        <p class="text-sm text-gray-600">by <c:out value="${r.writerNickname}"/></p>
+                                                    </div>
+                                                    <div class="flex items-center space-x-4 text-sm">
+                                                        <div class="flex items-center space-x-1">
+                                                            <i data-lucide="heart" class="w-4 h-4 fill-red-400 text-red-400"></i>
+                                                            <span><c:out value="${r.likeCount}"/></span>
+                                                            <span class="text-gray-500">(조회수 <c:out value="${r.viewCount}"/>)</span>
+                                                        </div>
+                                                        <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">${st.index + 1}위</span>
+                                                    </div>
+                                                </div>
+                                            </c:forEach>
+                                        </div>
+
+                                        <!-- 디저트 -->
+                                        <div id="recipes-dessert" class="category-pane hidden">
+                                            <c:forEach var="r" items="${categoryRecipes['디저트']}" varStatus="st">
+                                                <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer">
+                                                    <div class="flex-1">
+                                                        <h4 class="font-medium mb-1"><c:out value="${r.title}"/></h4>
+                                                        <p class="text-sm text-gray-600">by <c:out value="${r.writerNickname}"/></p>
+                                                    </div>
+                                                    <div class="flex items-center space-x-4 text-sm">
+                                                        <div class="flex items-center space-x-1">
+                                                            <i data-lucide="heart" class="w-4 h-4 fill-red-400 text-red-400"></i>
+                                                            <span><c:out value="${r.likeCount}"/></span>
+                                                            <span class="text-gray-500">(조회수 <c:out value="${r.viewCount}"/>)</span>
+                                                        </div>
+                                                        <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">${st.index + 1}위</span>
+                                                    </div>
+                                                </div>
+                                            </c:forEach>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -303,16 +388,84 @@
                                     </div>
 
                                     <div class="space-y-4">
-                                        <!-- 커뮤니티 게시글 아이템 - 하나의 구조만 (JSP에서 반복 처리) -->
-                                        <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer">
-                                            <div class="flex-1">
-                                                <h4 class="font-medium mb-1">게시글 제목 자리</h4>
-                                                <p class="text-sm text-gray-600">by 작성자 닉네임 자리</p>
-                                            </div>
-                                            <div class="flex items-center space-x-4 text-sm text-gray-500">
-                                                <span>답글 개수 자리</span>
-                                                <span>작성시간 자리</span>
-                                            </div>
+                                        <!-- 한식 -->
+                                        <div id="community-korean" class="category-pane">
+                                            <c:forEach var="b" items="${categoryBoards['한식']}">
+                                                <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer">
+                                                    <div class="flex-1">
+                                                        <h4 class="font-medium mb-1"><c:out value="${b.title}"/></h4>
+                                                        <p class="text-sm text-gray-600">by <c:out value="${b.writerNickname}"/></p>
+                                                    </div>
+                                                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                                        <span>답글 <c:out value="${b.commentCount}"/></span>
+                                                        <span><c:out value="${b.createdAgo}"/></span>
+                                                    </div>
+                                                </div>
+                                            </c:forEach>
+                                        </div>
+
+                                        <!-- 양식 -->
+                                        <div id="community-western" class="category-pane hidden">
+                                            <c:forEach var="b" items="${categoryBoards['양식']}">
+                                                <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer">
+                                                    <div class="flex-1">
+                                                        <h4 class="font-medium mb-1"><c:out value="${b.title}"/></h4>
+                                                        <p class="text-sm text-gray-600">by <c:out value="${b.writerNickname}"/></p>
+                                                    </div>
+                                                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                                        <span>답글 <c:out value="${b.commentCount}"/></span>
+                                                        <span><c:out value="${b.createdAgo}"/></span>
+                                                    </div>
+                                                </div>
+                                            </c:forEach>
+                                        </div>
+
+                                        <!-- 중식 -->
+                                        <div id="community-chinese" class="category-pane hidden">
+                                            <c:forEach var="b" items="${categoryBoards['중식']}">
+                                                <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer">
+                                                    <div class="flex-1">
+                                                        <h4 class="font-medium mb-1"><c:out value="${b.title}"/></h4>
+                                                        <p class="text-sm text-gray-600">by <c:out value="${b.writerNickname}"/></p>
+                                                    </div>
+                                                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                                        <span>답글 <c:out value="${b.commentCount}"/></span>
+                                                        <span><c:out value="${b.createdAgo}"/></span>
+                                                    </div>
+                                                </div>
+                                            </c:forEach>
+                                        </div>
+
+                                        <!-- 일식 -->
+                                        <div id="community-japanese" class="category-pane hidden">
+                                            <c:forEach var="b" items="${categoryBoards['일식']}">
+                                                <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer">
+                                                    <div class="flex-1">
+                                                        <h4 class="font-medium mb-1"><c:out value="${b.title}"/></h4>
+                                                        <p class="text-sm text-gray-600">by <c:out value="${b.writerNickname}"/></p>
+                                                    </div>
+                                                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                                        <span>답글 <c:out value="${b.commentCount}"/></span>
+                                                        <span><c:out value="${b.createdAgo}"/></span>
+                                                    </div>
+                                                </div>
+                                            </c:forEach>
+                                        </div>
+
+                                        <!-- 디저트 -->
+                                        <div id="community-dessert" class="category-pane hidden">
+                                            <c:forEach var="b" items="${categoryBoards['디저트']}">
+                                                <div class="flex items-center justify-between p-4 bg-gray-50/30 rounded-lg hover:bg-gray-50/50 transition-colors cursor-pointer">
+                                                    <div class="flex-1">
+                                                        <h4 class="font-medium mb-1"><c:out value="${b.title}"/></h4>
+                                                        <p class="text-sm text-gray-600">by <c:out value="${b.writerNickname}"/></p>
+                                                    </div>
+                                                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                                        <span>답글 <c:out value="${b.commentCount}"/></span>
+                                                        <span><c:out value="${b.createdAgo}"/></span>
+                                                    </div>
+                                                </div>
+                                            </c:forEach>
                                         </div>
                                     </div>
                                 </div>

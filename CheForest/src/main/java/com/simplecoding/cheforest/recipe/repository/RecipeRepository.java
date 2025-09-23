@@ -10,8 +10,11 @@ import java.util.List;
 
 public interface RecipeRepository extends JpaRepository<Recipe, String> {
 
-    // 1. 카테고리별 조회 (페이징 포함)
-    Page<Recipe> findByCategoryKrContainingAndTitleKrContaining(
+    // ✅ 1. 전체 검색: 제목만 부분일치
+    Page<Recipe> findByTitleKrContainingIgnoreCase(String titleKr, Pageable pageable);
+
+    // ✅ 1-1. 카테고리 지정: 카테고리는 정확일치, 제목은 부분일치
+    Page<Recipe> findByCategoryKrAndTitleKrContainingIgnoreCase(
             String categoryKr,
             String titleKr,
             Pageable pageable
@@ -38,7 +41,8 @@ public interface RecipeRepository extends JpaRepository<Recipe, String> {
     // 6. 카테고리 목록 (중복 제거)
     @Query("SELECT DISTINCT r.categoryKr FROM Recipe r ORDER BY r.categoryKr")
     List<String> findDistinctCategories();
+
     // 7. 카테고리별 레시피 개수
     @Query("SELECT r.categoryKr, COUNT(r) FROM Recipe r GROUP BY r.categoryKr")
     List<Object[]> countRecipesByCategory();
-    }
+}

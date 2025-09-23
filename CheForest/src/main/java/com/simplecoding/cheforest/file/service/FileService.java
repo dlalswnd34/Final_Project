@@ -84,6 +84,15 @@ public class FileService {
                 .orElse(null);
     }
 
+    // 실제 파일 읽어오기
+    public byte[] loadFileData(FileDto fileDto) throws IOException {
+        java.io.File file = new java.io.File(uploadDir + fileDto.getFileName());
+        if (!file.exists()) {
+            return null;
+        }
+        return java.nio.file.Files.readAllBytes(file.toPath());
+    }
+
     // 게시글별 파일 목록 조회
     public List<FileDto> getFilesByBoardId(Long boardId) {
         return fileRepository.findByUseTypeAndUseTargetId("BOARD", boardId)
@@ -138,4 +147,16 @@ public class FileService {
         // 새 프로필 저장 (웹에서 접근 가능한 상대경로로 저장됨)
         return saveFile(profileImage, "MEMBER", memberId, "PROFILE", memberId);
     }
+//   확장자를 MIME 타입으로 변환
+    public String getMimeType(String extension) {
+        if (extension == null) return "application/octet-stream"; // 기본값
+        return switch (extension.toLowerCase()) {
+            case "jpg", "jpeg" -> "image/jpeg";
+            case "png" -> "image/png";
+            case "gif" -> "image/gif";
+            case "pdf" -> "application/pdf";
+            default -> "application/octet-stream";
+        };
+    }
+
 }

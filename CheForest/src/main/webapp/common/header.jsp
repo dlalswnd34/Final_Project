@@ -1,5 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -48,52 +50,49 @@
             <!-- 우측 사용자 메뉴 -->
             <div class="flex items-center space-x-2">
                 <!-- 모바일 검색 -->
-                <button
-                        class="md:hidden header-icon-btn p-2 rounded-lg"
-                        onclick="showPage('search')"
-                        title="검색"
-                >
+                <button class="md:hidden header-icon-btn p-2 rounded-lg" onclick="showPage('search')" title="검색">
                     <i data-lucide="search" class="h-5 w-5"></i>
                 </button>
 
-                <!-- 관리자 모드 버튼 -->
-                <button
-                        class="hidden sm:flex header-icon-btn p-2 rounded-lg"
-                        onclick="showPage('admin')"
-                        title="관리자 모드"
-                >
-                    <i data-lucide="shield" class="h-6 w-6"></i>
-                </button>
+                <!-- 관리자 모드: 관리자만 노출 -->
+                <sec:authorize access="hasAuthority('ADMIN')">
+                    <a href="<c:url value='/admin'/>" class="hidden sm:flex header-icon-btn p-2 rounded-lg" title="관리자 모드">
+                        <i data-lucide="shield" class="h-6 w-6"></i>
+                    </a>
+                </sec:authorize>
 
                 <!-- 등급 안내 -->
-                <button
-                        class="header-icon-btn p-2 rounded-lg"
-                        onclick="showPage('grade')"
-                        title="등급 안내"
-                >
+                <button class="header-icon-btn p-2 rounded-lg" onclick="showPage('grade')" title="등급 안내">
                     <i data-lucide="award" class="h-6 w-6"></i>
                 </button>
 
                 <!-- 마이페이지 -->
-                <button
-                        class="hidden sm:flex header-icon-btn p-2 rounded-lg"
-                        onclick="showPage('mypage')"
-                        title="마이페이지"
-                >
+                <a href="<c:url value='/mypage'/>" class="hidden sm:flex header-icon-btn p-2 rounded-lg" title="마이페이지">
                     <i data-lucide="user" class="h-6 w-6"></i>
-                </button>
+                </a>
 
-                <button
-                        onclick="showPage('login')"
-                        class="hidden sm:flex login-btn text-white px-4 py-2 rounded-lg font-medium"
-                >
-                    로그인
-                </button>
+                <!-- ✅ 로그인 상태: 환영문 + 로그아웃 버튼 -->
+                <sec:authorize access="isAuthenticated()">
+                    <span class="hidden md:inline text-sm text-gray-600 mr-1">
+                        <sec:authentication property="principal.member.nickname" />님 환영합니다!
+                    </span>
+                    <form action="<c:url value='/auth/logout'/>" method="post" class="hidden sm:inline-block">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                        <button type="submit" class="login-btn text-white px-4 py-2 rounded-lg font-medium">
+                            로그아웃
+                        </button>
+                    </form>
+                </sec:authorize>
 
-                <button
-                        class="sm:hidden mobile-menu-btn p-2 rounded-lg"
-                        onclick="toggleMobileMenu()"
-                >
+                <!-- ✅ 비로그인 상태: 로그인 버튼 -->
+                <sec:authorize access="isAnonymous()">
+                    <a href="<c:url value='/auth/login'/>" class="hidden sm:flex login-btn text-white px-4 py-2 rounded-lg font-medium">
+                        로그인
+                    </a>
+                </sec:authorize>
+
+                <!-- 모바일 토글 버튼 -->
+                <button class="sm:hidden mobile-menu-btn p-2 rounded-lg" onclick="toggleMobileMenu()">
                     <i data-lucide="menu" class="h-5 w-5"></i>
                 </button>
             </div>
@@ -209,29 +208,44 @@
         <!-- 모바일 네비게이션 -->
         <nav id="mobileMenu" class="hidden sm:hidden py-3 border-t border-gray-200">
             <div class="flex flex-col space-y-2">
-                <button onclick="showPage('home')" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">홈</button>
-                <button onclick="showPage('recipes')" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">
-                    <div>
-                        <div>CheForest</div>
-                        <div>레시피</div>
-                    </div>
-                </button>
-                <button onclick="showPage('board')" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">
-                    <div>
-                        <div>사용자</div>
-                        <div>레시피</div>
-                    </div>
-                </button>
-                <button onclick="showPage('ingredients')" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">계절 식재료</button>
-                <button onclick="showPage('grade')" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">등급 안내</button>
-                <button onclick="showPage('events')" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">이벤트</button>
-                <button onclick="showPage('qna')" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">Q&A</button>
-                <button onclick="showPage('admin')" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">🛡️ 관리자 모드</button>
-                <button onclick="showPage('mypage')" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">👤 마이페이지</button>
+                <a href="<c:url value='/'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">홈</a>
+                <a href="<c:url value='/recipes'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">
+                    <div><div>CheForest</div><div>레시피</div></div>
+                </a>
+                <a href="<c:url value='/board'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">
+                    <div><div>사용자</div><div>레시피</div></div>
+                </a>
+                <a href="<c:url value='/ingredients'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">계절 식재료</a>
+                <a href="<c:url value='/grade'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">등급 안내</a>
+                <a href="<c:url value='/events'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">이벤트</a>
+                <a href="<c:url value='/qna'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">Q&A</a>
 
-                <div class="pt-4 border-t border-gray-200 mt-4">
-                    <button onclick="showPage('login')" class="w-full login-btn text-white py-2 px-4 rounded-lg font-medium">로그인</button>
-                </div>
+                <!-- 관리자 모드: 관리자만 -->
+                <sec:authorize access="hasAuthority('ADMIN')">
+                    <a href="<c:url value='/admin'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">🛡️ 관리자 모드</a>
+                </sec:authorize>
+
+                <a href="<c:url value='/mypage'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">👤 마이페이지</a>
+
+                <!-- 로그인 상태 -->
+                <sec:authorize access="isAuthenticated()">
+                  <span class="px-3 text-sm text-gray-600">
+                    <sec:authentication property="principal.member.nickname" />님 환영합니다!
+                  </span>
+                    <div class="pt-4 border-t border-gray-200 mt-2">
+                        <form action="<c:url value='/auth/logout'/>" method="post">
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                            <button type="submit" class="w-full login-btn text-white py-2 px-4 rounded-lg font-medium">로그아웃</button>
+                        </form>
+                    </div>
+                </sec:authorize>
+
+                <!-- 비로그인 상태 -->
+                <sec:authorize access="isAnonymous()">
+                    <div class="pt-4 border-t border-gray-200 mt-2">
+                        <a href="<c:url value='/auth/login'/>" class="w-full inline-block text-center login-btn text-white py-2 px-4 rounded-lg font-medium">로그인</a>
+                    </div>
+                </sec:authorize>
             </div>
         </nav>
     </div>

@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -28,9 +29,25 @@ public class RecipeService {
 
     // 1. 페이징 + 검색
     public Page<RecipeDto> getRecipeList(String categoryKr, String titleKr, Pageable pageable) {
-        return recipeRepository
-                .findByCategoryKrContainingAndTitleKrContaining(categoryKr, titleKr, pageable)
-                .map(mapStruct::toDto);
+
+        String keyword = (titleKr == null) ? "" : titleKr.trim();
+        boolean hasCategory = StringUtils.hasText(categoryKr);
+
+        Page<Recipe> page;
+        if (hasCategory) {
+            // ✅ 카테고리는 정확일치, 제목은 부분일치(대소문자 무시)
+            page = recipeRepository.findByCategoryKrAndTitleKrContainingIgnoreCase(
+                    categoryKr.trim(), keyword, pageable);
+        } else {
+            // ✅ 전체: 제목만 부분일치
+            page = recipeRepository.findByTitleKrContainingIgnoreCase(keyword, pageable);
+        }
+
+        return page.map(mapStruct::toDto);
+    }
+
+    public long countAllRecipes() {
+        return recipeRepository.count();
     }
 
     // 2. 상세 조회
