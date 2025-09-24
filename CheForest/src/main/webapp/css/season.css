@@ -1,214 +1,688 @@
-/* CheForest 계절별 식재료 페이지 스타일 */
+/* CheForest 계절 식재료 스타일 */
 
-/* 계절별 배경 그라데이션 */
-.season-bg-spring {
-    background: linear-gradient(135deg, #ecfdf5 0%, #fdf2f8 100%);
+/* 기본 설정 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-.season-bg-summer {
-    background: linear-gradient(135deg, #fefce8 0%, #fff7ed 100%);
+body {
+    font-family: 'Gowun Dodum', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #374151;
+    background: linear-gradient(135deg, #f0fdf4 0%, #fce7f3 100%);
+    min-height: 100vh;
+    transition: background 0.7s ease;
 }
 
-.season-bg-autumn {
-    background: linear-gradient(135deg, #fff7ed 0%, #fef2f2 100%);
+/* 헤더 스타일 (기존 header.css와 통일) */
+.header {
+    background: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
-.season-bg-winter {
-    background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+.header-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
 }
 
-/* 식재료 카드 애니메이션 */
-.ingredient-card {
-    animation: fadeInUp 0.6s ease-out forwards;
-    opacity: 0;
-    transform: translateY(20px);
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 4rem;
 }
 
-@keyframes fadeInUp {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.logo a {
+    font-size: 1.5rem;
+    font-weight: 600;
+    background: linear-gradient(to right, #ec4899, #f97316);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-decoration: none;
 }
 
-/* 펄스 애니메이션 */
-.pulse-dot {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.nav {
+    display: flex;
+    gap: 2rem;
 }
 
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
+.nav a {
+    text-decoration: none;
+    color: #374151;
+    font-weight: 500;
+    transition: color 0.2s;
 }
 
-/* 계절 탭 호버 효과 */
-.season-tab:hover {
+.nav a:hover,
+.nav a.active {
+    color: #f97316;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.search-btn,
+.login-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #d1d5db;
+    background: white;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.login-btn {
+    background: #f97316;
+    color: white;
+    border-color: #f97316;
+}
+
+.login-btn:hover {
+    background: linear-gradient(to right, #ec4899, #f97316);
+}
+
+/* 메인 컨테이너 */
+.ingredients-container {
+    background: linear-gradient(135deg, #f0fdf4 0%, #fce7f3 100%);
+    min-height: 100vh;
+    transition: background 0.7s ease;
+}
+
+.ingredients-content {
+    max-width: 88rem;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* 페이지 헤더 */
+.page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.header-main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.season-icon {
+    font-size: 3.75rem;
+    margin-right: 1rem;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    background: linear-gradient(to right, #22c55e, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.page-description {
+    font-size: 1.125rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+}
+
+.ingredients-count {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(to right, #22c55e, #ec4899);
+    color: white;
+    border-radius: 0.375rem;
+    font-weight: 600;
+}
+
+/* 계절 탭 */
+.season-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 3rem;
+}
+
+.tabs-wrapper {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 9999px;
+    padding: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.tab-list {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.tab-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    background: none;
+    border-radius: 9999px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    color: #6b7280;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    background: rgba(255, 255, 255, 0.5);
     transform: scale(1.02);
 }
 
-.season-tab.active {
+.tab-button.active {
+    background: linear-gradient(to right, #22c55e, #ec4899);
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     transform: scale(1.05);
 }
 
-/* 이미지 오버레이 효과 */
+.tab-icon {
+    font-size: 1.125rem;
+}
+
+.tab-text {
+    font-size: 1rem;
+}
+
+/* 식재료 그리드 */
+.ingredients-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+}
+
+/* 식재료 카드 */
+.ingredient-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    transition: all 0.5s ease;
+    position: relative;
+}
+
+.ingredient-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.9);
+}
+
+/* 카드 이미지 */
+.card-image {
+    position: relative;
+    aspect-ratio: 4/3;
+    overflow: hidden;
+}
+
+.ingredient-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.ingredient-card:hover .ingredient-img {
+    transform: scale(1.1);
+}
+
 .image-overlay {
-    background: linear-gradient(
-        to top,
-        rgba(0, 0, 0, 0.4) 0%,
-        rgba(0, 0, 0, 0.1) 50%,
-        transparent 100%
-    );
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-/* 스무스 전환 효과 */
-.smooth-transition {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.ingredient-card:hover .image-overlay {
+    opacity: 1;
 }
 
-/* 반응형 그리드 */
-@media (max-width: 640px) {
-    .ingredient-card {
-        margin-bottom: 1rem;
-    }
-    
-    #season-tabs {
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
-    
-    .season-tab {
-        flex: 1;
-        min-width: fit-content;
-    }
+.season-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    background: linear-gradient(to right, #22c55e, #ec4899);
+    color: white;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
+.badge-icon {
+    font-size: 0.875rem;
+}
+
+/* 카드 헤더 */
+.card-header {
+    padding: 1.5rem 1.5rem 0.75rem;
+}
+
+.ingredient-title-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.ingredient-name {
+    font-size: 1.25rem;
+    font-weight: 900;
+    background: linear-gradient(to right, #22c55e, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.status-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: linear-gradient(to right, #22c55e, #ec4899);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.ingredient-description {
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* 카드 콘텐츠 */
+.card-content {
+    padding: 0 1.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* 제철 기간 */
+.peak-season {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: linear-gradient(to right, rgba(34, 197, 94, 0.1), rgba(236, 72, 153, 0.1));
+    border-radius: 0.5rem;
+}
+
+.clock-icon {
+    width: 1rem;
+    height: 1rem;
+    color: #22c55e;
+}
+
+.peak-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* 주요 효능 */
+.benefits-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.section-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #16a34a;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.benefits-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.benefit-tag {
+    padding: 0.125rem 0.5rem;
+    background: linear-gradient(to right, rgba(34, 197, 94, 0.1), rgba(236, 72, 153, 0.1));
+    color: #16a34a;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* 추천 요리 */
+.recipes-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.chef-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+.recipes-text {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* 영양성분 */
+.nutrition-section {
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.nutrition-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.nutrition-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: linear-gradient(to right, #22c55e, #ec4899);
+}
+
+.nutrition-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.nutrition-text {
+    font-size: 0.75rem;
+    color: #16a34a;
+    font-weight: 600;
+}
+
+/* 액션 버튼 */
+.recipe-btn {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(to right, #22c55e, #ec4899);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.recipe-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.recipe-btn:active {
+    transform: translateY(0);
+}
+
+/* 계절별 가이드 */
+.seasonal-guide {
+    margin-top: 4rem;
+}
+
+.guide-card {
+    background: linear-gradient(to right, rgba(34, 197, 94, 0.1), rgba(236, 72, 153, 0.1));
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 0.75rem;
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+}
+
+.guide-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.guide-icon-wrapper {
+    padding: 0.75rem;
+    border-radius: 50%;
+    background: linear-gradient(to right, #22c55e, #ec4899);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.guide-main-icon {
+    font-size: 1.5rem;
+}
+
+.guide-title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    background: linear-gradient(to right, #22c55e, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.guide-subtitle {
+    color: #6b7280;
+}
+
+.guide-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.guide-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    gap: 1.5rem;
+}
+
+.guide-item {
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    border-radius: 0.75rem;
+}
+
+.guide-item-title {
+    font-weight: 700;
+    color: #16a34a;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.guide-item-text {
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+/* 특별 정보 */
+.special-info {
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 0.75rem;
+}
+
+.special-title {
+    font-weight: 700;
+    color: #16a34a;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.special-text {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* 푸터 스타일 */
+.footer {
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 4rem;
+}
+
+.footer-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-logo h3 {
+    background: linear-gradient(to right, #ec4899, #f97316);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+.footer-logo p {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.footer-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.footer-links a {
+    color: #6b7280;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.2s;
+}
+
+.footer-links a:hover {
+    color: #f97316;
+}
+
+/* 계절별 색상 테마 */
+.season-spring {
+    background: linear-gradient(135deg, #f0fdf4 0%, #fce7f3 100%);
+}
+
+.season-summer {
+    background: linear-gradient(135deg, #fffbeb 0%, #fed7aa 100%);
+}
+
+.season-autumn {
+    background: linear-gradient(135deg, #fff7ed 0%, #fecaca 100%);
+}
+
+.season-winter {
+    background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
+}
+
+/* 반응형 디자인 */
 @media (max-width: 768px) {
-    #ingredients-grid {
-        grid-template-columns: repeat(1, 1fr);
+    .header-content {
+        flex-direction: column;
+        height: auto;
+        padding: 1rem 0;
         gap: 1rem;
     }
-}
 
-@media (min-width: 769px) and (max-width: 1024px) {
-    #ingredients-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .nav {
+        order: 3;
+        width: 100%;
+        justify-content: center;
     }
-}
 
-@media (min-width: 1025px) and (max-width: 1280px) {
-    #ingredients-grid {
-        grid-template-columns: repeat(3, 1fr);
+    .header-actions {
+        order: 2;
     }
-}
 
-/* 계절별 텍스트 색상 유틸리티 */
-.text-spring {
-    color: #059669;
-}
-
-.text-summer {
-    color: #d97706;
-}
-
-.text-autumn {
-    color: #dc2626;
-}
-
-.text-winter {
-    color: #2563eb;
-}
-
-/* 계절별 보더 색상 */
-.border-spring {
-    border-color: #6ee7b7;
-}
-
-.border-summer {
-    border-color: #fed7aa;
-}
-
-.border-autumn {
-    border-color: #fecaca;
-}
-
-.border-winter {
-    border-color: #93c5fd;
-}
-
-/* 계절별 배지 그라데이션 */
-.badge-spring {
-    background: linear-gradient(135deg, #10b981 0%, #ec4899 100%);
-}
-
-.badge-summer {
-    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
-}
-
-.badge-autumn {
-    background: linear-gradient(135deg, #f97316 0%, #dc2626 100%);
-}
-
-.badge-winter {
-    background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-}
-
-/* 로딩 애니메이션 */
-.loading-shimmer {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-    0% {
-        background-position: -200% 0;
+    .ingredients-content {
+        padding: 1rem;
     }
-    100% {
-        background-position: 200% 0;
+
+    .page-title {
+        font-size: 2rem;
     }
-}
 
-/* 카드 호버 섀도우 */
-.ingredient-card:hover {
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-}
+    .season-icon {
+        font-size: 3rem;
+    }
 
-/* 버튼 액티브 효과 */
-.recipe-button:active {
-    transform: scale(0.95);
-}
+    .tab-button {
+        padding: 0.5rem 1rem;
+    }
 
+    .tab-text {
+        display: none;
+    }
 
+    .ingredients-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
 
-/* 스크롤 인디케이터 */
-.scroll-indicator {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(
-        90deg,
-        #10b981 0%,
-        #f59e0b 25%,
-        #f97316 50%,
-        #3b82f6 75%,
-        #6366f1 100%
-    );
-    transform-origin: left;
-    z-index: 1000;
-}
+    .guide-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
 
-/* 접근성 */
-@media (prefers-reduced-motion: reduce) {
-    .ingredient-card,
-    .pulse-dot,
-    .season-tab {
-        animation: none;
-        transition: none;
+    .guide-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .footer-links {
+        flex-direction: column;
+        gap: 0.5rem;
     }
 }

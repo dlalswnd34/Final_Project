@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="/css/common.css">
-    <link rel="stylesheet" href="/css/board.css">
+    <link rel="stylesheet" href="/css/board/board.css">
 </head>
 <body>
 <jsp:include page="/common/header.jsp"/>
@@ -569,7 +569,7 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script src="/js/common.js"></script>
-    <script src="/js/board.js"></script>
+    <script src="/js/board/board.js"></script>
 
     <!-- 게시판 콘텐츠 로드 -->
     <script>

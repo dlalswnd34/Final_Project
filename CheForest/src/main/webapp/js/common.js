@@ -32,6 +32,9 @@ function showPage(page) {
         case 'board-write':
             window.location.href = '/board/add';
             break;
+        case 'season':
+            window.location.href = '/season';
+            break;
         default:
             // 기본적으로 page.jsp로 이동
             window.location.href = '/' + page + '.jsp';

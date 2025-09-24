@@ -12,8 +12,7 @@
     <link rel="stylesheet" href="/css/header.css">
 </head>
 <body>
-<!-- CheForest Header Component -->
-<!-- Header.tsx 기반으로 정확히 재현 -->
+<!-- CheForest Header -->
 <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- 상단: 로고, 검색창, 사용자 메뉴 -->
@@ -135,7 +134,7 @@
 
             <div class="relative group">
                 <button
-                        onclick="showPage('ingredients')"
+                        onclick="showPage('season')"
                         onmouseenter="showIngredientsDropdown()"
                         onmouseleave="hideIngredientsDropdown()"
                         class="nav-item relative flex items-center space-x-1 font-medium transition-colors text-gray-700 hover:text-orange-500"
