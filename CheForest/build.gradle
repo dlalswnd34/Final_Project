@@ -73,6 +73,10 @@ dependencies {
     implementation 'org.springframework.security:spring-security-taglibs'\
     // 소셜 로그인을 위한 OAuth2 Client
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    // Elasticsearch
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+
 }
 
 def generated = "$buildDir/generated/sources/annotationProcessor/java/main"
