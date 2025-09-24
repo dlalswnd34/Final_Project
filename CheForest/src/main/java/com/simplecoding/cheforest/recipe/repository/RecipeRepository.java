@@ -21,9 +21,15 @@ public interface RecipeRepository extends JpaRepository<Recipe, String> {
     );
 
     // 2. 랜덤 조회 (Oracle RANDOM → JPA 네이티브 쿼리 사용)
-    @Query(value = "SELECT * FROM API_RECIPE WHERE CATEGORY_KR = :categoryKr ORDER BY DBMS_RANDOM.VALUE FETCH FIRST :count ROWS ONLY",
-            nativeQuery = true)
-    List<Recipe> findRandomByCategory(String categoryKr, int count);
+    // ⚠️ count 파라미터는 Repository에서 처리 불가 → Service에서 limit 적용
+    @Query(value = """
+            SELECT *
+            FROM API_RECIPE
+            WHERE CATEGORY_KR = ?1
+            ORDER BY DBMS_RANDOM.VALUE
+            """, nativeQuery = true)
+    List<Recipe> findRandomByCategory(String categoryKr);
+    // ------------------------- 👆 기존 구조 그대로 두되, count는 제거 --------------------------
 
     // 3. 썸네일만 전체 조회
     @Query("SELECT r.recipeId, r.thumbnail FROM Recipe r")
@@ -45,4 +51,6 @@ public interface RecipeRepository extends JpaRepository<Recipe, String> {
     // 7. 카테고리별 레시피 개수
     @Query("SELECT r.categoryKr, COUNT(r) FROM Recipe r GROUP BY r.categoryKr")
     List<Object[]> countRecipesByCategory();
+
 }
+

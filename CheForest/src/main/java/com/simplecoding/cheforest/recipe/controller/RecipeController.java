@@ -84,5 +84,11 @@ public class RecipeController {
         model.addAttribute("recipe", recipe);
         return "recipe/recipeview";  // ✅ /WEB-INF/jsp/recipe/recipeview.jsp
     }
-
+    // ✅ 4. 레시피 JSON API (Flask에서 호출용)
+    @GetMapping("/api/list")
+    @ResponseBody
+    public List<RecipeDto> getRecipeListApi(@RequestParam(defaultValue = "") String categoryKr) {
+        // 페이징 없이 모든 레시피 조회 (필요시 제한 가능)
+        return recipeService.getRecipeList(categoryKr, "", PageRequest.of(0, 50)).getContent();
+    }
 }
