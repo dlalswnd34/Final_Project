@@ -6,9 +6,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>커뮤니티 채팅 - CheForest</title>
+    <title>chat</title>
     <link rel="stylesheet" href="/css/common.css">
-    <link rel="stylesheet" href="/css/chat.css.css">
+    <link rel="stylesheet" href="/css/chat.css">
 </head>
 <body>
 <!-- 커뮤니티 채팅 컨테이너 -->
@@ -18,9 +18,9 @@
         <i data-lucide="users"></i>
         <div class="floating-btn-pulse"></div>
         <!-- 온라인 사용자 수 배지 -->
-        <div class="online-badge" id="onlineBadge">
-            <span id="onlineCount">4</span> <!-- JSP에서 실제 온라인 사용자 수로 교체 -->
-        </div>
+<%--        <div class="online-badge" id="onlineBadge">--%>
+<%--            <span id="onlineCount">4</span> <!-- JSP에서 실제 온라인 사용자 수로 교체 -->--%>
+<%--        </div>--%>
     </button>
 
     <!-- 커뮤니티 채팅창 -->
@@ -33,10 +33,10 @@
                         <i data-lucide="users"></i>
                     </div>
                     <div class="header-info">
-                        <h3>CheForest 커뮤니티</h3>
+                        <h3>와글와글 요리이야기</h3>
                         <p class="header-subtitle">
-                            <span class="online-indicator"></span>
-                            <span id="headerOnlineCount">4명 접속중</span> <!-- JSP에서 동적으로 교체 -->
+<%--                            <span class="online-indicator"></span>--%>
+<%--                            <span id="headerOnlineCount">4명 접속중</span> <!-- JSP에서 동적으로 교체 -->--%>
                         </p>
                     </div>
                 </div>
