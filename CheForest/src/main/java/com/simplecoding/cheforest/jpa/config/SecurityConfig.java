@@ -64,10 +64,12 @@ public class SecurityConfig {
                         .logoutUrl("/auth/logout")
                         .logoutSuccessHandler(customLogoutSuccessHandler)
                         .permitAll()
+
                 )
                 // 보안토큰설정(현재 비활성화, 나중에 추가해주세요! 설정하면 POST 부분은 전부 보안토큰걸림)
                 .csrf(csrf -> csrf.disable()
                 );
+
         return http.build();
     }
 }

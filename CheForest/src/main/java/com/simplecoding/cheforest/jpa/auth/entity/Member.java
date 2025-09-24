@@ -1,8 +1,12 @@
 package com.simplecoding.cheforest.jpa.auth.entity;
 
+import com.simplecoding.cheforest.jpa.chat.entity.Message;
 import com.simplecoding.cheforest.jpa.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "MEMBER")
@@ -40,4 +44,8 @@ public class Member extends BaseTimeEntity {
     public enum Role {
         USER, ADMIN
     }
+
+    // 채팅용
+    @OneToMany(mappedBy = "sender")
+    private List<Message> messages = new ArrayList<>();
 }
