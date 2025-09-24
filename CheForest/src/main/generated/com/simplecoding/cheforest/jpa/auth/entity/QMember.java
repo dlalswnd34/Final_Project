@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
+import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
@@ -31,6 +32,8 @@ public class QMember extends EntityPathBase<Member> {
     public final StringPath loginId = createString("loginId");
 
     public final NumberPath<Long> memberIdx = createNumber("memberIdx", Long.class);
+
+    public final ListPath<com.simplecoding.cheforest.jpa.chat.entity.Message, com.simplecoding.cheforest.jpa.chat.entity.QMessage> messages = this.<com.simplecoding.cheforest.jpa.chat.entity.Message, com.simplecoding.cheforest.jpa.chat.entity.QMessage>createList("messages", com.simplecoding.cheforest.jpa.chat.entity.Message.class, com.simplecoding.cheforest.jpa.chat.entity.QMessage.class, PathInits.DIRECT2);
 
     public final StringPath nickname = createString("nickname");
 

@@ -1,6 +1,7 @@
 package com.simplecoding.cheforest.jpa.chat.controller;
 
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
+import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
 import com.simplecoding.cheforest.jpa.chat.dto.ChatMessage;
 import com.simplecoding.cheforest.jpa.chat.entity.Message;
 import com.simplecoding.cheforest.jpa.chat.service.ChatService;
@@ -11,6 +12,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.List;
 
@@ -42,10 +44,11 @@ public class ChatController {
 
     // ("/pub/message")
     @MessageMapping("/message")
-    public void message(@Payload ChatMessage message) {
+    public void message(@Payload ChatMessage message,
+                        @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        // 1️⃣ memberInput에서 전달된 ID로 Member 조회
-        Long memberId = Long.parseLong(message.getSender()); // JSP에서 ID를 sender로 넘긴다고 가정
+        // 1️⃣ 전달된 ID로 Member 조회
+        Long memberId = userDetails.getMemberIdx();
         Member sender = chatService.getMemberById(memberId);
 
         // 2️⃣ DTO → Entity

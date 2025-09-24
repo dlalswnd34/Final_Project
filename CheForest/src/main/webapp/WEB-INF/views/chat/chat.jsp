@@ -9,36 +9,7 @@
 
 <div id="chatBox" style="border:1px solid #000000; width:300px; height:350px; overflow-y:scroll;"></div>
 
-<%-- 테스트 식별용 추후에 db 연동 --%>
-<input type="text" id="memberInput" style="width:100px; height:30px;">
-
 <input type="text" id="msgInput" placeholder="메시지를 입력하세요..." onkeydown="handleKey(event)" style="width:300px; height:30px;">
-
-<%-- 테스트용 추후에 삭제 --%>
-<p>
-  <b>테스트용 id</b><br>
-  16 중식<br>
-  17 민중<br>
-  43 진수<br>
-  49 czcz<br>
-  46 강승태<br>
-  11 일식<br>
-  12 깡승<br>
-  48 깡승2<br>
-  15 Zune<br>
-  47 xzxz<br>
-  23 이진수<br>
-  13 CheForest<br>
-  19 디저트<br>
-  20 dd<br>
-  9 한식<br>
-  21 ka@SheForest.com<br>
-  10 양식<br>
-  14 아렐<br>
-  52 허장호<br>
-  36 하윤주<br>
-</p>
-
 
 
 <%--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--%>
@@ -105,17 +76,15 @@
 
   // 발행
   function sendMessage() {
-    const input2 = document.getElementById("memberInput").value.trim();
     const input = document.getElementById("msgInput").value.trim();
 
-    if (!input2 || !input) {
-      alert("아이디와 메시지를 모두 입력하세요.");
+    if (!input) {
+      alert("메시지를 입력하세요.");
       return;
     }
 
     const message = {
-      sender: input2,
-      message: input,
+      message: input
     };
     stompClient.send("/pub/message", {}, JSON.stringify(message));
     document.getElementById("msgInput").value = "";
