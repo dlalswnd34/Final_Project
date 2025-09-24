@@ -58,8 +58,14 @@ public class RecipeService {
     }
 
     // 3. 랜덤 레시피 조회
+    // 3. 랜덤 레시피 조회
     public List<RecipeDto> getRandomRecipes(String categoryKr, int count) {
-        return mapStruct.toDtoList(recipeRepository.findRandomByCategory(categoryKr, count));
+        // ✅ Repository에서 랜덤 전체 불러온 후 Service에서 개수 제한
+        return recipeRepository.findRandomByCategory(categoryKr)
+                .stream()
+                .limit(count)
+                .map(mapStruct::toDto)
+                .toList();
     }
 
     public List<RecipeCardDTO> getPopularTop4() {
