@@ -4,10 +4,10 @@ import com.simplecoding.cheforest.jpa.chat.entity.Message;
 import com.simplecoding.cheforest.jpa.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
 
 @Entity
 @Table(name = "MEMBER")
@@ -41,6 +41,9 @@ public class Member extends BaseTimeEntity implements Serializable {
     private String provider;   // "KAKAO", "GOOGLE", "NAVER"
     private Long point = 0L;      // 누적 포인트
     private String grade = "씨앗"; // 회원 등급
+
+    // made by yes_ung 09/25
+    private Date lastLoginTime;
 
     public enum Role {
         USER, ADMIN

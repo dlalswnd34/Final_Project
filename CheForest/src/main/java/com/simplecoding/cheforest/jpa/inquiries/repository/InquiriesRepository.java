@@ -30,7 +30,7 @@ public interface InquiriesRepository extends JpaRepository<Inquiries, Long> {
     long countPendingInquiries();
 
     // ANSWER_STATUS = '답변완료' 인 데이터 수 카운트
-    @Query("SELECT COUNT(i) FROM Inquiries i WHERE i.answerStatus = '대기중'")
+    @Query("SELECT COUNT(i) FROM Inquiries i WHERE i.answerStatus = '답변완료'")
     long countAnsweredInquiries();
     //  오늘 작성된 문의사항 수 카운트
     @Query(value = "SELECT COUNT(*) FROM INQUIRIES WHERE TRUNC(CREATED_AT) = TRUNC(SYSDATE)", nativeQuery = true)
