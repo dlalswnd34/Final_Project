@@ -4,7 +4,7 @@
 // 게시판 페이지 관련 전역 변수
 let boardSelectedCategory = 'all';
 let boardSearchQuery = '';
-let boardSortBy = 'popularity';
+let boardSortBy = 'newest';
 
 (function syncCategoryFromURL() {
     const c = new URLSearchParams(location.search).get('category');

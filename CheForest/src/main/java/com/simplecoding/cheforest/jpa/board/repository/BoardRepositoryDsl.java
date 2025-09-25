@@ -55,7 +55,7 @@ public class BoardRepositoryDsl {
                 .from(board)
                 .leftJoin(board.writer, member)
                 .where(builder)
-                .orderBy(board.boardId.desc())
+                .orderBy(board.insertTime.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();

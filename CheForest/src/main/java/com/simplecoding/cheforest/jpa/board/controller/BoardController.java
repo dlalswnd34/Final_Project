@@ -42,7 +42,7 @@ public class BoardController {
     public String list(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String keyword,
-            @PageableDefault(size = 9, sort = "insertTime", direction = Sort.Direction.DESC) Pageable pageable,
+            @PageableDefault(size = 9) Pageable pageable,
             @AuthenticationPrincipal CustomUserDetails loginUser,
             Model model
     ) {
