@@ -556,6 +556,23 @@
         lucide.createIcons();
     </script>
 
+<!-- ===== 챗봇 UI + JS 연결 (푸터 위로 이동) ===== -->
+<jsp:include page="/WEB-INF/views/chat/chatbot.jsp" />
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.getElementById("mainSearchForm");
+        const input = document.getElementById("searchKeyword");
+
+        form.addEventListener("submit", function(e) {
+            if (!input.value.trim()) {
+                alert("검색어를 입력하세요!");
+                input.focus();
+                e.preventDefault();
+            }
+        });
+    });
+
     <jsp:include page="/common/footer.jsp"/>
 </body>
 </html>

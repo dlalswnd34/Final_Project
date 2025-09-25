@@ -5,6 +5,8 @@ import com.simplecoding.cheforest.es.integratedSearch.entity.IntegratedSearch;
 import com.simplecoding.cheforest.jpa.auth.dto.MemberDetailDto;
 import com.simplecoding.cheforest.jpa.auth.dto.MemberSignupDto;
 import com.simplecoding.cheforest.jpa.auth.dto.MemberUpdateDto;
+import com.simplecoding.cheforest.jpa.chatbot.dto.ChatbotFaqDto;
+import com.simplecoding.cheforest.jpa.chatbot.entity.ChatbotFaq;
 import com.simplecoding.cheforest.jpa.file.entity.File;
 import com.simplecoding.cheforest.jpa.board.dto.BoardDetailDto;
 import com.simplecoding.cheforest.jpa.board.dto.BoardListDto;
@@ -122,12 +124,10 @@ public interface MapStruct {
     @Mapping(source = "prepare", target = "ingredients")
     IntegratedSearch boardToEntity(BoardSaveReq  boardSaveReq);
 
-
-
-
-
-
-
+    // -- chat bot ----
+    // Entity <-> DTO
+    ChatbotFaqDto toDto(ChatbotFaq chatbotFaq);
+    ChatbotFaq toEntity(ChatbotFaqDto chatbotFaqDto);
 
 
 }
