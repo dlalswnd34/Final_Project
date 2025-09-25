@@ -5,8 +5,9 @@
 window.CheForest = window.CheForest || {};
 
 // 페이지 네비게이션 함수
-function showPage(page) {
+function showPage(page, id) {
     console.log('Navigate to:', page);
+
     switch (page) {
         case 'home':
             window.location.href = '/';
@@ -16,6 +17,16 @@ function showPage(page) {
             break;
         case 'board':
             window.location.href = '/board/list';
+            break;
+        case 'board-view':
+            if (id) {
+                window.location.href = '/board/view?boardId=' + id;
+            } else {
+                alert('게시글 ID가 없습니다.');
+            }
+            break;
+        case 'board-write':
+            window.location.href = '/board/add';
             break;
         case 'qna':
             window.location.href = '/qna';
@@ -29,9 +40,6 @@ function showPage(page) {
         case 'login':
             window.location.href = '/auth/login';
             break;
-        case 'board-write':
-            window.location.href = '/board/add';
-            break;
         case 'season':
             window.location.href = '/season';
             break;
@@ -40,6 +48,7 @@ function showPage(page) {
             window.location.href = '/' + page + '.jsp';
     }
 }
+
 // 네비게이션 활성화 상태 업데이트
 function updateActiveNavigation(page) {
     // 모든 네비게이션 아이템에서 활성화 상태 제거

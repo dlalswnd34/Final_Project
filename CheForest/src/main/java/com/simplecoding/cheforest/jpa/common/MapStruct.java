@@ -60,6 +60,8 @@ public interface MapStruct {
     @Mapping(target = "writer", ignore = true)    // 서비스에서 Member 주입
     @Mapping(target = "viewCount", constant = "0L")
     @Mapping(target = "likeCount", constant = "0L")
+    @Mapping(target = "thumbnail", ignore = true) // 파일 업로드 후 서비스에서 세팅
+//  prepare / prepareAmount는 Service에서 문자열로 합쳐서 세팅할 예정
     Board toEntity(BoardSaveReq dto);
 
     // 수정용 DTO → 기존 엔티티 업데이트
@@ -121,13 +123,12 @@ public interface MapStruct {
     //    TODO: 통합검색관련) IntegratedSearch <-> IntegratedSearchDto
     IntegratedSearchDto toDto(IntegratedSearch integratedSearch);
     IntegratedSearch toEntity(IntegratedSearchDto integratedSearchDto);
-    @Mapping(source = "prepare", target = "ingredients")
-    IntegratedSearch boardToEntity(BoardSaveReq  boardSaveReq);
+    @Mapping(target = "ingredients",
+            expression = "java(com.simplecoding.cheforest.jpa.common.util.StringUtil.joinList(boardSaveReq.getIngredientName()))")
+    IntegratedSearch boardToEntity(BoardSaveReq boardSaveReq);
 
     // -- chat bot ----
     // Entity <-> DTO
     ChatbotFaqDto toDto(ChatbotFaq chatbotFaq);
     ChatbotFaq toEntity(ChatbotFaqDto chatbotFaqDto);
-
-
 }

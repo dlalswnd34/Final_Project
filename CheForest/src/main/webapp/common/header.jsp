@@ -257,5 +257,8 @@
     <script src="/js/common.js"></script>
     <script src="/js/header.js"></script>
 
+<script>
+    lucide.createIcons();
+</script>
 </body>
 </html>

@@ -1,13 +1,15 @@
 package com.simplecoding.cheforest.jpa.board.service;
 
-import com.simplecoding.cheforest.jpa.board.dto.BoardDetailDto;
-import com.simplecoding.cheforest.jpa.board.dto.BoardListDto;
-import com.simplecoding.cheforest.jpa.board.dto.BoardSaveReq;
-import com.simplecoding.cheforest.jpa.board.dto.BoardUpdateReq;
+import com.simplecoding.cheforest.es.integratedSearch.entity.IntegratedSearch;
+import com.simplecoding.cheforest.es.integratedSearch.repository.IntegratedSearchRepository;
+import com.simplecoding.cheforest.jpa.board.dto.*;
 import com.simplecoding.cheforest.jpa.board.entity.Board;
 import com.simplecoding.cheforest.jpa.board.repository.BoardRepository;
 import com.simplecoding.cheforest.jpa.board.repository.BoardRepositoryDsl;
 import com.simplecoding.cheforest.jpa.common.MapStruct;
+import com.simplecoding.cheforest.jpa.common.util.JsonUtil;
+import com.simplecoding.cheforest.jpa.common.util.StringUtil;
+import com.simplecoding.cheforest.jpa.file.dto.FileDto;
 import com.simplecoding.cheforest.jpa.file.service.FileService;
 import com.simplecoding.cheforest.jpa.like.service.LikeService;
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
@@ -17,7 +19,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -31,6 +36,7 @@ public class BoardService {
     private final LikeService likeService;
     private final MemberRepository memberRepository;
     private final MapStruct mapStruct;
+    private final IntegratedSearchRepository integratedSearchRepository;
 
     // 1. 목록 조회 (검색 + 페이징)
     @Transactional(readOnly = true)
@@ -56,36 +62,99 @@ public class BoardService {
             throw new IllegalArgumentException("게시글 없음: " + boardId);
         }
 
-        // 조회수 증가 (DB 반영)
-//        boardRepository.increaseViewCount(boardId);
-//        dto.setViewCount(dto.getViewCount() + 1);
+        dto.setInsertTimeStr(com.simplecoding.cheforest.common.util.DateTimeUtil.format(dto.getInsertTime()));
+
+//         조회수 증가 (DB 반영)
+        boardRepository.increaseViewCount(boardId);
+        dto.setViewCount(dto.getViewCount() + 1);
 
         return dto;
     }
 
     // 3. 게시글 등록
-    public Long create(BoardSaveReq dto, String writerEmail) {
+    @Transactional
+    public Long create(BoardSaveReq dto, String writerEmail) throws IOException {
+        // 1. 작성자 조회
         Member writer = memberRepository.findByEmail(writerEmail)
                 .orElseThrow(() -> new IllegalArgumentException("회원 없음: " + writerEmail));
 
+        // 2. Board 엔티티 생성
         Board board = mapStruct.toEntity(dto);
         board.setWriter(writer);
 
+        // 2-1. 재료/계량 리스트를 문자열로 변환 (CSV 저장)
+        board.setPrepare(StringUtil.joinList(dto.getIngredientName()));     // 재료명
+        board.setPrepareAmount(StringUtil.joinList(dto.getIngredientAmount())); // 계량
+
+        // 2-2. 조리법(JSON 변환 후 content 에 저장)
+        List<StepDto> steps = new ArrayList<>();
+        if (dto.getInstructionContent() != null) {
+            for (int i = 0; i < dto.getInstructionContent().size(); i++) {
+                String text = dto.getInstructionContent().get(i);
+                String image = null;
+                if (dto.getInstructionImage() != null &&
+                        dto.getInstructionImage().size() > i &&
+                        !dto.getInstructionImage().get(i).isEmpty()) {
+                    // 조리법 이미지 저장
+                    FileDto file = fileService.saveFile(dto.getInstructionImage().get(i),
+                            "BOARD", null, "INSTRUCTION", writer.getMemberIdx());
+                    image = file != null ? file.getFilePath() : null;
+                }
+                steps.add(new StepDto(text, image));
+            }
+        }
+        board.setContent(JsonUtil.toJson(steps));
+
+        // 3. Board 저장 (일단 저장해야 boardId 생성됨)
         boardRepository.save(board);
-        return board.getBoardId();
+        Long boardId = board.getBoardId();
+
+        // 4. 대표 이미지 저장
+        if (dto.getMainImage() != null && !dto.getMainImage().isEmpty()) {
+            FileDto thumbnail = fileService.saveFile(dto.getMainImage(),
+                    "BOARD", boardId, "THUMBNAIL", writer.getMemberIdx());
+            if (thumbnail != null) {
+                board.setThumbnail(thumbnail.getFilePath());
+            }
+        }
+
+        // 5. 조리법 이미지 (이미 위에서 StepDto 처리할 때 저장했으므로 별도 필요 X)
+        // → 만약 추가 관리가 필요하다면 fileService.saveBoardFiles 사용 가능
+
+        return boardId;
     }
 
     // 4. 게시글 수정
-    public void update(BoardUpdateReq dto, String writerEmail) {
-        Board existing = boardRepository.findById(dto.getBoardId())
-                .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + dto.getBoardId()));
-
-        Member writer = memberRepository.findByEmail(writerEmail)
-                .orElseThrow(() -> new IllegalArgumentException("회원 없음: " + writerEmail));
-        existing.setWriter(writer);
-
-        mapStruct.updateEntity(dto, existing); // ✅ @MappingTarget 활용
-    }
+//    @Transactional
+//    public void update(Long boardId, BoardUpdateReq dto, String writerEmail) throws IOException {
+//        // 1) 기존 게시글 찾기
+//        Board board = boardRepository.findById(boardId)
+//                .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + boardId));
+//
+//        // 작성자 검증 (선택 사항)
+//        if (!board.getWriter().getEmail().equals(writerEmail)) {
+//            throw new SecurityException("작성자만 수정할 수 있습니다.");
+//        }
+//
+//        // 2) 텍스트/기본 정보 업데이트
+//        // MapStruct: null 값은 무시하고 채워진 값만 업데이트
+//        mapStruct.updateEntity(dto, board);
+//
+//        // 3) 대표 이미지 수정 (새 파일 있을 때만 교체)
+//        if (dto.getMainImage() != null && !dto.getMainImage().isEmpty()) {
+//            FileDto thumbnail = fileService.saveFile(dto.getMainImage(),
+//                    "BOARD", boardId, "THUMBNAIL", board.getWriter().getMemberIdx());
+//            if (thumbnail != null) {
+//                board.setThumbnail(thumbnail.getFilePath());
+//            }
+//        }
+//
+//        // 4) 조리법 이미지 수정 (옵션)
+//        if (dto.getInstructionImage() != null && !dto.getInstructionImage().isEmpty()) {
+//            fileService.saveBoardFiles(boardId, board.getWriter().getMemberIdx(), dto.getInstructionImage());
+//            // 기존 이미지를 지우고 싶다면 여기서 삭제 로직 추가 가능
+//        }
+//    }
 
     // 5. 게시글 삭제
     public void delete(Long boardId) {
