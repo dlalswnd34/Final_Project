@@ -77,6 +77,12 @@ dependencies {
     // Elasticsearch
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 
+    // 웹소캣
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // WebSocket 보안을 위한 spring-security-messaging 의존성 추가
+    implementation 'org.springframework.security:spring-security-messaging'
+
 }
 
 def generated = "$buildDir/generated/sources/annotationProcessor/java/main"

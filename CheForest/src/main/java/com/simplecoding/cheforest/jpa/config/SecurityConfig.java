@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
+import org.springframework.security.config.annotation.web.socket.EnableWebSocketSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -40,6 +42,7 @@ public class SecurityConfig {
                                 "/이런식으로 더 추가하면 됩니다./**"
                         ).authenticated()
 
+
                         // [3] 나머지 페이지는 모두 허용
                         .anyRequest().permitAll()
                 )
@@ -64,10 +67,12 @@ public class SecurityConfig {
                         .logoutUrl("/auth/logout")
                         .logoutSuccessHandler(customLogoutSuccessHandler)
                         .permitAll()
+
                 )
                 // 보안토큰설정(현재 비활성화, 나중에 추가해주세요! 설정하면 POST 부분은 전부 보안토큰걸림)
                 .csrf(csrf -> csrf.disable()
                 );
+
         return http.build();
     }
 }
