@@ -1,339 +1,120 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>로그인 & 회원가입</title>
-    <link rel="stylesheet" href="/css/login.css" />
+    <meta charset="UTF-8">
+    <title>CheForest 로그인</title>
+    <link rel="stylesheet" href="/css/login.css">
 </head>
 <body>
-<div class="wrapper">
-    <div class="container">
-        <!-- 왼쪽 이미지 슬라이드 -->
-        <div class="left-slide">
-            <img src="${pageContext.request.contextPath}/images/슬라이드/라비올리.jpg" class="slide-image"/>
-            <img src="${pageContext.request.contextPath}/images/슬라이드/삼겹살.jpg" class="slide-image"/>
-            <img src="${pageContext.request.contextPath}/images/슬라이드/수프.jpg" class="slide-image"/>
-            <img src="${pageContext.request.contextPath}/images/슬라이드/토마토.jpg" class="slide-image"/>
-            <img src="${pageContext.request.contextPath}/images/슬라이드/브런치.jpg" class="slide-image"/>
-            <img src="${pageContext.request.contextPath}/images/슬라이드/부르기뇽.jpg" class="slide-image"/>
-            <img src="${pageContext.request.contextPath}/images/슬라이드/부찌.jpg" class="slide-image"/>
+<div class="login-container">
+    <div class="login-content">
+        <!-- 홈으로 돌아가기 -->
+        <div class="back-link">
+            <a href="/"><span>← 홈으로 돌아가기</span></a>
         </div>
 
-        <div class="right-login">
+        <div class="login-card">
+            <!-- 헤더 -->
+            <div class="card-header">
+                <h2 class="card-title">CheForest</h2>
+                <p class="card-description">요리와 함께하는 즐거운 시간을 시작하세요</p>
+            </div>
 
             <!-- 로그인 폼 -->
-            <form class="form-box" id="loginForm" method="post" action="${pageContext.request.contextPath}/auth/login">
-                <!-- CSRF 토큰 추가 -->
-                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-                <div class="home-icon-wrapper">
-                    <a href="${pageContext.request.contextPath}/">
-                        <img class="gohome" src="${pageContext.request.contextPath}/images/home.png" alt="홈으로" />
-                    </a>
+            <div class="card-content">
+                <!-- ✅ Spring Security 맞춘 form -->
+                <form id="loginForm" action="/auth/login" method="post">
+                    <div class="form-group">
+                        <label class="form-label">아이디</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">
+                                <!-- 유저 아이콘 -->
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+                                </svg>
+                            </span>
+                            <input type="text" id="userId" name="loginId" class="form-input"
+                                   placeholder="아이디를 입력하세요" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">비밀번호</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">
+                                <!-- 자물쇠 아이콘 -->
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M17 8h-1V6c0-2.8-2.2-5-5-5S6 3.2 6 6v2H5c-1.1 0-2 .9-2
+                                    2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9
+                                    2-2V10c0-1.1-.9-2-2-2zm-5
+                                    9c-1.1 0-2-.9-2-2s.9-2
+                                    2-2 2 .9 2 2-.9 2-2 2zm3-9H9V6c0-1.7
+                                    1.3-3 3-3s3 1.3 3 3v2z"/>
+                                </svg>
+                            </span>
+                            <input type="password" id="password" name="password" class="form-input"
+                                   placeholder="비밀번호를 입력하세요" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="submit-btn">
+                        <span id="submitBtnText">로그인</span>
+                    </button>
+                </form>
+
+                <!-- 아이디/비번 찾기 -->
+                <div class="login-links">
+                    <a href="/forgot-id" class="auth-link">아이디를 잊으셨나요?</a>
+                    <div class="divider-vertical"></div>
+                    <a href="/forgot-password" class="auth-link">비밀번호를 잊으셨나요?</a>
+                </div>
+            </div>
+
+            <!-- 회원가입 -->
+            <div class="card-footer">
+                <div class="mode-switch">
+                    <p class="switch-text">아직 계정이 없나요?</p>
+                    <a href="/auth/register"><button class="switch-btn">회원가입하기</button></a>
                 </div>
 
-                <h1>LOGIN</h1>
-                <input type="text" name="loginId" placeholder="아이디" required />
-                <input type="password" name="password" placeholder="비밀번호" required />
-
-                <c:if test="${param.error eq 'true'}">
-                    <div class="error">❌ 로그인 실패: 아이디/비밀번호를 확인하세요.</div>
-                </c:if>
-                <c:if test="${param.logout eq 'true'}">
-                    <div class="success">✅ 로그아웃 되었습니다.</div>
-                </c:if>
-                <c:if test="${param.success eq 'true'}">
-                    <div class="success">✅ 회원가입이 완료되었습니다. 로그인 해주세요.</div>
-                </c:if>
-
-                <button class="submit-btn" type="submit">시작하기</button>
-                <span class="toggle-link" onclick="toggleForm('signup')">회원가입</span>
-
-                <div class="find">
-                    <a href="${pageContext.request.contextPath}/auth/find-id">아이디 찾기</a> &nbsp;
-                    <a href="${pageContext.request.contextPath}/auth/find-password">비밀번호 찾기</a>
+                <!-- 소셜 로그인 -->
+                <div class="social-divider">
+                    <div class="divider-line"></div>
+                    <span class="divider-text">또는</span>
+                    <div class="divider-line"></div>
                 </div>
-
-                <!-- 카카오 로그인 -->
-                <div id="kakaoLoginContainer" style="margin-top: 10px;">
-                    <a href="${kakaoLink}">
-                        <img src="https://developers.kakao.com/assets/img/about/logos/kakaologin/kr/kakao_account_login_btn_medium_narrow.png"
-                             alt="카카오 로그인"
-                             style="width: 100%; max-width: 180px; display: block; margin: 0 auto;" />
-                    </a>
+                <div class="social-buttons">
+                    <!-- 구글 -->
+                    <button class="social-btn google-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                            <path fill="#EA4335" d="M24 9.5c3.9 0 6.6 1.7 8.1 3.1l6-5.9C34.6 3.6 29.7 1.5 24 1.5 14.9 1.5 7.1 7.3 4.1 15.2l7.1 5.5C12.9 15.1 18 9.5 24 9.5z"/>
+                            <path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.2-.4-4.7H24v9.1h12.6c-.5 2.7-2 5-4.2 6.5l6.5 5.1c3.8-3.5 6.2-8.7 6.2-15z"/>
+                            <path fill="#FBBC05" d="M11.2 28.9c-1-2.7-1-5.6 0-8.3L4.1 15c-2.5 5-2.5 11 0 16l7.1-5.1z"/>
+                            <path fill="#34A853" d="M24 46.5c5.7 0 10.6-1.9 14.1-5.2l-6.5-5.1c-2 1.4-4.6 2.3-7.6 2.3-6 0-11.1-5.6-12.8-11.1l-7.1 5.5C7.1 40.7 14.9 46.5 24 46.5z"/>
+                        </svg>
+                    </button>
+                    <!-- 카카오 -->
+                    <button class="social-btn kakao-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                            <path fill="#3C1E1E" d="M16 3C8.8 3 3 7.9 3 14c0 3.5 2.1 6.6 5.5 8.6-.2.7-.9 3.3-1 3.8 0 0-.1.5.3.3.4-.2 3.8-2.5 4.4-2.9.9.1 1.7.2 2.8.2 7.2 0 13-4.9 13-11S23.2 3 16 3z"/>
+                        </svg>
+                    </button>
+                    <!-- 네이버 -->
+                    <button class="social-btn naver-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                            <path fill="#03C75A" d="M7 5h6.3l5.7 8.8V5H25v22h-6.3l-5.7-8.8V27H7z"/>
+                        </svg>
+                    </button>
                 </div>
-            </form>
+            </div>
+        </div>
 
-            <!-- 회원가입 폼 -->
-            <form class="form-box" id="signupForm" method="post"
-                  action="${pageContext.request.contextPath}/auth/register/addition"
-                  style="display: none;" onsubmit="return validateForm()">
-
-                <div class="home-icon-wrapper">
-                    <a href="${pageContext.request.contextPath}/">
-                        <img class="gohome" src="${pageContext.request.contextPath}/images/home.png" alt="홈으로" />
-                    </a>
-                </div>
-
-                <h1>WELCOME!</h1>
-
-                <!-- 아이디 -->
-                <div class="form-group">
-                    <input type="text" id="loginId" name="loginId" placeholder="아이디 (8~20자)" required minlength="8" maxlength="20">
-                    <button type="button" onclick="checkId()">중복확인</button>
-                </div>
-                <span id="idStatus"></span>
-
-                <!-- 이메일 인증 -->
-                <div class="form-group">
-                    <input type="email" id="email" name="email" placeholder="인증 이메일" required />
-                    <button type="button" onclick="sendEmailCode()">인증요청</button>
-                </div>
-                <div class="form-group">
-                    <input type="text" id="emailCode" name="emailAuthCode" placeholder="인증번호 입력" />
-                    <button type="button" id="verifyBtn" onclick="verifyEmailCode()">인증확인</button>
-                </div>
-                <span id="emailStatus"></span>
-                <span id="countdown"></span>
-
-                <!-- 비밀번호 -->
-                <input type="password" id="password" name="password" placeholder="비밀번호 (영문+숫자+특수문자 10자 이상)" required />
-                <input type="password" id="passwordConfirm" placeholder="비밀번호 확인" required onkeyup="checkPasswordMatch()" />
-                <span id="pwStatus"></span>
-
-                <!-- 닉네임 -->
-                <div class="form-group">
-                    <input type="text" id="nickname" name="nickname" placeholder="닉네임" required />
-                    <button type="button" onclick="checkNickname()">중복확인</button>
-                </div>
-                <span id="nicknameStatus"></span>
-
-                <button class="submit-btn" type="submit">가입하기</button>
-                <span class="toggle-link" onclick="toggleForm('login')">로그인</span>
-            </form>
+        <!-- 등급 시스템 링크 -->
+        <div class="grade-link">
+            <a href="/grade" class="grade-btn">CheForest 등급 시스템 알아보기 →</a>
         </div>
     </div>
 </div>
-
-<script>
-    /* ===== 이미지 슬라이드 ===== */
-    document.addEventListener('DOMContentLoaded', function () {
-        const slides = document.querySelectorAll('.slide-image');
-        let currentSlide = 0;
-        slides[currentSlide].classList.add('active');
-        setInterval(() => {
-            slides[currentSlide].classList.remove('active');
-            currentSlide = (currentSlide + 1) % slides.length;
-            slides[currentSlide].classList.add('active');
-        }, 5000);
-    });
-
-    /* ===== 회원가입 유효성 검증 ===== */
-    let emailVerified = false;
-    let nicknameChecked = false;
-    let idChecked = false;
-    let timerInterval;
-
-    function toggleForm(mode) {
-        const loginForm = document.getElementById('loginForm');
-        const signupForm = document.getElementById('signupForm');
-        if (mode === 'signup') {
-            loginForm.style.display = 'none';
-            signupForm.style.display = 'block';
-        } else {
-            loginForm.style.display = 'block';
-            signupForm.style.display = 'none';
-        }
-    }
-
-    function validateForm() {
-        const pw = document.getElementById('password').value;
-        const pwc = document.getElementById('passwordConfirm').value;
-
-        const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[~!@#$%^&*()_+]).{10,}$/;
-        if (!pwRegex.test(pw)) {
-            alert("비밀번호는 영문, 숫자, 특수문자를 포함해 10자 이상이어야 합니다.");
-            return false;
-        }
-
-        if (pw !== pwc) {
-            alert("비밀번호가 일치하지 않습니다.");
-            return false;
-        }
-        if (!emailVerified) {
-            alert("이메일 인증을 완료해주세요.");
-            return false;
-        }
-        if (!nicknameChecked) {
-            alert("닉네임 중복 확인을 완료해주세요.");
-            return false;
-        }
-        if (!idChecked) {
-            alert("아이디 중복 확인을 완료해주세요.");
-            return false;
-        }
-        return true;
-    }
-
-    /* ===== Ajax 요청 (경로 수정 완료) ===== */
-    function checkId() {
-        const id = document.getElementById('loginId').value.trim();
-        if (id === "") return alert("아이디를 입력해주세요.");
-
-        fetch('${pageContext.request.contextPath}/auth/check-id?loginId=' + encodeURIComponent(id))
-            .then(res => res.json())
-            .then(result => {
-                if (result) {
-                    idChecked = true;
-                    document.getElementById('idStatus').textContent = "사용 가능한 아이디입니다.";
-                    document.getElementById('idStatus').style.color = "green";
-                } else {
-                    idChecked = false;
-                    document.getElementById('idStatus').textContent = "이미 사용 중인 아이디입니다.";
-                    document.getElementById('idStatus').style.color = "red";
-                }
-            });
-    }
-
-    function checkNickname() {
-        const nickname = document.getElementById('nickname').value.trim();
-        if (nickname === "") return alert("닉네임을 입력해주세요.");
-
-        fetch('${pageContext.request.contextPath}/auth/check-nickname?nickname=' + encodeURIComponent(nickname))
-            .then(res => res.json())
-            .then(result => {
-                if (result) {
-                    nicknameChecked = true;
-                    document.getElementById('nicknameStatus').textContent = "사용 가능한 닉네임입니다.";
-                    document.getElementById('nicknameStatus').style.color = "green";
-                } else {
-                    nicknameChecked = false;
-                    document.getElementById('nicknameStatus').textContent = "이미 사용 중인 닉네임입니다.";
-                    document.getElementById('nicknameStatus').style.color = "red";
-                }
-            });
-    }
-
-    function sendEmailCode() {
-        const email = document.getElementById('email').value.trim();
-        if (email === "") return alert("이메일을 입력해주세요.");
-
-        fetch('${pageContext.request.contextPath}/auth/send-email-code', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: 'email=' + encodeURIComponent(email)
-        })
-            .then(res => res.text())
-            .then(result => {
-                alert("인증번호가 이메일로 전송되었습니다.");
-                emailVerified = false;
-                startCountdown(300);
-            })
-            .catch(() => alert("서버 오류가 발생했습니다."));
-    }
-
-    function verifyEmailCode() {
-        const emailCode = document.getElementById('emailCode').value.trim();
-        const statusEl = document.getElementById('emailStatus');
-        const countdownEl = document.getElementById('countdown');
-        const emailCodeInput = document.getElementById('emailCode');
-
-        if (emailCode === "") {
-            alert("인증번호를 입력해주세요.");
-            return;
-        }
-
-        fetch('${pageContext.request.contextPath}/auth/verify-email-code', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: 'code=' + encodeURIComponent(emailCode)
-        })
-            .then(res => res.json())
-            .then(result => {
-                if (result === true) {
-                    emailVerified = true;
-                    statusEl.textContent = "이메일 인증 완료 ✅";
-                    statusEl.style.color = "green";
-
-                    // 인증번호 입력창 잠금
-                    emailCodeInput.readOnly = true;
-                    emailCodeInput.style.backgroundColor = "#eee";
-                    emailCodeInput.style.color = "#555";
-
-                    const verifyBtn = document.querySelector('button[onclick="verifyEmailCode()"]');
-                    verifyBtn.disabled = true;
-                    verifyBtn.style.backgroundColor = "#aaa";
-                    verifyBtn.style.cursor = "not-allowed";
-
-                    // 타이머 종료 + 숨김
-                    if (timerInterval) clearInterval(timerInterval);
-                    if (countdownEl) {
-                        countdownEl.textContent = "";
-                        countdownEl.style.display = "none";
-                    }
-                } else {
-                    emailVerified = false;
-                    statusEl.textContent = "❌ 인증번호가 일치하지 않습니다.";
-                    statusEl.style.color = "red";
-                }
-            })
-            .catch(() => {
-                alert("서버 오류가 발생했습니다.");
-            });
-    }
-
-
-    /* ===== 비밀번호 확인 ===== */
-    function checkPasswordMatch() {
-        const pw = document.getElementById('password').value;
-        const pwc = document.getElementById('passwordConfirm').value;
-        const status = document.getElementById('pwStatus');
-        if (pw === "" || pwc === "") {
-            status.textContent = "";
-            return;
-        }
-        if (pw === pwc) {
-            status.textContent = "비밀번호가 일치합니다.";
-            status.style.color = "green";
-        } else {
-            status.textContent = "비밀번호가 일치하지 않습니다.";
-            status.style.color = "red";
-        }
-    }
-
-    function startCountdown(duration) {
-        let timeLeft = duration;
-        const countdownDisplay = document.getElementById("countdown");
-        clearInterval(timerInterval);
-
-        timerInterval = setInterval(() => {
-            const minutes = String(Math.floor(timeLeft / 60)).padStart(2, '0');
-            const seconds = String(timeLeft % 60).padStart(2, '0');
-            countdownDisplay.textContent = "남은 인증 유효시간 " + minutes + ":" + seconds;
-
-            if (timeLeft-- <= 0) {
-                clearInterval(timerInterval);
-                countdownDisplay.textContent = "인증 유효시간 만료됨";
-                alert("인증 유효시간이 만료되었습니다. 다시 요청해주세요.");
-            }
-        }, 1000);
-    }
-
-    /* ===== 페이지 로드 시 mode 파라미터 처리 ===== */
-    window.onload = function () {
-        const params = new URLSearchParams(window.location.search);
-        const mode = params.get("mode");
-        if (mode === "signup") {
-            toggleForm('signup');
-        } else {
-            toggleForm('login');
-        }
-    };
-</script>
 </body>
 </html>

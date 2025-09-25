@@ -1,398 +1,319 @@
-/* CheForest AI 챗봇 전용 JavaScript */
+// === 전역 변수 ===
+let chatbotBtn, chatbotWindow, closeBtn, msgBox, userInput, sendBtn, toggleBtn, quickBtns;
 
-class AIChatbot {
-    constructor() {
-        this.isOpen = false;
-        this.isTyping = false;
-        this.currentUser = {
-            nickname: '내 닉네임', // JSP에서 실제 사용자 닉네임으로 교체
-            grade: 'sprout', // JSP에서 실제 사용자 등급으로 교체
-            avatar: '#3b82f6', // JSP에서 실제 사용자 아바타 색상으로 교체
-            id: 'current' // JSP에서 실제 사용자 ID로 교체
-        };
-
-        this.chatHistory = [
-            {
-                id: '1',
-                text: '안녕하세요! CheForest 챗봇입니다. 🤖\n궁금한 것이 있으시면 언제든 물어보세요!',
-                timestamp: new Date(),
-                sender: 'bot'
-            }
-        ];
-
-        this.init();
-    }
-
-    init() {
-        this.bindEvents();
-        this.updateSendButton();
-        this.setupSuggestedQuestions();
-    }
-
-    bindEvents() {
-        // 플로팅 버튼 클릭
-        const floatingBtn = document.getElementById('chatbotFloatingBtn');
-        if (floatingBtn) {
-            floatingBtn.addEventListener('click', () => this.openChatbot());
-        }
-
-        // 챗봇창 닫기
-        const closeChatbotBtn = document.getElementById('closeChatbotBtn');
-        if (closeChatbotBtn) {
-            closeChatbotBtn.addEventListener('click', () => this.closeChatbot());
-        }
-
-        // 메시지 전송
-        const sendBtn = document.getElementById('sendBtn');
-        const messageInput = document.getElementById('messageInput');
-
-        if (sendBtn) {
-            sendBtn.addEventListener('click', () => this.sendMessage());
-        }
-
-        if (messageInput) {
-            messageInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    this.sendMessage();
-                }
-            });
-
-            messageInput.addEventListener('input', () => {
-                this.updateSendButton();
-            });
-        }
-    }
-
-    setupSuggestedQuestions() {
-        const suggestionBtns = document.querySelectorAll('.suggestion-btn');
-        suggestionBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const question = btn.getAttribute('data-question');
-                if (question) {
-                    const messageInput = document.getElementById('messageInput');
-                    if (messageInput) {
-                        messageInput.value = question;
-                        this.updateSendButton();
-                        messageInput.focus();
-                    }
-                }
-            });
-        });
-    }
-
-    openChatbot() {
-        const chatbotWindow = document.getElementById('chatbotWindow');
-
-        if (chatbotWindow) {
-            chatbotWindow.classList.remove('hidden');
-        }
-
-        this.isOpen = true;
-
-        // 입력창 포커스
-        setTimeout(() => {
-            const messageInput = document.getElementById('messageInput');
-            if (messageInput) {
-                messageInput.focus();
-            }
-        }, 300);
-
-        this.scrollToBottom();
-    }
-
-    closeChatbot() {
-        const chatbotWindow = document.getElementById('chatbotWindow');
-        if (chatbotWindow) {
-            chatbotWindow.classList.add('hidden');
-        }
-
-        this.isOpen = false;
-    }
-
-    sendMessage() {
-        const messageInput = document.getElementById('messageInput');
-        if (!messageInput || !messageInput.value.trim()) return;
-
-        const messageText = messageInput.value.trim();
-
-        // 사용자 메시지 추가
-        const userMessage = {
-            id: Date.now().toString(),
-            text: messageText,
-            timestamp: new Date(),
-            sender: 'user'
-        };
-
-        this.chatHistory.push(userMessage);
-        this.addMessage(userMessage);
-
-        // 입력창 초기화
-        messageInput.value = '';
-        this.updateSendButton();
-
-        // 추천 질문 숨기기 (첫 질문 후)
-        this.hideSuggestedQuestions();
-
-        // AI 응답 생성
-        this.showTypingIndicator();
-        setTimeout(() => {
-            this.hideTypingIndicator();
-            this.generateBotResponse(messageText);
-        }, 1000 + Math.random() * 2000);
-
-        // 실제 구현에서는 여기서 서버로 전송
-        // this.sendMessageToServer(messageText);
-    }
-
-    addMessage(messageData) {
-        const messagesContainer = document.getElementById('messagesContainer');
-        if (!messagesContainer) return;
-
-        const messageElement = this.createMessageElement(messageData);
-
-        // 타이핑 인디케이터 앞에 삽입
-        const typingIndicator = document.getElementById('typingIndicator');
-        const messagesEnd = document.getElementById('messagesEnd');
-
-        if (typingIndicator && !typingIndicator.classList.contains('hidden')) {
-            messagesContainer.insertBefore(messageElement, typingIndicator);
-        } else if (messagesEnd) {
-            messagesContainer.insertBefore(messageElement, messagesEnd);
-        } else {
-            messagesContainer.appendChild(messageElement);
-        }
-
-        this.scrollToBottom();
-    }
-
-    createMessageElement(messageData) {
-        const messageDiv = document.createElement('div');
-        const isBot = messageData.sender === 'bot';
-        const isUser = messageData.sender === 'user';
-
-        messageDiv.className = `message-item ${isUser ? 'user-message' : 'bot-message'}`;
-
-        const gradeIcon = isBot ? '🌲' : this.getGradeIcon(this.currentUser.grade);
-        const timeAgo = this.formatTimeAgo(messageData.timestamp);
-        const nickname = isBot ? 'CheForest Bot' : this.currentUser.nickname;
-
-        if (isUser) {
-            messageDiv.innerHTML = `
-                <div class="message-content">
-                    <div class="message-header">
-                        <span class="user-badge">나</span>
-                        <span class="message-time">${timeAgo}</span>
-                        <span class="user-grade">${gradeIcon}</span>
-                        <span class="user-nickname">${nickname}</span>
-                    </div>
-                    <div class="message-bubble user-bubble">
-                        <p>${messageData.text}</p>
-                    </div>
-                </div>
-                <div class="user-avatar">
-                    ${nickname.charAt(0)}
-                </div>
-            `;
-        } else {
-            messageDiv.innerHTML = `
-                <div class="bot-avatar">
-                    🤖
-                </div>
-                <div class="message-content">
-                    <div class="message-header">
-                        <span class="message-time">${timeAgo}</span>
-                        <span class="bot-grade">${gradeIcon}</span>
-                        <span class="bot-nickname">${nickname}</span>
-                    </div>
-                    <div class="message-bubble bot-bubble">
-                        <p>${messageData.text}</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        return messageDiv;
-    }
-
-    generateBotResponse(userMessage) {
-        let botResponse = '';
-
-        if (userMessage.includes('레시피') || userMessage.includes('요리')) {
-            botResponse = '레시피에 관한 질문이시네요! 🍳\n\n• 레시피 작성: 헤더의 "레시피" → "레시피 작성하기"\n• 레시피 검색: 상단 검색창 이용\n• 카테고리별 레시피: 홈페이지 카테고리 메뉴\n\n더 자세한 도움이 필요하시면 Q&A 페이지를 이용해주세요!';
-        } else if (userMessage.includes('등급') || userMessage.includes('승급')) {
-            botResponse = '등급 시스템에 대해 궁금하시군요! ⭐\n\n등급은 씨앗 → 뿌리 → 새싹 → 나무 → 숲 순서로 승급됩니다.\n\n승급 조건:\n• 작성한 레시피 수\n• 받은 좋아요 수\n• 팔로워 수\n\n등급 안내 페이지에서 자세한 정보를 확인하세요!';
-        } else if (userMessage.includes('문제') || userMessage.includes('오류') || userMessage.includes('버그')) {
-            botResponse = '문제가 발생하셨나요? 😅\n\n다음 정보를 포함해서 Q&A 게시판에 문의해주세요:\n• 발생한 문제 상황\n• 사용 중인 기기/브라우저\n• 오류 메시지 (있다면)\n\n업무시간 내에 신속히 답변드리겠습니다!';
-        } else if (userMessage.includes('안녕') || userMessage.includes('hi') || userMessage.includes('hello')) {
-            botResponse = '안녕하세요! 😊\n\nCheForest에 오신 것을 환영합니다!\n언제든 궁금한 점이 있으시면 말씀해주세요. 최선을 다해 도와드리겠습니다! 🌿';
-        } else if (userMessage.includes('감사') || userMessage.includes('고마워')) {
-            botResponse = '도움이 되었다니 정말 기뻐요! 😊\n\nCheForest에서 맛있는 요리 여정을 즐기시길 바랍니다!\n또 궁금한 점이 있으시면 언제든 말씀해주세요! 🍽️✨';
-        } else if (userMessage.includes('팁') || userMessage.includes('조언')) {
-            botResponse = '요리 팁을 원하시는군요! 👨‍🍳\n\n유용한 요리 팁들:\n• 양파 썰 때 눈물 안 나게 하려면 냉장고에 30분 보관 후 썰기\n• 마늘 쉽게 까려면 칼면으로 눌러 으깨기\n• 파스타 삶을 때 소금을 넉넉히 넣으면 더 맛있어요\n• 고기 굽기 전 실온에 30분 두면 더 부드러워져요\n\n더 많은 팁은 레시피 페이지를 확인하세요!';
-        } else {
-            botResponse = '질문해주셔서 감사합니다! 🤔\n\n더 정확한 답변을 위해 Q&A 게시판을 이용하시거나,\n다음 키워드로 다시 질문해주세요:\n\n• 레시피 관련 질문\n• 등급/승급 문의\n• 기술적 문제\n• 계정 관련 문의\n• 요리 팁\n\n항상 도와드릴 준비가 되어있어요! 💚';
-        }
-
-        const botMessage = {
-            id: (Date.now() + 1).toString(),
-            text: botResponse,
-            timestamp: new Date(),
-            sender: 'bot'
-        };
-
-        this.chatHistory.push(botMessage);
-        this.addMessage(botMessage);
-    }
-
-    showTypingIndicator() {
-        const typingIndicator = document.getElementById('typingIndicator');
-        if (typingIndicator) {
-            typingIndicator.classList.remove('hidden');
-            this.isTyping = true;
-            this.scrollToBottom();
-        }
-    }
-
-    hideTypingIndicator() {
-        const typingIndicator = document.getElementById('typingIndicator');
-        if (typingIndicator) {
-            typingIndicator.classList.add('hidden');
-            this.isTyping = false;
-        }
-    }
-
-    hideSuggestedQuestions() {
-        const suggestedQuestions = document.getElementById('suggestedQuestions');
-        if (suggestedQuestions && this.chatHistory.length > 1) {
-            suggestedQuestions.style.display = 'none';
-        }
-    }
-
-    updateSendButton() {
-        const messageInput = document.getElementById('messageInput');
-        const sendBtn = document.getElementById('sendBtn');
-
-        if (messageInput && sendBtn) {
-            const hasText = messageInput.value.trim().length > 0;
-            sendBtn.disabled = !hasText;
-        }
-    }
-
-    scrollToBottom() {
-        setTimeout(() => {
-            const messagesEnd = document.getElementById('messagesEnd');
-            if (messagesEnd) {
-                messagesEnd.scrollIntoView({ behavior: 'smooth' });
-            }
-        }, 100);
-    }
-
-    getGradeIcon(grade) {
-        const gradeIcons = {
-            seed: '🌱',
-            root: '🌿',
-            sprout: '🌱',
-            tree: '🌳',
-            forest: '🌲'
-        };
-        return gradeIcons[grade] || '🌱';
-    }
-
-    formatTimeAgo(date) {
-        const now = new Date();
-        const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-
-        if (diffInMinutes < 1) {
-            return '방금 전';
-        } else if (diffInMinutes < 60) {
-            return `${diffInMinutes}분 전`;
-        } else if (diffInMinutes < 1440) {
-            return `${Math.floor(diffInMinutes / 60)}시간 전`;
-        } else {
-            return date.toLocaleDateString('ko-KR', {
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-    }
-
-    // 서버 통신 메서드 (JSP에서 구현)
-    sendMessageToServer(messageText) {
-        fetch('/api/ai-chatbot/send', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                message: messageText,
-                timestamp: new Date().toISOString(),
-                userId: this.currentUser.id
-            })
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.response) {
-                    const botMessage = {
-                        id: data.id || Date.now().toString(),
-                        text: data.response,
-                        timestamp: new Date(),
-                        sender: 'bot'
-                    };
-
-                    this.chatHistory.push(botMessage);
-                    this.addMessage(botMessage);
-                }
-            })
-            .catch(error => {
-                console.error('AI 챗봇 요청 실패:', error);
-
-                // 에러 메시지 표시
-                const errorMessage = {
-                    id: Date.now().toString(),
-                    text: '죄송합니다. 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-                    timestamp: new Date(),
-                    sender: 'bot'
-                };
-
-                this.chatHistory.push(errorMessage);
-                this.addMessage(errorMessage);
-            });
-    }
-
-    // 채팅 기록 초기화 (선택사항)
-    clearChatHistory() {
-        this.chatHistory = [this.chatHistory[0]]; // 초기 인사 메시지만 남김
-        const messagesContainer = document.getElementById('messagesContainer');
-        if (messagesContainer) {
-            // 초기 메시지 제외하고 모든 메시지 제거
-            const messageItems = messagesContainer.querySelectorAll('.message-item:not(:first-child)');
-            messageItems.forEach(item => {
-                if (!item.id || item.id !== 'typingIndicator') {
-                    item.remove();
-                }
-            });
-        }
-
-        // 추천 질문 다시 표시
-        const suggestedQuestions = document.getElementById('suggestedQuestions');
-        if (suggestedQuestions) {
-            suggestedQuestions.style.display = 'block';
-        }
-    }
+// ✅ JSP에서 contextPath 전달받기 (jsp 상단에 <script>로 const contextPath 정의 필요)
+if (typeof contextPath === "undefined") {
+    var contextPath = "";
 }
 
-// 페이지 로드 시 초기화
-document.addEventListener('DOMContentLoaded', function() {
-    // AI 챗봇 컨테이너가 있는 경우에만 초기화
-    if (document.querySelector('.ai-chatbot-container')) {
-        window.aiChatbot = new AIChatbot();
+// === 메시지 출력 ===
+function appendUserMessage(text) {
+    const userMsg = document.createElement("div");
+    userMsg.className = "message user-msg";
+    userMsg.innerHTML = `<div class="bubble">${text}</div>`;
+    msgBox.appendChild(userMsg);
+    msgBox.scrollTop = msgBox.scrollHeight;
+}
 
-        // Lucide 아이콘 초기화 (있는 경우)
-        if (window.lucide) {
-            window.lucide.createIcons();
+function appendBotMessage(html) {
+    const botMsg = document.createElement("div");
+    botMsg.className = "message bot-msg";
+    botMsg.innerHTML = `
+        <img src="${contextPath}/images/bear-mascot.png" alt="셰프봇" class="bot-avatar">
+        <div class="bubble">${html}</div>
+    `;
+    msgBox.appendChild(botMsg);
+    msgBox.scrollTop = msgBox.scrollHeight;
+}
+
+// === 카드 UI 출력 ===
+function renderCards(data, type) {
+    let reply = `<div class="card-container">`;
+
+    data.forEach(item => {
+        if (type === "recipe") {
+            reply += `
+<div class="recipe-card"
+     onclick="window.open('${contextPath}/recipe/view?recipeId=${item.recipeId}', '_blank')"
+     style="cursor:pointer; text-align:center;">
+  <img src="${item.thumbnail ? item.thumbnail : contextPath + '/images/default-recipe.png'}"
+       alt="${item.titleKr}"
+       style="width:100%; height:160px; object-fit:cover; border-radius:8px;"/>
+  <h3 style="margin:8px 0 0 0;">${item.titleKr}</h3>
+</div>`;
         }
+        if (type === "board") {
+            reply += `
+<div class="board-card"
+     onclick="window.open('${contextPath}/board/view?boardId=${item.boardId}', '_blank')"
+     style="cursor:pointer; text-align:center;">
+  <img src="${item.thumbnail ? item.thumbnail : contextPath + '/images/default-board.png'}"
+       alt="${item.title}"
+       style="width:100%; height:160px; object-fit:cover; border-radius:8px;"/>
+  <h3 style="margin:8px 0 0 0;">${item.title}</h3>
+</div>`;
+        }
+    });
+
+    reply += `</div>`;
+    appendBotMessage(reply);
+}
+
+// === 랜덤 레시피 불러오기 (단일) ===
+function getRandomRecipe(category) {
+    $.ajax({
+        url: contextPath + "/recipe/recommendRecipe.do",
+        type: "GET",
+        data: { category: category },
+        dataType: "json",
+        success: function(data) {
+            if (!data) {
+                appendBotMessage(`❌ "${category}" 추천 레시피를 찾을 수 없습니다.`);
+                return;
+            }
+
+            let card = `
+<div class="recipe-card"
+     onclick="window.open('${contextPath}/recipe/view?recipeId=${data.recipeId}', '_blank')"
+     style="cursor:pointer; text-align:center;">
+  <img src="${data.thumbnail ?? contextPath + '/images/default-recipe.png'}"
+       alt="${data.titleKr}"
+       style="width:100%; height:160px; object-fit:cover; border-radius:8px;">
+  <h3 style="margin:8px 0 0 0;">${data.titleKr}</h3>
+</div>`;
+            appendBotMessage(card);
+        },
+        error: function(xhr, status, err) {
+            console.error(err);
+            appendBotMessage("❌ 추천 레시피를 불러오는 중 오류가 발생했습니다.");
+        }
+    });
+}
+
+// === 카테고리 버튼 출력 ===
+function showCategoryButtons(categories, actionType) {
+    const botMsg = document.createElement("div");
+    botMsg.className = "message bot-msg";
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+
+    const catDiv = document.createElement("div");
+    catDiv.style.display = "flex";
+    catDiv.style.flexWrap = "wrap";
+    catDiv.style.gap = "6px";
+    catDiv.style.marginTop = "8px";
+
+    categories.forEach(cat => {
+        const catBtn = document.createElement("button");
+        catBtn.textContent = cat;
+        catBtn.style.padding = "6px 10px";
+        catBtn.style.border = "1px solid #ccc";
+        catBtn.style.borderRadius = "6px";
+        catBtn.style.cursor = "pointer";
+
+        catBtn.onclick = () => {
+            appendUserMessage(cat);
+            getRandomRecipe(cat);
+        };
+
+        catDiv.appendChild(catBtn);
+    });
+
+    bubble.appendChild(catDiv);
+    botMsg.appendChild(bubble);
+    msgBox.appendChild(botMsg);
+    msgBox.scrollTop = msgBox.scrollHeight;
+}
+
+// === 액션 매핑 ===
+const actionHandlers = {
+    "추천레시피": () => {
+        appendBotMessage("추천 레시피를 선택하셨군요! 🍴<br>카테고리를 골라주세요:");
+        showCategoryButtons(["한식", "중식", "양식", "일식","디저트"], "추천레시피");
+    },
+    "추천메뉴": () => {
+        appendBotMessage("오늘의 추천 메뉴를 불러올 카테고리를 선택해주세요:");
+        showCategoryButtons(["한식", "중식", "양식", "일식","디저트"], "추천메뉴");
+    },
+    "인기레시피": () => {
+        $.ajax({
+            url: contextPath + "/recipe/api/recipes/popular",
+            type: "GET",
+            dataType: "json",
+            success: function(data) {
+                if (!data || data.length === 0) {
+                    appendBotMessage("❌ 인기 레시피가 없습니다.");
+                } else {
+                    renderCards(data.slice(0, 3), "recipe");
+                }
+            },
+            error: function() {
+                appendBotMessage("❌ 인기 레시피를 불러오는 중 오류가 발생했습니다.");
+            }
+        });
+    },
+    "인기게시글": () => {
+        $.ajax({
+            url: contextPath + "/api/boards/popular",
+            type: "GET",
+            dataType: "json",
+            success: function(data) {
+                if (!data || data.length === 0) {
+                    appendBotMessage("❌ 인기 게시글이 없습니다.");
+                } else {
+                    renderCards(data, "board");
+                }
+            },
+            error: function() {
+                appendBotMessage("🔒 인기 게시글은 로그인 후 이용 가능합니다.");
+            }
+        });
+    },
+    "문의하기": () => {
+        appendBotMessage("문의하기 메뉴를 선택하셨습니다. 내용을 입력해주세요 ✍️");
+    },
+    "기타": () => {
+        appendBotMessage("기타 메뉴를 선택하셨습니다.");
+    }
+};
+
+// === 메시지 전송 ===
+function sendMessage(text) {
+    if (!text) return;
+    appendUserMessage(text);
+
+    // 레시피 검색
+    if (text.includes("레시피") && !text.includes("인기")) {
+        const keyword = text.replace("레시피", "").replace("알려줘", "").trim();
+        $.ajax({
+            url: contextPath + "/recipe/api/recipes/search",
+            type: "GET",
+            data: { keyword: keyword, page: 0, size: 3 },
+            dataType: "json",
+            success: function(data) {
+                if (!data.content || data.content.length === 0) {
+                    appendBotMessage(`❌ "${keyword}" 레시피를 찾을 수 없습니다.`);
+                } else {
+                    renderCards(data.content, "recipe");
+                }
+            },
+            error: function() {
+                appendBotMessage("❌ 레시피 검색 중 오류가 발생했습니다.");
+            }
+        });
+        return;
+    }
+
+    // 인기 레시피
+    if (text.includes("인기") && text.includes("레시피")) {
+        actionHandlers["인기레시피"]();
+        return;
+    }
+
+    // 게시글 검색
+    if (text.includes("게시글") && !text.includes("인기")) {
+        const keyword = text.replace("게시글", "").replace("알려줘", "").trim();
+        $.ajax({
+            url: contextPath + "/api/boards/search",
+            type: "GET",
+            data: { keyword: keyword, page: 0, size: 3 },
+            dataType: "json",
+            success: function(data) {
+                if (!data.content || data.content.length === 0) {
+                    appendBotMessage(`❌ "${keyword}" 관련 게시글이 없습니다.`);
+                } else {
+                    renderCards(data.content, "board");
+                }
+            },
+            error: function() {
+                appendBotMessage("❌ 게시글 검색 중 오류가 발생했습니다.");
+            }
+        });
+        return;
+    }
+
+    // 인기 게시글
+    if (text.includes("인기") && text.includes("게시글")) {
+        actionHandlers["인기게시글"]();
+        return;
+    }
+
+    // === GPT API (Flask 서버) 호출 ===
+    $.ajax({
+        url: "http://localhost:5000/chat",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ message: text }),
+        success: function(res) {
+            if (res.reply) {
+                appendBotMessage(res.reply);
+            } else {
+                appendBotMessage("❌ GPT로부터 응답이 오지 않았습니다.");
+            }
+        },
+        error: function(xhr, status, err) {
+            console.error(err);
+            appendBotMessage("❌ GPT 서버 호출 중 오류가 발생했습니다.");
+        }
+    });
+}
+
+// === DOM 준비되면 실행 ===
+document.addEventListener("DOMContentLoaded", () => {
+    chatbotBtn = document.getElementById("chatbot-btn");
+    chatbotWindow = document.getElementById("chatbot-window");
+    closeBtn = document.getElementById("chatbot-close-btn");
+    msgBox = document.getElementById("chatbot-messages");
+    userInput = document.getElementById("chatbot-user-input");
+    sendBtn = document.getElementById("chatbot-send-btn");
+
+    toggleBtn = document.getElementById("chatbot-toggle-btn");
+    quickBtns = document.getElementById("chatbot-quick-buttons");
+
+    if (chatbotBtn) {
+        chatbotBtn.addEventListener("click", () => {
+            chatbotWindow.style.display =
+                chatbotWindow.style.display === "flex" ? "none" : "flex";
+            chatbotWindow.style.flexDirection = "column";
+        });
+    }
+    if (closeBtn) closeBtn.addEventListener("click", () => chatbotWindow.style.display = "none");
+
+    if (sendBtn) sendBtn.addEventListener("click", () => {
+        sendMessage(userInput.value.trim());
+        userInput.value = "";
+    });
+    if (userInput) userInput.addEventListener("keydown", e => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            sendMessage(userInput.value.trim());
+            userInput.value = "";
+        }
+    });
+
+    // 빠른 버튼 바인딩
+    document.querySelectorAll(".quick-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const action = btn.getAttribute("data-action");
+            appendUserMessage(action);
+            if (actionHandlers[action]) {
+                actionHandlers[action]();
+            } else {
+                appendBotMessage(`"${action}"을(를) 선택하셨군요!`);
+            }
+        });
+    });
+
+    // ✅ 빠른 버튼 접기/펼치기
+    if (toggleBtn && quickBtns) {
+        toggleBtn.addEventListener("click", () => {
+            if (quickBtns.classList.contains("hidden")) {
+                quickBtns.classList.remove("hidden");
+                toggleBtn.textContent = "▼";
+            } else {
+                quickBtns.classList.add("hidden");
+                toggleBtn.textContent = "▲";
+            }
+        });
     }
 });
