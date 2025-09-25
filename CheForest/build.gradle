@@ -84,6 +84,9 @@ dependencies {
     // WebSocket 보안을 위한 spring-security-messaging 의존성 추가
     implementation 'org.springframework.security:spring-security-messaging'
 
+//    api관련 키값 넣어놓은 .env 파일 읽게하는 용도
+    implementation 'me.paulschwarz:spring-dotenv:3.0.0'
+
 }
 
 def generated = "$buildDir/generated/sources/annotationProcessor/java/main"
