@@ -1,15 +1,17 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <html>
 <head>
-  <title>chat test</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>chat</title>
 </head>
 <body>
 
-<h4>와글와글 요리이야기</h4>
+  <div id="chatBox" style="border:1px solid #000000; width:300px; height:350px; overflow-y:scroll;"></div>
 
-<div id="chatBox" style="border:1px solid #000000; width:300px; height:350px; overflow-y:scroll;"></div>
-
-<input type="text" id="msgInput" placeholder="메시지를 입력하세요..." onkeydown="handleKey(event)" style="width:300px; height:30px;">
+  <input type="text" id="msgInput" placeholder="메시지를 입력하세요..." onkeydown="handleKey(event)" style="width:300px; height:30px;">
 
 
 <%--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--%>
@@ -19,6 +21,7 @@
 <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 
 <script>
+
   // let : 변수
   // const : 상수
   // function : 함수
@@ -60,8 +63,7 @@
     // 프로필 이미지
     const img = document.createElement("img");
     img.src = chat.profile || "/image/default.png";
-    img.width = 25; img.height = 25;
-    img.style.borderRadius = "50%";
+    img.width = 25; img.height = 25; img.style.borderRadius = "50%";
 
     // 닉네임 + 메시지
     const span = document.createElement("span");
@@ -101,6 +103,7 @@
   connect();
 
 </script>
+
 </body>
 </html>
 

@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
 import org.springframework.security.config.annotation.web.socket.EnableWebSocketSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,7 +15,6 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-@EnableWebSocketSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -41,6 +41,7 @@ public class SecurityConfig {
                                 "/mypage/**",
                                 "/이런식으로 더 추가하면 됩니다./**"
                         ).authenticated()
+
 
                         // [3] 나머지 페이지는 모두 허용
                         .anyRequest().permitAll()
