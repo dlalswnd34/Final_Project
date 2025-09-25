@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+// made by yes_ung
 @Service
 @RequiredArgsConstructor
 public class AdminService {

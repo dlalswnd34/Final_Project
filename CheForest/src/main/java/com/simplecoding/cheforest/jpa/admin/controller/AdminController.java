@@ -5,28 +5,38 @@ import com.simplecoding.cheforest.jpa.admin.dto.AccountStatusDTO;
 import com.simplecoding.cheforest.jpa.admin.dto.CountTodayNewBoardDTO;
 import com.simplecoding.cheforest.jpa.admin.dto.TodaySignUpUsersDto;
 import com.simplecoding.cheforest.jpa.admin.service.AdminService;
+import com.simplecoding.cheforest.jpa.auth.dto.MemberAdminDto;
+import com.simplecoding.cheforest.jpa.auth.service.MemberService;
+import com.simplecoding.cheforest.jpa.inquiries.dto.InquiryWithNicknameDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-
+// made by yes_ung
 @RequiredArgsConstructor
 @Log4j2
 @Controller
 public class AdminController {
 
     private final AdminService ytAdminService;
+    private final MemberService MemberService;
 
     @GetMapping("/admin")
     public String mainTest(HttpServletRequest request, Model model) {
@@ -109,21 +119,21 @@ public class AdminController {
             isRunning.set(false);
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 
+
+    @ResponseBody
+    @GetMapping("/api/allMember")
+    public Map<String, Object> getPagedInquiries(@PageableDefault(size = 10) Pageable pageable) {
+        Page<MemberAdminDto> pageResult = MemberService.adminAllMember(pageable);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", pageResult.getContent());       // 실제 내용
+        response.put("total", pageResult.getTotalElements()); // 전체 개수
+        response.put("totalPages", pageResult.getTotalPages()); // 전체 페이지 수
+        response.put("page", pageResult.getNumber() + 1);     // 현재 페이지 번호 (1-based)
+        return response;
+    }
 
 
 }

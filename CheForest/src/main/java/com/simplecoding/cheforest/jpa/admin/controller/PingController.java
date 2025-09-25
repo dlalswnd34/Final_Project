@@ -1,8 +1,12 @@
 package com.simplecoding.cheforest.jpa.admin.controller;
 
+import com.simplecoding.cheforest.jpa.auth.entity.Member;
+import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,7 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
+// made by yes_ung
 @RestController
 public class PingController {
 
@@ -21,7 +25,10 @@ public class PingController {
     private final ConcurrentHashMap<String, String> sessionIdToUserId = new ConcurrentHashMap<>();
     private final Set<String> loggedInUserIds = ConcurrentHashMap.newKeySet();
 
-//    최대 동접자수
+    //  ✅ 추가: sessionId -> Member 정보 맵핑
+    private final ConcurrentHashMap<String, Member> sessionIdToMember = new ConcurrentHashMap<>();
+
+    //    최대 동접자수
     private int peakConcurrentUsers = 0;
 //     동접자수 기준 날짜
     private LocalDate peakDate = LocalDate.now();
@@ -64,6 +71,14 @@ public class PingController {
             sessionIdToUserId.put(sessionId, userId);
             // 유저ID -> 중복 제거된 로그인 유저 집합
             loggedInUserIds.add(userId);
+
+            // ✅ 세션에서 CustomUserDetails → Member 꺼내기
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.getPrincipal() instanceof CustomUserDetails userDetails) {
+                Member member = userDetails.getMember();
+                sessionIdToMember.put(sessionId, member);  // 저장
+            }
+
     // 누적 방문자 수 체크 (로그인 사용자 기준)
             if (uniqueVisitorsToday.add("LOGIN:" + userId)) {
                 totalVisitorsToday++;
@@ -113,6 +128,7 @@ public class PingController {
             }
 
             sessionIdToUserId.remove(sessionId);
+            sessionIdToMember.remove(sessionId); // ✅ 비로그인 처리 시 제거
         }
         // 최대 동접 갱신
         int currentActive = activeUsers.size();
@@ -147,6 +163,7 @@ public class PingController {
         // 세션->유저 맵핑 제거 & 유저 ID도 정리
         for (String expiredSessionId : expiredSessionIds) {
             String userId = sessionIdToUserId.remove(expiredSessionId);
+            sessionIdToMember.remove(expiredSessionId); // ✅ 같이 제거
 
             // userId가 더 이상 어떤 세션에서도 사용되지 않으면 제거
             boolean stillActive = sessionIdToUserId.containsValue(userId);
@@ -173,13 +190,23 @@ public class PingController {
         activeUsers.entrySet().removeIf(entry -> now - entry.getValue() > expiration);
 
         // 현재 접속 중인 로그인 사용자만 필터링
-        Set<String> onlineLoggedInUsers = new HashSet<>();
+        List<Map<String, Object>> onlineLoggedInUsers = new ArrayList<>();
         for (Map.Entry<String, String> entry : sessionIdToUserId.entrySet()) {
             String sessionId = entry.getKey();
-            String userId = entry.getValue();
 
             if (activeUsers.containsKey(sessionId)) {
-                onlineLoggedInUsers.add(userId); // 중복 로그인 제거됨
+                Member member = sessionIdToMember.get(sessionId);
+                if (member != null) {
+                    Map<String, Object> userInfo = new HashMap<>();
+                    userInfo.put("loginId", member.getLoginId());
+                    userInfo.put("nickname", member.getNickname());
+                    userInfo.put("email", member.getEmail());
+                    userInfo.put("role", member.getRole().name());
+                    userInfo.put("point", member.getPoint());
+                    userInfo.put("grade", member.getGrade());
+                    userInfo.put("profile", member.getProfile());
+                    onlineLoggedInUsers.add(userInfo);
+                }
             }
         }
 

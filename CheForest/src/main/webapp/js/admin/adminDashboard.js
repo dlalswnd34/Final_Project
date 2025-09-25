@@ -35,7 +35,7 @@ function fetchStats() {
         cache: false, // <-- 캐시 방지
         success: function(data) {
             $("#activeUsers").text(data.activeUsers);
-            $("#loggedInUsers").text(data.loggedInUsers);
+            $(".loggedInUsers").text(data.loggedInUsers);
             $("#peakConcurrentUsers").text(data.peakConcurrentUsers);
             $("#totalVisitorsToday").text(data.totalVisitorsToday);
             $("#totalVisitMemberToday").text(data.totalVisitMemberToday);
@@ -384,7 +384,7 @@ const PendingInquiryManager = {
                 <div style="display: flex; gap: 8px;">
                      <span class="recipe-badge ${inquiry.answerStatus}">
                      ${inquiry.answerStatus === '답변완료' ? '답변 완료' : '대기 중'}</span> 
-                    <span style="font-size: 10px; color: #64748b;">#${inquiry.inquiryId}</span>
+                    <span id="openInquiryId" data-inquiry-id="${inquiry.inquiryId}" style="font-size: 10px; color: #64748b;">#${inquiry.inquiryId}</span>
                 </div>
                 <span style="font-size: 12px; color: #64748b;">${AdminAllTabs.formatTimeAgo(inquiry.createdAt)}</span>
             </div>

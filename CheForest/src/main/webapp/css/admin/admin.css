@@ -1133,8 +1133,11 @@ body {
 
 .inquiry-answer-section {
     background: #f0fdf4;
-    border-top: 1px solid #dcfce7;
-    padding: 16px 20px;
+    border: 2px solid #dcfce7;
+    border-radius: 10px;
+    margin: 0 20px 16px 20px;
+    padding: 16px 20px ;
+
 }
 
 .inquiry-answer-header {
@@ -1565,15 +1568,6 @@ body {
     border-radius: 12px;
     padding: 16px;
     text-align: center;
-}
-
-.grade-badge {
-    font-size: 12px;
-    font-weight: 600;
-    padding: 4px 8px;
-    border-radius: 8px;
-    margin-bottom: 12px;
-    display: inline-block;
 }
 
 .grade-card.grade-씨앗 .grade-badge {
@@ -2066,6 +2060,8 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 4px;
+    /*상위 테이블 칸 크기 무시하고 독자적으로 크기선정*/
+    width: fit-content;
 }
 
 .grade-badge.grade-씨앗 {
