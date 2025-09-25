@@ -200,7 +200,8 @@
                                         </sec:authorize>
 
                                         <sec:authorize access="isAuthenticated()">
-                                            <form action="<c:url value='/logout'/>" method="post">
+                                            <form action="<c:url value='/auth/logout'/>" method="post">
+                                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                                                 <button type="submit"
                                                         class="w-full flex items-center justify-center px-3 py-2 bg-white border border-orange-200 hover:bg-orange-50 hover:border-orange-300 transition-all rounded-lg group">
                                                     <i data-lucide="log-out" class="h-4 w-4 text-orange-500 group-hover:text-orange-600 mr-2"></i>

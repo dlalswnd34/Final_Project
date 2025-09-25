@@ -24,6 +24,10 @@ public class CustomUserDetails implements UserDetails, Serializable {
         return member.getMemberIdx();
     }
 
+    public String getEmail() {
+        return member.getEmail();
+    }
+
 //   권한 정보는 멤버엔티티에 ROLE 필드에서 가지고 옴
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

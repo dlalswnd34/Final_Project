@@ -1,10 +1,9 @@
 package com.simplecoding.cheforest.jpa.board.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
-import com.simplecoding.cheforest.jpa.board.dto.BoardDetailDto;
-import com.simplecoding.cheforest.jpa.board.dto.BoardListDto;
-import com.simplecoding.cheforest.jpa.board.dto.BoardSaveReq;
-import com.simplecoding.cheforest.jpa.board.dto.BoardUpdateReq;
+import com.simplecoding.cheforest.jpa.board.dto.*;
 import com.simplecoding.cheforest.jpa.board.service.BoardService;
 import com.simplecoding.cheforest.jpa.file.dto.FileDto;
 import com.simplecoding.cheforest.jpa.file.service.FileService;
@@ -14,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ public class BoardController {
     public String list(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String keyword,
-            @PageableDefault(size = 9) Pageable pageable,
+            @PageableDefault(size = 9, sort = "insertTime", direction = Sort.Direction.DESC) Pageable pageable,
             @AuthenticationPrincipal CustomUserDetails loginUser,
             Model model
     ) {
@@ -77,8 +78,6 @@ public class BoardController {
         return "board/boardlist";
     }
 
-
-
     // 2. 글 작성 폼
     @GetMapping("/board/add")
     public String showAddForm(Model model) {
@@ -90,14 +89,19 @@ public class BoardController {
     @PostMapping("/board/add")
     public String add(
             @ModelAttribute BoardSaveReq dto,
-            @RequestParam(value = "images", required = false) List<MultipartFile> images,
-            @AuthenticationPrincipal MemberDetailDto loginUser
+            @AuthenticationPrincipal CustomUserDetails loginUser
     ) throws IOException {
+
+        // ✅ 이메일 꺼내는 방법
+        String email = loginUser.getMember().getEmail();
+        Long memberIdx = loginUser.getMember().getMemberIdx();
+
+        // 1) 글 + 대표 이미지 저장
         Long boardId = boardService.create(dto, loginUser.getEmail());
 
-        Long firstFileId = fileService.saveBoardFiles(boardId, loginUser.getMemberIdx(), images);
-        if (firstFileId != null) {
-            boardService.updateThumbnail(boardId, "/file/download?fileId=" + firstFileId);
+        // 2) 단계별 이미지 저장 (있으면)
+        if (dto.getInstructionImage() != null && !dto.getInstructionImage().isEmpty()) {
+            fileService.saveBoardFiles(boardId, loginUser.getMember().getMemberIdx(), dto.getInstructionImage());
         }
 
         String encodedCategory = URLEncoder.encode(dto.getCategory(), "UTF-8");
@@ -117,30 +121,30 @@ public class BoardController {
     }
 
     // 5. 글 수정
-    @PostMapping("/board/edit")
-    public String update(
-            @ModelAttribute BoardUpdateReq dto,
-            @RequestParam(value = "images", required = false) List<MultipartFile> images,
-            @RequestParam(value = "deleteImageIds", required = false) List<Long> deleteImageIds,
-            @AuthenticationPrincipal MemberDetailDto loginUser
-    ) throws IOException {
-        // 삭제할 파일 처리
-        if (deleteImageIds != null) {
-            deleteImageIds.forEach(fileService::deleteFile);
-        }
-
-        // 새 파일 업로드
-        Long firstFileId = fileService.saveBoardFiles(dto.getBoardId(), loginUser.getMemberIdx(), images);
-        if (firstFileId != null) {
-            boardService.updateThumbnail(dto.getBoardId(), "/file/download?fileId=" + firstFileId);
-        }
-
-        // DB 업데이트
-        boardService.update(dto, loginUser.getEmail());
-
-        String encodedCategory = URLEncoder.encode(dto.getCategory(), "UTF-8");
-        return "redirect:/board/list?category=" + encodedCategory;
-    }
+//    @PostMapping("/board/edit")
+//    public String update(
+//            @ModelAttribute BoardUpdateReq dto,
+//            @RequestParam(value = "images", required = false) List<MultipartFile> images,
+//            @RequestParam(value = "deleteImageIds", required = false) List<Long> deleteImageIds,
+//            @AuthenticationPrincipal MemberDetailDto loginUser
+//    ) throws IOException {
+//        // 삭제할 파일 처리
+//        if (deleteImageIds != null) {
+//            deleteImageIds.forEach(fileService::deleteFile);
+//        }
+//
+//        // 새 파일 업로드
+//        Long firstFileId = fileService.saveBoardFiles(dto.getBoardId(), loginUser.getMemberIdx(), images);
+//        if (firstFileId != null) {
+//            boardService.updateThumbnail(dto.getBoardId(), "/file/download?fileId=" + firstFileId);
+//        }
+//
+//        // DB 업데이트
+//        boardService.update(dto, loginUser.getEmail());
+//
+//        String encodedCategory = URLEncoder.encode(dto.getCategory(), "UTF-8");
+//        return "redirect:/board/list?category=" + encodedCategory;
+//    }
 
     // 6. 글 삭제
     @PostMapping("/board/delete")
@@ -163,10 +167,29 @@ public class BoardController {
     // 8. 상세 조회
     @GetMapping("/board/view")
     public String view(@RequestParam("boardId") Long boardId, Model model,
-                       @AuthenticationPrincipal MemberDetailDto loginUser) {
+                       @AuthenticationPrincipal MemberDetailDto loginUser) throws Exception {
         BoardDetailDto board = boardService.getBoardDetail(boardId);
+
+        // JSON 파싱
+        ObjectMapper mapper = new ObjectMapper();
+        List<StepDto> instructions = new ArrayList<>();
+
+        if (board.getContent() != null && !board.getContent().isBlank()) {
+            try {
+                instructions = mapper.readValue(
+                        board.getContent(),
+                        new TypeReference<List<StepDto>>() {}
+                );
+            } catch (Exception e) {
+                // 만약 JSON 파싱 실패하면 그냥 빈 리스트 유지
+                e.printStackTrace();
+            }
+        }
+
         model.addAttribute("board", board);
         model.addAttribute("loginUser", loginUser);
+        model.addAttribute("instructions", instructions); // JSP에서 사용할 데이터
+
 
         return "board/boardview";
     }

@@ -45,4 +45,5 @@ public class Board extends BaseTimeEntity {
 
     private Integer cookTime;
     private String difficulty;
+    private String prepareAmount;
 }

@@ -79,7 +79,7 @@ public class BoardRepositoryDsl {
 
     // 상세 조회
     public BoardDetailDto findBoardDetail(Long boardId) {
-        QBoard board = QBoard.board;
+        QBoard  board = QBoard.board;
         QMember member = QMember.member;
 
         return queryFactory
@@ -88,6 +88,7 @@ public class BoardRepositoryDsl {
                         board.category.as("category"),
                         board.title.as("title"),
                         board.prepare.as("prepare"),
+                        board.prepareAmount.as("prepareAmount"),
                         board.content.as("content"),
                         board.thumbnail.as("thumbnail"),
                         member.nickname.as("nickname"),
@@ -96,7 +97,10 @@ public class BoardRepositoryDsl {
                         board.viewCount.as("viewCount"),
                         board.likeCount.as("likeCount"),
                         board.insertTime.as("insertTime"),
-                        board.updateTime.as("updateTime")
+                        board.updateTime.as("updateTime"),
+                        member.grade.as("grade"),
+                        board.cookTime.as("cookTime"),
+                        board.difficulty.as("difficulty")
                 ))
                 .from(board)
                 .join(board.writer, member)
