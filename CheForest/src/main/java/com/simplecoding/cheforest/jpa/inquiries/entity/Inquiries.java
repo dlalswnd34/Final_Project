@@ -34,6 +34,7 @@ public class Inquiries {
     private String isFaq;
     private Date createdAt;
     private Date answerAt;
+    private Long likeCount;
 
 
 

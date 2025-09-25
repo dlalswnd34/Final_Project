@@ -553,25 +553,29 @@ const AdminAllTabs = {
 
     // 탭 이벤트 설정
     setupTabEvents() {
-        // 회원 탭 이벤트
         document.addEventListener('click', (e) => {
-            if (e.target.matches('[data-user-tab]')) {
-                const tabName = e.target.getAttribute('data-user-tab');
+            const userTabBtn = e.target.closest('[data-user-tab]');
+            if (userTabBtn) {
+                const tabName = userTabBtn.getAttribute('data-user-tab');
+                console.log('[DEBUG] user tab 클릭됨:', tabName); // ✅ 확인용
                 this.switchUserTab(tabName);
             }
 
-            if (e.target.matches('[data-recipe-tab]')) {
-                const tabName = e.target.getAttribute('data-recipe-tab');
+            const recipeTabBtn = e.target.closest('[data-recipe-tab]');
+            if (recipeTabBtn) {
+                const tabName = recipeTabBtn.getAttribute('data-recipe-tab');
                 this.switchRecipeTab(tabName);
             }
 
-            if (e.target.matches('[data-post-tab]')) {
-                const tabName = e.target.getAttribute('data-post-tab');
+            const postTabBtn = e.target.closest('[data-post-tab]');
+            if (postTabBtn) {
+                const tabName = postTabBtn.getAttribute('data-post-tab');
                 this.switchPostTab(tabName);
             }
 
-            if (e.target.matches('[data-settings-tab]')) {
-                const tabName = e.target.getAttribute('data-settings-tab');
+            const settingsTabBtn = e.target.closest('[data-settings-tab]');
+            if (settingsTabBtn) {
+                const tabName = settingsTabBtn.getAttribute('data-settings-tab');
                 this.switchSettingsTab(tabName);
             }
         });
@@ -667,7 +671,7 @@ const AdminAllTabs = {
                         <div class="header-controls">
                             <div class="search-box">
                                 <i data-lucide="search" class="search-icon"></i>
-                                <input type="text" placeholder="회원 이름 또는 이메일 검색..." class="search-input" id="user-search">
+                                <input type="text" placeholder="회원 이름 또는 관리번호 검색..." class="search-input" id="user-search">
                             </div>
                             <select class="filter-select" id="user-sort">
                                 <option value="joinDate">가입일순</option>
@@ -702,9 +706,6 @@ const AdminAllTabs = {
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 48px;">
-                                        <input type="checkbox" id="select-all-users">
-                                    </th>
                                     <th>회원 정보</th>
                                     <th>등급/상태</th>
                                     <th>활동</th>
@@ -729,10 +730,7 @@ const AdminAllTabs = {
     // 회원 테이블 행 렌더링
     renderUsersTableRows() {
         return sampleUsers.map(user => `
-            <tr>
-                <td>
-                    <input type="checkbox" data-user-id="${user.id}">
-                </td>
+            <tr> 
                 <td>
                     <div class="user-info">
                         <div class="user-avatar">
@@ -742,9 +740,9 @@ const AdminAllTabs = {
                             ${user.isOnline ? '<div class="online-indicator"></div>' : ''}
                         </div>
                         <div class="user-details">
-                            <h4>${user.name}${user.isOnline ? '<span class="online-badge">온라인</span>' : ''}</h4>
+                            <h4>${user.name}  ${user.isOnline ? '<span class="online-badge">온라인</span>' : ''}</h4>
                             <div class="user-email">
-                                <i data-lucide="mail" style="width: 12px; height: 12px;"></i>
+                                ${user.email ? '<i data-lucide="mail" style="width: 12px; height: 12px;"></i>' : ''}
                                 ${user.email}
                             </div>
                         </div>
@@ -806,7 +804,7 @@ const AdminAllTabs = {
         });
         
         // 테이블 다시 렌더링 (필터링 적용)
-        this.renderUsersManagement();
+        this.renderUsersTableRows();
     },
 
     // 레시피 관리 렌더링
@@ -1121,14 +1119,14 @@ const AdminAllTabs = {
         const modal = document.getElementById('inquiry-answer-modal');
         const originalInquiry = document.getElementById('original-inquiry');
         const answerContent = document.getElementById('answer-content');
-        
+
         // 원본 문의 내용 표시
         originalInquiry.innerHTML = `
             <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
                 <div style="display: flex; gap: 8px;">
                      <span class="recipe-badge ${inquiry.answerStatus}">
                      ${inquiry.answerStatus === '답변완료' ? '답변 완료' : '대기 중'}</span> 
-                    <span style="font-size: 10px; color: #64748b;">#${inquiry.inquiryId}</span>
+                    <span id="openInquiryId" data-inquiry-id="${inquiry.inquiryId}" style="font-size: 10px; color: #64748b;">#${inquiry.inquiryId}</span>
                 </div>
                 <span style="font-size: 12px; color: #64748b;">${AdminAllTabs.formatTimeAgo(inquiry.createdAt)}</span>
             </div>
@@ -1156,15 +1154,47 @@ const AdminAllTabs = {
     },
 
     // 답변 제출
-    submitAnswer() {
-        const answerContent = document.getElementById('answer-content').value;
+    submitAnswer: async function (){
+        const answerContent = document.getElementById('answer-content').value.trim();
+        const inquiryId = document.getElementById('openInquiryId').dataset.inquiryId;
+
+        if (!inquiryId) {
+            this.showNotification('문의 ID를 찾을 수 없습니다. 다시 시도해주세요.', 'error');
+            return;
+        }
+
         if (!answerContent.trim()) {
             this.showNotification('답변 내용을 입력해주세요.', 'error');
             return;
         }
-        
-        this.showNotification('답변이 성공적으로 전송되었습니다!', 'success');
-        this.closeInquiryAnswer();
+        try {
+            const response = await fetch('/inquiries/answer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    inquiryId: inquiryId,
+                    answerContent: answerContent
+                })
+            });
+
+            if (response.ok) {
+                this.showNotification('답변이 성공적으로 전송되었습니다!', 'success');
+                this.closeInquiryAnswer();
+            } else {
+                this.showNotification('답변 저장에 실패했습니다.', 'error');
+            }
+        } catch (error) {
+            console.error("에러 발생:", error);
+            this.showNotification('서버 오류가 발생했습니다. 관리자에게 문의하세요', 'error');
+        }
+        InquiryManager.loadInquiries();
+        PendingInquiryManager.fetchInquiriesAllCount();
+        PendingInquiryManager.fetchPendingCount();
+        PendingInquiryManager.fetchAnsweredCount();
+        PendingInquiryManager.fetchTodayCount();
+        PendingInquiryManager.fetchPendingInquiries();
     },
 
     // 사용자 액션 표시

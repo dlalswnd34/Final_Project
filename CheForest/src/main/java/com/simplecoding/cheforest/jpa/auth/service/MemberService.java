@@ -1,5 +1,6 @@
 package com.simplecoding.cheforest.jpa.auth.service;
 
+import com.simplecoding.cheforest.jpa.auth.dto.MemberAdminDto;
 import com.simplecoding.cheforest.jpa.auth.dto.MemberSignupDto;
 import com.simplecoding.cheforest.jpa.auth.dto.MemberDetailDto;
 import com.simplecoding.cheforest.jpa.auth.dto.MemberUpdateDto;
@@ -8,6 +9,8 @@ import com.simplecoding.cheforest.jpa.auth.repository.MemberRepository;
 import com.simplecoding.cheforest.jpa.common.MapStruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,4 +93,14 @@ public class MemberService {
     public boolean existsByEmail(String email) {
         return memberRepository.existsByEmail(email);
     }
+
+    // ADMIN 통계용 작성한 게시글,댓글수 추가한 전체 회원정보(페이지네이션)
+    public Page<MemberAdminDto> adminAllMember(Pageable pageable) {
+        return memberRepository.findAllWithBoardCounts(pageable);
+    }
+
+
+
+
+
 }

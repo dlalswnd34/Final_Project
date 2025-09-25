@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+// made by yes_ung
 @Repository
 public class AdminRepository {
 
@@ -58,7 +58,7 @@ public class AdminRepository {
                 "        SELECT\n" +
                 "            CASE\n" +
                 "                WHEN SUSPENSION IS NOT NULL THEN '제재 계정'\n" +
-                "                WHEN LAST_LOGIN_DATE >= ADD_MONTHS(SYSDATE, -1) THEN '활동 계정'\n" +
+                "                WHEN LAST_LOGIN_TIME >= ADD_MONTHS(SYSDATE, -1) THEN '활동 계정'\n" +
                 "                ELSE '휴면 계정'\n" +
                 "            END AS 계정상태\n" +
                 "        FROM MEMBER\n" +

@@ -124,7 +124,7 @@
                             <div class="stat-info">
                                 <p class="stat-label">현재 접속자</p>
                                 <h3 class="stat-number"><span id="activeUsers">0</span></h3>
-                                <p class="stat-labelColor1">인증 접속자 <span id="loggedInUsers">0</span></p>
+                                <p class="stat-labelColor1">인증 접속자 <span class="loggedInUsers">0</span></p>
 
                             </div>
                             <div class="stat-icon iconSize1">
@@ -339,10 +339,10 @@
                     <div class="stat-card card-blue">
                         <div class="stat-content">
                             <div class="stat-info">
-                                <h3 class="stat-number">10</h3>
+                                <h3 class="stat-number">${allMemberCount}</h3>
                                 <p class="stat-label">전체 회원</p>
                             </div>
-                            <div class="stat-icon">
+                            <div class="iconSize2 stat-labelColor1">
                                 <i data-lucide="users" class="icon"></i>
                             </div>
                         </div>
@@ -350,10 +350,10 @@
                     <div class="stat-card card-green">
                         <div class="stat-content">
                             <div class="stat-info">
-                                <h3 class="stat-number">6</h3>
-                                <p class="stat-label">현재 접속</p>
+                                <h3 class="stat-number"><span class="loggedInUsers">0</span></h3>
+                                <p class="stat-label">현재 인증 접속자</p>
                             </div>
-                            <div class="stat-icon">
+                            <div class="iconSize2 stat-labelColor1">
                                 <i data-lucide="activity" class="icon"></i>
                             </div>
                         </div>
@@ -361,10 +361,10 @@
                     <div class="stat-card card-orange">
                         <div class="stat-content">
                             <div class="stat-info">
-                                <h3 class="stat-number">8</h3>
+                                <h3 class="stat-number">${accountStatusCounts.activeCount}</h3>
                                 <p class="stat-label">활성 회원</p>
                             </div>
-                            <div class="stat-icon">
+                            <div class="iconSize2 stat-labelColor1">
                                 <i data-lucide="user-check" class="icon"></i>
                             </div>
                         </div>
@@ -372,10 +372,10 @@
                     <div class="stat-card card-red">
                         <div class="stat-content">
                             <div class="stat-info">
-                                <h3 class="stat-number">2</h3>
+                                <h3 class="stat-number">${accountStatusCounts.suspendedCount}</h3>
                                 <p class="stat-label">제재 회원</p>
                             </div>
-                            <div class="stat-icon">
+                            <div class="iconSize2 stat-labelColor1">
                                 <i data-lucide="ban" class="icon"></i>
                             </div>
                         </div>
@@ -446,7 +446,7 @@
                                     <h3 class="stat-number">5</h3>
                                     <p class="stat-label">전체 레시피</p>
                                 </div>
-                                <div class="stat-icon">
+                                <div class="iconSize2 stat-labelColor1">
                                     <i data-lucide="chef-hat" class="icon"></i>
                                 </div>
                             </div>
@@ -457,7 +457,7 @@
                                     <h3 class="stat-number">3</h3>
                                     <p class="stat-label">공개</p>
                                 </div>
-                                <div class="stat-icon">
+                                <div class="iconSize2 stat-labelColor1">
                                     <i data-lucide="check-circle" class="icon"></i>
                                 </div>
                             </div>
@@ -468,7 +468,7 @@
                                     <h3 class="stat-number">1</h3>
                                     <p class="stat-label">임시저장</p>
                                 </div>
-                                <div class="stat-icon">
+                                <div class="iconSize2 stat-labelColor1">
                                     <i data-lucide="edit-3" class="icon"></i>
                                 </div>
                             </div>
@@ -479,7 +479,7 @@
                                     <h3 class="stat-number">1</h3>
                                     <p class="stat-label">비공개</p>
                                 </div>
-                                <div class="stat-icon">
+                                <div class="iconSize2 stat-labelColor1">
                                     <i data-lucide="eye-off" class="icon"></i>
                                 </div>
                             </div>
@@ -558,7 +558,7 @@
                                     <h3 class="stat-number">6</h3>
                                     <p class="stat-label">전체 게시글</p>
                                 </div>
-                                <div class="stat-icon">
+                                <div class="iconSize2 stat-labelColor1">
                                     <i data-lucide="book-open" class="icon"></i>
                                 </div>
                             </div>
@@ -569,7 +569,7 @@
                                     <h3 class="stat-number">5</h3>
                                     <p class="stat-label">공개</p>
                                 </div>
-                                <div class="stat-icon">
+                                <div class="iconSize2 stat-labelColor1">
                                     <i data-lucide="check-circle" class="icon"></i>
                                 </div>
                             </div>
@@ -580,7 +580,7 @@
                                     <h3 class="stat-number">1</h3>
                                     <p class="stat-label">신고</p>
                                 </div>
-                                <div class="stat-icon">
+                                <div class="iconSize2 stat-labelColor1">
                                     <i data-lucide="flag" class="icon"></i>
                                 </div>
                             </div>
@@ -591,7 +591,7 @@
                                     <h3 class="stat-number">2</h3>
                                     <p class="stat-label">인기글</p>
                                 </div>
-                                <div class="stat-icon">
+                                <div class="iconSize2 stat-labelColor1">
                                     <i data-lucide="star" class="icon"></i>
                                 </div>
                             </div>
@@ -645,25 +645,26 @@
                     </div>
 
                     <!-- 이벤트 통계 카드 -->
-                    <div class="stats-grid-large">
+                    <div class="stats-grid-small">
+<%--                    <div class="stats-grid-large">--%>
                         <div class="stat-card card-blue">
                             <div class="stat-content">
                                 <div class="stat-info">
                                     <h3 class="stat-number">4</h3>
                                     <p class="stat-label">전체 이벤트</p>
                                 </div>
-                                <div class="stat-icon">
+                                <div class="iconSize2 stat-labelColor1">
                                     <i data-lucide="calendar" class="icon"></i>
                                 </div>
                             </div>
                         </div>
-                        <div class="stat-card card-green">
+                        <div class="stat-card card-yellow">
                             <div class="stat-content">
                                 <div class="stat-info">
                                     <h3 class="stat-number">2</h3>
                                     <p class="stat-label">진행중</p>
                                 </div>
-                                <div class="stat-icon">
+                                <div class="iconSize2 stat-labelColor1">
                                     <i data-lucide="play" class="icon"></i>
                                 </div>
                             </div>
@@ -672,48 +673,48 @@
                             <div class="stat-content">
                                 <div class="stat-info">
                                     <h3 class="stat-number">1</h3>
-                                    <p class="stat-label">임시저장</p>
+                                    <p class="stat-label">비공개</p>
                                 </div>
-                                <div class="stat-icon">
+                                <div class="iconSize2 stat-labelColor1">
                                     <i data-lucide="edit-3" class="icon"></i>
                                 </div>
                             </div>
                         </div>
-                        <div class="stat-card card-blue">
+                        <div class="stat-card card-green">
                             <div class="stat-content">
                                 <div class="stat-info">
                                     <h3 class="stat-number">1</h3>
                                     <p class="stat-label">종료</p>
                                 </div>
-                                <div class="stat-icon">
+                                <div class="iconSize2 stat-labelColor1">
                                     <i data-lucide="check-circle" class="icon"></i>
                                 </div>
                             </div>
                         </div>
-                        <div class="stat-card card-orange">
-                            <div class="stat-content">
-                                <div class="stat-info">
-                                    <h3 class="stat-number">5,949</h3>
-                                    <p class="stat-label">총 참가자</p>
-                                    <p class="stat-sub">진행중: 1,703명</p>
-                                </div>
-                                <div class="stat-icon">
-                                    <i data-lucide="users" class="icon"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stat-card card-purple">
-                            <div class="stat-content">
-                                <div class="stat-info">
-                                    <h3 class="stat-number">575만원</h3>
-                                    <p class="stat-label">총 예산</p>
-                                    <p class="stat-sub">진행중: 320만원</p>
-                                </div>
-                                <div class="stat-icon">
-                                    <i data-lucide="trending-up" class="icon"></i>
-                                </div>
-                            </div>
-                        </div>
+<%--                        <div class="stat-card card-orange">--%>
+<%--                            <div class="stat-content">--%>
+<%--                                <div class="stat-info">--%>
+<%--                                    <h3 class="stat-number">5,949</h3>--%>
+<%--                                    <p class="stat-label">총 참가자</p>--%>
+<%--                                    <p class="stat-sub">진행중: 1,703명</p>--%>
+<%--                                </div>--%>
+<%--                                <div class="iconSize2 stat-labelColor1">--%>
+<%--                                    <i data-lucide="users" class="icon"></i>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                        <div class="stat-card card-purple">--%>
+<%--                            <div class="stat-content">--%>
+<%--                                <div class="stat-info">--%>
+<%--                                    <h3 class="stat-number">575만원</h3>--%>
+<%--                                    <p class="stat-label">총 예산</p>--%>
+<%--                                    <p class="stat-sub">진행중: 320만원</p>--%>
+<%--                                </div>--%>
+<%--                                <div class="iconSize2 stat-labelColor1">--%>
+<%--                                    <i data-lucide="trending-up" class="icon"></i>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
                     </div>
 
                     <!-- 이벤트 그리드 -->

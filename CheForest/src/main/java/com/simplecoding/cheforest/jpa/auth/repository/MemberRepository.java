@@ -1,6 +1,9 @@
 package com.simplecoding.cheforest.jpa.auth.repository;
 
+import com.simplecoding.cheforest.jpa.auth.dto.MemberAdminDto;
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -52,4 +55,32 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     // 특정 회원의 랭킹 (내 순위 구하기)
     @Query("SELECT COUNT(m) + 1 FROM Member m WHERE m.point > :point")
     Long findMyRank(@Param("point") Long point);
+
+    // made by yes_ung
+    // ADMIN 통계용 작성한 게시글,댓글수 추가한 전체 회원정보(페이지네이션)
+    @Query(
+            value = """
+        SELECT 
+            M.MEMBER_IDX AS memberIdx,
+            M.EMAIL AS email,
+            M.ROLE AS role,
+            M.NICKNAME AS nickname,
+            M.INSERT_TIME AS insertTime,
+            M.PROFILE AS profile,
+            M.SOCIAL_ID AS socialId,
+            M.PROVIDER AS provider,
+            M.UPDATE_TIME AS updateTime,
+            M.POINT AS point,
+            M.GRADE AS grade,
+            M.LAST_LOGIN_TIME AS lastLoginTime,
+            (SELECT COUNT(*) FROM BOARD B WHERE B.WRITER_IDX = M.MEMBER_IDX) AS boardCount,
+            (SELECT COUNT(*) FROM BOARD_REVIEW BR WHERE BR.WRITER_IDX = M.MEMBER_IDX) AS boardReviewCount
+        FROM MEMBER M
+        """,
+            countQuery = "SELECT COUNT(*) FROM MEMBER",
+            nativeQuery = true)
+    Page<MemberAdminDto> findAllWithBoardCounts(Pageable pageable);
+
+
+
 }
