@@ -51,5 +51,10 @@ public class Recipe {
 
     private Integer cookTime;
     private String difficulty;
+
+
+    // ✅ 미세먼지 좋은 음식 여부 (Y/N)
+    @Column(name = "DUST_GOOD", length = 1, nullable = false)
+    private String dustGood = "N";
 }
 
