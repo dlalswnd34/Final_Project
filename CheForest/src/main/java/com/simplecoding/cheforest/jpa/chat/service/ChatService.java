@@ -34,6 +34,7 @@ public class ChatService {
     // entity -> dto 변환
     public ChatMessage convertToDto(Message message) {
         ChatMessage dto = new ChatMessage();
+        dto.setSenderId(message.getSender().getMemberIdx());
         dto.setSender(message.getSender().getNickname());
         dto.setProfile(message.getSender().getProfile()); // 프로필 사진
         dto.setMessage(message.getContent());
