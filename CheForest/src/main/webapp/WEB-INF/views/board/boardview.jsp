@@ -186,8 +186,8 @@
               <div class="ingredients-grid">
                 <c:choose>
                   <c:when test="${not empty board.prepare or not empty board.prepareAmount}">
-                    <c:set var="ingredients" value="${fn:split(board.prepare, ' ')}" />
-                    <c:set var="amounts" value="${fn:split(board.prepareAmount, ' ')}" />
+                    <c:set var="ingredients" value="${fn:split(board.prepare, ',')}" />
+                    <c:set var="amounts" value="${fn:split(board.prepareAmount, ',')}" />
                     <c:forEach var="ing" items="${ingredients}" varStatus="status">
                       <div class="ingredient-item">
                         <span class="ingredient-name"><c:out value="${ing}" /></span>
