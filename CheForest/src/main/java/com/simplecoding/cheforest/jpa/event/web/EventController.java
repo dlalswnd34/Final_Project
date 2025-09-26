@@ -7,8 +7,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class EventController {
 
 	@GetMapping("/event/events")
-	public String showEventTest() {
+	public String showEvent() {
 		
 		return "event/events";
+	}
+
+	@GetMapping("/event/test")
+	public String showEventTest() {
+
+		return "event/test";
 	}
 }

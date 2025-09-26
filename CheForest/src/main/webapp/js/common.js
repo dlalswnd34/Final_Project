@@ -34,6 +34,9 @@ function showPage(page, id) {
         case 'events':
             window.location.href = '/event/events';
             break;
+        case 'test':
+            window.location.href = '/event/test';
+            break;
         case 'mypage':
             window.location.href = '/mypage/mypage';
             break;

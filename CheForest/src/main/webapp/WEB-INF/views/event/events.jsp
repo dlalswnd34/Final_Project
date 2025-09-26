@@ -116,7 +116,7 @@
                 <div class="card-content">
                     <!-- 액션 버튼 -->
                     <div class="card-actions">
-                        <button class="btn btn-primary" onclick="startTest()">
+                        <button class="btn btn-primary" onclick="showPage('test')">
                             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path d="M9 12l2 2 4-4"/>
                                 <path d="M21 12c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z"/>
