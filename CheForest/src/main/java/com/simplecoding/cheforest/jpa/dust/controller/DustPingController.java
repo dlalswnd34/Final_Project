@@ -2,11 +2,17 @@ package com.simplecoding.cheforest.jpa.dust.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.simplecoding.cheforest.jpa.dust.dto.DustDto;
+import com.simplecoding.cheforest.jpa.dust.entity.DustCache;
+import com.simplecoding.cheforest.jpa.dust.repository.DustCacheRepository;
+import com.simplecoding.cheforest.jpa.weather.dto.WeatherDto;
+import com.simplecoding.cheforest.jpa.recipe.dto.RecipeDto;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -14,13 +20,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @RestController
+@RequiredArgsConstructor
 public class DustPingController {
 
-    // ✅ 반드시 Encoding Key (%2B, %3D 포함 버전)
     private static final String SERVICE_KEY_ENCODING =
             "3WEYjbpIjKwt0F0YJNn1HsEtZUeiUTA%2BOTnqYz%2BHPB8X0o29U8OYJIEdTL5b4IMz0G16W1oMj6cVRNp4fnL1dA%3D%3D";
 
@@ -33,17 +38,22 @@ public class DustPingController {
     };
 
     private final ObjectMapper om = new ObjectMapper();
+    private final DustCacheRepository dustCacheRepository;
 
-    @Getter @NoArgsConstructor @AllArgsConstructor
-    static class DustDto {
-        private String sido;
-        private String pm10;       private String pm10Grade;
-        private String pm25;       private String pm25Grade;
-        private String dataTime;
-        private String resultCode;
-        private String resultMsg;
-        private String url;
-        private String raw;
+    // ✅ Flask 서버 호출 (AI 추천 레시피)
+    private List<RecipeDto> fetchAiRecipes(String grade) {
+        try {
+            String url = "http://localhost:5000/recommend/ai?grade="
+                    + URLEncoder.encode(grade, StandardCharsets.UTF_8);
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<RecipeDto[]> resp =
+                    restTemplate.getForEntity(url, RecipeDto[].class);
+            RecipeDto[] body = resp.getBody();
+            return body != null ? Arrays.asList(body) : Collections.emptyList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
     }
 
     // ✅ 등급 변환
@@ -53,7 +63,9 @@ public class DustPingController {
             int v = Integer.parseInt(val);
             if (pm25) return v <= 15 ? "좋음" : v <= 35 ? "보통" : v <= 75 ? "나쁨" : "매우나쁨";
             return v <= 30 ? "좋음" : v <= 80 ? "보통" : v <= 150 ? "나쁨" : "매우나쁨";
-        } catch (Exception ignored) { return "정보없음"; }
+        } catch (Exception ignored) {
+            return "정보없음";
+        }
     }
 
     // ✅ 평균 계산
@@ -61,13 +73,16 @@ public class DustPingController {
         int sum = 0, n = 0;
         for (String s : vals) {
             if (s != null && !s.isBlank() && !"-".equals(s)) {
-                try { sum += Integer.parseInt(s); n++; } catch (Exception ignored) {}
+                try {
+                    sum += Integer.parseInt(s);
+                    n++;
+                } catch (Exception ignored) {}
             }
         }
         return n == 0 ? "-" : String.valueOf(Math.round((double) sum / n));
     }
 
-    // ✅ 시도별 오늘의 미세먼지 현황
+    // ✅ 전국 시도별 미세먼지 현황
     @GetMapping("/dust/today-all")
     public List<DustDto> getTodayAll() {
         List<DustDto> out = new ArrayList<>();
@@ -77,13 +92,34 @@ public class DustPingController {
         return out;
     }
 
+    // ✅ 특정 지역 정보 (미세먼지 + 날씨 + 추천 레시피)
+    @GetMapping("/dust/info")
+    public DustDto getRegionInfo(@RequestParam String sido) {
+        DustDto dust = fetchOnce(sido);
+
+        // 1. 날씨 (임시 값 or 별도 API 연동 가능)
+        WeatherDto weather = new WeatherDto();
+        weather.setRegion(sido);
+        weather.setTemperature("21");
+        weather.setSky("흐림");
+        weather.setHumidity("80%");
+        weather.setBaseDate("20250924");
+        weather.setBaseTime("09:00");
+        dust.setWeather(weather);
+
+        // 2. Flask AI 추천 레시피
+        List<RecipeDto> recipes = fetchAiRecipes(dust.getPm10Grade());
+        dust.setRecipes(recipes);
+
+        return dust;
+    }
+
+    // ✅ 실제 API 호출 (DB 캐시 연동)
     private DustDto fetchOnce(String sido) {
         String finalUrl = null;
         try {
-            // sidoName 인코딩
             String encodedSido = URLEncoder.encode(sido, StandardCharsets.UTF_8);
 
-            // 최종 URL (serviceKey는 인코딩 키 그대로 붙이기)
             finalUrl = BASE_URL
                     + "?serviceKey=" + SERVICE_KEY_ENCODING
                     + "&returnType=json"
@@ -92,7 +128,6 @@ public class DustPingController {
                     + "&sidoName=" + encodedSido
                     + "&ver=1.0";
 
-            // HttpURLConnection 방식
             URL url = new URL(finalUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -100,12 +135,9 @@ public class DustPingController {
             conn.setRequestProperty("User-Agent", "Mozilla/5.0");
 
             int code = conn.getResponseCode();
-            BufferedReader rd;
-            if (code >= 200 && code <= 300) {
-                rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
-            } else {
-                rd = new BufferedReader(new InputStreamReader(conn.getErrorStream(), StandardCharsets.UTF_8));
-            }
+            BufferedReader rd = (code >= 200 && code <= 300)
+                    ? new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))
+                    : new BufferedReader(new InputStreamReader(conn.getErrorStream(), StandardCharsets.UTF_8));
 
             StringBuilder sb = new StringBuilder();
             String line;
@@ -116,9 +148,9 @@ public class DustPingController {
             conn.disconnect();
 
             String body = sb.toString().trim();
+
             if (body.isEmpty() || body.charAt(0) != '{') {
-                return new DustDto(sido, "-", "정보없음", "-", "정보없음", "-",
-                        "EX", "Non-JSON", finalUrl, snippet(body));
+                return loadFromCacheOrDefault(sido, "Non-JSON");
             }
 
             JsonNode resp = om.readTree(body).path("response");
@@ -126,10 +158,10 @@ public class DustPingController {
             String resultMsg  = resp.path("header").path("resultMsg").asText("");
 
             if (!"00".equals(resultCode)) {
-                return new DustDto(sido, "-", "정보없음", "-", "정보없음", "-",
-                        resultCode, resultMsg, finalUrl, snippet(body));
+                return loadFromCacheOrDefault(sido, resultMsg);
             }
 
+            // ✅ 정상 응답 처리
             JsonNode items = resp.path("body").path("items");
             List<String> p10 = new ArrayList<>(), p25 = new ArrayList<>();
             String dataTime = "-";
@@ -142,18 +174,64 @@ public class DustPingController {
             }
 
             String pm10 = avg(p10), pm25 = avg(p25);
-            return new DustDto(sido, pm10, grade(pm10, false), pm25, grade(pm25, true),
-                    dataTime, resultCode, resultMsg, finalUrl, null);
+            String pm10Grade = grade(pm10, false);
+            String pm25Grade = grade(pm25, true);
+
+            // ✅ DB 캐시 저장
+            DustCache cache = new DustCache();
+            cache.setSido(sido);
+            cache.setPm10(pm10);
+            cache.setPm25(pm25);
+            cache.setPm10Grade(pm10Grade);
+            cache.setPm25Grade(pm25Grade);
+            cache.setDataTime(dataTime);
+            cache.setResultCode("OK");
+            dustCacheRepository.save(cache);
+
+            // DTO 반환
+            DustDto dto = new DustDto();
+            dto.setSido(sido);
+            dto.setPm10(pm10);
+            dto.setPm25(pm25);
+            dto.setPm10Grade(pm10Grade);
+            dto.setPm25Grade(pm25Grade);
+            dto.setDataTime(dataTime);
+            dto.setResultCode("00");
+            dto.setResultMsg("성공");
+            dto.setUrl(finalUrl);
+            return dto;
 
         } catch (Exception e) {
-            return new DustDto(sido, "-", "정보없음", "-", "정보없음", "-",
-                    "EX", e.getMessage(), finalUrl, null);
+            return loadFromCacheOrDefault(sido, e.getMessage());
         }
     }
 
-    private String snippet(String s) {
-        if (s == null) return null;
-        String t = s.replaceAll("\\s+", " ");
-        return t.length() > 200 ? t.substring(0, 200) + "..." : t;
+    // ✅ 실패 시 캐시에서 불러오기
+    private DustDto loadFromCacheOrDefault(String sido, String errMsg) {
+        return dustCacheRepository.findById(sido)
+                .map(cache -> {
+                    DustDto dto = new DustDto();
+                    dto.setSido(cache.getSido());
+                    dto.setPm10(cache.getPm10());
+                    dto.setPm25(cache.getPm25());
+                    dto.setPm10Grade(cache.getPm10Grade());
+                    dto.setPm25Grade(cache.getPm25Grade());
+                    dto.setDataTime(cache.getDataTime());
+                    dto.setResultCode("EX");
+                    dto.setResultMsg("API 오류, 이전값 반환: " + errMsg);
+                    return dto;
+                })
+                .orElseGet(() -> {
+                    DustDto dto = new DustDto();
+                    dto.setSido(sido);
+                    dto.setPm10("-");
+                    dto.setPm25("-");
+                    dto.setPm10Grade("정보없음");
+                    dto.setPm25Grade("정보없음");
+                    dto.setDataTime("-");
+                    dto.setResultCode("EX");
+                    dto.setResultMsg("DB에도 값 없음: " + errMsg);
+                    return dto;
+                });
     }
 }

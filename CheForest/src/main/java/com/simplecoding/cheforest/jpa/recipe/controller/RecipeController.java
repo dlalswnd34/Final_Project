@@ -87,8 +87,24 @@ public class RecipeController {
     // ✅ 4. 레시피 JSON API (Flask에서 호출용)
     @GetMapping("/api/list")
     @ResponseBody
-    public List<RecipeDto> getRecipeListApi(@RequestParam(defaultValue = "") String categoryKr) {
-        // 페이징 없이 모든 레시피 조회 (필요시 제한 가능)
+    public List<RecipeDto> getRecipeListApi(
+            @RequestParam(defaultValue = "") String categoryKr,
+            @RequestParam(required = false) String dustGood // ✅ 추가
+    ) {
+        if (dustGood != null && dustGood.equalsIgnoreCase("Y")) {
+            // ✅ dust_good 전용 조회
+            return recipeService.getRandomDustGood(50); // 최대 50개 가져오기
+        }
+
+        // ✅ 기존 카테고리 조회 그대로 유지
         return recipeService.getRecipeList(categoryKr, "", PageRequest.of(0, 50)).getContent();
+    }
+    // ✅ 5. 미세먼지에 좋은 음식 JSON API
+    @GetMapping("/api/dust-good")
+    @ResponseBody
+    public List<RecipeDto> getDustGoodRecipes(
+            @RequestParam(defaultValue = "5") int count // 기본 5개 가져오기
+    ) {
+        return recipeService.getRandomDustGood(count);
     }
 }

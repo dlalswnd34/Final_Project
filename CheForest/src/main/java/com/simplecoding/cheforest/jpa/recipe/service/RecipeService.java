@@ -58,7 +58,6 @@ public class RecipeService {
     }
 
     // 3. 랜덤 레시피 조회
-    // 3. 랜덤 레시피 조회
     public List<RecipeDto> getRandomRecipes(String categoryKr, int count) {
         // ✅ Repository에서 랜덤 전체 불러온 후 Service에서 개수 제한
         return recipeRepository.findRandomByCategory(categoryKr)
@@ -86,7 +85,14 @@ public class RecipeService {
                 )
                 .toList();
     }
-
+    // ✅ (추가) 미세먼지에 좋은 음식 레시피 추천
+    public List<RecipeDto> getRandomDustGood(int count) {
+        return recipeRepository.findRandomDustGood() // ✅ Repository에 쿼리 추가 필요
+                .stream()
+                .limit(count)
+                .map(mapStruct::toDto)
+                .toList();
+    }
     // 4. 인기 레시피 TOP10
     public List<RecipeDto> getBest3Recipes() {
         return mapStruct.toDtoList(recipeRepository.findTop3ByOrderByLikeCountDescRecipeIdDesc());

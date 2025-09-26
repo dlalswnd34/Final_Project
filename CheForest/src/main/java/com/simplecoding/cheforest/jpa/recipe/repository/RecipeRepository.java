@@ -51,6 +51,13 @@ public interface RecipeRepository extends JpaRepository<Recipe, String> {
     // 7. 카테고리별 레시피 개수
     @Query("SELECT r.categoryKr, COUNT(r) FROM Recipe r GROUP BY r.categoryKr")
     List<Object[]> countRecipesByCategory();
-
+    // 8. 미세먼지 좋은 음식 (dust_good = 'Y') 랜덤 조회
+    @Query(value = """
+        SELECT *
+        FROM API_RECIPE
+        WHERE DUST_GOOD = 'Y'
+        ORDER BY DBMS_RANDOM.VALUE
+        """, nativeQuery = true)
+    List<Recipe> findRandomDustGood();
 }
 
