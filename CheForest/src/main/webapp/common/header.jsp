@@ -141,7 +141,6 @@
                         data-page="ingredients"
                 >
                     <span>계절 식재료</span>
-                    <i data-lucide="chevron-down" class="h-4 w-4"></i>
                     <span class="nav-underline"></span>
                 </button>
 
