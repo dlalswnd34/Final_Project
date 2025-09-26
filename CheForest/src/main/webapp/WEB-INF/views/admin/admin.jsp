@@ -385,7 +385,53 @@
 
             <!-- 회원 관리 기능 -->
             <div id="user-management-content">
+                <section class="management-section">
+                    <div class="management-card">
+                        <div class="management-header">
+                            <div class="header-left">
+                                <h3 class="management-title">
+                                    <i data-lucide="users" class="title-icon"></i>
+                                    회원 관리
+                                </h3>
+                            </div>
+                            <div class="header-controls">
+                                <div class="search-box">
+                                    <i data-lucide="search" class="search-icon"></i>
+                                    <input type="text" placeholder="회원 이름 또는 관리번호 검색..." class="search-input" id="user-search">
+                                </div>
+                                <select class="filter-select" id="user-sort">
+                                    <option value="joinDate">가입일순</option>
+                                    <option value="lastLogin">최근 로그인</option>
+                                    <option value="name">이름순</option>
+                                    <option value="posts">게시글순</option>
+                                </select>
+                                <button class="sort-btn" id="user-sort-order">
+                                    <i data-lucide="sort-desc" class="btn-icon"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="management-tabs">
+                            <div class="tab-list">
+                                <button class="tab-btn active" data-user-tab="all">
+                                    <i data-lucide="users" class="tab-icon"></i>
+                                    <span>전체 회원 </span>
+                                </button>
+                                <button class="tab-btn" data-user-tab="online">
+                                    <i data-lucide="activity" class="tab-icon"></i>
+                                    <span>현재 접속 </span>
+                                </button>
+                                <button class="tab-btn" data-user-tab="suspended">
+                                    <i data-lucide="ban" class="tab-icon"></i>
+                                    <span>제재 회원 </span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-container" id="table-container">
                 <!-- JavaScript로 동적 생성 -->
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
 
@@ -800,10 +846,6 @@
                     <!-- 문의사항 리스트 -->
                     <div class="inquiry-management-list" id="inquiries-management-list">
                         <!-- JavaScript로 동적 생성 -->
-                    </div>
-                    <!-- 페이지네이션 영역 -->
-                    <div id="pagination" class="pagination-container">
-                        <!-- JavaScript로 버튼 동적 생성 -->
                     </div>
                 </div>
             </section>

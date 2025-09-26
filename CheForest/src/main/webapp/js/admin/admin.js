@@ -12,135 +12,6 @@ let memberStatusChart = null;
 let monthlyActivityChart = null;
 
 // 샘플 데이터
-const sampleUsers = [
-    {
-        id: 1,
-        name: '요리왕김셰프',
-        email: 'cookingking@email.com',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face',
-        joinDate: '2024-01-15',
-        lastLogin: '2024-12-18T10:30:00',
-        grade: '숲',
-        status: 'active',
-        posts: 156,
-        comments: 432,
-        isOnline: true
-    },
-    {
-        id: 2,
-        name: '파스타러버',
-        email: 'pastalover@email.com',
-        avatar: 'https://images.unsplash.com/photo-1494790108755-2616b667c825?w=40&h=40&fit=crop&crop=face',
-        joinDate: '2024-02-20',
-        lastLogin: '2024-12-18T09:15:00',
-        grade: '나무',
-        status: 'active',
-        posts: 89,
-        comments: 234,
-        isOnline: true
-    },
-    {
-        id: 3,
-        name: '매운맛조아',
-        email: 'spicyfood@email.com',
-        joinDate: '2024-03-10',
-        lastLogin: '2024-12-17T18:45:00',
-        grade: '새싹',
-        status: 'suspended',
-        posts: 34,
-        comments: 67,
-        isOnline: false
-    },
-    {
-        id: 4,
-        name: '디저트퀸',
-        email: 'dessertqueen@email.com',
-        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face',
-        joinDate: '2024-04-05',
-        lastLogin: '2024-12-18T11:20:00',
-        grade: '나무',
-        status: 'active',
-        posts: 127,
-        comments: 345,
-        isOnline: true
-    },
-    {
-        id: 5,
-        name: '라멘마스터',
-        email: 'ramenmaster@email.com',
-        joinDate: '2024-05-12',
-        lastLogin: '2024-12-16T14:30:00',
-        grade: '뿌리',
-        status: 'inactive',
-        posts: 23,
-        comments: 45,
-        isOnline: false
-    },
-    {
-        id: 6,
-        name: '홈쿠킹러버',
-        email: 'homecooking@email.com',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face',
-        joinDate: '2024-06-18',
-        lastLogin: '2024-12-18T08:45:00',
-        grade: '새싹',
-        status: 'active',
-        posts: 45,
-        comments: 89,
-        isOnline: false
-    },
-    {
-        id: 7,
-        name: '건강요리사',
-        email: 'healthy@email.com',
-        joinDate: '2024-07-22',
-        lastLogin: '2024-12-15T16:20:00',
-        grade: '씨앗',
-        status: 'banned',
-        posts: 8,
-        comments: 12,
-        isOnline: false
-    },
-    {
-        id: 8,
-        name: '전통음식지킴이',
-        email: 'traditional@email.com',
-        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop&crop=face',
-        joinDate: '2024-08-14',
-        lastLogin: '2024-12-18T12:10:00',
-        grade: '나무',
-        status: 'active',
-        posts: 67,
-        comments: 156,
-        isOnline: true
-    },
-    {
-        id: 9,
-        name: '베이킹초보',
-        email: 'bakingbeginner@email.com',
-        joinDate: '2024-09-30',
-        lastLogin: '2024-12-17T20:30:00',
-        grade: '뿌리',
-        status: 'active',
-        posts: 12,
-        comments: 34,
-        isOnline: false
-    },
-    {
-        id: 10,
-        name: '세계요리탐험가',
-        email: 'worldfood@email.com',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40&h=40&fit=crop&crop=face',
-        joinDate: '2024-10-08',
-        lastLogin: '2024-12-18T13:45:00',
-        grade: '새싹',
-        status: 'active',
-        posts: 29,
-        comments: 67,
-        isOnline: true
-    }
-];
-
 const sampleRecipes = [
     {
         id: 1,
@@ -468,7 +339,7 @@ const InquiryManager = {
             return;
         }
 
-        container.innerHTML = inquiries.map(inquiry => `
+        const contentHTML = inquiries.map(inquiry => `
             <div class="inquiry-card">
                 <div class="inquiry-header">
                     <div class="inquiry-main-content">
@@ -510,6 +381,11 @@ const InquiryManager = {
             </div>
         `).join('');
 
+        const paginationHTML = `
+        <div id="pagination" class="pagination-container"></div>`;
+
+        container.innerHTML = contentHTML + paginationHTML;
+
         lucide.createIcons();
     },
 
@@ -524,6 +400,166 @@ const InquiryManager = {
         pagination.innerHTML = buttons;
     }
 };
+const MemberManager = {
+    currentPage: 1,
+    pageSize: 10,
+    latestMemberList: [],
+
+    loadAllMember: function (page = 1) {
+        this.showLoading();
+
+        fetch(`/api/allMember?page=${page - 1}&size=${this.pageSize}`)
+            .then(res => res.json())
+            .then(data => {
+                this.currentPage = data.page;
+                this.latestMemberList = data.data;
+                this.renderMember(data.data);
+                this.renderPagination(data.totalPages);
+            })
+            .catch(error => {
+                console.error("문의사항 불러오기 실패:", error);
+                this.showError();
+            });
+    },
+
+    showLoading: function () {
+        const container = document.getElementById("table-container");
+        if (container) {
+            container.innerHTML = `<p style="padding: 20px; text-align: center; color: #94a3b8; font-size: 30px">불러오는 중...</p>`;
+        }
+    },
+
+    showError: function () {
+        const container = document.getElementById("table-container");
+        if (container) {
+            container.innerHTML = `<p style="padding: 20px; text-align: center; color: red; font-size: 30px">데이터를 불러오는 데 실패했습니다.</p>`;
+        }
+    },
+    renderMember: function (MemberList) {
+        const container = document.getElementById("table-container");
+        if (!container) return;
+
+        if (MemberList.length === 0) {
+            container.innerHTML = "<p>해당하는 회원이 없습니다.</p>";
+            return;
+        }
+
+        const contentHTML1 = `<table class="data-table">
+        <thead>
+            <tr>
+                <th>회원 정보</th>
+                <th>등급/상태</th>
+                <th>활동</th>
+                <th>가입일</th>
+                <th>최근 로그인</th>
+                <th style="text-align: right;">관리</th>
+            </tr>
+        </thead>
+        <tbody id="users-table-body">`;
+
+        const contentHTML2 = MemberList.map(user => {
+            const nickname = user.nickname ?? '알수없음';
+            const profile = user.profile ?? '';
+            const isOnline = user.isOnline ?? false;
+            const email = user.email ?? '';
+            const grade = user.grade ?? '없음';
+            const status = user.status ?? 'unknown';
+            const boardCount = user.boardCount ?? 0;
+            const boardReviewCount = user.boardReviewCount ?? 0;
+            const insertTime = user.insertTime ?? '';
+            const lastLoginTime = user.lastLoginTime ?? '';
+            const memberIdx = user.memberIdx ?? 0;
+
+            const avatarHTML = profile
+                ? `<img src="${profile}" alt="${nickname}">`
+                : `<span>${String(nickname).charAt(0)}</span>`;
+
+            const statusIcon = this.getStatusIconName ? this.getStatusIconName(status) : 'help-circle';
+            const statusText = this.getStatusText ? this.getStatusText(status) : '알 수 없음';
+
+            return `
+            <tr> 
+                <td>
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <div class="avatar">
+                                ${avatarHTML}
+                            </div>
+                            ${isOnline ? '<div class="online-indicator"></div>' : ''}
+                        </div>
+                        <div class="user-details">
+                            <h4>${nickname} ${isOnline ? '<span class="online-badge">온라인</span>' : ''}</h4>
+                            <div class="user-email">
+                                ${email ? '<i data-lucide="mail" style="width: 12px; height: 12px;"></i>' : ''}
+                                ${email}
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <div class="grade-badge grade-${grade}">${grade}</div>
+                        <div class="status-badge status-${status}">
+                            <i data-lucide="${statusIcon}" class="status-icon"></i>
+                            ${statusText}
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div style="font-size: 12px;">
+                        <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 2px;">
+                            <i data-lucide="file-text" style="width: 12px; height: 12px; color: #94a3b8;"></i>
+                            ${boardCount} 게시글
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <i data-lucide="message-circle" style="width: 12px; height: 12px; color: #94a3b8;"></i>
+                            ${boardReviewCount} 댓글
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div style="font-size: 12px; color: #64748b;">
+                        ${AdminAllTabs.formatDate ? AdminAllTabs.formatDate(insertTime) : ''}
+                    </div>
+                </td>
+                <td>
+                    <div style="font-size: 12px; color: #64748b;">
+                        ${AdminAllTabs.formatDate ? AdminAllTabs.formatDate(lastLoginTime) : ''}
+                        <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">
+                            ${AdminAllTabs.formatTime ? AdminAllTabs.formatTime(lastLoginTime) : ''}
+                        </div>
+                    </div>
+                </td>
+                <td style="text-align: right;">
+                    <button class="action-btn" onclick="AdminAllTabs.showUserActions(${memberIdx})">
+                        <i data-lucide="more-vertical" style="width: 16px; height: 16px;"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+        }).join('');
+
+        const contentHTML3 = `</tbody></table>`;
+        const paginationHTML = `<div id="pagination" class="pagination-container"></div>`;
+
+        container.innerHTML = contentHTML1 + contentHTML2 + contentHTML3 + paginationHTML;
+
+        lucide.createIcons();
+    }
+    ,
+
+    renderPagination: function (totalPages) {
+        const pagination = document.getElementById("pagination");
+        if (!pagination) return;
+
+        let buttons = "";
+        for (let i = 1; i <= totalPages; i++) {
+            buttons += `<button class="${i === this.currentPage ? 'active' : ''}" onclick="MemberManager.loadAllMember(${i})">${i}</button>`;
+        }
+        pagination.innerHTML = buttons;
+    }
+};
+
 
 
 // AdminAllTabs 메인 객체
@@ -557,7 +593,7 @@ const AdminAllTabs = {
             const userTabBtn = e.target.closest('[data-user-tab]');
             if (userTabBtn) {
                 const tabName = userTabBtn.getAttribute('data-user-tab');
-                console.log('[DEBUG] user tab 클릭됨:', tabName); // ✅ 확인용
+                console.log('[DEBUG] user tab 클릭됨:', tabName); // ✅ 디버깅용
                 this.switchUserTab(tabName);
             }
 
@@ -655,140 +691,7 @@ const AdminAllTabs = {
 
     // 회원 관리 렌더링
     renderUsersManagement() {
-        const container = document.getElementById('user-management-content');
-        if (!container) return;
-
-        container.innerHTML = `
-            <section class="management-section">
-                <div class="management-card">
-                    <div class="management-header">
-                        <div class="header-left">
-                            <h3 class="management-title">
-                                <i data-lucide="users" class="title-icon"></i>
-                                회원 관리
-                            </h3>
-                        </div>
-                        <div class="header-controls">
-                            <div class="search-box">
-                                <i data-lucide="search" class="search-icon"></i>
-                                <input type="text" placeholder="회원 이름 또는 관리번호 검색..." class="search-input" id="user-search">
-                            </div>
-                            <select class="filter-select" id="user-sort">
-                                <option value="joinDate">가입일순</option>
-                                <option value="lastLogin">최근 로그인</option>
-                                <option value="name">이름순</option>
-                                <option value="posts">게시글순</option>
-                            </select>
-                            <button class="sort-btn" id="user-sort-order">
-                                <i data-lucide="sort-desc" class="btn-icon"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="management-tabs">
-                        <div class="tab-list">
-                            <button class="tab-btn active" data-user-tab="all">
-                                <i data-lucide="users" class="tab-icon"></i>
-                                <span>전체 회원 (${sampleUsers.length})</span>
-                            </button>
-                            <button class="tab-btn" data-user-tab="online">
-                                <i data-lucide="activity" class="tab-icon"></i>
-                                <span>현재 접속 (${sampleUsers.filter(u => u.isOnline).length})</span>
-                            </button>
-                            <button class="tab-btn" data-user-tab="suspended">
-                                <i data-lucide="ban" class="tab-icon"></i>
-                                <span>제재 회원 (${sampleUsers.filter(u => u.status === 'suspended' || u.status === 'banned').length})</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>회원 정보</th>
-                                    <th>등급/상태</th>
-                                    <th>활동</th>
-                                    <th>가입일</th>
-                                    <th>최근 로그인</th>
-                                    <th style="text-align: right;">관리</th>
-                                </tr>
-                            </thead>
-                            <tbody id="users-table-body">
-                                ${this.renderUsersTableRows()}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-        `;
-
-        // 아이콘 재생성
-        lucide.createIcons();
-    },
-
-    // 회원 테이블 행 렌더링
-    renderUsersTableRows() {
-        return sampleUsers.map(user => `
-            <tr> 
-                <td>
-                    <div class="user-info">
-                        <div class="user-avatar">
-                            <div class="avatar">
-                                ${user.avatar ? `<img src="${user.avatar}" alt="${user.name}">` : user.name.charAt(0)}
-                            </div>
-                            ${user.isOnline ? '<div class="online-indicator"></div>' : ''}
-                        </div>
-                        <div class="user-details">
-                            <h4>${user.name}  ${user.isOnline ? '<span class="online-badge">온라인</span>' : ''}</h4>
-                            <div class="user-email">
-                                ${user.email ? '<i data-lucide="mail" style="width: 12px; height: 12px;"></i>' : ''}
-                                ${user.email}
-                            </div>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <div class="grade-badge grade-${user.grade}">${user.grade}</div>
-                        <div class="status-badge status-${user.status}">
-                            <i data-lucide="${this.getStatusIconName(user.status)}" class="status-icon"></i>
-                            ${this.getStatusText(user.status)}
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <div style="font-size: 12px;">
-                        <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 2px;">
-                            <i data-lucide="file-text" style="width: 12px; height: 12px; color: #94a3b8;"></i>
-                            ${user.posts} 게시글
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 4px;">
-                            <i data-lucide="message-circle" style="width: 12px; height: 12px; color: #94a3b8;"></i>
-                            ${user.comments} 댓글
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <div style="font-size: 12px; color: #64748b;">
-                        ${this.formatDate(user.joinDate)}
-                    </div>
-                </td>
-                <td>
-                    <div style="font-size: 12px; color: #64748b;">
-                        ${this.formatDate(user.lastLogin)}
-                        <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">
-                            ${this.formatTime(user.lastLogin)}
-                        </div>
-                    </div>
-                </td>
-                <td style="text-align: right;">
-                    <button class="action-btn" onclick="AdminAllTabs.showUserActions(${user.id})">
-                        <i data-lucide="more-vertical" style="width: 16px; height: 16px;"></i>
-                    </button>
-                </td>
-            </tr>
-        `).join('');
+        MemberManager.loadAllMember();
     },
 
     // 회원 탭 전환
@@ -803,8 +706,7 @@ const AdminAllTabs = {
             }
         });
         
-        // 테이블 다시 렌더링 (필터링 적용)
-        this.renderUsersTableRows();
+
     },
 
     // 레시피 관리 렌더링
