@@ -358,7 +358,7 @@
         lucide.createIcons();
     });
 </script>
-<script src="/js/common.js"></script>
+<script src="/js/common/common.js"></script>
 <script src="/js/recipe.js"></script>
 
 <jsp:include page="/common/footer.jsp"/>

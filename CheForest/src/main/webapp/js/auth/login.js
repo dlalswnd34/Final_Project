@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 뒤로가기 버튼
     if (backBtn) {
         backBtn.addEventListener('click', function() {
-            window.location.href = '/';
+            window.location.href = '../..';
         });
     }
 
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (res.ok) {
                     showModal('로그인 성공!', 'CheForest에 오신 것을 환영합니다!');
-                    modalOkBtn.onclick = () => { window.location.href = '/'; };
+                    modalOkBtn.onclick = () => { window.location.href = '../..'; };
                 } else {
                     showToast('아이디 또는 비밀번호가 잘못되었습니다.', 'error');
                 }

@@ -580,7 +580,7 @@
         </div>
     </div>
 
-    <script src="/js/common.js"></script>
+    <script src="/js/common/common.js"></script>
     <script src="/js/qna.js"></script>
 </body>
 </html>

@@ -329,7 +329,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <script src="/js/common.js"></script>
-    <script src="/js/header.js"></script>
+    <script src="/js/common/common.js"></script>
+    <script src="/js/common/header.js"></script>
 </body>
 </html>

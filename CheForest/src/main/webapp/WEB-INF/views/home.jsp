@@ -549,7 +549,7 @@
     </main>
 
     <!-- JavaScript 파일 -->
-    <script src="/js/common.js"></script>
+    <script src="/js/common/common.js"></script>
     <script src="/js/home.js"></script>
     <script>
         // Lucide 아이콘 초기화
