@@ -10,7 +10,7 @@ function showPage(page, id) {
 
     switch (page) {
         case 'home':
-            window.location.href = '/';
+            window.location.href = '../..';
             break;
         case 'recipes':
             window.location.href = '/recipe/list';

@@ -569,7 +569,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <script src="/js/common.js"></script>
+    <script src="/js/common/common.js"></script>
     <script src="/js/board/board.js"></script>
 
     <!-- 게시판 콘텐츠 로드 -->

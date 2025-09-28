@@ -50,6 +50,9 @@ public class MemberService {
         Member member = mapStruct.toEntity(dto);
         member.setPassword(encodedPw);
         member.setRole(Member.Role.USER); // 기본 권한 USER
+        member.setTempPasswordYn("N");
+        member.setPoint(0L);
+        member.setGrade("씨앗");
 
         memberRepository.save(member);
     }
@@ -98,9 +101,4 @@ public class MemberService {
     public Page<MemberAdminDto> adminAllMember(Pageable pageable) {
         return memberRepository.findAllWithBoardCounts(pageable);
     }
-
-
-
-
-
 }

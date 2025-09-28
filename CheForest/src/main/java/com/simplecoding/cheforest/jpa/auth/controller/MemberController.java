@@ -6,6 +6,7 @@ import com.simplecoding.cheforest.jpa.auth.dto.MemberUpdateDto;
 import com.simplecoding.cheforest.jpa.auth.service.MemberService;
 import com.simplecoding.cheforest.jpa.auth.service.EmailService;
 import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,26 +34,25 @@ public class MemberController {
     @GetMapping("/auth/register")
     public String registerView(Model model) {
         model.addAttribute("memberSignupDto", new MemberSignupDto());
-        return "auth/register";
+        return "auth/signup";
     }
 
     // ================= 회원가입 처리 =================
     @PostMapping("/auth/register/addition")
+    @ResponseBody
     public String register(@Valid @ModelAttribute MemberSignupDto dto,
                            BindingResult bindingResult,
                            @SessionAttribute(name = "emailAuthCode", required = false) String serverAuthCode,
                            Model model) {
         if (bindingResult.hasErrors()) {
-            return "auth/register";
+            return "❌ 입력값을 확인해주세요.";
         }
         try {
             memberService.register(dto, serverAuthCode);
-            model.addAttribute("msg", "✅ 회원가입이 완료되었습니다.");
+            return "OK"; // ✅ 가입 성공 시 문자열만 반환
         } catch (IllegalArgumentException e) {
-            model.addAttribute("msg", "❌ " + e.getMessage());
-            return "auth/register";
+            return "❌ " + e.getMessage();
         }
-        return "auth/register";
     }
 
     // ================= 회원정보 수정 페이지 =================
@@ -108,8 +108,9 @@ public class MemberController {
     @PostMapping("/auth/send-email-code")
     @ResponseBody
     public String sendEmailCode(@RequestParam String email,
-                                @SessionAttribute(name = "emailAuthCode", required = false) String code) {
+                                HttpSession session) {
         String newCode = emailService.sendAuthCode(email);
+        session.setAttribute("emailAuthCode", newCode);
         return "OK";
     }
 

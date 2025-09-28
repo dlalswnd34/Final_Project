@@ -313,7 +313,7 @@
   </svg>
 </button>
 
-<script src="/js/common.js"></script>
+<script src="/js/common/common.js"></script>
 <script src="/js/board/boardwrite.js"></script>
 <jsp:include page="/common/footer.jsp"/>
 
