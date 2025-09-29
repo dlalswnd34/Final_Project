@@ -1,5 +1,6 @@
 package com.simplecoding.cheforest.jpa.review.entity;
 
+import com.simplecoding.cheforest.jpa.board.entity.Board;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -14,12 +15,19 @@ import java.time.LocalDateTime;
 public class Review {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "review_seq_gen")
+    @SequenceGenerator(
+            name = "review_seq_gen",
+            sequenceName = "BOARD_REVIEW_SEQ",
+            allocationSize = 1
+    )
     @Column(name = "REVIEW_ID")
-    private Long reviewId; // 댓글 PK
+    private Long reviewId;
 
-    @Column(name = "BOARD_ID", nullable = false)
-    private Long boardId;  // 게시글 ID (무조건 게시글에만 달림)
+    // ================= 연관관계 추가 =================
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "BOARD_ID", nullable = false)
+    private Board board;   // 게시글 엔티티와 연관관계
 
     @Column(name = "WRITER_IDX", nullable = false)
     private Long writerIdx; // 작성자 ID

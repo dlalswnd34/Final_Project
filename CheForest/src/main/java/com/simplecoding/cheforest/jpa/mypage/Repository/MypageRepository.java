@@ -84,7 +84,7 @@ public interface MypageRepository extends JpaRepository<Member, Long> {
 
     // 내가 작성한 댓글 수
     @Query("SELECT COUNT(r) FROM Review r " +
-            "WHERE r.writer.memberIdx = :memberIdx " +
+            "WHERE r.writerIdx = :memberIdx " +
             "AND (:keyword IS NULL OR r.content LIKE %:keyword%)")
     int countMyComments(@Param("memberIdx") Long memberIdx,
                         @Param("keyword") String keyword);

@@ -12,17 +12,18 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL) // null 필드 제외
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReviewDto {
 
     private Long reviewId;     // 댓글 ID
     private Long boardId;      // 게시글 ID
     private Long writerIdx;    // 작성자 ID
+    private String nickname;   // ✅ 작성자 닉네임 추가
     private String content;    // 내용
     private LocalDateTime insertTime;
     private LocalDateTime updateTime;
     private Long parentId;     // 부모 댓글 ID
 
-    // 대댓글 리스트 (댓글일 경우만 채워짐)
     private List<ReviewDto> replies = new ArrayList<>();
 }
+

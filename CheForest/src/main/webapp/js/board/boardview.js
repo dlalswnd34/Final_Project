@@ -1,292 +1,234 @@
 // CheForest 게시글 상세보기 JavaScript
-// 주의: 이 파일은 기본 구조만 제공합니다. 실제 동작은 JSP 개발 시 구현해주세요.
-
 document.addEventListener('DOMContentLoaded', function() {
 
-    // 뒤로가기 버튼
-    const backBtn = document.getElementById('backBtn');
-    if (backBtn) {
-        backBtn.addEventListener('click', function() {
-            // TODO: JSP에서 게시판 목록 페이지로 이동 구현
-            console.log('게시판 목록으로 이동');
-        });
-    }
-
-    // 수정 버튼
-    const editBtn = document.getElementById('editBtn');
-    if (editBtn) {
-        editBtn.addEventListener('click', function() {
-            // TODO: JSP에서 게시글 수정 페이지로 이동 구현
-            console.log('게시글 수정 페이지로 이동');
-        });
-    }
-
-    // 좋아요 버튼
-    const likeBtn = document.getElementById('likeBtn');
-    if (likeBtn) {
-        likeBtn.addEventListener('click', function() {
-            // TODO: JSP에서 좋아요 토글 구현
-            this.classList.toggle('liked');
-            console.log('좋아요 토글');
-        });
-    }
-
-    // 북마크 버튼
-    const bookmarkBtn = document.getElementById('bookmarkBtn');
-    if (bookmarkBtn) {
-        bookmarkBtn.addEventListener('click', function() {
-            // TODO: JSP에서 북마크 토글 구현
-            this.classList.toggle('bookmarked');
-            console.log('북마크 토글');
-        });
-    }
-
-    // 이모지 버튼
-    const emojiBtn = document.getElementById('emojiBtn');
-    if (emojiBtn) {
-        emojiBtn.addEventListener('click', function() {
-            // TODO: JSP에서 이모지 선택 모달 구현
-            console.log('이모지 선택');
-        });
-    }
-
-    // 댓글 등록 버튼
     const commentSubmitBtn = document.getElementById('commentSubmitBtn');
     const commentTextarea = document.getElementById('commentTextarea');
+    const commentsList = document.getElementById('commentsList');
 
+    const boardId = window.boardId || null;
+    const loginUser = window.loginUser || { memberIdx: 0, nickname: "익명" };
+
+    // ================= 댓글 초기 로드 =================
+    if (boardId) {
+        loadComments(boardId);
+    }
+
+    function loadComments(boardId) {
+        fetch(`/reviews/board/${boardId}`)
+            .then(res => res.json())
+            .then(data => {
+                commentsList.innerHTML = '';
+                if (data.length === 0) {
+                    commentsList.innerHTML = '<div class="empty-box">아직 댓글이 없습니다.</div>';
+                } else {
+                    data.forEach(review => renderComment(review));
+                }
+            })
+            .catch(err => console.error("댓글 불러오기 실패:", err));
+    }
+
+    // ================= 댓글 등록 =================
     if (commentSubmitBtn && commentTextarea) {
-        // 댓글 입력 시 버튼 활성화/비활성화
         commentTextarea.addEventListener('input', function() {
-            if (this.value.trim().length > 0) {
-                commentSubmitBtn.disabled = false;
-            } else {
-                commentSubmitBtn.disabled = true;
-            }
+            commentSubmitBtn.disabled = this.value.trim().length === 0;
         });
 
-        // 댓글 등록
         commentSubmitBtn.addEventListener('click', function() {
             const content = commentTextarea.value.trim();
-            if (content) {
-                // TODO: JSP에서 댓글 등록 AJAX 구현
-                console.log('댓글 등록:', content);
-                commentTextarea.value = '';
-                this.disabled = true;
-            }
+            if (!content) return;
+
+            fetch('/reviews', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    boardId: boardId,
+                    writerIdx: loginUser.memberIdx,   // ✅ 작성자 ID
+                    nickname: loginUser.nickname,     // ✅ 작성자 닉네임
+                    content: content,
+                    parentId: null
+                })
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error("댓글 등록 실패");
+                    return res.json();
+                })
+                .then(data => {
+                    renderComment(data, true); // 새 댓글은 위에 prepend
+                    commentTextarea.value = '';
+                    commentSubmitBtn.disabled = true;
+                })
+                .catch(err => console.error(err));
         });
     }
 
-    // 댓글 메뉴 버튼
-    const commentMenuBtn = document.getElementById('commentMenuBtn');
-    if (commentMenuBtn) {
-        commentMenuBtn.addEventListener('click', function() {
-            // TODO: JSP에서 댓글 메뉴 드롭다운 구현
-            console.log('댓글 메뉴 표시');
-        });
+    // ================= 댓글 DOM 추가 함수 =================
+    function renderComment(review, isNew = false) {
+        const div = document.createElement('div');
+        div.classList.add('comment-item');
+        div.setAttribute('data-review-id', review.reviewId);
+
+        let actionBtns = '';
+        if (loginUser.memberIdx === review.writerIdx) {
+            actionBtns = `
+              <div class="comment-actions">
+                <button class="edit-btn submit-btn small" data-id="${review.reviewId}">수정</button>
+                <button class="delete-btn submit-btn small" data-id="${review.reviewId}">삭제</button>
+              </div>
+            `;
+        }
+
+        div.innerHTML = `
+          <div class="comment-header">
+            <div class="comment-meta">
+              <span class="comment-nickname">${review.nickname || '익명'}</span>
+              <span class="comment-date">${formatDate(review.insertTime)}</span>
+            </div>
+          </div>
+          <div class="comment-body">
+            <p class="comment-content">${review.content}</p>
+            <div class="comment-buttons">
+              ${actionBtns}
+              <button class="replyBtn submit-btn small" data-parent-id="${review.reviewId}">답글</button>
+            </div>
+          </div>
+          <div class="replies"></div>
+        `;
+
+        if (isNew) {
+            commentsList.prepend(div);
+            // "아직 댓글이 없습니다" 안내 제거
+            const emptyBox = commentsList.querySelector('.empty-box');
+            if (emptyBox) emptyBox.remove();
+        } else {
+            commentsList.appendChild(div);
+        }
+
+        // 수정/삭제 이벤트
+        const editBtn = div.querySelector('.edit-btn');
+        if (editBtn) {
+            editBtn.addEventListener('click', () => editComment(review.reviewId, div));
+        }
+        const deleteBtn = div.querySelector('.delete-btn');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', () => deleteComment(review.reviewId, div));
+        }
+
+        // 답글 이벤트
+        const replyBtn = div.querySelector('.replyBtn');
+        if (replyBtn) {
+            replyBtn.addEventListener('click', () => showReplyForm(review.reviewId, div));
+        }
+
+        // 대댓글도 재귀 렌더링
+        if (review.replies && review.replies.length > 0) {
+            const repliesContainer = div.querySelector('.replies');
+            review.replies.forEach(reply => {
+                const replyEl = renderComment(reply);
+                repliesContainer.appendChild(replyEl);
+            });
+        }
+
+        return div;
     }
 
-    // 댓글 좋아요 버튼
-    const commentLikeBtn = document.getElementById('commentLikeBtn');
-    if (commentLikeBtn) {
-        commentLikeBtn.addEventListener('click', function() {
-            // TODO: JSP에서 댓글 좋아요 토글 구현
-            this.classList.toggle('liked');
-            console.log('댓글 좋아요 토글');
-        });
+    // ================= 댓글 수정 =================
+    function editComment(reviewId, commentElement) {
+        const contentEl = commentElement.querySelector('.comment-content');
+        const oldContent = contentEl.textContent;
+        const newContent = prompt("댓글을 수정하세요:", oldContent);
+        if (!newContent || newContent.trim() === "" || newContent === oldContent) return;
+
+        fetch(`/reviews/${reviewId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                content: newContent,
+                writerIdx: loginUser.memberIdx
+            })
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("댓글 수정 실패");
+                return res.json();
+            })
+            .then(data => {
+                contentEl.textContent = data.content;
+            })
+            .catch(err => console.error(err));
     }
 
-    // 댓글 싫어요 버튼
-    const commentDislikeBtn = document.getElementById('commentDislikeBtn');
-    if (commentDislikeBtn) {
-        commentDislikeBtn.addEventListener('click', function() {
-            // TODO: JSP에서 댓글 싫어요 토글 구현
-            this.classList.toggle('disliked');
-            console.log('댓글 싫어요 토글');
-        });
+    // ================= 댓글 삭제 =================
+    function deleteComment(reviewId, commentElement) {
+        if (!confirm("정말 이 댓글을 삭제하시겠습니까?")) return;
+
+        fetch(`/reviews/${reviewId}`, { method: 'DELETE' })
+            .then(res => {
+                if (!res.ok) throw new Error("댓글 삭제 실패");
+                return res.text();
+            })
+            .then(() => {
+                commentElement.remove();
+
+                // 댓글 없으면 "아직 댓글이 없습니다" 표시
+                if (!commentsList.querySelector('.comment-item')) {
+                    commentsList.innerHTML = '<div class="empty-box">아직 댓글이 없습니다.</div>';
+                }
+            })
+            .catch(err => console.error(err));
     }
 
-    // 답글 버튼
-    const replyBtn = document.getElementById('replyBtn');
-    const replyWrite = document.getElementById('replyWrite');
+    // ================= 답글 폼 표시 =================
+    function showReplyForm(parentId, commentElement) {
+        let replyForm = commentElement.querySelector('.reply-form');
+        if (replyForm) {
+            replyForm.remove(); // 이미 있으면 토글 제거
+            return;
+        }
 
-    if (replyBtn && replyWrite) {
-        replyBtn.addEventListener('click', function() {
-            // 답글 작성 영역 토글
-            if (replyWrite.style.display === 'none' || !replyWrite.style.display) {
-                replyWrite.style.display = 'block';
-            } else {
-                replyWrite.style.display = 'none';
-            }
-        });
-    }
+        replyForm = document.createElement('div');
+        replyForm.classList.add('reply-form');
+        replyForm.innerHTML = `
+          <textarea class="reply-textarea" placeholder="답글을 입력하세요"></textarea>
+          <button class="reply-submit submit-btn small">등록</button>
+        `;
 
-    // 답글 취소 버튼
-    const replyCancelBtn = document.getElementById('replyCancelBtn');
-    const replyTextarea = document.getElementById('replyTextarea');
+        const repliesContainer = commentElement.querySelector('.replies');
+        repliesContainer.prepend(replyForm);
 
-    if (replyCancelBtn && replyWrite && replyTextarea) {
-        replyCancelBtn.addEventListener('click', function() {
-            replyWrite.style.display = 'none';
-            replyTextarea.value = '';
-        });
-    }
+        const replyTextarea = replyForm.querySelector('.reply-textarea');
+        const replySubmit = replyForm.querySelector('.reply-submit');
 
-    // 답글 등록 버튼
-    const replySubmitBtn = document.getElementById('replySubmitBtn');
-
-    if (replySubmitBtn && replyTextarea) {
-        // 답글 입력 시 버튼 활성화/비활성화
-        replyTextarea.addEventListener('input', function() {
-            if (this.value.trim().length > 0) {
-                replySubmitBtn.disabled = false;
-            } else {
-                replySubmitBtn.disabled = true;
-            }
-        });
-
-        // 답글 등록
-        replySubmitBtn.addEventListener('click', function() {
+        replySubmit.addEventListener('click', () => {
             const content = replyTextarea.value.trim();
-            if (content) {
-                // TODO: JSP에서 답글 등록 AJAX 구현
-                console.log('답글 등록:', content);
-                replyTextarea.value = '';
-                replyWrite.style.display = 'none';
-                this.disabled = true;
-            }
+            if (!content) return;
+
+            fetch('/reviews', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    boardId: boardId,
+                    writerIdx: loginUser.memberIdx,
+                    nickname: loginUser.nickname,
+                    content: content,
+                    parentId: parentId
+                })
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error("답글 등록 실패");
+                    return res.json();
+                })
+                .then(data => {
+                    const replyEl = renderComment(data, false);
+                    repliesContainer.appendChild(replyEl);
+                    replyForm.remove();
+                })
+                .catch(err => console.error(err));
         });
     }
 
-    // 더 많은 댓글 보기 버튼
-    const loadMoreBtn = document.getElementById('loadMoreBtn');
-    if (loadMoreBtn) {
-        loadMoreBtn.addEventListener('click', function() {
-            // TODO: JSP에서 추가 댓글 로드 구현
-            console.log('더 많은 댓글 로드');
-        });
+    // ================= 공통 유틸 =================
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleString('ko-KR');
     }
-
-    // 텍스트 영역 자동 높이 조절
-    function autoResizeTextarea(textarea) {
-        textarea.style.height = 'auto';
-        textarea.style.height = textarea.scrollHeight + 'px';
-    }
-
-    // 모든 텍스트 영역에 자동 높이 조절 적용
-    const textareas = document.querySelectorAll('textarea');
-    textareas.forEach(textarea => {
-        textarea.addEventListener('input', function() {
-            autoResizeTextarea(this);
-        });
-    });
-
-    // 초기 버튼 상태 설정
-    if (commentSubmitBtn) {
-        commentSubmitBtn.disabled = true;
-    }
-
-    if (replySubmitBtn) {
-        replySubmitBtn.disabled = true;
-    }
-
-    // 탭 전환 기능
-    const tabTriggers = document.querySelectorAll('.tab-trigger');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    tabTriggers.forEach(trigger => {
-        trigger.addEventListener('click', function() {
-            const targetTab = this.getAttribute('data-tab');
-
-            // 모든 탭 버튼 비활성화
-            tabTriggers.forEach(t => t.classList.remove('active'));
-            // 모든 탭 콘텐츠 숨기기
-            tabContents.forEach(c => c.classList.remove('active'));
-
-            // 클릭된 탭 버튼 활성화
-            this.classList.add('active');
-            // 해당 탭 콘텐츠 표시
-            document.getElementById(targetTab + 'Content').classList.add('active');
-        });
-    });
-
-    // 스크롤 시 상단 네비게이션 그림자 효과
-    const topNav = document.querySelector('.top-nav');
-
-    if (topNav) {
-        window.addEventListener('scroll', function() {
-            if (window.scrollY > 100) {
-                topNav.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-            } else {
-                topNav.style.boxShadow = 'none';
-            }
-        });
-    }
-
-    // 이미지 로드 에러 처리
-    const images = document.querySelectorAll('img');
-    images.forEach(img => {
-        img.addEventListener('error', function() {
-            this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMiAxNkMxNC4yMDkxIDEgMTYgMTQuMjA5MSAxNiAxMkMxNiA5Ljc5MDg2IDE0LjIwOTEgOCAxMiA4QzkuNzkwODYgOCA4IDkuNzkwODYgOCAxMkM4IDE0LjIwOTEgOS43OTA4NiAxNiAxMiAxNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+';
-            this.alt = '이미지를 불러올 수 없습니다';
-        });
-    });
-
-    console.log('게시글 상세보기 페이지 초기화 완료');
 });
-
-// 공통 유틸리티 함수들
-
-// 날짜 포맷팅 함수
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now - date);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 1) {
-        return '오늘';
-    } else if (diffDays === 2) {
-        return '어제';
-    } else if (diffDays <= 7) {
-        return `${diffDays - 1}일 전`;
-    } else {
-        return date.toLocaleDateString('ko-KR');
-    }
-}
-
-// 숫자 포맷팅 함수
-function formatNumber(num) {
-    if (num >= 1000000) {
-        return (num / 1000000).toFixed(1) + 'M';
-    } else if (num >= 1000) {
-        return (num / 1000).toFixed(1) + 'K';
-    }
-    return num.toString();
-}
-
-// 텍스트 길이 제한 함수
-function limitText(text, maxLength) {
-    if (text.length <= maxLength) {
-        return text;
-    }
-    return text.substring(0, maxLength) + '...';
-}
-
-// 쿠키 설정 함수
-function setCookie(name, value, days) {
-    const expires = new Date();
-    expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-    document.cookie = name + '=' + value + ';expires=' + expires.toUTCString() + ';path=/';
-}
-
-// 쿠키 가져오기 함수
-function getCookie(name) {
-    const nameEQ = name + '=';
-    const ca = document.cookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-    }
-    return null;
-}

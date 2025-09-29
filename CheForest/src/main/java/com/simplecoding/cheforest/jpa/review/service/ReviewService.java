@@ -1,5 +1,7 @@
 package com.simplecoding.cheforest.jpa.review.service;
 
+import com.simplecoding.cheforest.jpa.board.entity.Board;
+import com.simplecoding.cheforest.jpa.common.MapStruct;
 import com.simplecoding.cheforest.jpa.review.dto.ReviewDto;
 import com.simplecoding.cheforest.jpa.review.entity.Review;
 import com.simplecoding.cheforest.jpa.review.repository.ReviewRepository;
@@ -8,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,44 +18,59 @@ import java.util.stream.Collectors;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final MapStruct mapStruct;
 
-    // 댓글/대댓글 등록
     @Transactional
     public ReviewDto save(ReviewDto dto) {
-        Review review = Review.builder()
-                .boardId(dto.getBoardId())
-                .writerIdx(dto.getWriterIdx())
-                .content(dto.getContent())
-                .parentId(dto.getParentId())
-                .build();
+        Review review = mapStruct.toEntity(dto);
+
+        if (dto.getBoardId() != null) {
+            Board board = new Board();
+            board.setBoardId(dto.getBoardId());
+            review.setBoard(board);
+        } else {
+            throw new IllegalArgumentException("boardId가 없습니다.");
+        }
 
         Review saved = reviewRepository.save(review);
-        return toDto(saved);
-    }
 
+        // ✅ MapStruct 변환
+        ReviewDto result = mapStruct.toDto(saved);
+        result.setBoardId(saved.getBoard().getBoardId());
+        result.setWriterIdx(saved.getWriterIdx());
+
+        // ✅ 닉네임을 DB/MemberService에서 가져올 수 있으면 세팅
+        if (dto.getNickname() != null) {
+            result.setNickname(dto.getNickname());
+        }
+
+        return result;
+    }
     // 댓글 수정
     @Transactional
     public ReviewDto update(ReviewDto dto) {
         Review review = reviewRepository.findById(dto.getReviewId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다. ID=" + dto.getReviewId()));
 
-        review.setContent(dto.getContent());
+        mapStruct.updateEntityFromDto(dto, review);
         review.setUpdateTime(LocalDateTime.now());
 
         Review updated = reviewRepository.save(review);
-        return toDto(updated);
+        return mapStruct.toDto(updated);
     }
 
-    // 게시글별 댓글 + 대댓글 조회 (대댓글까지만)
+    // 게시글별 댓글 + 대댓글 조회
     @Transactional(readOnly = true)
     public List<ReviewDto> getCommentsWithReplies(Long boardId) {
-        List<Review> parents = reviewRepository.findByBoardIdAndParentIdIsNullOrderByInsertTimeAsc(boardId);
+        List<Review> parents = reviewRepository.findByBoard_BoardIdAndParentIdIsNullOrderByInsertTimeAsc(boardId);
 
         return parents.stream().map(parent -> {
-            ReviewDto parentDto = toDto(parent);
+            ReviewDto parentDto = mapStruct.toDto(parent);
 
-            List<Review> replies = reviewRepository.findByParentIdOrderByInsertTimeAsc(parent.getReviewId());
-            List<ReviewDto> replyDtos = replies.stream().map(this::toDto).collect(Collectors.toList());
+            List<ReviewDto> replyDtos = reviewRepository.findByParentIdOrderByInsertTimeAsc(parent.getReviewId())
+                    .stream()
+                    .map(mapStruct::toDto)
+                    .collect(Collectors.toList());
 
             parentDto.setReplies(replyDtos);
             return parentDto;
@@ -64,7 +80,7 @@ public class ReviewService {
     // 게시글 삭제 시 댓글 전체 삭제
     @Transactional
     public void deleteByBoardId(Long boardId) {
-        reviewRepository.deleteByBoardId(boardId);
+        reviewRepository.deleteByBoard_BoardId(boardId);
     }
 
     // 댓글 삭제 (단일)
@@ -74,19 +90,5 @@ public class ReviewService {
             throw new IllegalArgumentException("존재하지 않는 댓글입니다. ID=" + reviewId);
         }
         reviewRepository.deleteById(reviewId);
-    }
-
-    // Entity -> DTO 변환
-    private ReviewDto toDto(Review review) {
-        return ReviewDto.builder()
-                .reviewId(review.getReviewId())
-                .boardId(review.getBoardId())
-                .writerIdx(review.getWriterIdx())
-                .content(review.getContent())
-                .insertTime(review.getInsertTime())
-                .updateTime(review.getUpdateTime())
-                .parentId(review.getParentId())
-                .replies(new ArrayList<>())
-                .build();
     }
 }

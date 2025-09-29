@@ -17,15 +17,20 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     // 댓글/대댓글 등록
-    @PostMapping("/add")
+    @PostMapping
     public ResponseEntity<ReviewDto> addReview(@RequestBody ReviewDto dto) {
+        if (dto.getBoardId() == null || dto.getWriterIdx() == null) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok(reviewService.save(dto));
     }
 
     // 댓글 수정
-    @PutMapping("/update")
-    public ResponseEntity<?> updateReview(@RequestBody ReviewDto dto) {
+    @PutMapping("/{reviewId}")
+    public ResponseEntity<?> updateReview(@PathVariable Long reviewId,
+                                          @RequestBody ReviewDto dto) {
         try {
+            dto.setReviewId(reviewId);
             return ResponseEntity.ok(reviewService.update(dto));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -33,7 +38,7 @@ public class ReviewController {
     }
 
     // 게시글별 댓글 + 대댓글 조회
-    @GetMapping("/{boardId}")
+    @GetMapping("/board/{boardId}")
     public ResponseEntity<List<ReviewDto>> getReviews(@PathVariable Long boardId) {
         return ResponseEntity.ok(reviewService.getCommentsWithReplies(boardId));
     }
