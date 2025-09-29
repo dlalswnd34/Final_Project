@@ -27,17 +27,27 @@ public class BoardRepositoryDsl {
     private final JPAQueryFactory queryFactory;
 
     // 목록 조회
-    public Page<BoardListDto> searchBoards(String keyword, String category, Pageable pageable) {
+    // ✅ [수정] searchType 파라미터 추가
+    public Page<BoardListDto> searchBoards(String keyword, String category, String searchType, Pageable pageable) {
         QBoard board = QBoard.board;
         QMember member = QMember.member;
 
         BooleanBuilder builder = new BooleanBuilder();
-        if (keyword != null && !keyword.isBlank()) {
-            builder.and(board.title.containsIgnoreCase(keyword));
-        }
 
+        // 1. 카테고리 필터링 (필수)
         if (category != null && !category.isBlank() && !"all".equalsIgnoreCase(category)) {
             builder.and(board.category.eq(category.trim()));
+        }
+
+        // 2. 검색어 필터링 (선택): searchType에 따라 조건 분기
+        if (keyword != null && !keyword.isBlank()) {
+            if ("ingredient".equalsIgnoreCase(searchType)) {
+                // searchType이 ingredient일 때: 재료(prepare) 검색
+                builder.and(board.prepare.containsIgnoreCase(keyword));
+            } else {
+                // searchType이 title이거나 정의되지 않았을 때: 제목(title) 검색 (기본값)
+                builder.and(board.title.containsIgnoreCase(keyword));
+            }
         }
 
         List<BoardListDto> content = queryFactory
@@ -70,6 +80,9 @@ public class BoardRepositoryDsl {
         System.out.println("==========================================");
         System.out.println(">>> [searchBoards] Debug Log");
         System.out.println(">>> Category Param: " + category);
+        System.out.println(">>> Keyword Param: " + keyword);
+        // ✅ [추가] searchType 로그
+        System.out.println(">>> SearchType Param: " + searchType);
         System.out.println(">>> Total Count from Query: " + total);
         System.out.println(">>> Content Size from Query: " + content.size());
         System.out.println("==========================================");
