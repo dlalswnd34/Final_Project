@@ -132,11 +132,8 @@
                 <span class="nav-underline"></span>
             </button>
 
-            <div class="relative group">
                 <button
                         onclick="showPage('season')"
-                        onmouseenter="showIngredientsDropdown()"
-                        onmouseleave="hideIngredientsDropdown()"
                         class="nav-item relative flex items-center space-x-1 font-medium transition-colors text-gray-700 hover:text-orange-500"
                         data-page="ingredients"
                 >
@@ -182,16 +179,46 @@
 <%--                        </button>--%>
 <%--                    </div>--%>
 <%--                </div>--%>
-            </div>
 
-            <button
-                    onclick="showPage('events')"
-                    class="nav-item relative font-medium transition-colors text-gray-700 hover:text-orange-500"
-                    data-page="events"
-            >
-                이벤트
-                <span class="nav-underline"></span>
-            </button>
+            <div class="relative group">
+                <button
+                        onclick="showPage('events')"
+                        class="nav-item relative font-medium transition-colors text-gray-700 hover:text-orange-500"
+                        data-page="events"
+                >
+                    SUPPORT
+                    <span class="nav-underline"></span>
+                </button>
+
+                <!-- 드롭다운 메뉴 -->
+                <div
+                        id="ingredientsDropdown"
+                        class="absolute top-full left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-xl
+               opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
+               transform -translate-y-2 transition-all duration-200 z-50"
+                >
+                    <div class="py-2">
+                        <button
+                                onclick="showPage('guide')"
+                                class="w-full text-left px-6 py-3 text-base text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors font-medium"
+                        >
+                            사이트 이용 가이드
+                        </button>
+                        <button
+                                onclick="showPage('test')"
+                                class="w-full text-left px-6 py-3 text-base text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors font-medium"
+                        >
+                            나의 요리 취향 찾기
+                        </button>
+                        <button
+                                onclick="showPage('dust')"
+                                class="w-full text-left px-6 py-3 text-base text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors font-medium"
+                        >
+                            미세먼지
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <button
                     onclick="showPage('qna')"
