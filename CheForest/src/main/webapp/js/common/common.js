@@ -6,8 +6,6 @@ window.CheForest = window.CheForest || {};
 
 // 페이지 네비게이션 함수
 function showPage(page, id) {
-    console.log('Navigate to:', page);
-
     switch (page) {
         case 'home':
             window.location.href = '../..';

@@ -66,7 +66,7 @@
                 </button>
 
                 <!-- 마이페이지 -->
-                <a href="<c:url value='/mypage'/>" class="hidden sm:flex header-icon-btn p-2 rounded-lg" title="마이페이지">
+                <a href="<c:url value='/mypage/mypage'/>" class="hidden sm:flex header-icon-btn p-2 rounded-lg" title="마이페이지">
                     <i data-lucide="user" class="h-6 w-6"></i>
                 </a>
 
