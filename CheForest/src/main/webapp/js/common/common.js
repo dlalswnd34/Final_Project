@@ -61,7 +61,7 @@ function updateActiveNavigation(page) {
             underline.style.transform = 'scaleX(0)';
         }
     });
-    
+
     // 현재 페이지 네비게이션 아이템 활성화
     const activeItem = document.querySelector(`[data-page="${page}"]`);
     if (activeItem) {
@@ -85,7 +85,7 @@ function initializeLucideIcons() {
 function initializeCommon() {
     // Lucide 아이콘 초기화
     initializeLucideIcons();
-    
+
     // 현재 페이지 감지 및 네비게이션 업데이트
     const currentPage = getCurrentPage();
     updateActiveNavigation(currentPage);
@@ -156,12 +156,12 @@ function animateNumber(element, start, end, duration = 1000) {
     const range = end - start;
     const increment = end > start ? 1 : -1;
     const stepTime = Math.abs(Math.floor(duration / range));
-    
+
     let current = start;
     const timer = setInterval(() => {
         current += increment;
         element.textContent = current;
-        
+
         if (current === end) {
             clearInterval(timer);
         }
@@ -182,7 +182,7 @@ function isElementInViewport(element) {
 // 레이지 로딩 구현
 function setupLazyLoading() {
     const images = document.querySelectorAll('img[data-src]');
-    
+
     if ('IntersectionObserver' in window) {
         const imageObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
@@ -194,7 +194,7 @@ function setupLazyLoading() {
                 }
             });
         });
-        
+
         images.forEach(img => imageObserver.observe(img));
     } else {
         // 폴백: IntersectionObserver 미지원 시
@@ -233,7 +233,7 @@ function formatKoreanTime(date) {
     const diffInMinutes = Math.floor(diff / (1000 * 60));
     const diffInHours = Math.floor(diff / (1000 * 60 * 60));
     const diffInDays = Math.floor(diff / (1000 * 60 * 60 * 24));
-    
+
     if (diffInMinutes < 1) return '방금 전';
     if (diffInMinutes < 60) return `${diffInMinutes}분 전`;
     if (diffInHours < 24) return `${diffInHours}시간 전`;
@@ -293,21 +293,21 @@ function showNotification(message, type = 'info', duration = 3000) {
     if (existingNotification) {
         existingNotification.remove();
     }
-    
+
     // 새 알림 생성
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.textContent = message;
-    
+
     // DOM에 추가
     document.body.appendChild(notification);
-    
+
     // 애니메이션으로 표시
     setTimeout(() => {
         notification.style.opacity = '1';
         notification.style.transform = 'translateX(0)';
     }, 100);
-    
+
     // 지정된 시간 후 자동 제거
     setTimeout(() => {
         notification.style.opacity = '0';
@@ -326,7 +326,7 @@ function showLoadingState(element) {
     element.classList.add('card-loading');
     element.style.pointerEvents = 'none';
     element.style.opacity = '0.7';
-    
+
     // 로딩 오버레이 추가
     const overlay = document.createElement('div');
     overlay.className = 'loading-overlay';
@@ -342,7 +342,7 @@ function showLoadingState(element) {
         justify-content: center;
         z-index: 10;
     `;
-    
+
     // 로딩 스피너 추가
     const spinner = document.createElement('div');
     spinner.innerHTML = `
@@ -361,7 +361,7 @@ function hideLoadingState(element) {
     element.classList.remove('card-loading');
     element.style.pointerEvents = '';
     element.style.opacity = '';
-    
+
     // 로딩 오버레이 제거
     const overlay = element.querySelector('.loading-overlay');
     if (overlay) {
@@ -372,7 +372,7 @@ function hideLoadingState(element) {
 // 카드 클릭 애니메이션 공통 함수
 function addCardClickAnimation(card) {
     if (!card) return;
-    
+
     card.style.transform = 'scale(0.98)';
     setTimeout(() => {
         card.style.transform = '';
@@ -385,11 +385,11 @@ function setupImageFadeIn() {
     images.forEach(img => {
         img.style.opacity = '0';
         img.style.transition = 'opacity 0.3s ease';
-        
+
         img.addEventListener('load', function() {
             this.style.opacity = '1';
         });
-        
+
         // 이미 로드된 이미지 처리
         if (img.complete) {
             img.style.opacity = '1';
@@ -400,7 +400,7 @@ function setupImageFadeIn() {
 // 스크롤 애니메이션 트리거
 function setupScrollAnimations() {
     const animatedElements = document.querySelectorAll('.fade-in, .slide-up');
-    
+
     if ('IntersectionObserver' in window) {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -413,7 +413,7 @@ function setupScrollAnimations() {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
         });
-        
+
         animatedElements.forEach(el => {
             el.style.opacity = '0';
             el.style.transform = 'translateY(20px)';
@@ -427,12 +427,12 @@ function setupScrollAnimations() {
 function setupTouchHoverEffects() {
     if ('ontouchstart' in window) {
         const hoverElements = document.querySelectorAll('.event-card, .btn');
-        
+
         hoverElements.forEach(element => {
             element.addEventListener('touchstart', function() {
                 this.classList.add('touch-active');
             });
-            
+
             element.addEventListener('touchend', function() {
                 setTimeout(() => {
                     this.classList.remove('touch-active');
@@ -449,10 +449,133 @@ function setupKeyboardNavigation() {
             document.body.classList.add('user-is-tabbing');
         }
     });
-    
+
     document.addEventListener('mousedown', function() {
         document.body.classList.remove('user-is-tabbing');
     });
+}
+
+// === 마이페이지 공통 함수 추가 ===
+
+// 등급 정보 가져오기
+function getLevelInfo(level) {
+    const levelInfo = {
+        '씨앗': { minPosts: 0, color: '#059669', icon: '🌱', bgClass: 'level-seed' },
+        '뿌리': { minPosts: 1000, color: '#ea580c', icon: '🌿', bgClass: 'level-root' },
+        '새싹': { minPosts: 2000, color: '#2563eb', icon: '🌾', bgClass: 'level-sprout' },
+        '나무': { minPosts: 3000, color: '#7c3aed', icon: '🌳', bgClass: 'level-tree' },
+        '숲': { minPosts: 4000, color: '#db2777', icon: '🌲', bgClass: 'level-forest' }
+    };
+
+    return levelInfo[level] || levelInfo['씨앗'];
+}
+
+// 다음 등급 계산
+function getNextLevel(currentLevel) {
+    const levels = ['씨앗', '뿌리', '새싹', '나무', '숲'];
+    const currentIndex = levels.indexOf(currentLevel);
+    return currentIndex < levels.length - 1 ? levels[currentIndex + 1] : null;
+}
+
+// 등급 진행률 계산
+function calculateLevelProgress(currentPoints, currentLevel) {
+    const levelInfo = getLevelInfo(currentLevel);
+    const nextLevel = getNextLevel(currentLevel);
+
+    if (!nextLevel) return 100; // 최고 등급
+
+    const nextLevelInfo = getLevelInfo(nextLevel);
+    const progress = ((currentPoints - levelInfo.minPosts) / (nextLevelInfo.minPosts - levelInfo.minPosts)) * 100;
+
+    return Math.min(Math.max(progress, 0), 100);
+}
+
+// 탭 전환 애니메이션
+function switchTabWithAnimation(oldTab, newTab) {
+    if (oldTab === newTab) return;
+
+    // 기존 탭 페이드아웃
+    if (oldTab) {
+        oldTab.style.opacity = '0';
+        oldTab.style.transform = 'translateY(10px)';
+        setTimeout(() => {
+            oldTab.classList.remove('active');
+            oldTab.style.display = 'none';
+        }, 200);
+    }
+
+    // 새 탭 페이드인
+    setTimeout(() => {
+        if (newTab) {
+            newTab.style.display = 'block';
+            newTab.classList.add('active');
+            setTimeout(() => {
+                newTab.style.opacity = '1';
+                newTab.style.transform = 'translateY(0)';
+            }, 50);
+        }
+    }, oldTab ? 200 : 0);
+}
+
+// 프로필 이미지 폴백 처리
+function handleProfileImageError(img, fallbackElement) {
+    if (img && fallbackElement) {
+        img.style.display = 'none';
+        fallbackElement.style.display = 'flex';
+    }
+}
+
+// 통계 숫자 애니메이션
+function animateStatNumbers() {
+    const statNumbers = document.querySelectorAll('.stat-number');
+    statNumbers.forEach(element => {
+        const target = parseInt(element.textContent.replace(/,/g, ''));
+        if (target > 0) {
+            animateNumber(element, 0, target, 1500);
+        }
+    });
+}
+
+// 진행률 바 애니메이션
+function animateProgressBar(progressBar, targetWidth) {
+    if (!progressBar) return;
+
+    progressBar.style.width = '0%';
+    setTimeout(() => {
+        progressBar.style.transition = 'width 1s ease-out';
+        progressBar.style.width = targetWidth + '%';
+    }, 500);
+}
+
+// 마이페이지 알림 메시지
+function showMypageNotification(message, type = 'success') {
+    showNotification(message, type);
+}
+
+// 폼 검증 헬퍼
+function validateMypageForm(formData) {
+    const errors = [];
+
+    // 닉네임 검증
+    if (formData.nickname && formData.nickname.length < 2) {
+        errors.push('닉네임은 2글자 이상이어야 합니다.');
+    }
+
+    // 이메일 검증
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        errors.push('올바른 이메일 형식이 아닙니다.');
+    }
+
+    // 비밀번호 검증
+    if (formData.password && formData.password.length < 8) {
+        errors.push('비밀번호는 8글자 이상이어야 합니다.');
+    }
+
+    if (formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword) {
+        errors.push('비밀번호가 일치하지 않습니다.');
+    }
+
+    return errors;
 }
 
 // 공통 유틸리티 함수들을 전역 객체에 등록
@@ -484,199 +607,15 @@ window.CheForest.common = {
     setupImageFadeIn,
     setupScrollAnimations,
     setupTouchHoverEffects,
-    setupKeyboardNavigation
+    setupKeyboardNavigation,
+    // 마이페이지 공통 함수들
+    getLevelInfo,
+    getNextLevel,
+    calculateLevelProgress,
+    switchTabWithAnimation,
+    handleProfileImageError,
+    animateStatNumbers,
+    animateProgressBar,
+    showMypageNotification,
+    validateMypageForm
 };
-
-/* Q&A 페이지를 위한 공통 JavaScript 추가 부분 */
-
-// 공통 유틸리티 함수들 (common.js에 추가)
-
-// 1. 토스트 메시지 표시 함수 (전역으로 사용 가능)
-window.showToast = function(message, type = 'info', duration = 3000) {
-    // 기존 토스트 제거
-    const existingToast = document.querySelector('.toast-message');
-    if (existingToast) {
-        existingToast.remove();
-    }
-    
-    // 토스트 생성
-    const toast = document.createElement('div');
-    toast.className = `toast-message toast-${type}`;
-    toast.textContent = message;
-    
-    // 스타일 적용
-    Object.assign(toast.style, {
-        position: 'fixed',
-        top: '20px',
-        right: '20px',
-        backgroundColor: type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6',
-        color: 'white',
-        padding: '12px 16px',
-        borderRadius: '8px',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-        zIndex: '10000',
-        opacity: '0',
-        transform: 'translateY(-10px)',
-        transition: 'all 0.3s ease',
-        maxWidth: '400px',
-        lineHeight: '1.4',
-        fontSize: '14px',
-        fontFamily: '"Gowun Dodum", sans-serif'
-    });
-    
-    document.body.appendChild(toast);
-    
-    // 애니메이션으로 표시
-    setTimeout(() => {
-        toast.style.opacity = '1';
-        toast.style.transform = 'translateY(0)';
-    }, 100);
-    
-    // duration 후 제거
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateY(-10px)';
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-    }, duration);
-};
-
-// 2. 페이지 네비게이션 함수 강화 (이미 있다면 수정)
-window.navigateTo = function(page) {
-    // 실제 JSP 환경에서는 페이지 이동
-    switch(page) {
-        case 'home':
-            window.location.href = 'index.jsp';
-            break;
-        case 'recipes':
-            window.location.href = 'recipelist.jsp';
-            break;
-        case 'board':
-            window.location.href = 'boardlist.jsp';
-            break;
-        case 'ingredients':
-            window.location.href = 'ingredients.jsp';
-            break;
-        case 'grade':
-            window.location.href = 'grade.jsp';
-            break;
-        case 'events':
-            window.location.href = 'events.jsp';
-            break;
-        case 'qna':
-            window.location.href = 'qna.jsp';
-            break;
-        case 'admin':
-            window.location.href = 'admin.jsp';
-            break;
-        case 'login':
-            window.location.href = 'login.jsp';
-            break;
-        case 'mypage':
-            window.location.href = 'mypage.jsp';
-            break;
-        default:
-            console.log('Unknown page:', page);
-    }
-};
-
-// 3. 폼 검증 유틸리티
-window.validateForm = function(formElement) {
-    const requiredFields = formElement.querySelectorAll('[required]');
-    let isValid = true;
-    
-    requiredFields.forEach(field => {
-        if (!field.value.trim()) {
-            isValid = false;
-            field.classList.add('error');
-        } else {
-            field.classList.remove('error');
-        }
-    });
-    
-    return isValid;
-};
-
-// 4. 디바운스 함수 (검색 등에 사용)
-window.debounce = function(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-};
-
-// 5. 로컬 스토리지 유틸리티
-window.storage = {
-    set: function(key, value) {
-        try {
-            localStorage.setItem(key, JSON.stringify(value));
-        } catch (e) {
-            console.error('Storage set error:', e);
-        }
-    },
-    
-    get: function(key) {
-        try {
-            const item = localStorage.getItem(key);
-            return item ? JSON.parse(item) : null;
-        } catch (e) {
-            console.error('Storage get error:', e);
-            return null;
-        }
-    },
-    
-    remove: function(key) {
-        try {
-            localStorage.removeItem(key);
-        } catch (e) {
-            console.error('Storage remove error:', e);
-        }
-    }
-};
-
-// 6. 공통 CSS 클래스 추가 (JavaScript로 동적 추가)
-document.addEventListener('DOMContentLoaded', function() {
-    // 에러 스타일 추가
-    const style = document.createElement('style');
-    style.textContent = `
-        .error {
-            border-color: #ef4444 !important;
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
-        }
-        
-        .animate-pulse {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: .5;
-            }
-        }
-        
-        .animate-spin {
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
-            }
-        }
-    `;
-    document.head.appendChild(style);
-});

@@ -26,7 +26,7 @@ public class FileService {
     private final EntityManager em; // Member 참조용
 
     // 실제 파일 저장 경로 (외부 경로)
-    private final String uploadDir = "C:/upload/";
+    private final String uploadDir = "src/main/webapp/resources/upload/";
 
     // 단일 파일 저장
     public FileDto saveFile(MultipartFile file, String useType, Long useTargetId, String usePosition, Long uploaderId) throws IOException {
@@ -46,7 +46,7 @@ public class FileService {
         Member uploader = em.getReference(Member.class, uploaderId);
 
         // DB에 저장할 경로는 웹에서 접근 가능한 상대경로
-        String webPath = "/upload/" + storedFileName;
+        String webPath = "/resources/upload/" + storedFileName;
 
         File fileEntity = File.builder()
                 .fileName(storedFileName)

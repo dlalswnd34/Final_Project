@@ -11,10 +11,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
 @Controller
@@ -84,6 +86,21 @@ public class MemberController {
         return "mypage/edit";
     }
 
+//    회원탈퇴
+    @PostMapping("/member/withdraw")
+    public String withdraw(@AuthenticationPrincipal CustomUserDetails user,
+                           RedirectAttributes ra) {
+
+        Long memberIdx = user.getMember().getMemberIdx();
+        memberService.withdraw(memberIdx);
+
+        // ✅ Spring Security 인증정보 삭제 (로그아웃 처리)
+        SecurityContextHolder.clearContext();
+
+        ra.addFlashAttribute("msg", "회원 탈퇴가 완료되었습니다.");
+        return "redirect:/";
+    }
+
     // ================= 회원 상세 조회 =================
     @GetMapping("/auth/detail/{id}")
     public String detail(@PathVariable("id") Long memberIdx, Model model) {
@@ -120,4 +137,7 @@ public class MemberController {
                                    @SessionAttribute(name = "emailAuthCode", required = false) String serverCode) {
         return serverCode != null && serverCode.equals(code);
     }
+
+//    회원탈퇴
+
 }

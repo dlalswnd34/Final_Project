@@ -246,9 +246,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 if (String(result).trim().toUpperCase() === "OK") {
                     showModal("회원가입 완료!", "성공적으로 가입되었습니다. 로그인 페이지로 이동합니다.");
-                    setTimeout(() => {
-                        window.location.href = "/auth/login"; // ✅ 여기로 리다이렉트
-                    }, 2000);
+
+                    // ✅ 확인 버튼 클릭 시 로그인 페이지로 이동
+                    const okBtn = document.getElementById("modalOkBtn");
+                    if (okBtn) {
+                        okBtn.onclick = () => {
+                            window.location.href = "/auth/login";
+                        };
+                    }
                 } else {
                     showToast(result, "error");
                 }

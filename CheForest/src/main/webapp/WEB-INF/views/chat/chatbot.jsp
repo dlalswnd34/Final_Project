@@ -17,7 +17,7 @@
             width: 70px;
             height: 70px;
             border-radius: 50%;
-            background: #4a90e2;
+            background-image: linear-gradient(to right, #5e61ff, #74c0ff);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -42,14 +42,15 @@
             box-shadow: 0 4px 15px rgba(0,0,0,.3);
             overflow: hidden;
             z-index: 10000;
-            display: flex;
+            /*display: flex;*/
+            display: none;
             flex-direction: column;
             font-family: "Noto Sans KR", sans-serif;
         }
 
         /* === 헤더 === */
-        .chat-header {
-            background: #4a90e2;
+        .chatbot-header {
+            background-image: linear-gradient(to right, #5e61ff, #74c0ff);
             color: #fff;
             padding: 10px 14px;
             display: flex;
@@ -58,16 +59,16 @@
             font-weight: bold;
             font-size: 15px;
         }
-        .chat-header-left {
+        .chatbot-header-left {
             display: flex;
             align-items: center;
             gap: 6px;
         }
-        .chat-header-left img {
+        .chatbot-header-left img {
             width: 20px;
             height: 20px;
         }
-        .chat-header button {
+        .chatbot-header button {
             background: none;
             border: none;
             color: #fff;
@@ -113,7 +114,7 @@
             border-bottom-left-radius: 4px;
         }
         .user-msg .bubble {
-            background: #4a90e2;
+            background-image: linear-gradient(to right, #5e61ff, #74c0ff);
             color: #fff;
             border-bottom-right-radius: 4px;
         }
@@ -122,12 +123,16 @@
         #chatbot-toggle-btn {
             text-align: center;
             font-size: 14px;
-            color: #4a90e2;
             cursor: pointer;
             padding: 4px 0;
             background: #f5f5f5;
             border-top: 1px solid #ddd;
             user-select: none;
+
+            /* 글자 그라데이션 */
+            background: linear-gradient(to right, #5e61ff, #74c0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         #chatbot-toggle-btn:hover { background: #eef6ff; }
 
@@ -181,7 +186,7 @@
         }
         #chatbot-send-btn {
             border: none;
-            background: #4a90e2;
+            background-image: linear-gradient(to right, #5e61ff, #74c0ff);
             color: #fff;
             width: 40px;
             height: 40px;
@@ -198,8 +203,8 @@
 
 <!-- 챗봇 창 -->
 <div id="chatbot-window">
-    <div class="chat-header">
-        <div class="chat-header-left">
+    <div class="chatbot-header">
+        <div class="chatbot-header-left">
             <img src="<%=request.getContextPath()%>/images/bear-mascot.png" alt="셰프봇">
             <span>셰프봇</span>
         </div>

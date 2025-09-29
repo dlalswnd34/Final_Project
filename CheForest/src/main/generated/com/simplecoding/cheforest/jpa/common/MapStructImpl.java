@@ -11,6 +11,8 @@ import com.simplecoding.cheforest.jpa.board.dto.BoardListDto;
 import com.simplecoding.cheforest.jpa.board.dto.BoardSaveReq;
 import com.simplecoding.cheforest.jpa.board.dto.BoardUpdateReq;
 import com.simplecoding.cheforest.jpa.board.entity.Board;
+import com.simplecoding.cheforest.jpa.chatbot.dto.ChatbotFaqDto;
+import com.simplecoding.cheforest.jpa.chatbot.entity.ChatbotFaq;
 import com.simplecoding.cheforest.jpa.file.dto.FileDto;
 import com.simplecoding.cheforest.jpa.file.entity.File;
 import com.simplecoding.cheforest.jpa.like.dto.LikeDto;
@@ -30,7 +32,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-09-24T18:07:08+0900",
+    date = "2025-09-26T16:08:15+0900",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.16 (Azul Systems, Inc.)"
 )
 @Component
@@ -134,6 +136,7 @@ public class MapStructImpl implements MapStruct {
         boardDetailDto.updateTime( board.getUpdateTime() );
         boardDetailDto.cookTime( board.getCookTime() );
         boardDetailDto.difficulty( board.getDifficulty() );
+        boardDetailDto.prepareAmount( board.getPrepareAmount() );
 
         return boardDetailDto.build();
     }
@@ -148,10 +151,9 @@ public class MapStructImpl implements MapStruct {
 
         board.category( dto.getCategory() );
         board.title( dto.getTitle() );
-        board.content( dto.getContent() );
-        board.thumbnail( dto.getThumbnail() );
-        board.prepare( dto.getPrepare() );
-        board.cookTime( dto.getCookTime() );
+        if ( dto.getCookTime() != null ) {
+            board.cookTime( Integer.parseInt( dto.getCookTime() ) );
+        }
         board.difficulty( dto.getDifficulty() );
 
         board.viewCount( (long) 0L );
@@ -543,12 +545,44 @@ public class MapStructImpl implements MapStruct {
 
         IntegratedSearch integratedSearch = new IntegratedSearch();
 
-        integratedSearch.setIngredients( boardSaveReq.getPrepare() );
         integratedSearch.setTitle( boardSaveReq.getTitle() );
-        integratedSearch.setThumbnail( boardSaveReq.getThumbnail() );
         integratedSearch.setCategory( boardSaveReq.getCategory() );
 
+        integratedSearch.setIngredients( com.simplecoding.cheforest.jpa.common.util.StringUtil.joinList(boardSaveReq.getIngredientName()) );
+
         return integratedSearch;
+    }
+
+    @Override
+    public ChatbotFaqDto toDto(ChatbotFaq chatbotFaq) {
+        if ( chatbotFaq == null ) {
+            return null;
+        }
+
+        ChatbotFaqDto.ChatbotFaqDtoBuilder chatbotFaqDto = ChatbotFaqDto.builder();
+
+        chatbotFaqDto.id( chatbotFaq.getId() );
+        chatbotFaqDto.question( chatbotFaq.getQuestion() );
+        chatbotFaqDto.answer( chatbotFaq.getAnswer() );
+        chatbotFaqDto.category( chatbotFaq.getCategory() );
+
+        return chatbotFaqDto.build();
+    }
+
+    @Override
+    public ChatbotFaq toEntity(ChatbotFaqDto chatbotFaqDto) {
+        if ( chatbotFaqDto == null ) {
+            return null;
+        }
+
+        ChatbotFaq.ChatbotFaqBuilder chatbotFaq = ChatbotFaq.builder();
+
+        chatbotFaq.id( chatbotFaqDto.getId() );
+        chatbotFaq.question( chatbotFaqDto.getQuestion() );
+        chatbotFaq.answer( chatbotFaqDto.getAnswer() );
+        chatbotFaq.category( chatbotFaqDto.getCategory() );
+
+        return chatbotFaq.build();
     }
 
     private String boardWriterNickname(Board board) {

@@ -125,36 +125,48 @@ public class BoardService {
     }
 
     // 4. 게시글 수정
-//    @Transactional
-//    public void update(Long boardId, BoardUpdateReq dto, String writerEmail) throws IOException {
-//        // 1) 기존 게시글 찾기
-//        Board board = boardRepository.findById(boardId)
-//                .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + boardId));
-//
-//        // 작성자 검증 (선택 사항)
-//        if (!board.getWriter().getEmail().equals(writerEmail)) {
-//            throw new SecurityException("작성자만 수정할 수 있습니다.");
-//        }
-//
-//        // 2) 텍스트/기본 정보 업데이트
-//        // MapStruct: null 값은 무시하고 채워진 값만 업데이트
-//        mapStruct.updateEntity(dto, board);
-//
-//        // 3) 대표 이미지 수정 (새 파일 있을 때만 교체)
-//        if (dto.getMainImage() != null && !dto.getMainImage().isEmpty()) {
-//            FileDto thumbnail = fileService.saveFile(dto.getMainImage(),
-//                    "BOARD", boardId, "THUMBNAIL", board.getWriter().getMemberIdx());
-//            if (thumbnail != null) {
-//                board.setThumbnail(thumbnail.getFilePath());
-//            }
-//        }
-//
-//        // 4) 조리법 이미지 수정 (옵션)
-//        if (dto.getInstructionImage() != null && !dto.getInstructionImage().isEmpty()) {
-//            fileService.saveBoardFiles(boardId, board.getWriter().getMemberIdx(), dto.getInstructionImage());
-//            // 기존 이미지를 지우고 싶다면 여기서 삭제 로직 추가 가능
-//        }
-//    }
+    @Transactional
+    public void update(BoardUpdateReq dto,
+                       String writerEmail,
+                       List<MultipartFile> images,
+                       List<Long> deleteImageIds) throws IOException {
+
+        // 1) 게시글 찾기
+        Board board = boardRepository.findById(dto.getBoardId())
+                .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + dto.getBoardId()));
+
+        // 2) 작성자 검증
+        if (!board.getWriter().getEmail().equals(writerEmail)) {
+            throw new SecurityException("작성자만 수정할 수 있습니다.");
+        }
+
+        // 3) 텍스트 업데이트 (MapStruct: null 무시)
+        mapStruct.updateEntity(dto, board);
+
+        // 4) 기존 파일 삭제
+        if (deleteImageIds != null && !deleteImageIds.isEmpty()) {
+            deleteImageIds.forEach(fileService::deleteFile);
+        }
+
+        // 5) 새 파일 저장
+        Long firstNewFileId = null;
+        if (images != null && !images.isEmpty()) {
+            firstNewFileId = fileService.saveBoardFiles(board.getBoardId(),
+                    board.getWriter().getMemberIdx(), images);
+        }
+
+        // 6) 썸네일 재지정 로직
+        if (firstNewFileId != null) {
+            // (A) 새 업로드가 있으면 → 첫 번째 파일을 썸네일로 교체
+            board.setThumbnail("/file/download?fileId=" + firstNewFileId);
+
+        } else if (deleteImageIds != null && !deleteImageIds.isEmpty()) {
+            // (B) 새 업로드는 없는데 기존 썸네일이 삭제되었으면 → null 처리
+            board.setThumbnail(null);
+        }
+
+        // 7) JPA 더티체킹 → commit 시점에 자동 반영
+    }
 
     // 5. 게시글 삭제
     public void delete(Long boardId) {
