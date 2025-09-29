@@ -1,10 +1,7 @@
 package com.simplecoding.cheforest.jpa.admin.service;
 
 
-import com.simplecoding.cheforest.jpa.admin.dto.AccountStatusDTO;
-import com.simplecoding.cheforest.jpa.admin.dto.CountTodayNewBoardDTO;
-import com.simplecoding.cheforest.jpa.admin.dto.MonthlyBoardCountDTO;
-import com.simplecoding.cheforest.jpa.admin.dto.TodaySignUpUsersDto;
+import com.simplecoding.cheforest.jpa.admin.dto.*;
 import com.simplecoding.cheforest.jpa.admin.repository.AdminRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,6 +34,8 @@ public class AdminService {
     public List<MonthlyBoardCountDTO> getMonthlyBoardCount() { return adminRepository.getMonthlyBoardCount(); }
 //    월별 작성된 게시물 및 가입자수 json자료형 통계용
     public String getMonthlyActivityStats() { return adminRepository.getMonthlyActivityStats(); }
-
-
+    // 자주 묻는 문의로 등록한 문의들 (Object[] 형태로 받음)
+    public List<InquiriesIsFaqDto> getInquiriesIsFaqDto(){ return  adminRepository.getInquiriesIsFaqDto(); }
+    //  자주 묻는 문의로 등록한 문의들 수
+    public long getInquiriesIsFaqCount() {return adminRepository.getInquiriesIsFaqCount(); }
 }

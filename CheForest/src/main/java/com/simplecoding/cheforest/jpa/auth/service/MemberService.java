@@ -101,6 +101,10 @@ public class MemberService {
     public Page<MemberAdminDto> adminAllMember(Pageable pageable) {
         return memberRepository.findAllWithBoardCounts(pageable);
     }
+    // ADMIN 통계용 작성한 게시글,댓글수 추가한 제재당한 회원정보(페이지네이션)
+    public Page<MemberAdminDto> adminSuspendedMember(Pageable pageable) {
+        return memberRepository.findSuspendedWithBoardCounts(pageable);
+    }
 
 //    회원 탈퇴
 @Transactional
