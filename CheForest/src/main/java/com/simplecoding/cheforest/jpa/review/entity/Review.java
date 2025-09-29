@@ -1,38 +1,56 @@
 package com.simplecoding.cheforest.jpa.review.entity;
 
-import com.simplecoding.cheforest.jpa.common.BaseTimeEntity;
 import com.simplecoding.cheforest.jpa.board.entity.Board;
-import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "BOARD_REVIEW")
-@SequenceGenerator(
-        name = "BOARD_REVIEW_SEQ_JPA",
-        sequenceName = "BOARD_REVIEW_SEQ",  // 실제 DB 시퀀스 이름
-        allocationSize = 1
-)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Review extends BaseTimeEntity {
+public class Review {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "BOARD_REVIEW_SEQ_JPA")
-    private Long reviewId;   // PK
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "review_seq_gen")
+    @SequenceGenerator(
+            name = "review_seq_gen",
+            sequenceName = "BOARD_REVIEW_SEQ",
+            allocationSize = 1
+    )
+    @Column(name = "REVIEW_ID")
+    private Long reviewId;
 
+    // ================= 연관관계 추가 =================
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "BOARD_ID", nullable = false,
-            foreignKey = @ForeignKey(name = "FK_BOARD_REVIEW_BOARD"))
-    private Board board;     // 게시글 참조
+    @JoinColumn(name = "BOARD_ID", nullable = false)
+    private Board board;   // 게시글 엔티티와 연관관계
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "WRITER_IDX", nullable = false,
-            foreignKey = @ForeignKey(name = "FK_BOARD_REVIEW_MEMBER"))
-    private Member writer;   // 작성자 참조
+    @Column(name = "WRITER_IDX", nullable = false)
+    private Long writerIdx; // 작성자 ID
 
-    private String content;  // 댓글 내용
+    @Column(name = "CONTENT", nullable = false, length = 1000)
+    private String content; // 댓글 내용
+
+    @Column(name = "INSERT_TIME")
+    private LocalDateTime insertTime;
+
+    @Column(name = "UPDATE_TIME")
+    private LocalDateTime updateTime;
+
+    @Column(name = "PARENT_ID")
+    private Long parentId; // 부모 댓글 (NULL = 댓글, 값 있으면 대댓글)
+
+    @PrePersist
+    protected void onCreate() {
+        this.insertTime = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updateTime = LocalDateTime.now();
+    }
 }

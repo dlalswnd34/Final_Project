@@ -240,87 +240,72 @@
           </div>
         </div>
 
-        <!-- 댓글 영역 -->
-        <div class="comments-section">
-          <div class="comments-divider"></div>
-          <div class="comments-header">
-            <h3 class="comments-title">💬 댓글</h3>
-          </div>
 
-          <!-- 댓글 작성폼 (디자인 유지) -->
-            <div class="comment-write">
-              <div class="write-content">
-                <div class="write-header">
-                  <div class="writer-avatar">
-                    <img src="/images/default_profile.png" alt="내 프로필" class="avatar-img">
-                  </div>
-                  <div class="writer-info">
-                    <div class="writer-name-line">
-                      <span class="writer-name">
-                        <c:out value="${loginUser.member.nickname}" default="나"/>
-                      </span>
-                      <span class="user-grade grade-${board.grade}">
-                        <c:out value="${board.grade}" />
-                      </span>
+          <!-- 댓글 영역 -->
+          <div class="comments-section">
+            <div class="comments-divider"></div>
+            <div class="comments-header">
+              <h3 class="comments-title">💬 댓글</h3>
+            </div>
+
+            <!-- 댓글 작성폼 -->
+            <sec:authorize access="isAuthenticated()">
+              <div class="comment-write">
+                <div class="write-content">
+                  <div class="write-header">
+                    <div class="writer-avatar">
+                      <img src="/images/default_profile.png" alt="내 프로필" class="avatar-img">
+                    </div>
+                    <div class="writer-info">
+                      <div class="writer-name-line">
+              <span class="writer-name">
+                <c:out value="${loginUser.member.nickname}" default="나"/>
+              </span>
+                        <span class="user-grade grade-${board.grade}">
+                <c:out value="${board.grade}" />
+              </span>
+                      </div>
                     </div>
                   </div>
+                  <div class="write-form">
+          <textarea id="commentTextarea" class="comment-textarea"
+                    placeholder="이 게시글에 대한 생각을 나눠주세요! 👨‍🍳✨&#10;팁이나 의견도 환영해요!"></textarea>
+                    <button class="emoji-btn" id="emojiBtn" type="button" title="이모지">🙂</button>
+                  </div>
+                  <div class="write-footer">
+                    <div class="write-tip">💡 따뜻한 댓글로 소통의 즐거움을 나눠보세요</div>
+                    <button class="submit-btn" id="commentSubmitBtn" type="button">댓글 등록</button>
+                  </div>
                 </div>
-                <div class="write-form">
-                  <textarea id="commentTextarea" class="comment-textarea"
-                            placeholder="이 게시글에 대한 생각을 나눠주세요! 👨‍🍳✨&#10;팁이나 의견도 환영해요!"></textarea>
-                  <button class="emoji-btn" id="emojiBtn" type="button" title="이모지">🙂</button>
-                </div>
-                <div class="write-footer">
-                  <div class="write-tip">💡 따뜻한 댓글로 소통의 즐거움을 나눠보세요</div>
-                  <button class="submit-btn" id="commentSubmitBtn" type="button">댓글 등록</button>
+              </div>
+            </sec:authorize>
+
+            <!-- 비로그인 상태 -->
+            <sec:authorize access="!isAuthenticated()">
+              <div class="empty-box">✋ 댓글 작성은 로그인 후 이용해주세요</div>
+            </sec:authorize>
+
+            <!-- 댓글 리스트 -->
+            <div class="comments-list" id="commentsList">
+              <div class="empty-box">아직 댓글이 없습니다.</div>
+            </div>
+
+            <div class="load-more-comments" style="display:none;">
+              <button class="load-more-btn" id="loadMoreBtn" type="button">더 많은 댓글 보기</button>
+            </div>
+
+            <div class="comment-guide">
+              <div class="guide-content">
+                <div class="guide-icon">💡</div>
+                <div class="guide-text">
+                  <h4 class="guide-title">CheForest 댓글 가이드</h4>
+                  <p class="guide-description">
+                    • 요리 팁과 경험을 공유해주세요 • 서로 존중하는 따뜻한 소통을 해주세요 • 스팸/광고성 댓글은 삭제될 수 있습니다
+                  </p>
                 </div>
               </div>
             </div>
-
-          <!-- 댓글 리스트 -->
-          <div class="comments-list" id="commentsList">
-            <c:choose>
-              <c:when test="${not empty reviews}">
-                <c:forEach var="review" items="${reviews}">
-                  <div class="comment-item">
-                    <div class="comment-header">
-                      <div class="comment-avatar">
-                        <img src="<c:out value='${review.profile}' default='/images/default_profile.png'/>"
-                             class="avatar-img"
-                             onerror="this.src='/images/default_profile.png'">
-                      </div>
-                      <div class="comment-meta">
-                        <span class="comment-nickname"><c:out value="${review.nickname}"/></span>
-                        <span class="comment-date"><c:out value="${review.insertTime}"/></span>
-                      </div>
-                    </div>
-                    <div class="comment-body">
-                      <p><c:out value="${review.content}" /></p>
-                    </div>
-                  </div>
-                </c:forEach>
-              </c:when>
-              <c:otherwise>
-                <div class="empty-box">아직 댓글이 없습니다.</div>
-              </c:otherwise>
-            </c:choose>
           </div>
-          <div class="load-more-comments" style="display:none;">
-            <button class="load-more-btn" id="loadMoreBtn" type="button">더 많은 댓글 보기</button>
-          </div>
-
-          <div class="comment-guide">
-            <div class="guide-content">
-              <div class="guide-icon">💡</div>
-              <div class="guide-text">
-                <h4 class="guide-title">CheForest 댓글 가이드</h4>
-                <p class="guide-description">
-                  • 요리 팁과 경험을 공유해주세요 • 서로 존중하는 따뜻한 소통을 해주세요 • 스팸/광고성 댓글은 삭제될 수 있습니다
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
 
       </div>
     </c:when>
@@ -364,6 +349,23 @@
 <script>
   lucide.createIcons();
 </script>
+<!-- ✅ 댓글 API용 전역변수 -->
+<sec:authorize access="isAuthenticated()">
+  <script>
+    window.boardId = <c:out value="${board.boardId}" default="0"/>;
+    window.loginUser = {
+      memberIdx: <sec:authentication property="principal.member.memberIdx" />,
+      nickname: "<sec:authentication property="principal.member.nickname" />"
+    };
+  </script>
+</sec:authorize>
+
+<sec:authorize access="!isAuthenticated()">
+  <script>
+    window.boardId = <c:out value="${board.boardId}" default="0"/>;
+    window.loginUser = { memberIdx: 0, nickname: "익명" };
+  </script>
+</sec:authorize>
 <script src="/js/board/boardview.js"></script>
 <script src="/js/common/common.js"></script>
 <jsp:include page="/common/footer.jsp"/>

@@ -750,6 +750,31 @@ body {
     align-items: center;
     gap: 1rem;
 }
+.comment-actions button {
+    margin-right: 8px;   /* 버튼 간격 */
+}
+
+.comment-actions button:last-child {
+    margin-right: 0;     /* 마지막 버튼은 간격 제거 */
+}
+/* 대댓글 폼*/
+.reply-item {
+    margin-left: 30px;
+    padding: 8px;
+    border-left: 2px solid #eee;
+}
+.reply-form {
+    margin-left: 30px;
+    margin-top: 8px;
+}
+.reply-form textarea {
+    width: 100%;
+    height: 60px;
+    margin-bottom: 8px;
+}
+.reply-actions button {
+    margin-right: 6px;
+}
 
 .vote-buttons {
     display: flex;

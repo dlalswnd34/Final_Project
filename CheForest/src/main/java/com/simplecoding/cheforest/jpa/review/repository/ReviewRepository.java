@@ -7,12 +7,12 @@ import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
-    // 댓글 목록 (내림차순: 최신순)
-    List<Review> findByBoard_BoardIdOrderByReviewIdDesc(Long boardId);
+    // 부모 댓글 (대댓글 없는 상위 댓글만)
+    List<Review> findByBoard_BoardIdAndParentIdIsNullOrderByInsertTimeAsc(Long boardId);
+
+    // 대댓글
+    List<Review> findByParentIdOrderByInsertTimeAsc(Long parentId);
 
     // 게시글 삭제 시 댓글 전체 삭제
-    void deleteAllByBoard_BoardId(Long boardId);
-
-    // 회원 탈퇴 시 작성 댓글 전체 삭제 (선택적)
-    void deleteAllByWriter_MemberIdx(Long memberIdx);
+    void deleteByBoard_BoardId(Long boardId);
 }

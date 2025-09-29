@@ -15,9 +15,7 @@ import com.simplecoding.cheforest.jpa.board.dto.BoardUpdateReq;
 import com.simplecoding.cheforest.jpa.like.dto.LikeRes;
 import com.simplecoding.cheforest.jpa.like.dto.LikeSaveReq;
 import com.simplecoding.cheforest.jpa.like.entity.Like;
-import com.simplecoding.cheforest.jpa.review.dto.ReviewRes;
-import com.simplecoding.cheforest.jpa.review.dto.ReviewSaveReq;
-import com.simplecoding.cheforest.jpa.review.dto.ReviewUpdateReq;
+import com.simplecoding.cheforest.jpa.review.dto.ReviewDto;
 import org.mapstruct.*;
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.board.entity.Board;
@@ -71,21 +69,21 @@ public interface MapStruct {
     void updateEntity(BoardUpdateReq dto, @MappingTarget Board entity);
 
     // ================= Review =================
-    // ReviewSaveReq → Review 엔티티
-    @Mapping(source = "boardId", target = "board.boardId")  // DTO의 boardId → Entity의 Board 객체 내부 PK
-    @Mapping(source = "writerIdx", target = "writer.memberIdx")
-    Review toEntity(ReviewSaveReq dto);
+    // Review → ReviewDto
+    @Mapping(source = "board.boardId", target = "boardId")   // Board 엔티티의 PK를 DTO로 변환
+    ReviewDto toDto(Review entity);
 
-    // Review 엔티티 → ReviewRes DTO
-    @Mapping(source = "board.boardId", target = "boardId")
-    @Mapping(source = "writer.memberIdx", target = "writerIdx")
-    @Mapping(source = "writer.nickname", target = "nickname")
-    ReviewRes toDto(Review entity);
+    // ReviewDto → Review
+    @Mapping(source = "boardId", target = "board.boardId")   // DTO의 boardId를 엔티티 Board 참조로 매핑
+    Review toEntity(ReviewDto dto);
+    // 유틸 함수 - 임시 닉네임 매핑
+    default String getNickname(Long writerIdx) {
+        // TODO: 실제 Member 엔티티에서 닉네임 조회하는 서비스와 연동
+        return "익명";
+    }
 
-    @Mapping(source = "boardId", target = "board.boardId")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateEntityFromDto(ReviewUpdateReq dto, @MappingTarget Review entity);
-
+    void updateEntityFromDto(ReviewDto dto, @MappingTarget Review entity);
 
     // ================= File =================
     // Entity → DTO

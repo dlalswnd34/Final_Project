@@ -1,65 +1,94 @@
 package com.simplecoding.cheforest.jpa.review.service;
 
+import com.simplecoding.cheforest.jpa.board.entity.Board;
 import com.simplecoding.cheforest.jpa.common.MapStruct;
-import com.simplecoding.cheforest.jpa.review.dto.ReviewRes;
-import com.simplecoding.cheforest.jpa.review.dto.ReviewSaveReq;
-import com.simplecoding.cheforest.jpa.review.dto.ReviewUpdateReq;
-
+import com.simplecoding.cheforest.jpa.review.dto.ReviewDto;
 import com.simplecoding.cheforest.jpa.review.entity.Review;
 import com.simplecoding.cheforest.jpa.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final MapStruct mapStruct;
 
-    // 댓글 목록 조회
-    public List<ReviewRes> getReviewsByBoardId(Long boardId) {
-        return reviewRepository.findByBoard_BoardIdOrderByReviewIdDesc(boardId)
-                .stream()
-                .map(mapStruct::toDto)
-                .collect(Collectors.toList());
-    }
-
-    // 댓글 등록
-    public ReviewRes saveReview(ReviewSaveReq dto, Long memberIdx) {
+    @Transactional
+    public ReviewDto save(ReviewDto dto) {
         Review review = mapStruct.toEntity(dto);
-        review.getWriter().setMemberIdx(memberIdx); // 작성자 세팅
+
+        if (dto.getBoardId() != null) {
+            Board board = new Board();
+            board.setBoardId(dto.getBoardId());
+            review.setBoard(board);
+        } else {
+            throw new IllegalArgumentException("boardId가 없습니다.");
+        }
+
         Review saved = reviewRepository.save(review);
-        return mapStruct.toDto(saved);
-    }
 
+        // ✅ MapStruct 변환
+        ReviewDto result = mapStruct.toDto(saved);
+        result.setBoardId(saved.getBoard().getBoardId());
+        result.setWriterIdx(saved.getWriterIdx());
+
+        // ✅ 닉네임을 DB/MemberService에서 가져올 수 있으면 세팅
+        if (dto.getNickname() != null) {
+            result.setNickname(dto.getNickname());
+        }
+
+        return result;
+    }
     // 댓글 수정
-    public ReviewRes updateReview(ReviewUpdateReq dto, Long memberIdx) {
+    @Transactional
+    public ReviewDto update(ReviewDto dto) {
         Review review = reviewRepository.findById(dto.getReviewId())
-                .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다. ID=" + dto.getReviewId()));
 
-        if (!review.getWriter().getMemberIdx().equals(memberIdx)) {
-            throw new SecurityException("본인 댓글만 수정할 수 있습니다.");
-        }
+        mapStruct.updateEntityFromDto(dto, review);
+        review.setUpdateTime(LocalDateTime.now());
 
-        review.setContent(dto.getContent());
-        return mapStruct.toDto(reviewRepository.save(review));
+        Review updated = reviewRepository.save(review);
+        return mapStruct.toDto(updated);
     }
 
-    // 댓글 삭제
-    public void deleteReview(Long reviewId, Long memberIdx) {
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
+    // 게시글별 댓글 + 대댓글 조회
+    @Transactional(readOnly = true)
+    public List<ReviewDto> getCommentsWithReplies(Long boardId) {
+        List<Review> parents = reviewRepository.findByBoard_BoardIdAndParentIdIsNullOrderByInsertTimeAsc(boardId);
 
-        if (!review.getWriter().getMemberIdx().equals(memberIdx)) {
-            throw new SecurityException("본인 댓글만 삭제할 수 있습니다.");
+        return parents.stream().map(parent -> {
+            ReviewDto parentDto = mapStruct.toDto(parent);
+
+            List<ReviewDto> replyDtos = reviewRepository.findByParentIdOrderByInsertTimeAsc(parent.getReviewId())
+                    .stream()
+                    .map(mapStruct::toDto)
+                    .collect(Collectors.toList());
+
+            parentDto.setReplies(replyDtos);
+            return parentDto;
+        }).collect(Collectors.toList());
+    }
+
+    // 게시글 삭제 시 댓글 전체 삭제
+    @Transactional
+    public void deleteByBoardId(Long boardId) {
+        reviewRepository.deleteByBoard_BoardId(boardId);
+    }
+
+    // 댓글 삭제 (단일)
+    @Transactional
+    public void delete(Long reviewId) {
+        if (!reviewRepository.existsById(reviewId)) {
+            throw new IllegalArgumentException("존재하지 않는 댓글입니다. ID=" + reviewId);
         }
-
-        reviewRepository.delete(review);
+        reviewRepository.deleteById(reviewId);
     }
 }
