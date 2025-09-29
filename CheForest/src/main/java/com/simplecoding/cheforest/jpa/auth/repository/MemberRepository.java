@@ -80,7 +80,4 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
             countQuery = "SELECT COUNT(*) FROM MEMBER",
             nativeQuery = true)
     Page<MemberAdminDto> findAllWithBoardCounts(Pageable pageable);
-
-
-
 }

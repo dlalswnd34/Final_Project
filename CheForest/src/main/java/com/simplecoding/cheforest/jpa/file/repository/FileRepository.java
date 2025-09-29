@@ -11,9 +11,6 @@ public interface FileRepository extends JpaRepository<File, Long> {
     // 특정 대상(useTargetId)에 속한 파일들 (ex. BOARD, MEMBER 등)
     List<File> findByUseTypeAndUseTargetId(String useType, Long useTargetId);
 
-    // 업로더의 PK(memberIdx) 기준 조회
-    List<File> findByUploader_MemberIdx(Long memberIdx);
-
     // 회원 프로필 최신 파일 (USE_TYPE = MEMBER + 최신 1건)
     Optional<File> findTop1ByUseTypeAndUseTargetIdOrderByInsertTimeDesc(String useType, Long useTargetId);
 
