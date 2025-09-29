@@ -40,55 +40,43 @@
         <!-- 검색 및 필터 섹션 -->
         <section class="py-8 border-b border-gray-200 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
-                    <!-- 검색바 -->
-                    <div class="relative flex-1 max-w-md">
-                        <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4"></i>
-                        <input
-                            type="text"
-                            id="boardSearchInput"
-                            placeholder="레시피, 재료로 검색..."
-                            class="board-search-input pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg bg-white focus:border-orange-500 focus:outline-none"
-                        />
+
+                <form action="/board/list" method="get" class="flex flex-col md:flex-row gap-4 items-center justify-between">
+
+                    <input type="hidden" name="category" value="${param.category}"/>
+
+                    <div class="flex items-center gap-2 flex-grow">
+                        <!-- 정렬 옵션: name="searchType" 추가 및 선택 상태 유지 로직 추가 -->
+                        <select id="boardSortSelect" name="searchType" class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
+                            <!-- searchType이 'title'이거나 null일 때 기본값으로 선택 -->
+                            <option value="title" ${param.searchType == 'title' || param.searchType == null ? 'selected' : ''}>제목</option>
+                            <!-- searchType이 'ingredient'일 때 선택 -->
+                            <option value="ingredient" ${param.searchType == 'ingredient' ? 'selected' : ''}>재료</option>
+                        </select>
+
+                        <div class="relative flex-1 max-w-md">
+                            <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4"></i>
+                            <input
+                                    type="text"
+                                    name="keyword" value="${param.keyword}" placeholder="레시피 제목 또는 재료 검색..."
+                                    class="board-search-input pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg bg-white focus:border-orange-500 focus:outline-none"
+                            />
+                        </div>
+
+                        <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                            <i data-lucide="search" class="h-4 w-4"></i>
+                        </button>
                     </div>
 
-                    <!-- 필터 컨트롤 -->
                     <div class="flex items-center space-x-4">
                         <button class="xl:hidden bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm">
                             <i data-lucide="filter" class="h-4 w-4 mr-2 inline"></i>
                             필터
                         </button>
-
-                        <select id="boardCategorySelect" class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
-                            <!-- 카테고리 옵션들이 JavaScript로 동적 생성됩니다 -->
-                        </select>
-
-                        <select id="boardSortSelect" class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
-                            <option value="newest">최신순</option>
-                            <option value="popularity">인기순</option>
-                            <option value="views">조회수순</option>
-                        </select>
                     </div>
-                </div>
+                </form>
             </div>
         </section>
-
-<%--        <!-- 카테고리 네비게이션 -->--%>
-<%--        <section class="py-6 border-b border-gray-200">--%>
-<%--            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">--%>
-<%--                <div class="flex items-center justify-between mb-6">--%>
-<%--                    <h3 class="flex items-center">--%>
-<%--                        <i data-lucide="filter" class="h-5 w-5 mr-2 text-orange-500"></i>--%>
-<%--                        카테고리--%>
-<%--                    </h3>--%>
-<%--                </div>--%>
-<%--                --%>
-<%--                <!-- 카테고리 버튼들 -->--%>
-<%--                <div class="flex flex-wrap gap-3" id="boardCategoryButtons">--%>
-<%--                    <!-- 카테고리 버튼들이 JavaScript로 동적 생성됩니다 -->--%>
-<%--                </div>--%>
-<%--            </div>--%>
-<%--        </section>--%>
 
         <!-- 레시피 목록 -->
         <section class="py-8">
@@ -260,34 +248,6 @@
                                     </div>
                                  </div>
                             </sec:authorize>
-
-<%--                            <!-- 커뮤니티 통계 -->--%>
-<%--                            <div class="bg-white border border-gray-200 rounded-lg">--%>
-<%--                                <div class="p-4 border-b border-gray-200">--%>
-<%--                                    <h3 class="flex items-center">--%>
-<%--                                        <i data-lucide="trending-up" class="h-5 w-5 mr-2 text-orange-500"></i>--%>
-<%--                                        커뮤니티 통계--%>
-<%--                                    </h3>--%>
-<%--                                </div>--%>
-<%--                                <div class="p-4 space-y-3">--%>
-<%--                                    <div class="flex justify-between items-center">--%>
-<%--                                        <span class="text-sm text-gray-500">총 레시피</span>--%>
-<%--                                        <span class="text-orange-600" id="sidebarTotalRecipes">6개</span>--%>
-<%--                                    </div>--%>
-<%--                                    <div class="flex justify-between items-center">--%>
-<%--                                        <span class="text-sm text-gray-500">활성 사용자</span>--%>
-<%--                                        <span class="text-orange-600">247명</span>--%>
-<%--                                    </div>--%>
-<%--                                    <div class="flex justify-between items-center">--%>
-<%--                                        <span class="text-sm text-gray-500">오늘 등록</span>--%>
-<%--                                        <span class="text-orange-600">12개</span>--%>
-<%--                                    </div>--%>
-<%--                                    <div class="flex justify-between items-center">--%>
-<%--                                        <span class="text-sm text-gray-500">이번 주</span>--%>
-<%--                                        <span class="text-orange-600">84개</span>--%>
-<%--                                    </div>--%>
-<%--                                </div>--%>
-<%--                            </div>--%>
                         </div>
                     </div>
 
@@ -343,89 +303,90 @@
                         </div>
 
                         <!-- 인기 게시글 섹션 -->
-                        <div class="mb-12" id="boardPopularSection" style="display: none;">
-                            <div class="flex items-center justify-between mb-6">
-                                <h3 class="text-xl flex items-center">
-                                    <i data-lucide="trending-up" class="w-6 h-6 mr-3 text-red-500"></i>
-                                    인기 레시피
-                                    <span class="ml-2 px-3 py-1 bg-red-100 text-red-700 text-sm rounded-full" id="boardPopularCount">
-                                        <!-- 인기 레시피 개수 -->
-                                    </span>
-                                </h3>
-                                <div class="text-sm text-gray-500">
-                                    ❤️ 가장 많은 좋아요를 받은 레시피
+                        <c:if test="${empty param.keyword}">
+                            <div class="mb-12" id="boardPopularSection">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h3 class="text-xl flex items-center">
+                                        <i data-lucide="trending-up" class="w-6 h-6 mr-3 text-red-500"></i>
+                                        인기 레시피
+                                        <span class="ml-2 px-3 py-1 bg-red-100 text-red-700 text-sm rounded-full" id="boardPopularCount">
+                    <!-- 인기 레시피 개수 -->
+                </span>
+                                    </h3>
+                                    <div class="text-sm text-gray-500">
+                                        ❤️ 가장 많은 좋아요를 받은 레시피
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4" id="boardPopularGrid">
+                                    <c:forEach var="post" items="${bestPosts}" varStatus="status">
+                                        <div class="board-popular-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-lg cursor-pointer"
+                                             data-category="${post.category}"
+                                             data-likes="${post.likeCount}"
+                                             data-views="${post.viewCount}"
+                                             data-created="${post.insertTime}"
+                                             data-title="${post.title}"
+                                             onclick="location.href='/board/view?boardId=${post.boardId}'">
+
+                                            <div class="relative">
+                                                <!-- 인기 순위 배지 -->
+                                                <div class="absolute top-2 left-2 z-10">
+                                                    <div class="board-rank-badge w-6 h-6 text-white rounded-full flex items-center justify-center text-xs">
+                                                            ${status.index + 1}
+                                                    </div>
+                                                </div>
+
+                                                <img src="<c:out value='${post.thumbnail}'/>"
+                                                     alt="${post.title}"
+                                                     class="board-card-image w-full h-48 object-cover"
+                                                     onerror="this.src='/images/default_thumbnail.png'" />
+
+                                                <!-- 상태 배지 (카테고리) -->
+                                                <div class="absolute top-2 right-2 flex flex-col space-y-1">
+                            <span class="category-badge
+                                ${post.category eq '한식' ? ' korean' : ''}
+                                ${post.category eq '양식' ? ' western' : ''}
+                                ${post.category eq '중식' ? ' chinese' : ''}
+                                ${post.category eq '일식' ? ' japanese' : ''}
+                                ${post.category eq '디저트' ? ' dessert' : ''}">
+                                <c:out value="${post.category}" />
+                            </span>
+                                                    <c:if test="${status.index == 0}">
+                                                        <span class="bg-red-500/90 backdrop-blur-sm text-white text-xs px-2 py-1 rounded shadow-sm">HOT</span>
+                                                    </c:if>
+                                                </div>
+                                            </div>
+
+                                            <div class="p-4">
+                                                <h4 class="board-card-title mb-2 transition-colors line-clamp-1">
+                                                    <c:out value="${post.title}" />
+                                                </h4>
+                                                <p class="text-sm text-gray-500 mb-3 line-clamp-2">
+                                                    <c:out value="${post.nickname}" /> 님의 레시피
+                                                </p>
+
+                                                <!-- 작성자 / 통계 -->
+                                                <div class="flex items-center justify-between pt-3 border-t border-gray-200">
+                                                    <div class="flex items-center space-x-3 text-sm">
+                                                        <div class="board-stat-item flex items-center space-x-1 text-gray-500">
+                                                            <i data-lucide="eye" class="h-4 w-4"></i>
+                                                            <span><c:out value="${post.viewCount}" /></span>
+                                                        </div>
+                                                        <div class="board-stat-item flex items-center space-x-1 text-red-500">
+                                                            <i data-lucide="heart" class="h-4 w-4 heart-like"></i>
+                                                            <span><c:out value="${post.likeCount}" /></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-xs text-gray-500">
+                                                        <span><c:out value="${post.createdAgo}"/></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
                                 </div>
                             </div>
-
-                            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4" id="boardPopularGrid">
-                                <c:forEach var="post" items="${bestPosts}" varStatus="status">
-                                    <div class="board-popular-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-lg cursor-pointer"
-                                         data-category="${post.category}"
-                                         data-likes="${post.likeCount}"
-                                         data-views="${post.viewCount}"
-                                         data-created="${post.insertTime}"
-                                         data-title="${post.title}"
-                                         onclick="location.href='/board/view?boardId=${post.boardId}'">
-
-                                        <div class="relative">
-                                            <!-- 인기 순위 배지 -->
-                                            <div class="absolute top-2 left-2 z-10">
-                                                <div class="board-rank-badge w-6 h-6 text-white rounded-full flex items-center justify-center text-xs">
-                                                        ${status.index + 1}
-                                                </div>
-                                            </div>
-
-                                            <img src="<c:out value='${post.thumbnail}'/>"
-                                                 alt="${post.title}"
-                                                 class="board-card-image w-full h-48 object-cover"
-                                                 onerror="this.src='/images/default_thumbnail.png'" />
-
-                                            <!-- 상태 배지 (카테고리) -->
-                                            <div class="absolute top-2 right-2 flex flex-col space-y-1">
-                                                <span class="category-badge
-                                                    ${post.category eq '한식' ? ' korean' : ''}
-                                                    ${post.category eq '양식' ? ' western' : ''}
-                                                    ${post.category eq '중식' ? ' chinese' : ''}
-                                                    ${post.category eq '일식' ? ' japanese' : ''}
-                                                    ${post.category eq '디저트' ? ' dessert' : ''}">
-                                                    <c:out value="${post.category}" />
-                                                </span>
-                                                <c:if test="${status.index == 0}">
-                                                    <span class="bg-red-500/90 backdrop-blur-sm text-white text-xs px-2 py-1 rounded shadow-sm">HOT</span>
-                                                </c:if>
-                                            </div>
-                                        </div>
-
-                                        <div class="p-4">
-                                            <h4 class="board-card-title mb-2 transition-colors line-clamp-1">
-                                                <c:out value="${post.title}" />
-                                            </h4>
-                                            <p class="text-sm text-gray-500 mb-3 line-clamp-2">
-                                                <c:out value="${post.nickname}" /> 님의 레시피
-                                            </p>
-
-                                            <!-- 작성자 / 통계 -->
-                                            <div class="flex items-center justify-between pt-3 border-t border-gray-200">
-                                                <div class="flex items-center space-x-3 text-sm">
-                                                    <div class="board-stat-item flex items-center space-x-1 text-gray-500">
-                                                        <i data-lucide="eye" class="h-4 w-4"></i>
-                                                        <span><c:out value="${post.viewCount}" /></span>
-                                                    </div>
-                                                    <div class="board-stat-item flex items-center space-x-1 text-red-500">
-                                                        <i data-lucide="heart" class="h-4 w-4 heart-like"></i>
-                                                        <span><c:out value="${post.likeCount}" /></span>
-                                                    </div>
-                                                </div>
-                                                <div class="text-xs text-gray-500">
-                                                    <span><c:out value="${post.createdAgo}"/></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </c:forEach>
-                            </div>
-                        </div>
-
+                        </c:if>
 
                         <!-- 일반 게시글 섹션 -->
                         <div>

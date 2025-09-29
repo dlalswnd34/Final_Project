@@ -43,15 +43,16 @@ public class BoardController {
     public String list(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String searchType,
             @PageableDefault(size = 9, sort = "insertTime", direction = Sort.Direction.DESC) Pageable pageable,
             @AuthenticationPrincipal CustomUserDetails loginUser,
             Model model
     ) {
         // 👉 현재 카테고리/검색 로그
-        log.info("👉 category = '{}'", category);
+        log.info("👉 category = '{}', keyword = '{}', searchType = '{}'", category, keyword, searchType);
 
         // ✅ 일반 게시글 목록
-        Page<BoardListDto> boards = boardService.searchBoards(keyword, category, pageable);
+        Page<BoardListDto> boards = boardService.searchBoards(keyword, category, searchType, pageable);
         model.addAttribute("boards", boards.getContent());
         model.addAttribute("pageInfo", boards);
 

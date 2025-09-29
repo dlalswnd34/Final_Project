@@ -33,4 +33,18 @@ public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecific
     @Query("update Board b set b.thumbnail = :thumbnail where b.boardId = :boardId")
     void updateThumbnail(@Param("boardId") Long boardId, @Param("thumbnail") String thumbnail);
 
+
+    // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    // 검색 로직
+    @Query("SELECT b FROM Board b WHERE " +
+            // 1. 카테고리 필수 필터링 조건
+            "b.category = :category AND " +
+            // 2. 검색어 옵션 처리: 검색어가 없으면 (NULL이거나 빈 문자열) 전체를 반환하고, 있으면 LIKE 검색을 수행
+            "(:keyword IS NULL OR :keyword = '' OR b.title LIKE %:keyword% OR b.prepare LIKE %:keyword%)" +
+            // 3. 정렬 (게시글 ID 내림차순, 즉 최신순)
+            "ORDER BY b.boardId DESC")
+    List<Board> searchByCategoryAndKeyword(
+            @Param("category") String category,
+            @Param("keyword") String keyword);
 }
