@@ -162,6 +162,11 @@ const CustomAdmin = {
         const boardCounts = monthlyData.map(item => item.boardCount);
         const memberCounts = monthlyData.map(item => item.memberCount);
 
+        const maxBoardCount = Math.max(...boardCounts);
+        const maxMemberCount = Math.max(...memberCounts);
+        const dynamicMaxY = Math.ceil(Math.max(maxBoardCount, maxMemberCount) / 100) * 100;  // 100 단위 올림 처리
+
+
 
         const data = {
             labels: labels,
@@ -220,7 +225,7 @@ const CustomAdmin = {
                     },
                     y: {
                         beginAtZero: true,
-                        max: 400,
+                        max: dynamicMaxY,
                         grid: {
                             color: '#f1f5f9'
                         },

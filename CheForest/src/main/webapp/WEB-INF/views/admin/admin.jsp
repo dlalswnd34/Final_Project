@@ -27,7 +27,7 @@
                     <i data-lucide="shield" class="icon"></i>
                 </div>
                 <div class="logo-text">
-                    <h2>CheForest</h2>
+                <a href="/"><h2>CheForest</h2></a>
                     <span>관리자</span>
                 </div>
             </div>
@@ -60,12 +60,12 @@
                         <span>게시글 관리</span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" data-tab="events">
-                        <i data-lucide="calendar" class="nav-icon"></i>
-                        <span>이벤트 관리</span>
-                    </a>
-                </li>
+<%--                <li class="nav-item">--%>
+<%--                    <a href="#" class="nav-link" data-tab="events">--%>
+<%--                        <i data-lucide="calendar" class="nav-icon"></i>--%>
+<%--                        <span>이벤트 관리</span>--%>
+<%--                    </a>--%>
+<%--                </li>--%>
                 <li class="nav-item">
                     <a href="#" class="nav-link" data-tab="inquiries">
                         <i data-lucide="help-circle" class="nav-icon"></i>
@@ -785,12 +785,12 @@
                         <div class="header-controls">
                             <div class="search-box">
                                 <i data-lucide="search" class="search-icon"></i>
-                                <input type="text" placeholder="제목, 내용, 작성자 검색..." class="search-input" id="inquiry-search">
+                                <input type="text" placeholder="제목, 내용 검색..." class="search-input" id="inquiry-search">
                             </div>
                             <select class="filter-select" id="inquiry-status">
                                 <option value="all">전체 상태</option>
-                                <option value="pending">대기중</option>
-                                <option value="answered">답변완료</option>
+                                <option value="대기중">대기중</option>
+                                <option value="답변완료">답변완료</option>
                             </select>
                         </div>
                     </div>
@@ -941,414 +941,415 @@
                         </div>
                     </div>
 
-                    <!-- 시스템 모니터링 -->
-                    <div class="system-monitoring">
-                        <h4 class="monitoring-title">시스템 모니터링</h4>
-                        <div class="monitoring-grid">
-                            <div class="monitoring-item">
-                                <div class="monitoring-label">
-                                    <i data-lucide="cpu" class="monitoring-icon"></i>
-                                    <span>CPU 사용률</span>
-                                </div>
-                                <div class="monitoring-progress">
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: 45%"></div>
-                                    </div>
-                                    <span class="monitoring-value">45%</span>
-                                </div>
-                            </div>
-                            <div class="monitoring-item">
-                                <div class="monitoring-label">
-                                    <i data-lucide="hard-drive" class="monitoring-icon"></i>
-                                    <span>메모리 사용률</span>
-                                </div>
-                                <div class="monitoring-progress">
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: 62%"></div>
-                                    </div>
-                                    <span class="monitoring-value">62%</span>
-                                </div>
-                            </div>
-                            <div class="monitoring-item">
-                                <div class="monitoring-label">
-                                    <i data-lucide="database" class="monitoring-icon"></i>
-                                    <span>디스크 사용률</span>
-                                </div>
-                                <div class="monitoring-progress">
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: 78%"></div>
-                                    </div>
-                                    <span class="monitoring-value">78%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<%--                    <!-- 시스템 모니터링 -->--%>
+<%--                    <div class="system-monitoring">--%>
+<%--                        <h4 class="monitoring-title">시스템 모니터링</h4>--%>
+<%--                        <div class="monitoring-grid">--%>
+<%--                            <div class="monitoring-item">--%>
+<%--                                <div class="monitoring-label">--%>
+<%--                                    <i data-lucide="cpu" class="monitoring-icon"></i>--%>
+<%--                                    <span>CPU 사용률</span>--%>
+<%--                                </div>--%>
+<%--                                <div class="monitoring-progress">--%>
+<%--                                    <div class="progress-bar">--%>
+<%--                                        <div class="progress-fill" style="width: 45%"></div>--%>
+<%--                                    </div>--%>
+<%--                                    <span class="monitoring-value">45%</span>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                            <div class="monitoring-item">--%>
+<%--                                <div class="monitoring-label">--%>
+<%--                                    <i data-lucide="hard-drive" class="monitoring-icon"></i>--%>
+<%--                                    <span>메모리 사용률</span>--%>
+<%--                                </div>--%>
+<%--                                <div class="monitoring-progress">--%>
+<%--                                    <div class="progress-bar">--%>
+<%--                                        <div class="progress-fill" style="width: 62%"></div>--%>
+<%--                                    </div>--%>
+<%--                                    <span class="monitoring-value">62%</span>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                            <div class="monitoring-item">--%>
+<%--                                <div class="monitoring-label">--%>
+<%--                                    <i data-lucide="database" class="monitoring-icon"></i>--%>
+<%--                                    <span>디스크 사용률</span>--%>
+<%--                                </div>--%>
+<%--                                <div class="monitoring-progress">--%>
+<%--                                    <div class="progress-bar">--%>
+<%--                                        <div class="progress-fill" style="width: 78%"></div>--%>
+<%--                                    </div>--%>
+<%--                                    <span class="monitoring-value">78%</span>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                    </div>--%>
                 </div>
 
-                <!-- 시스템 설정 -->
-                <div class="management-card">
-                    <div class="management-header">
-                        <div class="header-left">
-                            <h3 class="management-title">
-                                <i data-lucide="settings" class="title-icon"></i>
-                                시스템 설정
-                            </h3>
-                        </div>
-                    </div>
+<%--                <!-- 시스템 설정 -->--%>
+<%--                <div class="management-card">--%>
+<%--                    <div class="management-header">--%>
+<%--                        <div class="header-left">--%>
+<%--                            <h3 class="management-title">--%>
+<%--                                <i data-lucide="settings" class="title-icon"></i>--%>
+<%--                                시스템 설정--%>
+<%--                            </h3>--%>
+<%--                        </div>--%>
+<%--                    </div>--%>
 
-                    <!-- 설정 탭들 -->
-                    <div class="settings-tabs">
-                        <div class="tab-list">
-                            <button class="tab-btn active" data-settings-tab="site">
-                                <i data-lucide="globe" class="tab-icon"></i>
-                                <span>사이트 설정</span>
-                            </button>
-                            <button class="tab-btn" data-settings-tab="security">
-                                <i data-lucide="shield" class="tab-icon"></i>
-                                <span>보안 설정</span>
-                            </button>
-                            <button class="tab-btn" data-settings-tab="recipe">
-                                <i data-lucide="file-text" class="tab-icon"></i>
-                                <span>레시피 설정</span>
-                            </button>
-                            <button class="tab-btn" data-settings-tab="grade">
-                                <i data-lucide="award" class="tab-icon"></i>
-                                <span>등급 설정</span>
-                            </button>
-                            <button class="tab-btn" data-settings-tab="notification">
-                                <i data-lucide="bell" class="tab-icon"></i>
-                                <span>알림 설정</span>
-                            </button>
-                        </div>
-                    </div>
+<%--                    <!-- 설정 탭들 -->--%>
+<%--                    <div class="settings-tabs">--%>
+<%--                        <div class="tab-list">--%>
+<%--                            <button class="tab-btn active" data-settings-tab="site">--%>
+<%--                                <i data-lucide="globe" class="tab-icon"></i>--%>
+<%--                                <span>사이트 설정</span>--%>
+<%--                            </button>--%>
+<%--                            <button class="tab-btn" data-settings-tab="security">--%>
+<%--                                <i data-lucide="shield" class="tab-icon"></i>--%>
+<%--                                <span>보안 설정</span>--%>
+<%--                            </button>--%>
+<%--                            <button class="tab-btn" data-settings-tab="recipe">--%>
+<%--                                <i data-lucide="file-text" class="tab-icon"></i>--%>
+<%--                                <span>레시피 설정</span>--%>
+<%--                            </button>--%>
+<%--                            <button class="tab-btn" data-settings-tab="grade">--%>
+<%--                                <i data-lucide="award" class="tab-icon"></i>--%>
+<%--                                <span>등급 설정</span>--%>
+<%--                            </button>--%>
+<%--                            <button class="tab-btn" data-settings-tab="notification">--%>
+<%--                                <i data-lucide="bell" class="tab-icon"></i>--%>
+<%--                                <span>알림 설정</span>--%>
+<%--                            </button>--%>
+<%--                        </div>--%>
+<%--                    </div>--%>
 
-                    <!-- 사이트 설정 탭 -->
-                    <div id="site-settings" class="settings-tab-content active">
-                        <div class="settings-grid">
-                            <div class="settings-card">
-                                <div class="settings-header">
-                                    <h4 class="settings-title">
-                                        <i data-lucide="globe" class="settings-icon"></i>
-                                        기본 정보
-                                    </h4>
-                                </div>
-                                <div class="settings-body">
-                                    <div class="setting-item">
-                                        <label>사이트 이름</label>
-                                        <input type="text" value="CheForest" class="setting-input">
-                                    </div>
-                                    <div class="setting-item">
-                                        <label>사이트 슬로건</label>
-                                        <input type="text" value="당신만의 특별한 레시피를 발견하세요" class="setting-input">
-                                    </div>
-                                    <div class="setting-item">
-                                        <label>관리자 이메일</label>
-                                        <input type="email" value="admin@cheforest.com" class="setting-input">
-                                    </div>
-                                </div>
-                            </div>
+<%--                    <!-- 사이트 설정 탭 -->--%>
+<%--                    <div id="site-settings" class="settings-tab-content active">--%>
+<%--                        <div class="settings-grid">--%>
+<%--                            <div class="settings-card">--%>
+<%--                                <div class="settings-header">--%>
+<%--                                    <h4 class="settings-title">--%>
+<%--                                        <i data-lucide="globe" class="settings-icon"></i>--%>
+<%--                                        기본 정보--%>
+<%--                                    </h4>--%>
+<%--                                </div>--%>
+<%--                                <div class="settings-body">--%>
+<%--                                    <div class="setting-item">--%>
+<%--                                        <label>사이트 이름</label>--%>
+<%--                                        <input type="text" value="CheForest" class="setting-input">--%>
+<%--                                    </div>--%>
+<%--                                    <div class="setting-item">--%>
+<%--                                        <label>사이트 슬로건</label>--%>
+<%--                                        <input type="text" value="당신만의 특별한 레시피를 발견하세요" class="setting-input">--%>
+<%--                                    </div>--%>
+<%--                                    <div class="setting-item">--%>
+<%--                                        <label>관리자 이메일</label>--%>
+<%--                                        <input type="email" value="admin@cheforest.com" class="setting-input">--%>
+<%--                                    </div>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
 
-                            <div class="settings-card">
-                                <div class="settings-header">
-                                    <h4 class="settings-title">
-                                        <i data-lucide="palette" class="settings-icon"></i>
-                                        디자인 설정
-                                    </h4>
-                                </div>
-                                <div class="settings-body">
-                                    <div class="setting-item">
-                                        <label>메인 컬러</label>
-                                        <div class="color-display">
-                                            <div class="color-box"></div>
-                                            <span>핑크-오렌지 그라데이션</span>
-                                        </div>
-                                    </div>
-                                    <div class="setting-item">
-                                        <label>로고 업로드</label>
-                                        <div class="upload-area">
-                                            <i data-lucide="upload" class="upload-icon"></i>
-                                            <span>클릭하여 로고 이미지 업로드</span>
-                                        </div>
-                                    </div>
-                                    <div class="setting-item toggle">
-                                        <label>다크 모드 지원</label>
-                                        <div class="toggle-switch">
-                                            <input type="checkbox" id="dark-mode">
-                                            <span class="slider"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<%--                            <div class="settings-card">--%>
+<%--                                <div class="settings-header">--%>
+<%--                                    <h4 class="settings-title">--%>
+<%--                                        <i data-lucide="palette" class="settings-icon"></i>--%>
+<%--                                        디자인 설정--%>
+<%--                                    </h4>--%>
+<%--                                </div>--%>
+<%--                                <div class="settings-body">--%>
+<%--                                    <div class="setting-item">--%>
+<%--                                        <label>메인 컬러</label>--%>
+<%--                                        <div class="color-display">--%>
+<%--                                            <div class="color-box"></div>--%>
+<%--                                            <span>핑크-오렌지 그라데이션</span>--%>
+<%--                                        </div>--%>
+<%--                                    </div>--%>
+<%--                                    <div class="setting-item">--%>
+<%--                                        <label>로고 업로드</label>--%>
+<%--                                        <div class="upload-area">--%>
+<%--                                            <i data-lucide="upload" class="upload-icon"></i>--%>
+<%--                                            <span>클릭하여 로고 이미지 업로드</span>--%>
+<%--                                        </div>--%>
+<%--                                    </div>--%>
+<%--                                    <div class="setting-item toggle">--%>
+<%--                                        <label>다크 모드 지원</label>--%>
+<%--                                        <div class="toggle-switch">--%>
+<%--                                            <input type="checkbox" id="dark-mode">--%>
+<%--                                            <span class="slider"></span>--%>
+<%--                                        </div>--%>
+<%--                                    </div>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                    </div>--%>
 
-                    <!-- 보안 설정 탭 -->
-                    <div id="security-settings" class="settings-tab-content">
-                        <div class="settings-grid">
-                            <div class="settings-card">
-                                <div class="settings-header">
-                                    <h4 class="settings-title">
-                                        <i data-lucide="shield" class="settings-icon"></i>
-                                        인증 보안
-                                    </h4>
-                                </div>
-                                <div class="settings-body">
-                                    <div class="setting-item toggle">
-                                        <div>
-                                            <label>2단계 인증 (2FA)</label>
-                                            <p class="setting-desc">관리자 계정의 보안을 강화합니다</p>
-                                        </div>
-                                        <div class="toggle-switch">
-                                            <input type="checkbox" id="two-fa">
-                                            <span class="slider"></span>
-                                        </div>
-                                    </div>
-                                    <div class="setting-item">
-                                        <label>세션 타임아웃 (분)</label>
-                                        <input type="number" value="30" class="setting-input">
-                                    </div>
-                                    <div class="setting-item">
-                                        <label>최대 로그인 시도 횟수</label>
-                                        <input type="number" value="5" class="setting-input">
-                                    </div>
-                                </div>
-                            </div>
+<%--                    <!-- 보안 설정 탭 -->--%>
+<%--                    <div id="security-settings" class="settings-tab-content">--%>
+<%--                        <div class="settings-grid">--%>
+<%--                            <div class="settings-card">--%>
+<%--                                <div class="settings-header">--%>
+<%--                                    <h4 class="settings-title">--%>
+<%--                                        <i data-lucide="shield" class="settings-icon"></i>--%>
+<%--                                        인증 보안--%>
+<%--                                    </h4>--%>
+<%--                                </div>--%>
+<%--                                <div class="settings-body">--%>
+<%--                                    <div class="setting-item toggle">--%>
+<%--                                        <div>--%>
+<%--                                            <label>2단계 인증 (2FA)</label>--%>
+<%--                                            <p class="setting-desc">관리자 계정의 보안을 강화합니다</p>--%>
+<%--                                        </div>--%>
+<%--                                        <div class="toggle-switch">--%>
+<%--                                            <input type="checkbox" id="two-fa">--%>
+<%--                                            <span class="slider"></span>--%>
+<%--                                        </div>--%>
+<%--                                    </div>--%>
+<%--                                    <div class="setting-item">--%>
+<%--                                        <label>세션 타임아웃 (분)</label>--%>
+<%--                                        <input type="number" value="30" class="setting-input">--%>
+<%--                                    </div>--%>
+<%--                                    <div class="setting-item">--%>
+<%--                                        <label>최대 로그인 시도 횟수</label>--%>
+<%--                                        <input type="number" value="5" class="setting-input">--%>
+<%--                                    </div>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
 
-                            <div class="settings-card">
-                                <div class="settings-header">
-                                    <h4 class="settings-title">
-                                        <i data-lucide="lock" class="settings-icon"></i>
-                                        비밀번호 정책
-                                    </h4>
-                                </div>
-                                <div class="settings-body">
-                                    <div class="setting-item">
-                                        <label>최소 비밀번호 길이</label>
-                                        <input type="number" value="8" class="setting-input">
-                                    </div>
-                                    <div class="setting-item toggle">
-                                        <label>대문자 포함 필수</label>
-                                        <div class="toggle-switch">
-                                            <input type="checkbox" id="uppercase" checked>
-                                            <span class="slider"></span>
-                                        </div>
-                                    </div>
-                                    <div class="setting-item toggle">
-                                        <label>숫자 포함 필수</label>
-                                        <div class="toggle-switch">
-                                            <input type="checkbox" id="numbers" checked>
-                                            <span class="slider"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<%--                            <div class="settings-card">--%>
+<%--                                <div class="settings-header">--%>
+<%--                                    <h4 class="settings-title">--%>
+<%--                                        <i data-lucide="lock" class="settings-icon"></i>--%>
+<%--                                        비밀번호 정책--%>
+<%--                                    </h4>--%>
+<%--                                </div>--%>
+<%--                                <div class="settings-body">--%>
+<%--                                    <div class="setting-item">--%>
+<%--                                        <label>최소 비밀번호 길이</label>--%>
+<%--                                        <input type="number" value="8" class="setting-input">--%>
+<%--                                    </div>--%>
+<%--                                    <div class="setting-item toggle">--%>
+<%--                                        <label>대문자 포함 필수</label>--%>
+<%--                                        <div class="toggle-switch">--%>
+<%--                                            <input type="checkbox" id="uppercase" checked>--%>
+<%--                                            <span class="slider"></span>--%>
+<%--                                        </div>--%>
+<%--                                    </div>--%>
+<%--                                    <div class="setting-item toggle">--%>
+<%--                                        <label>숫자 포함 필수</label>--%>
+<%--                                        <div class="toggle-switch">--%>
+<%--                                            <input type="checkbox" id="numbers" checked>--%>
+<%--                                            <span class="slider"></span>--%>
+<%--                                        </div>--%>
+<%--                                    </div>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                    </div>--%>
 
-                    <!-- 레시피 설정 탭 -->
-                    <div id="recipe-settings" class="settings-tab-content">
-                        <div class="settings-grid">
-                            <div class="settings-card">
-                                <div class="settings-header">
-                                    <h4 class="settings-title">
-                                        <i data-lucide="file-text" class="settings-icon"></i>
-                                        게시 정책
-                                    </h4>
-                                </div>
-                                <div class="settings-body">
-                                    <div class="setting-item toggle">
-                                        <div>
-                                            <label>레시피 사전 승인</label>
-                                            <p class="setting-desc">새 레시피 게시 전 관리자 승인 필요</p>
-                                        </div>
-                                        <div class="toggle-switch">
-                                            <input type="checkbox" id="recipe-approval">
-                                            <span class="slider"></span>
-                                        </div>
-                                    </div>
-                                    <div class="setting-item">
-                                        <label>최대 이미지 개수</label>
-                                        <input type="number" value="10" class="setting-input">
-                                    </div>
-                                    <div class="setting-item">
-                                        <label>최대 이미지 크기 (MB)</label>
-                                        <input type="number" value="5" class="setting-input">
-                                    </div>
-                                </div>
-                            </div>
+<%--                    <!-- 레시피 설정 탭 -->--%>
+<%--                    <div id="recipe-settings" class="settings-tab-content">--%>
+<%--                        <div class="settings-grid">--%>
+<%--                            <div class="settings-card">--%>
+<%--                                <div class="settings-header">--%>
+<%--                                    <h4 class="settings-title">--%>
+<%--                                        <i data-lucide="file-text" class="settings-icon"></i>--%>
+<%--                                        게시 정책--%>
+<%--                                    </h4>--%>
+<%--                                </div>--%>
+<%--                                <div class="settings-body">--%>
+<%--                                    <div class="setting-item toggle">--%>
+<%--                                        <div>--%>
+<%--                                            <label>레시피 사전 승인</label>--%>
+<%--                                            <p class="setting-desc">새 레시피 게시 전 관리자 승인 필요</p>--%>
+<%--                                        </div>--%>
+<%--                                        <div class="toggle-switch">--%>
+<%--                                            <input type="checkbox" id="recipe-approval">--%>
+<%--                                            <span class="slider"></span>--%>
+<%--                                        </div>--%>
+<%--                                    </div>--%>
+<%--                                    <div class="setting-item">--%>
+<%--                                        <label>최대 이미지 개수</label>--%>
+<%--                                        <input type="number" value="10" class="setting-input">--%>
+<%--                                    </div>--%>
+<%--                                    <div class="setting-item">--%>
+<%--                                        <label>최대 이미지 크기 (MB)</label>--%>
+<%--                                        <input type="number" value="5" class="setting-input">--%>
+<%--                                    </div>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
 
-                            <div class="settings-card">
-                                <div class="settings-header">
-                                    <h4 class="settings-title">
-                                        <i data-lucide="tag" class="settings-icon"></i>
-                                        카테고리 관리
-                                    </h4>
-                                </div>
-                                <div class="settings-body">
-                                    <div class="category-list">
-                                        <div class="category-item">
-                                            <span>한식</span>
-                                            <div class="toggle-switch">
-                                                <input type="checkbox" id="category-korean" checked>
-                                                <span class="slider"></span>
-                                            </div>
-                                        </div>
-                                        <div class="category-item">
-                                            <span>양식</span>
-                                            <div class="toggle-switch">
-                                                <input type="checkbox" id="category-western" checked>
-                                                <span class="slider"></span>
-                                            </div>
-                                        </div>
-                                        <div class="category-item">
-                                            <span>중식</span>
-                                            <div class="toggle-switch">
-                                                <input type="checkbox" id="category-chinese" checked>
-                                                <span class="slider"></span>
-                                            </div>
-                                        </div>
-                                        <div class="category-item">
-                                            <span>일식</span>
-                                            <div class="toggle-switch">
-                                                <input type="checkbox" id="category-japanese" checked>
-                                                <span class="slider"></span>
-                                            </div>
-                                        </div>
-                                        <div class="category-item">
-                                            <span>디저트</span>
-                                            <div class="toggle-switch">
-                                                <input type="checkbox" id="category-dessert" checked>
-                                                <span class="slider"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<%--                            <div class="settings-card">--%>
+<%--                                <div class="settings-header">--%>
+<%--                                    <h4 class="settings-title">--%>
+<%--                                        <i data-lucide="tag" class="settings-icon"></i>--%>
+<%--                                        카테고리 관리--%>
+<%--                                    </h4>--%>
+<%--                                </div>--%>
+<%--                                <div class="settings-body">--%>
+<%--                                    <div class="category-list">--%>
+<%--                                        <div class="category-item">--%>
+<%--                                            <span>한식</span>--%>
+<%--                                            <div class="toggle-switch">--%>
+<%--                                                <input type="checkbox" id="category-korean" checked>--%>
+<%--                                                <span class="slider"></span>--%>
+<%--                                            </div>--%>
+<%--                                        </div>--%>
+<%--                                        <div class="category-item">--%>
+<%--                                            <span>양식</span>--%>
+<%--                                            <div class="toggle-switch">--%>
+<%--                                                <input type="checkbox" id="category-western" checked>--%>
+<%--                                                <span class="slider"></span>--%>
+<%--                                            </div>--%>
+<%--                                        </div>--%>
+<%--                                        <div class="category-item">--%>
+<%--                                            <span>중식</span>--%>
+<%--                                            <div class="toggle-switch">--%>
+<%--                                                <input type="checkbox" id="category-chinese" checked>--%>
+<%--                                                <span class="slider"></span>--%>
+<%--                                            </div>--%>
+<%--                                        </div>--%>
+<%--                                        <div class="category-item">--%>
+<%--                                            <span>일식</span>--%>
+<%--                                            <div class="toggle-switch">--%>
+<%--                                                <input type="checkbox" id="category-japanese" checked>--%>
+<%--                                                <span class="slider"></span>--%>
+<%--                                            </div>--%>
+<%--                                        </div>--%>
+<%--                                        <div class="category-item">--%>
+<%--                                            <span>디저트</span>--%>
+<%--                                            <div class="toggle-switch">--%>
+<%--                                                <input type="checkbox" id="category-dessert" checked>--%>
+<%--                                                <span class="slider"></span>--%>
+<%--                                            </div>--%>
+<%--                                        </div>--%>
+<%--                                    </div>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                    </div>--%>
 
-                    <!-- 등급 설정 탭 -->
-                    <div id="grade-settings" class="settings-tab-content">
-                        <div class="grade-system">
-                            <h4 class="grade-title">
-                                <i data-lucide="award" class="title-icon"></i>
-                                회원 등급 시스템
-                            </h4>
-                            <div class="grade-grid">
-                                <div class="grade-card grade-씨앗">
-                                    <div class="grade-badge">씨앗</div>
-                                    <div class="grade-requirements">
-                                        <div>게시글: 0개 이상</div>
-                                        <div>좋아요: 0개 이상</div>
-                                        <div>팔로워: 0명 이상</div>
-                                    </div>
-                                </div>
-                                <div class="grade-card grade-뿌리">
-                                    <div class="grade-badge">뿌리</div>
-                                    <div class="grade-requirements">
-                                        <div>게시글: 5개 이상</div>
-                                        <div>좋아요: 20개 이상</div>
-                                        <div>팔로워: 5명 이상</div>
-                                    </div>
-                                </div>
-                                <div class="grade-card grade-새싹">
-                                    <div class="grade-badge">새싹</div>
-                                    <div class="grade-requirements">
-                                        <div>게시글: 15개 이상</div>
-                                        <div>좋아요: 50개 이상</div>
-                                        <div>팔로워: 15명 이상</div>
-                                    </div>
-                                </div>
-                                <div class="grade-card grade-나무">
-                                    <div class="grade-badge">나무</div>
-                                    <div class="grade-requirements">
-                                        <div>게시글: 30개 이상</div>
-                                        <div>좋아요: 100개 이상</div>
-                                        <div>팔로워: 30명 이상</div>
-                                    </div>
-                                </div>
-                                <div class="grade-card grade-숲">
-                                    <div class="grade-badge">숲</div>
-                                    <div class="grade-requirements">
-                                        <div>게시글: 50개 이상</div>
-                                        <div>좋아요: 200개 이상</div>
-                                        <div>팔로워: 50명 이상</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<%--                    <!-- 등급 설정 탭 -->--%>
+<%--                    <div id="grade-settings" class="settings-tab-content">--%>
+<%--                        <div class="grade-system">--%>
+<%--                            <h4 class="grade-title">--%>
+<%--                                <i data-lucide="award" class="title-icon"></i>--%>
+<%--                                회원 등급 시스템--%>
+<%--                            </h4>--%>
+<%--                            <div class="grade-grid">--%>
+<%--                                <div class="grade-card grade-씨앗">--%>
+<%--                                    <div class="grade-badge">씨앗</div>--%>
+<%--                                    <div class="grade-requirements">--%>
+<%--                                        <div>게시글: 0개 이상</div>--%>
+<%--                                        <div>좋아요: 0개 이상</div>--%>
+<%--                                        <div>팔로워: 0명 이상</div>--%>
+<%--                                    </div>--%>
+<%--                                </div>--%>
+<%--                                <div class="grade-card grade-뿌리">--%>
+<%--                                    <div class="grade-badge">뿌리</div>--%>
+<%--                                    <div class="grade-requirements">--%>
+<%--                                        <div>게시글: 5개 이상</div>--%>
+<%--                                        <div>좋아요: 20개 이상</div>--%>
+<%--                                        <div>팔로워: 5명 이상</div>--%>
+<%--                                    </div>--%>
+<%--                                </div>--%>
+<%--                                <div class="grade-card grade-새싹">--%>
+<%--                                    <div class="grade-badge">새싹</div>--%>
+<%--                                    <div class="grade-requirements">--%>
+<%--                                        <div>게시글: 15개 이상</div>--%>
+<%--                                        <div>좋아요: 50개 이상</div>--%>
+<%--                                        <div>팔로워: 15명 이상</div>--%>
+<%--                                    </div>--%>
+<%--                                </div>--%>
+<%--                                <div class="grade-card grade-나무">--%>
+<%--                                    <div class="grade-badge">나무</div>--%>
+<%--                                    <div class="grade-requirements">--%>
+<%--                                        <div>게시글: 30개 이상</div>--%>
+<%--                                        <div>좋아요: 100개 이상</div>--%>
+<%--                                        <div>팔로워: 30명 이상</div>--%>
+<%--                                    </div>--%>
+<%--                                </div>--%>
+<%--                                <div class="grade-card grade-숲">--%>
+<%--                                    <div class="grade-badge">숲</div>--%>
+<%--                                    <div class="grade-requirements">--%>
+<%--                                        <div>게시글: 50개 이상</div>--%>
+<%--                                        <div>좋아요: 200개 이상</div>--%>
+<%--                                        <div>팔로워: 50명 이상</div>--%>
+<%--                                    </div>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                    </div>--%>
 
-                    <!-- 알림 설정 탭 -->
-                    <div id="notification-settings" class="settings-tab-content">
-                        <div class="settings-grid">
-                            <div class="settings-card">
-                                <div class="settings-header">
-                                    <h4 class="settings-title">
-                                        <i data-lucide="bell" class="settings-icon"></i>
-                                        이메일 알림
-                                    </h4>
-                                </div>
-                                <div class="settings-body">
-                                    <div class="setting-item toggle">
-                                        <label>새 회원 가입 알림</label>
-                                        <div class="toggle-switch">
-                                            <input type="checkbox" id="new-member-alert" checked>
-                                            <span class="slider"></span>
-                                        </div>
-                                    </div>
-                                    <div class="setting-item toggle">
-                                        <label>새 레시피 등록 알림</label>
-                                        <div class="toggle-switch">
-                                            <input type="checkbox" id="new-recipe-alert" checked>
-                                            <span class="slider"></span>
-                                        </div>
-                                    </div>
-                                    <div class="setting-item toggle">
-                                        <label>문의사항 접수 알림</label>
-                                        <div class="toggle-switch">
-                                            <input type="checkbox" id="inquiry-alert" checked>
-                                            <span class="slider"></span>
-                                        </div>
-                                    </div>
-                                    <div class="setting-item">
-                                        <label>알림 수신 이메일</label>
-                                        <input type="email" value="admin@cheforest.com" class="setting-input">
-                                    </div>
-                                </div>
-                            </div>
+<%--                    <!-- 알림 설정 탭 -->--%>
+<%--                    <div id="notification-settings" class="settings-tab-content">--%>
+<%--                        <div class="settings-grid">--%>
+<%--                            <div class="settings-card">--%>
+<%--                                <div class="settings-header">--%>
+<%--                                    <h4 class="settings-title">--%>
+<%--                                        <i data-lucide="bell" class="settings-icon"></i>--%>
+<%--                                        이메일 알림--%>
+<%--                                    </h4>--%>
+<%--                                </div>--%>
+<%--                                <div class="settings-body">--%>
+<%--                                    <div class="setting-item toggle">--%>
+<%--                                        <label>새 회원 가입 알림</label>--%>
+<%--                                        <div class="toggle-switch">--%>
+<%--                                            <input type="checkbox" id="new-member-alert" checked>--%>
+<%--                                            <span class="slider"></span>--%>
+<%--                                        </div>--%>
+<%--                                    </div>--%>
+<%--                                    <div class="setting-item toggle">--%>
+<%--                                        <label>새 레시피 등록 알림</label>--%>
+<%--                                        <div class="toggle-switch">--%>
+<%--                                            <input type="checkbox" id="new-recipe-alert" checked>--%>
+<%--                                            <span class="slider"></span>--%>
+<%--                                        </div>--%>
+<%--                                    </div>--%>
+<%--                                    <div class="setting-item toggle">--%>
+<%--                                        <label>문의사항 접수 알림</label>--%>
+<%--                                        <div class="toggle-switch">--%>
+<%--                                            <input type="checkbox" id="inquiry-alert" checked>--%>
+<%--                                            <span class="slider"></span>--%>
+<%--                                        </div>--%>
+<%--                                    </div>--%>
+<%--                                    <div class="setting-item">--%>
+<%--                                        <label>알림 수신 이메일</label>--%>
+<%--                                        <input type="email" value="admin@cheforest.com" class="setting-input">--%>
+<%--                                    </div>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
 
-                            <div class="settings-card">
-                                <div class="settings-header">
-                                    <h4 class="settings-title">
-                                        <i data-lucide="message-square" class="settings-icon"></i>
-                                        시스템 알림
-                                    </h4>
-                                </div>
-                                <div class="settings-body">
-                                    <div class="setting-item toggle">
-                                        <label>시스템 점검 알림</label>
-                                        <div class="toggle-switch">
-                                            <input type="checkbox" id="maintenance-alert" checked>
-                                            <span class="slider"></span>
-                                        </div>
-                                    </div>
-                                    <div class="setting-item toggle">
-                                        <label>보안 경고 알림</label>
-                                        <div class="toggle-switch">
-                                            <input type="checkbox" id="security-alert" checked>
-                                            <span class="slider"></span>
-                                        </div>
-                                    </div>
-                                    <div class="setting-item">
-                                        <label>CPU 사용률 경고 임계값 (%)</label>
-                                        <input type="number" value="80" class="setting-input">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<%--                            <div class="settings-card">--%>
+<%--                                <div class="settings-header">--%>
+<%--                                    <h4 class="settings-title">--%>
+<%--                                        <i data-lucide="message-square" class="settings-icon"></i>--%>
+<%--                                        시스템 알림--%>
+<%--                                    </h4>--%>
+<%--                                </div>--%>
+<%--                                <div class="settings-body">--%>
+<%--                                    <div class="setting-item toggle">--%>
+<%--                                        <label>시스템 점검 알림</label>--%>
+<%--                                        <div class="toggle-switch">--%>
+<%--                                            <input type="checkbox" id="maintenance-alert" checked>--%>
+<%--                                            <span class="slider"></span>--%>
+<%--                                        </div>--%>
+<%--                                    </div>--%>
+<%--                                    <div class="setting-item toggle">--%>
+<%--                                        <label>보안 경고 알림</label>--%>
+<%--                                        <div class="toggle-switch">--%>
+<%--                                            <input type="checkbox" id="security-alert" checked>--%>
+<%--                                            <span class="slider"></span>--%>
+<%--                                        </div>--%>
+<%--                                    </div>--%>
+<%--                                    <div class="setting-item">--%>
+<%--                                        <label>CPU 사용률 경고 임계값 (%)</label>--%>
+<%--                                        <input type="number" value="80" class="setting-input">--%>
+<%--                                    </div>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                    </div>--%>
+<%--                </div>--%>
+
             </section>
         </div>
     </main>

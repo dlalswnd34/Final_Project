@@ -304,12 +304,25 @@ const InquiryManager = {
     loadInquiries: function (page = 1) {
         this.showLoading();
 
-        fetch(`/api/inquiries?page=${page - 1}&size=${this.pageSize}&sort=createdAt,desc`)
+        // ① 검색어와 상태 가져오기
+        const keyword = document.getElementById("inquiry-search")?.value || "";
+        const status = document.getElementById("inquiry-status")?.value || "all";
+
+        // ② API URL 구성
+        const queryParams = new URLSearchParams({
+            page: page - 1,
+            size: this.pageSize,
+            sort: "createdAt,desc",
+            keyword: keyword,
+            status: status
+        });
+
+        fetch(`/api/searchInquiries?${queryParams.toString()}`)
             .then(res => res.json())
             .then(data => {
-                this.currentPage = data.page;
-                this.latestInquiries = data.data;
-                this.renderInquiries(data.data);
+                this.currentPage = page;
+                this.latestInquiries = data.content;
+                this.renderInquiries(data.content);
                 this.renderPagination(data.totalPages);
             })
             .catch(error => {
@@ -414,7 +427,39 @@ const MemberManager = {
                 this.currentPage = data.page;
                 this.latestMemberList = data.data;
                 this.renderMember(data.data);
-                this.renderPagination(data.totalPages);
+                this.renderAllPagination(data.totalPages);
+            })
+            .catch(error => {
+                console.error("문의사항 불러오기 실패:", error);
+                this.showError();
+            });
+    },
+    loadOnlineMember: function (page = 1) {
+        this.showLoading();
+
+        fetch(`/api/allMember?page=${page - 1}&size=${this.pageSize}`)
+            .then(res => res.json())
+            .then(data => {
+                this.currentPage = data.page;
+                this.latestMemberList = data.data;
+                this.renderOnlineMember(data.data);
+                this.renderOnlinePagination(data.totalPages);
+            })
+            .catch(error => {
+                console.error("문의사항 불러오기 실패:", error);
+                this.showError();
+            });
+    },
+    loadSuspendedMember: function (page = 1) {
+        this.showLoading();
+
+        fetch(`/api/suspendedMember?page=${page - 1}&size=${this.pageSize}`)
+            .then(res => res.json())
+            .then(data => {
+                this.currentPage = data.page;
+                this.latestMemberList = data.data;
+                this.renderMember(data.data);
+                this.renderSuspendedPagination(data.totalPages);
             })
             .catch(error => {
                 console.error("문의사항 불러오기 실패:", error);
@@ -545,16 +590,145 @@ const MemberManager = {
         container.innerHTML = contentHTML1 + contentHTML2 + contentHTML3 + paginationHTML;
 
         lucide.createIcons();
-    }
-    ,
+    },
+    renderOnlineMember: function (MemberList) {
+        const container = document.getElementById("table-container");
+        if (!container) return;
 
-    renderPagination: function (totalPages) {
+        if (MemberList.length === 0) {
+            container.innerHTML = "<p>해당하는 회원이 없습니다.</p>";
+            return;
+        }
+
+        const contentHTML1 = `<table class="data-table">
+        <thead>
+            <tr>
+                <th>회원 정보</th>
+                <th>등급/상태</th>
+                <th>활동</th>
+                <th>가입일</th>
+                <th>최근 로그인</th>
+                <th style="text-align: right;">관리</th>
+            </tr>
+        </thead>
+        <tbody id="users-table-body">`;
+
+        const contentHTML2 = MemberList.map(user => {
+            const nickname = user.nickname ?? '알수없음';
+            const profile = user.profile ?? '';
+            const isOnline = user.isOnline ?? false;
+            const email = user.email ?? '';
+            const grade = user.grade ?? '없음';
+            const status = user.status ?? 'unknown';
+            const boardCount = user.boardCount ?? 0;
+            const boardReviewCount = user.boardReviewCount ?? 0;
+            const insertTime = user.insertTime ?? '';
+            const lastLoginTime = user.lastLoginTime ?? '';
+            const memberIdx = user.memberIdx ?? 0;
+
+            const avatarHTML = profile
+                ? `<img src="${profile}" alt="${nickname}">`
+                : `<span>${String(nickname).charAt(0)}</span>`;
+
+            const statusIcon = this.getStatusIconName ? this.getStatusIconName(status) : 'help-circle';
+            const statusText = this.getStatusText ? this.getStatusText(status) : '알 수 없음';
+
+            return `
+            <tr> 
+                <td>
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <div class="avatar">
+                                ${avatarHTML}
+                            </div>
+                            ${isOnline ? '<div class="online-indicator"></div>' : ''}
+                        </div>
+                        <div class="user-details">
+                            <h4>${nickname} ${isOnline ? '<span class="online-badge">온라인</span>' : ''}</h4>
+                            <div class="user-email">
+                                ${email ? '<i data-lucide="mail" style="width: 12px; height: 12px;"></i>' : ''}
+                                ${email}
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <div class="grade-badge grade-${grade}">${grade}</div>
+                        <div class="status-badge status-${status}">
+                            <i data-lucide="${statusIcon}" class="status-icon"></i>
+                            ${statusText}
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div style="font-size: 12px;">
+                        <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 2px;">
+                            <i data-lucide="file-text" style="width: 12px; height: 12px; color: #94a3b8;"></i>
+                            ${boardCount} 게시글
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <i data-lucide="message-circle" style="width: 12px; height: 12px; color: #94a3b8;"></i>
+                            ${boardReviewCount} 댓글
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div style="font-size: 12px; color: #64748b;">
+                        ${AdminAllTabs.formatDate ? AdminAllTabs.formatDate(insertTime) : ''}
+                    </div>
+                </td>
+                <td>
+                    <div style="font-size: 12px; color: #64748b;">
+                        ${AdminAllTabs.formatDate ? AdminAllTabs.formatDate(lastLoginTime) : ''}
+                        <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">
+                            ${AdminAllTabs.formatTime ? AdminAllTabs.formatTime(lastLoginTime) : ''}
+                        </div>
+                    </div>
+                </td>
+                <td style="text-align: right;">
+                    <button class="action-btn" onclick="AdminAllTabs.showUserActions(${memberIdx})">
+                        <i data-lucide="more-vertical" style="width: 16px; height: 16px;"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+        }).join('');
+
+        const contentHTML3 = `</tbody></table>`;
+        const paginationHTML = `<div id="pagination" class="pagination-container"></div>`;
+
+        container.innerHTML = contentHTML1 + contentHTML2 + contentHTML3 + paginationHTML;
+
+        lucide.createIcons();
+    },
+    renderAllPagination: function (totalPages) {
         const pagination = document.getElementById("pagination");
         if (!pagination) return;
 
         let buttons = "";
         for (let i = 1; i <= totalPages; i++) {
             buttons += `<button class="${i === this.currentPage ? 'active' : ''}" onclick="MemberManager.loadAllMember(${i})">${i}</button>`;
+        }
+        pagination.innerHTML = buttons;
+    },
+    renderOnlinePagination: function (totalPages) {
+        const pagination = document.getElementById("pagination");
+        if (!pagination) return;
+
+        let buttons = "";
+        for (let i = 1; i <= totalPages; i++) {
+            buttons += `<button class="${i === this.currentPage ? 'active' : ''}" onclick="MemberManager.loadOnlineMember(${i})">${i}</button>`;
+        }
+        pagination.innerHTML = buttons;
+    },
+    renderSuspendedPagination: function (totalPages) {
+        const pagination = document.getElementById("pagination");
+        if (!pagination) return;
+
+        let buttons = "";
+        for (let i = 1; i <= totalPages; i++) {
+            buttons += `<button class="${i === this.currentPage ? 'active' : ''}" onclick="MemberManager.loadSuspendedMember(${i})">${i}</button>`;
         }
         pagination.innerHTML = buttons;
     }
@@ -705,7 +879,14 @@ const AdminAllTabs = {
                 btn.classList.add('active');
             }
         });
-        
+        // tabName 값에 따라 함수 실행
+        if (tabName === 'all') {
+            MemberManager.loadAllMember();
+        } else if (tabName === 'online') {
+            MemberManager.loadOnlineMember();
+        } else if (tabName === 'suspended') {
+            MemberManager.loadSuspendedMember();
+        }
 
     },
 
@@ -881,6 +1062,21 @@ const AdminAllTabs = {
     // 문의사항 관리 렌더링
     renderInquiriesManagement() {
         InquiryManager.loadInquiries();
+        const searchInput = document.getElementById("inquiry-search");
+        if (searchInput) {
+            searchInput.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") {
+                    InquiryManager.loadInquiries(1);
+                }
+            });
+        }
+
+        const statusSelect = document.getElementById("inquiry-status");
+        if (statusSelect) {
+            statusSelect.addEventListener("change", () => {
+                InquiryManager.loadInquiries(1);
+            });
+        }
     },
 
     // 설정 관리 렌더링
@@ -1170,6 +1366,7 @@ const AdminAllTabs = {
     // 유틸리티 함수들
     getStatusIconName(status) {
         switch (status) {
+            case '테스트': return 'check-circle';
             case 'active': return 'check-circle';
             case 'inactive': return 'clock';
             case 'suspended': return 'alert-triangle';

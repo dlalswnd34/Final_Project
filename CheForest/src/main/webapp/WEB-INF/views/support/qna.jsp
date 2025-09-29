@@ -15,6 +15,7 @@
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
 <body>
+<jsp:include page="/common/header.jsp"/>
     <!-- Q&A 페이지 컨텐츠 -->
     <div class="qna-page">
         <!-- 페이지 헤더 -->
@@ -51,20 +52,20 @@
             </div>
         </section>
 
-        <!-- 빠른 검색 -->
-        <section class="qna-search">
-            <div class="container">
-                <div class="search-wrapper">
-                    <div class="search-input-wrapper">
-                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"/>
-                            <path d="m21 21-4.35-4.35"/>
-                        </svg>
-                        <input type="text" id="searchInput" placeholder="궁금한 내용을 검색해보세요..." class="search-input">
-                    </div>
-                </div>
-            </div>
-        </section>
+<%--        <!-- 빠른 검색 -->--%>
+<%--        <section class="qna-search">--%>
+<%--            <div class="container">--%>
+<%--                <div class="search-wrapper">--%>
+<%--                    <div class="search-input-wrapper">--%>
+<%--                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">--%>
+<%--                            <circle cx="11" cy="11" r="8"/>--%>
+<%--                            <path d="m21 21-4.35-4.35"/>--%>
+<%--                        </svg>--%>
+<%--                        <input type="text" id="searchInput" placeholder="궁금한 내용을 검색해보세요..." class="search-input">--%>
+<%--                    </div>--%>
+<%--                </div>--%>
+<%--            </div>--%>
+<%--        </section>--%>
 
         <div class="container">
             <div class="qna-content">
@@ -157,7 +158,7 @@
                                             <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                                         </svg>
                                     </div>
-                                    <div class="stat-number">12,847</div>
+                                    <div class="stat-number">${allMemberCount}</div>
                                     <div class="stat-label">총 회원수</div>
                                 </div>
                                 <div class="stat-item">
@@ -190,7 +191,7 @@
                         <div class="main-card">
                             <div class="card-header">
                                 <div class="faq-header">
-                                    <h2>자주 묻는 질문 <span class="faq-count">(8)</span></h2>
+                                    <h2>자주 묻는 질문 <span class="faq-count">(${inquiriesIsFaqCount})</span></h2>
                                     <div class="search-badge" id="searchBadge" style="display: none;">
                                         <span id="searchText"></span> 검색 결과
                                     </div>
@@ -199,310 +200,55 @@
                             <div class="card-content">
                                 <div class="faq-list" id="faqList">
                                     <!-- FAQ 아이템들 -->
-                                    <div class="faq-item" data-question="레시피를 어떻게 작성하나요?" data-answer="레시피 작성은 간단합니다! 1) 헤더의 &quot;레시피&quot; 메뉴에서 &quot;레시피 작성하기&quot; 버튼을 클릭하세요. 2) 요리 사진을 업로드하고 제목을 입력하세요. 3) 재료와 조리 과정을 상세히 작성해주세요. 4) 카테고리를 선택하고 태그를 추가하면 완료! 고품질 레시피는 추천 레시피로 선정될 수 있어요." data-helpful="89" data-not-helpful="3">
-                                        <div class="faq-question">
-                                            <svg class="question-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <circle cx="12" cy="12" r="10"/>
-                                                <path d="M8 12l4 4 8-8"/>
-                                            </svg>
-                                            <span class="question-text">레시피를 어떻게 작성하나요?</span>
-                                            <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M6 9l6 6 6-6"/>
-                                            </svg>
-                                        </div>
-                                        <div class="faq-answer">
-                                            <div class="answer-content">
-                                                <p>레시피 작성은 간단합니다! 1) 헤더의 "레시피" 메뉴에서 "레시피 작성하기" 버튼을 클릭하세요. 2) 요리 사진을 업로드하고 제목을 입력하세요. 3) 재료와 조리 과정을 상세히 작성해주세요. 4) 카테고리를 선택하고 태그를 추가하면 완료! 고품질 레시피는 추천 레시피로 선정될 수 있어요.</p>
-                                                <div class="answer-separator"></div>
-                                                <div class="answer-actions">
-                                                    <span class="helpful-text">이 답변이 도움이 되었나요?</span>
-                                                    <div class="helpful-buttons">
-                                                        <button class="helpful-btn helpful-yes">
-                                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                                <path d="M7 10v12"/>
-                                                                <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h3.73a2 2 0 0 1 1.92 2.56z"/>
-                                                            </svg>
-                                                            <span class="helpful-count">89</span>
-                                                        </button>
-                                                        <button class="helpful-btn helpful-no">
-                                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                                <path d="M17 14V2"/>
-                                                                <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h-3.73a2 2 0 0 1-1.92-2.56z"/>
-                                                            </svg>
-                                                            <span class="helpful-count">3</span>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <c:forEach var="faq" items="${inquiriesIsFaq}">
+                                        <div class="faq-item"
+                                             data-question="${faq.title}"
+                                             data-answer="${faq.answerContent}"
+                                             data-helpful="89"
+                                             data-not-helpful="3">
 
-                                    <div class="faq-item" data-question="레시피 사진은 몇 장까지 올릴 수 있나요?" data-answer="등급에 따라 업로드 가능한 사진 수가 다릅니다. 씨앗: 3장, 뿌리: 5장, 새싹: 8장, 나무: 10장, 숲: 무제한입니다. 고화질 사진(최소 800x600)을 권장하며, JPG, PNG 형식을 지원해요." data-helpful="67" data-not-helpful="1">
-                                        <div class="faq-question">
-                                            <svg class="question-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <circle cx="12" cy="12" r="10"/>
-                                                <path d="M8 12l4 4 8-8"/>
-                                            </svg>
-                                            <span class="question-text">레시피 사진은 몇 장까지 올릴 수 있나요?</span>
-                                            <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M6 9l6 6 6-6"/>
-                                            </svg>
-                                        </div>
-                                        <div class="faq-answer">
-                                            <div class="answer-content">
-                                                <p>등급에 따라 업로드 가능한 사진 수가 다릅니다. 씨앗: 3장, 뿌리: 5장, 새싹: 8장, 나무: 10장, 숲: 무제한입니다. 고화질 사진(최소 800x600)을 권장하며, JPG, PNG 형식을 지원해요.</p>
-                                                <div class="answer-separator"></div>
-                                                <div class="answer-actions">
-                                                    <span class="helpful-text">이 답변이 도움이 되었나요?</span>
-                                                    <div class="helpful-buttons">
-                                                        <button class="helpful-btn helpful-yes">
-                                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                                <path d="M7 10v12"/>
-                                                                <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h3.73a2 2 0 0 1 1.92 2.56z"/>
-                                                            </svg>
-                                                            <span class="helpful-count">67</span>
-                                                        </button>
-                                                        <button class="helpful-btn helpful-no">
-                                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                                <path d="M17 14V2"/>
-                                                                <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h-3.73a2 2 0 0 1-1.92-2.56z"/>
-                                                            </svg>
-                                                            <span class="helpful-count">1</span>
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                            <div class="faq-question">
+                                                <svg class="question-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <circle cx="12" cy="12" r="10"/>
+                                                    <path d="M8 12l4 4 8-8"/>
+                                                </svg>
+                                                <span class="question-text">${faq.title}</span>
+                                                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M6 9l6 6 6-6"/>
+                                                </svg>
                                             </div>
-                                        </div>
-                                    </div>
 
-                                    <div class="faq-item" data-question="등급은 어떻게 올리나요?" data-answer="CheForest 등급은 3가지 기준으로 승급됩니다: 1) 작성한 레시피 수 2) 받은 좋아요 수 3) 팔로워 수. 등급 안내 페이지에서 현재 진행률을 확인할 수 있어요. 꾸준히 양질의 레시피를 업로드하고 커뮤니티 활동을 하시면 자동으로 승급됩니다!" data-helpful="102" data-not-helpful="5">
-                                        <div class="faq-question">
-                                            <svg class="question-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <circle cx="12" cy="12" r="10"/>
-                                                <path d="M8 12l4 4 8-8"/>
-                                            </svg>
-                                            <span class="question-text">등급은 어떻게 올리나요?</span>
-                                            <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M6 9l6 6 6-6"/>
-                                            </svg>
-                                        </div>
-                                        <div class="faq-answer">
-                                            <div class="answer-content">
-                                                <p>CheForest 등급은 3가지 기준으로 승급됩니다: 1) 작성한 레시피 수 2) 받은 좋아요 수 3) 팔로워 수. 등급 안내 페이지에서 현재 진행률을 확인할 수 있어요. 꾸준히 양질의 레시피를 업로드하고 커뮤니티 활동을 하시면 자동으로 승급됩니다!</p>
-                                                <div class="answer-separator"></div>
-                                                <div class="answer-actions">
-                                                    <span class="helpful-text">이 답변이 도움이 되었나요?</span>
-                                                    <div class="helpful-buttons">
-                                                        <button class="helpful-btn helpful-yes">
-                                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                                <path d="M7 10v12"/>
-                                                                <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h3.73a2 2 0 0 1 1.92 2.56z"/>
-                                                            </svg>
-                                                            <span class="helpful-count">102</span>
-                                                        </button>
-                                                        <button class="helpful-btn helpful-no">
-                                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                                <path d="M17 14V2"/>
-                                                                <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h-3.73a2 2 0 0 1-1.92-2.56z"/>
-                                                            </svg>
-                                                            <span class="helpful-count">5</span>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                            <div class="faq-answer">
+                                                <div class="answer-content">
+                                                    <p>${faq.answerContent}</p>
+                                                    <div class="answer-separator"></div>
+<%--                                                    <div class="answer-actions">--%>
+<%--                                                        <span class="helpful-text">이 답변이 도움이 되었나요?</span>--%>
+<%--                                                        <div class="helpful-buttons">--%>
+<%--                                                            <button class="helpful-btn helpful-yes">--%>
+<%--                                                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">--%>
+<%--                                                                    <path d="M7 10v12"/>--%>
+<%--                                                                    <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h3.73a2 2 0 0 1 1.92 2.56z"/>--%>
+<%--                                                                </svg>--%>
+<%--                                                                <span class="helpful-count">89</span>--%>
+<%--                                                            </button>--%>
+<%--                                                            <button class="helpful-btn helpful-no">--%>
+<%--                                                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">--%>
+<%--                                                                    <path d="M17 14V2"/>--%>
+<%--                                                                    <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h-3.73a2 2 0 0 1-1.92-2.56z"/>--%>
+<%--                                                                </svg>--%>
+<%--                                                                <span class="helpful-count">3</span>--%>
+<%--                                                            </button>--%>
+<%--                                                        </div>--%>
+<%--                                                    </div>--%>
 
-                                    <div class="faq-item" data-question="비밀번호를 잊어버렸어요" data-answer="로그인 페이지에서 &quot;비밀번호 찾기&quot;를 클릭하세요. 가입시 입력한 이메일로 비밀번호 재설정 링크를 보내드립니다. 이메일이 오지 않으면 스팸함을 확인해보시고, 여전히 문제가 있으면 고객센터로 문의해주세요." data-helpful="78" data-not-helpful="2">
-                                        <div class="faq-question">
-                                            <svg class="question-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <circle cx="12" cy="12" r="10"/>
-                                                <path d="M8 12l4 4 8-8"/>
-                                            </svg>
-                                            <span class="question-text">비밀번호를 잊어버렸어요</span>
-                                            <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M6 9l6 6 6-6"/>
-                                            </svg>
-                                        </div>
-                                        <div class="faq-answer">
-                                            <div class="answer-content">
-                                                <p>로그인 페이지에서 "비밀번호 찾기"를 클릭하세요. 가입시 입력한 이메일로 비밀번호 재설정 링크를 보내드립니다. 이메일이 오지 않으면 스팸함을 확인해보시고, 여전히 문제가 있으면 고객센터로 문의해주세요.</p>
-                                                <div class="answer-separator"></div>
-                                                <div class="answer-actions">
-                                                    <span class="helpful-text">이 답변이 도움이 되었나요?</span>
-                                                    <div class="helpful-buttons">
-                                                        <button class="helpful-btn helpful-yes">
-                                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                                <path d="M7 10v12"/>
-                                                                <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h3.73a2 2 0 0 1 1.92 2.56z"/>
-                                                            </svg>
-                                                            <span class="helpful-count">78</span>
-                                                        </button>
-                                                        <button class="helpful-btn helpful-no">
-                                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                                <path d="M17 14V2"/>
-                                                                <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h-3.73a2 2 0 0 1-1.92-2.56z"/>
-                                                            </svg>
-                                                            <span class="helpful-count">2</span>
-                                                        </button>
-                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
 
-                                    <div class="faq-item" data-question="닉네임을 변경할 수 있나요?" data-answer="네, 가능합니다! 마이페이지 → 프로필 설정에서 닉네임을 변경할 수 있어요. 단, 30일에 한 번만 변경 가능하며, 이미 사용 중인 닉네임은 선택할 수 없습니다." data-helpful="45" data-not-helpful="0">
-                                        <div class="faq-question">
-                                            <svg class="question-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <circle cx="12" cy="12" r="10"/>
-                                                <path d="M8 12l4 4 8-8"/>
-                                            </svg>
-                                            <span class="question-text">닉네임을 변경할 수 있나요?</span>
-                                            <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M6 9l6 6 6-6"/>
-                                            </svg>
                                         </div>
-                                        <div class="faq-answer">
-                                            <div class="answer-content">
-                                                <p>네, 가능합니다! 마이페이지 → 프로필 설정에서 닉네임을 변경할 수 있어요. 단, 30일에 한 번만 변경 가능하며, 이미 사용 중인 닉네임은 선택할 수 없습니다.</p>
-                                                <div class="answer-separator"></div>
-                                                <div class="answer-actions">
-                                                    <span class="helpful-text">이 답변이 도움이 되었나요?</span>
-                                                    <div class="helpful-buttons">
-                                                        <button class="helpful-btn helpful-yes">
-                                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                                <path d="M7 10v12"/>
-                                                                <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h3.73a2 2 0 0 1 1.92 2.56z"/>
-                                                            </svg>
-                                                            <span class="helpful-count">45</span>
-                                                        </button>
-                                                        <button class="helpful-btn helpful-no">
-                                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                                <path d="M17 14V2"/>
-                                                                <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h-3.73a2 2 0 0 1-1.92-2.56z"/>
-                                                            </svg>
-                                                            <span class="helpful-count">0</span>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    </c:forEach>
 
-                                    <div class="faq-item" data-question="동영상 레시피도 올릴 수 있나요?" data-answer="새싹 등급부터 동영상 첨부가 가능합니다! MP4 형식, 최대 100MB까지 업로드할 수 있어요. 동영상 레시피는 더 높은 조회수와 좋아요를 받는 경향이 있습니다." data-helpful="56" data-not-helpful="1">
-                                        <div class="faq-question">
-                                            <svg class="question-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <circle cx="12" cy="12" r="10"/>
-                                                <path d="M8 12l4 4 8-8"/>
-                                            </svg>
-                                            <span class="question-text">동영상 레시피도 올릴 수 있나요?</span>
-                                            <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M6 9l6 6 6-6"/>
-                                            </svg>
-                                        </div>
-                                        <div class="faq-answer">
-                                            <div class="answer-content">
-                                                <p>새싹 등급부터 동영상 첨부가 가능합니다! MP4 형식, 최대 100MB까지 업로드할 수 있어요. 동영상 레시피는 더 높은 조회수와 좋아요를 받는 경향이 있습니다.</p>
-                                                <div class="answer-separator"></div>
-                                                <div class="answer-actions">
-                                                    <span class="helpful-text">이 답변이 도움이 되었나요?</span>
-                                                    <div class="helpful-buttons">
-                                                        <button class="helpful-btn helpful-yes">
-                                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                                <path d="M7 10v12"/>
-                                                                <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h3.73a2 2 0 0 1 1.92 2.56z"/>
-                                                            </svg>
-                                                            <span class="helpful-count">56</span>
-                                                        </button>
-                                                        <button class="helpful-btn helpful-no">
-                                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                                <path d="M17 14V2"/>
-                                                                <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h-3.73a2 2 0 0 1-1.92-2.56z"/>
-                                                            </svg>
-                                                            <span class="helpful-count">1</span>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
 
-                                    <div class="faq-item" data-question="등급별 혜택이 무엇인가요?" data-answer="등급이 높을수록 더 많은 혜택을 받을 수 있어요! 레시피 업로드 제한 증가, 사진/동영상 첨부 가능, 요리 클래스 개설, 프리미엄 재료 할인, 광고 수익 공유 등의 혜택이 있습니다. 자세한 내용은 등급 안내 페이지를 확인해주세요." data-helpful="91" data-not-helpful="3">
-                                        <div class="faq-question">
-                                            <svg class="question-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <circle cx="12" cy="12" r="10"/>
-                                                <path d="M8 12l4 4 8-8"/>
-                                            </svg>
-                                            <span class="question-text">등급별 혜택이 무엇인가요?</span>
-                                            <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M6 9l6 6 6-6"/>
-                                            </svg>
-                                        </div>
-                                        <div class="faq-answer">
-                                            <div class="answer-content">
-                                                <p>등급이 높을수록 더 많은 혜택을 받을 수 있어요! 레시피 업로드 제한 증가, 사진/동영상 첨부 가능, 요리 클래스 개설, 프리미엄 재료 할인, 광고 수익 공유 등의 혜택이 있습니다. 자세한 내용은 등급 안내 페이지를 확인해주세요.</p>
-                                                <div class="answer-separator"></div>
-                                                <div class="answer-actions">
-                                                    <span class="helpful-text">이 답변이 도움이 되었나요?</span>
-                                                    <div class="helpful-buttons">
-                                                        <button class="helpful-btn helpful-yes">
-                                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                                <path d="M7 10v12"/>
-                                                                <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h3.73a2 2 0 0 1 1.92 2.56z"/>
-                                                            </svg>
-                                                            <span class="helpful-count">91</span>
-                                                        </button>
-                                                        <button class="helpful-btn helpful-no">
-                                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                                <path d="M17 14V2"/>
-                                                                <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h-3.73a2 2 0 0 1-1.92-2.56z"/>
-                                                            </svg>
-                                                            <span class="helpful-count">3</span>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="faq-item" data-question="앱이 자꾸 종료돼요" data-answer="앱 강제 종료 문제 해결 방법: 1) 앱을 완전히 종료 후 재시작 2) 기기 재부팅 3) 앱 업데이트 확인 4) 저장공간 확보 5) 캐시 삭제. 문제가 지속되면 기기 정보와 함께 고객센터로 문의해주세요." data-helpful="34" data-not-helpful="2">
-                                        <div class="faq-question">
-                                            <svg class="question-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <circle cx="12" cy="12" r="10"/>
-                                                <path d="M8 12l4 4 8-8"/>
-                                            </svg>
-                                            <span class="question-text">앱이 자꾸 종료돼요</span>
-                                            <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M6 9l6 6 6-6"/>
-                                            </svg>
-                                        </div>
-                                        <div class="faq-answer">
-                                            <div class="answer-content">
-                                                <p>앱 강제 종료 문제 해결 방법: 1) 앱을 완전히 종료 후 재시작 2) 기기 재부팅 3) 앱 업데이트 확인 4) 저장공간 확보 5) 캐시 삭제. 문제가 지속되면 기기 정보와 함께 고객센터로 문의해주세요.</p>
-                                                <div class="answer-separator"></div>
-                                                <div class="answer-actions">
-                                                    <span class="helpful-text">이 답변이 도움이 되었나요?</span>
-                                                    <div class="helpful-buttons">
-                                                        <button class="helpful-btn helpful-yes">
-                                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                                <path d="M7 10v12"/>
-                                                                <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h3.73a2 2 0 0 1 1.92 2.56z"/>
-                                                            </svg>
-                                                            <span class="helpful-count">34</span>
-                                                        </button>
-                                                        <button class="helpful-btn helpful-no">
-                                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                                <path d="M17 14V2"/>
-                                                                <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h-3.73a2 2 0 0 1-1.92-2.56z"/>
-                                                            </svg>
-                                                            <span class="helpful-count">2</span>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
 
                                 <!-- 검색 결과 없음 -->
                                 <div class="no-results" id="noResults" style="display: none;">
@@ -516,9 +262,11 @@
                                         <button class="btn-reset" onclick="resetSearch()">검색 초기화</button>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
+              </div>
 
                     <!-- 문의하기 탭 -->
                     <div class="tab-content" id="contact-tab">
@@ -575,6 +323,7 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -582,5 +331,6 @@
 
     <script src="/js/common/common.js"></script>
     <script src="/js/qna.js"></script>
+<jsp:include page="/common/footer.jsp"/>
 </body>
 </html>

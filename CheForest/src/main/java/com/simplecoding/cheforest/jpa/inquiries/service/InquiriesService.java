@@ -23,7 +23,7 @@ public class InquiriesService {
     public void save(Inquiries inquiries) {
         inquiriesRepository.save(inquiries);
     }
-
+   // 전체 문의 리스트 조회
     public Page<InquiryWithNicknameDto> getPagedInquiryWithNicknameDto(int page) {
         Pageable pageable = PageRequest.of(page, 10); // 0부터 시작하는 페이지
         return inquiriesRepository.findInquiryWithNickname(pageable);
@@ -47,6 +47,13 @@ public class InquiriesService {
     public List<InquiryWithNicknameDto> findPendingInquiriesWithNickname() {
         return inquiriesRepository.findPendingInquiriesWithNickname();
     }
+    //   전체문의 사항중 검색어와 상태검색이 일치하는 것들만 조회
+    public Page<InquiryWithNicknameDto> searchInquiries(String keyword, String status, Pageable pageable) {
+        return inquiriesRepository.findByKeywordAndStatus(keyword, status, pageable);
+    }
+
+
+
 
 
 

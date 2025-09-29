@@ -203,8 +203,4 @@ public class BoardController {
         return "support/guide";
     }
 
-    @GetMapping("/qna")
-    public String qna() {
-        return "support/qna";
-    }
 }
