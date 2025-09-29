@@ -154,6 +154,7 @@ public class BoardService {
         // 7) JPA 더티체킹 → commit 시점에 자동 반영
     }
 
+
     // 5. 게시글 삭제
     public void delete(Long boardId) {
         // ✅ 댓글 먼저 삭제
