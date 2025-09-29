@@ -151,10 +151,10 @@
                                                     ${loop.index + 1}
                                             </div>
                                         </div>
-                                        <img src="${empty recipe.thumbnail ? '/images/default_recipe.jpg' : recipe.thumbnail}"
+                                        <img src="${empty recipe.thumbnail ? '/images/default_thumbnail.png' : recipe.thumbnail}"
                                              alt="${recipe.titleKr}"
                                              class="recipe-card-image w-full h-56 object-cover"
-                                             onerror="this.src='<c:url value='/images/default_thumbnail.png'/>'"/>
+                                             onerror="this.onerror=null; this.src='/images/default_thumbnail.png';"/>
                                         <div class="absolute top-3 right-3 flex flex-col space-y-2">
                                             <span class="category-badge ${recipe.categoryKr eq '한식' ? 'korean' :
                                                                          recipe.categoryKr eq '일식' ? 'japanese' :
