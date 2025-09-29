@@ -42,8 +42,9 @@ public class BoardService {
 
     // 1. 목록 조회 (검색 + 페이징)
     @Transactional(readOnly = true)
-    public Page<BoardListDto> searchBoards(String keyword, String category, Pageable pageable) {
-        Page<BoardListDto> result = boardRepositoryDsl.searchBoards(keyword, category, pageable);
+    public Page<BoardListDto> searchBoards(String keyword, String category, String searchType, Pageable pageable) {
+        Page<BoardListDto> result = boardRepositoryDsl.searchBoards(keyword, category, searchType, pageable);
+
         result.forEach(dto -> {
             if (dto.getInsertTime() != null) {
                 dto.setCreatedAgo(toAgo(dto.getInsertTime()));
@@ -209,14 +210,17 @@ public class BoardService {
         return boardRepository.countByWriter(member);
     }
 
+    //    총 게시글 수
     public long getTotalCount() {
         return boardRepository.count();
     }
-
+    //    카테고리별 게시글 수
     public long getCountByCategory(String category) {
         return boardRepository.countByCategory(category);
     }
 
+
+    //    전처리
     private String toAgo(java.time.LocalDateTime created) {
         java.time.Duration duration = java.time.Duration.between(created, java.time.LocalDateTime.now());
 
@@ -227,7 +231,7 @@ public class BoardService {
         long hours = minutes / 60;
         if (hours < 24) return hours + "시간 전";
 
-        long days = hours / 24;
+        long days = minutes / 24;
         if (days < 7) return days + "일 전";
 
         long weeks = days / 7;

@@ -59,5 +59,9 @@ public interface RecipeRepository extends JpaRepository<Recipe, String> {
         ORDER BY DBMS_RANDOM.VALUE
         """, nativeQuery = true)
     List<Recipe> findRandomDustGood();
+
+    // 9. 제철 재료 레시피 검색(미완성)
+    List<Recipe> findBySeasonIsNotNullAndTitleKrContainingIgnoreCase(String keyword);
+
 }
 

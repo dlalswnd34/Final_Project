@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -92,7 +93,11 @@
                             <div class="benefits-tags">${item.effects}</div>
                         </div>
 
-                        <button class="recipe-btn">🍽️ 레시피 보기</button>
+                        <c:url var="recUrl" value="/season/recommend">
+                            <c:param name="keyword" value="${item.name}"/>
+                        </c:url>
+                        <a class="recipe-btn" href="${recUrl}">🍽 레시피 추천</a>
+
                     </div>
                 </div>
             </c:forEach>
@@ -139,7 +144,11 @@
                             <div class="benefits-tags">${item.effects}</div>
                         </div>
 
-                        <button class="recipe-btn">🍽️ 레시피 보기</button>
+                        <c:url var="recUrl" value="/season/recommend">
+                            <c:param name="keyword" value="${item.name}"/>
+                        </c:url>
+                        <a class="recipe-btn" href="${recUrl}">🍽 레시피 추천</a>
+
                     </div>
                 </div>
             </c:forEach>
@@ -186,7 +195,11 @@
                             <div class="benefits-tags">${item.effects}</div>
                         </div>
 
-                        <button class="recipe-btn">🍽️ 레시피 보기</button>
+                        <c:url var="recUrl" value="/season/recommend">
+                            <c:param name="keyword" value="${item.name}"/>
+                        </c:url>
+                        <a class="recipe-btn" href="${recUrl}">🍽 레시피 추천</a>
+
                     </div>
                 </div>
             </c:forEach>
@@ -233,7 +246,11 @@
                             <div class="benefits-tags">${item.effects}</div>
                         </div>
 
-                        <button class="recipe-btn">🍽️ 레시피 보기</button>
+                        <c:url var="recUrl" value="/season/recommend">
+                            <c:param name="keyword" value="${item.name}"/>
+                        </c:url>
+                        <a class="recipe-btn" href="${recUrl}">🍽 레시피 추천</a>
+
                     </div>
                 </div>
             </c:forEach>

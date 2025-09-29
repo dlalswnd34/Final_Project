@@ -23,8 +23,8 @@ public class Board extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "BOARD_SEQ_JPA")
     private Long boardId;  // 게시글 ID (PK)
 
-    private String category;
-    private String title;
+    private String category; // 카테고리
+    private String title; // 검색대상1
     private String content;
     private String thumbnail;
 
@@ -32,7 +32,7 @@ public class Board extends BaseTimeEntity {
     @JoinColumn(name = "WRITER_IDX", nullable = false)
     private Member writer;
 
-    private String prepare;
+    private String prepare; // 검색대상2
     @Builder.Default
     private Long viewCount = 0L;
     // 조회수 증가 메소드

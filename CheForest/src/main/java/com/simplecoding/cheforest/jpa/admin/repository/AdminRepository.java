@@ -19,7 +19,7 @@ public class AdminRepository {
 
    //  총 가입자 수
     public long getMemberCount() {
-        String sql = "SELECT COUNT(*) FROM MEMBER";
+        String sql = "SELECT COUNT(*) FROM MEMBER WHERE ROLE <> 'LEFT'";
         Object result = em.createNativeQuery(sql).getSingleResult();
         return ((Number) result).longValue(); 
     }
@@ -62,6 +62,7 @@ public class AdminRepository {
                 "                ELSE '휴면 계정'\n" +
                 "            END AS 계정상태\n" +
                 "        FROM MEMBER\n" +
+                "    WHERE ROLE <> 'LEFT'\n" +
                 "    )\n" +
                 "    GROUP BY 계정상태";
         List<Object[]> results = em.createNativeQuery(sql).getResultList();
@@ -214,8 +215,28 @@ public class AdminRepository {
 
         return monthlyActivityData;
     }
-
-
+    // 자주 묻는 문의로 등록한 문의들 (Object[] 형태로 받음)*clob 형태인데 이 방식으론 String으로 받으려면 4000자까지 밖에 못 받음
+    public List<InquiriesIsFaqDto> getInquiriesIsFaqDto() {
+        String sql = "SELECT TITLE, DBMS_LOB.SUBSTR(ANSWER_CONTENT, 4000, 1) AS ANSWER_CONTENT FROM INQUIRIES WHERE IS_FAQ = 'Y'";
+        List<Object[]> results = em.createNativeQuery(sql).getResultList();
+//       자료형태 디버깅용
+//        for (Object[] row : results) {
+//            System.out.println("row[0] type: " + row[0].getClass());
+//            System.out.println("row[1] type: " + row[1].getClass());
+//        }
+        return results.stream()
+                .map(row -> new InquiriesIsFaqDto(
+                        (String) row[0],
+                        (String) row[1]
+                ))
+                .collect(Collectors.toList());
+    }
+    //  자주 묻는 문의로 등록한 문의들 수
+    public long getInquiriesIsFaqCount() {
+        String sql = "SELECT COUNT(*) FROM INQUIRIES WHERE IS_FAQ = 'Y'";
+        Object result = em.createNativeQuery(sql).getSingleResult();
+        return ((Number) result).longValue();
+    }
 
 
 

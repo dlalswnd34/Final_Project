@@ -15,10 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -65,6 +62,14 @@ public class InquiriesController {
     public List<InquiryWithNicknameDto> findPendingInquiriesWithNickname() {
         return inquiriesService.findPendingInquiriesWithNickname();
     }
+
+
+    @Getter
+    @Setter
+    public static class AnswerRequestDto {
+        private Long inquiryId;
+        private String answerContent;
+    }
     @PostMapping("/inquiries/answer")
     public ResponseEntity<String> submitAnswer(@RequestBody AnswerRequestDto dto) {
         try {
@@ -93,10 +98,44 @@ public class InquiriesController {
 
     @Getter
     @Setter
-    public static class AnswerRequestDto {
-        private Long inquiryId;
-        private String answerContent;
+    public static class InquiryRequestDto  {
+        private Long memberIdx;
+        private String subject;  // 제목
+        private String message;  // 질문 내용
     }
+    @PostMapping("/inquiries/ask")
+    public ResponseEntity<String> submitAsk(@RequestBody InquiryRequestDto requestDto) {
+        // 유효성 검사
+        if (requestDto.getMemberIdx() == null ||
+                requestDto.getSubject() == null || requestDto.getSubject().trim().isEmpty() ||
+                requestDto.getMessage() == null || requestDto.getMessage().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("모든 항목을 입력해주세요.");
+        }
+
+        // Inquiries 객체 생성
+        Inquiries inquiry = new Inquiries();
+        inquiry.setMemberIdx(requestDto.getMemberIdx());
+        inquiry.setTitle(requestDto.getSubject());
+        inquiry.setQuestionContent(requestDto.getMessage());
+        inquiry.setCreatedAt(new Date());
+        inquiry.setAnswerStatus("대기중"); // 초기값 지정
+        inquiry.setLikeCount(0L);         // 초기값 지정
+
+        // 저장
+        inquiriesRepository.save(inquiry);
+
+        return ResponseEntity.ok().body("문의가 등록되었습니다.");
+    }
+    @GetMapping("/api/searchInquiries")
+    public Page<InquiryWithNicknameDto> getInquiries(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false, defaultValue = "all") String status,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return inquiriesService.searchInquiries(keyword, status, pageable);
+    }
+
+
 
 
 

@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CheForest 레시피</title>
     <link rel="stylesheet" href="/css/common.css">
-    <link rel="stylesheet" href="/css/recipe.css">
+    <link rel="stylesheet" href="/css/recipe/recipe.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
@@ -151,10 +151,10 @@
                                                     ${loop.index + 1}
                                             </div>
                                         </div>
-                                        <img src="${empty recipe.thumbnail ? '/images/default_recipe.jpg' : recipe.thumbnail}"
+                                        <img src="${empty recipe.thumbnail ? '/images/default_thumbnail.png' : recipe.thumbnail}"
                                              alt="${recipe.titleKr}"
                                              class="recipe-card-image w-full h-56 object-cover"
-                                             onerror="this.src='<c:url value='/images/default_thumbnail.png'/>'"/>
+                                             onerror="this.onerror=null; this.src='/images/default_thumbnail.png';"/>
                                         <div class="absolute top-3 right-3 flex flex-col space-y-2">
                                             <span class="category-badge ${recipe.categoryKr eq '한식' ? 'korean' :
                                                                          recipe.categoryKr eq '일식' ? 'japanese' :
