@@ -29,6 +29,8 @@ public class QRecipe extends EntityPathBase<Recipe> {
 
     public final StringPath difficulty = createString("difficulty");
 
+    public final StringPath dustGood = createString("dustGood");
+
     public final StringPath ingredientEn = createString("ingredientEn");
 
     public final StringPath ingredientKr = createString("ingredientKr");
