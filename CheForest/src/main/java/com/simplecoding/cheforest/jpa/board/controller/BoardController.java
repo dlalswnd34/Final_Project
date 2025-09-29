@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -117,34 +118,21 @@ public class BoardController {
         List<FileDto> fileList = fileService.getFilesByBoardId(boardId);
         model.addAttribute("fileList", fileList);
 
-        return "board/boardupdate";
+        return "board/boardedit";
     }
 
     // 5. 글 수정
-//    @PostMapping("/board/edit")
-//    public String update(
-//            @ModelAttribute BoardUpdateReq dto,
-//            @RequestParam(value = "images", required = false) List<MultipartFile> images,
-//            @RequestParam(value = "deleteImageIds", required = false) List<Long> deleteImageIds,
-//            @AuthenticationPrincipal MemberDetailDto loginUser
-//    ) throws IOException {
-//        // 삭제할 파일 처리
-//        if (deleteImageIds != null) {
-//            deleteImageIds.forEach(fileService::deleteFile);
-//        }
-//
-//        // 새 파일 업로드
-//        Long firstFileId = fileService.saveBoardFiles(dto.getBoardId(), loginUser.getMemberIdx(), images);
-//        if (firstFileId != null) {
-//            boardService.updateThumbnail(dto.getBoardId(), "/file/download?fileId=" + firstFileId);
-//        }
-//
-//        // DB 업데이트
-//        boardService.update(dto, loginUser.getEmail());
-//
-//        String encodedCategory = URLEncoder.encode(dto.getCategory(), "UTF-8");
-//        return "redirect:/board/list?category=" + encodedCategory;
-//    }
+    @PostMapping("/board/edit")
+    public String update(@ModelAttribute BoardUpdateReq dto,
+                         @RequestParam(value = "images", required = false) List<MultipartFile> images,
+                         @RequestParam(value = "deleteImageIds", required = false) List<Long> deleteImageIds,
+                         @AuthenticationPrincipal MemberDetailDto loginUser) throws IOException {
+
+        boardService.update(dto, loginUser.getEmail(), images, deleteImageIds);
+
+        String encodedCategory = URLEncoder.encode(dto.getCategory(), StandardCharsets.UTF_8);
+        return "redirect:/board/list?category=" + encodedCategory;
+    }
 
     // 6. 글 삭제
     @PostMapping("/board/delete")

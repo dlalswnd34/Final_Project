@@ -30,6 +30,46 @@ body {
     background: linear-gradient(to right, #ec4899, #f97316);
 }
 
+/* === 헤더 전용 버튼 스타일 (header.css와 동일) === */
+/* 이 스타일들은 /css/header.css에도 정의되어 있습니다 */
+.header-icon-btn {
+    transition: all 0.2s ease;
+    color: #f97316 !important;
+}
+
+.header-icon-btn:hover {
+    background: linear-gradient(to right, #ec4899, #f97316) !important;
+    color: white !important;
+}
+
+.search-btn {
+    background-color: #f97316 !important;
+    transition: all 0.2s ease;
+}
+
+.search-btn:hover {
+    background: linear-gradient(to right, #ec4899, #f97316) !important;
+}
+
+.login-btn {
+    background-color: #f97316 !important;
+    transition: all 0.2s ease;
+}
+
+.login-btn:hover {
+    background: linear-gradient(to right, #ec4899, #f97316) !important;
+}
+
+.mobile-menu-btn {
+    transition: all 0.2s ease;
+    color: #f97316 !important;
+}
+
+.mobile-menu-btn:hover {
+    background: linear-gradient(to right, #ec4899, #f97316) !important;
+    color: white !important;
+}
+
 /* 텍스트 말줄임 */
 .line-clamp-2 {
     display: -webkit-box;
@@ -44,13 +84,13 @@ body {
 }
 
 @keyframes fadeIn {
-    from { 
-        opacity: 0; 
-        transform: translateY(20px); 
+    from {
+        opacity: 0;
+        transform: translateY(20px);
     }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
@@ -59,7 +99,7 @@ body {
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
-.scrollbar-hide::-webkit-scrollbar { 
+.scrollbar-hide::-webkit-scrollbar {
     display: none;
 }
 
@@ -326,94 +366,6 @@ body {
     justify-content: center;
 }
 
-/* 애니메이션 비활성화 (사용자 설정 고려) */
-@media (prefers-reduced-motion: reduce) {
-    .fade-in,
-    .text-gradient-animated,
-    .card-hover,
-    .image-hover-zoom,
-    .user-avatar,
-    .tag-common,
-    .status-dot.online,
-    .card-shadow-animated,
-    .smooth-transition,
-    .notification {
-        animation: none !important;
-        transition: none !important;
-    }
-}
-
-/* Q&A 페이지를 위한 공통 CSS 추가 부분 */
-
-/* 기본 컨테이너 스타일 (이미 있다면 생략) */
-.container {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 1rem;
-}
-
-@media (min-width: 640px) {
-    .container {
-        padding: 0 1.5rem;
-    }
-}
-
-@media (min-width: 1024px) {
-    .container {
-        padding: 0 2rem;
-    }
-}
-
-/* 기본 아이콘 스타일 (이미 있다면 생략) */
-.icon {
-    width: 1rem;
-    height: 1rem;
-    stroke: currentColor;
-    fill: none;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-/* 기본 버튼 스타일 강화 */
-button {
-    font-family: 'Gowun Dodum', sans-serif;
-    outline: none;
-}
-
-button:focus {
-    outline: 2px solid rgba(249, 115, 22, 0.5);
-    outline-offset: 2px;
-}
-
-/* 기본 입력 필드 스타일 강화 */
-input, textarea {
-    font-family: 'Gowun Dodum', sans-serif;
-}
-
-input::placeholder, textarea::placeholder {
-    color: #9ca3af;
-}
-
-/* 스크롤바 스타일링 (선택사항) */
-.custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-}
-
 /* === 라이브채팅 공통 애니메이션 추가 === */
 
 /* 채팅 애니메이션 */
@@ -426,6 +378,58 @@ input::placeholder, textarea::placeholder {
         opacity: 1;
         transform: translateY(0) scale(1);
     }
+}
+
+/* === 마이페이지 공통 스타일 추가 === */
+
+/* 등급별 배경색 */
+.level-seed { background: linear-gradient(135deg, #ecfdf5, #dcfce7); color: #059669; }
+.level-root { background: linear-gradient(135deg, #fff7ed, #fed7aa); color: #ea580c; }
+.level-sprout { background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #2563eb; }
+.level-tree { background: linear-gradient(135deg, #f3e8ff, #ddd6fe); color: #7c3aed; }
+.level-forest { background: linear-gradient(135deg, #fdf2f8, #fbcfe8); color: #db2777; }
+
+/* 마이페이지 카드 스타일 */
+.mypage-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.mypage-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 마이페이지 버튼 스타일 */
+.mypage-btn-primary {
+    background: #f97316;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mypage-btn-primary:hover {
+    background: linear-gradient(to right, #ec4899, #f97316);
+}
+
+/* 마이페이지 탭 전환 애니메이션 */
+.tab-fade-enter {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.tab-fade-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 @media (min-width: 768px) {
@@ -492,7 +496,7 @@ input::placeholder, textarea::placeholder {
         animation: none !important;
         transition: none !important;
     }
-    
+
     /* 채팅 애니메이션도 비활성화 */
     @keyframes chatSlideIn {
         from, to {
@@ -500,7 +504,7 @@ input::placeholder, textarea::placeholder {
             transform: none;
         }
     }
-    
+
     @keyframes messageSlideIn {
         from, to {
             opacity: 1;

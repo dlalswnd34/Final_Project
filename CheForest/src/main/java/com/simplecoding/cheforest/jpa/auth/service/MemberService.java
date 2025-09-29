@@ -101,4 +101,20 @@ public class MemberService {
     public Page<MemberAdminDto> adminAllMember(Pageable pageable) {
         return memberRepository.findAllWithBoardCounts(pageable);
     }
+
+//    회원 탈퇴
+@Transactional
+public void withdraw(Long memberIdx) {
+    Member member = memberRepository.findById(memberIdx)
+            .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
+
+    // ✅ 회원정보 마스킹 처리
+    member.setLoginId("deleted_" + member.getMemberIdx());
+    member.setPassword("deleted");
+    member.setNickname("탈퇴한 회원_" + member.getMemberIdx());
+    member.setEmail("deleted");
+
+    // ✅ Role을 LEFT로 변경
+    member.setRole(Member.Role.LEFT);
+}
 }
