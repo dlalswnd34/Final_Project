@@ -92,7 +92,7 @@
                             <div class="benefits-tags">${item.effects}</div>
                         </div>
 
-                        <button class="recipe-btn">🍽️ 레시피 보기</button>
+                        <button class="recipe-btn">🍽️ 레시피 추천</button>
                     </div>
                 </div>
             </c:forEach>
@@ -139,7 +139,7 @@
                             <div class="benefits-tags">${item.effects}</div>
                         </div>
 
-                        <button class="recipe-btn">🍽️ 레시피 보기</button>
+                        <button class="recipe-btn">🍽️ 레시피 추천</button>
                     </div>
                 </div>
             </c:forEach>
@@ -186,7 +186,7 @@
                             <div class="benefits-tags">${item.effects}</div>
                         </div>
 
-                        <button class="recipe-btn">🍽️ 레시피 보기</button>
+                        <button class="recipe-btn">🍽️ 레시피 추천</button>
                     </div>
                 </div>
             </c:forEach>
@@ -233,7 +233,7 @@
                             <div class="benefits-tags">${item.effects}</div>
                         </div>
 
-                        <button class="recipe-btn">🍽️ 레시피 보기</button>
+                        <button class="recipe-btn">🍽️ 레시피 추천</button>
                     </div>
                 </div>
             </c:forEach>
