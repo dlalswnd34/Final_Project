@@ -14,6 +14,7 @@ import com.simplecoding.cheforest.jpa.file.service.FileService;
 import com.simplecoding.cheforest.jpa.like.service.LikeService;
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.auth.repository.MemberRepository;
+import com.simplecoding.cheforest.jpa.review.service.ReviewService;   // ✅ 추가
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,34 +38,29 @@ public class BoardService {
     private final MemberRepository memberRepository;
     private final MapStruct mapStruct;
     private final IntegratedSearchRepository integratedSearchRepository;
+    private final ReviewService reviewService;   // ✅ 추가
 
     // 1. 목록 조회 (검색 + 페이징)
     @Transactional(readOnly = true)
     public Page<BoardListDto> searchBoards(String keyword, String category, Pageable pageable) {
-
         Page<BoardListDto> result = boardRepositoryDsl.searchBoards(keyword, category, pageable);
-
         result.forEach(dto -> {
             if (dto.getInsertTime() != null) {
                 dto.setCreatedAgo(toAgo(dto.getInsertTime()));
             }
         });
-
         return result;
     }
 
     // 2. 상세 조회 (+ 조회수 증가)
     @Transactional
     public BoardDetailDto getBoardDetail(Long boardId) {
-        // ✅ DSL 사용
         BoardDetailDto dto = boardRepositoryDsl.findBoardDetail(boardId);
         if (dto == null) {
             throw new IllegalArgumentException("게시글 없음: " + boardId);
         }
-
         dto.setInsertTimeStr(com.simplecoding.cheforest.common.util.DateTimeUtil.format(dto.getInsertTime()));
 
-//         조회수 증가 (DB 반영)
         boardRepository.increaseViewCount(boardId);
         dto.setViewCount(dto.getViewCount() + 1);
 
@@ -74,19 +70,15 @@ public class BoardService {
     // 3. 게시글 등록
     @Transactional
     public Long create(BoardSaveReq dto, String writerEmail) throws IOException {
-        // 1. 작성자 조회
         Member writer = memberRepository.findByEmail(writerEmail)
                 .orElseThrow(() -> new IllegalArgumentException("회원 없음: " + writerEmail));
 
-        // 2. Board 엔티티 생성
         Board board = mapStruct.toEntity(dto);
         board.setWriter(writer);
 
-        // 2-1. 재료/계량 리스트를 문자열로 변환 (CSV 저장)
-        board.setPrepare(StringUtil.joinList(dto.getIngredientName()));     // 재료명
-        board.setPrepareAmount(StringUtil.joinList(dto.getIngredientAmount())); // 계량
+        board.setPrepare(StringUtil.joinList(dto.getIngredientName()));
+        board.setPrepareAmount(StringUtil.joinList(dto.getIngredientAmount()));
 
-        // 2-2. 조리법(JSON 변환 후 content 에 저장)
         List<StepDto> steps = new ArrayList<>();
         if (dto.getInstructionContent() != null) {
             for (int i = 0; i < dto.getInstructionContent().size(); i++) {
@@ -95,7 +87,6 @@ public class BoardService {
                 if (dto.getInstructionImage() != null &&
                         dto.getInstructionImage().size() > i &&
                         !dto.getInstructionImage().get(i).isEmpty()) {
-                    // 조리법 이미지 저장
                     FileDto file = fileService.saveFile(dto.getInstructionImage().get(i),
                             "BOARD", null, "INSTRUCTION", writer.getMemberIdx());
                     image = file != null ? file.getFilePath() : null;
@@ -105,11 +96,9 @@ public class BoardService {
         }
         board.setContent(JsonUtil.toJson(steps));
 
-        // 3. Board 저장 (일단 저장해야 boardId 생성됨)
         boardRepository.save(board);
         Long boardId = board.getBoardId();
 
-        // 4. 대표 이미지 저장
         if (dto.getMainImage() != null && !dto.getMainImage().isEmpty()) {
             FileDto thumbnail = fileService.saveFile(dto.getMainImage(),
                     "BOARD", boardId, "THUMBNAIL", writer.getMemberIdx());
@@ -117,9 +106,6 @@ public class BoardService {
                 board.setThumbnail(thumbnail.getFilePath());
             }
         }
-
-        // 5. 조리법 이미지 (이미 위에서 StepDto 처리할 때 저장했으므로 별도 필요 X)
-        // → 만약 추가 관리가 필요하다면 fileService.saveBoardFiles 사용 가능
 
         return boardId;
     }
@@ -170,6 +156,9 @@ public class BoardService {
 
     // 5. 게시글 삭제
     public void delete(Long boardId) {
+        // ✅ 댓글 먼저 삭제
+        reviewService.deleteByBoardId(boardId);
+
         likeService.deleteAllByBoardId(boardId);
         fileService.deleteAllByTargetIdAndType(boardId, "board");
         boardRepository.deleteById(boardId);
@@ -177,6 +166,9 @@ public class BoardService {
 
     // 6. 관리자 삭제
     public void adminDelete(Long boardId) {
+        // ✅ 댓글 먼저 삭제
+        reviewService.deleteByBoardId(boardId);
+
         likeService.deleteAllByBoardId(boardId);
         fileService.deleteAllByTargetIdAndType(boardId, "board");
         boardRepository.deleteById(boardId);
@@ -216,16 +208,14 @@ public class BoardService {
         return boardRepository.countByWriter(member);
     }
 
-//    총 게시글 수
     public long getTotalCount() {
         return boardRepository.count();
     }
-//    카테고리별 게시글 수
+
     public long getCountByCategory(String category) {
         return boardRepository.countByCategory(category);
     }
 
-//    전처리
     private String toAgo(java.time.LocalDateTime created) {
         java.time.Duration duration = java.time.Duration.between(created, java.time.LocalDateTime.now());
 
