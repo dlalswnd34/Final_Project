@@ -3,6 +3,7 @@ package com.simplecoding.cheforest.jpa.recipe.dto;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -61,5 +62,15 @@ public class RecipeDto {
         }
 
         return result;
+    }
+
+    // 조리법 줄 단위 분리
+    public List<String> getInstructionSteps() {
+        if (instructionKr == null || instructionKr.isBlank()) {
+            return Collections.emptyList();
+        }
+        return Arrays.stream(instructionKr.split("\\r?\\n"))
+                .filter(s -> !s.isBlank())
+                .toList();
     }
 }

@@ -27,7 +27,7 @@
                 <div class="flex items-center justify-center space-x-8 text-sm">
                     <div class="flex items-center">
                         <i data-lucide="book-open" class="h-5 w-5 mr-2"></i>
-                        <span id="totalRecipeCount">6개의 레시피</span>
+                        <span id="totalRecipeCount">5개의 카테고리</span>
                     </div>
                     <div class="flex items-center">
                         <i data-lucide="user" class="h-5 w-5 mr-2"></i>
