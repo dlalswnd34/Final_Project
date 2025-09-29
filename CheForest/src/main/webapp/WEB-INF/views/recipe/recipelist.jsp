@@ -353,6 +353,9 @@
     </section>
 </div>
 
+<!-- ===== 챗봇 UI + JS 연결 (푸터 위로 이동) ===== -->
+<jsp:include page="/WEB-INF/views/chat/chatbot.jsp" />
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         lucide.createIcons();

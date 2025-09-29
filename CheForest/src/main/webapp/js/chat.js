@@ -6,24 +6,33 @@
 
 // 하드코딩된 이모티콘 리스트
 const emojiList = [
-    "/emoji/hi.png",
-    "/emoji/good.png",
-    "/emoji/yes.png",
-    "/emoji/no.png",
-    "/emoji/cheer up.png",
-    "/emoji/delicious.png",
-    "/emoji/not tasty.png",
-    "/emoji/oh no.png",
-    "/emoji/recommen.png",
-    "/emoji/sad.png",
-    "/emoji/wow.png",
+    "/emoji/goooood.png",
+    "/emoji/고소해요.png",
+    "/emoji/맛없어요.png",
+    "/emoji/맛있어요.png",
+    "/emoji/매워요.png",
+    "/emoji/반가워요.png",
+    "/emoji/부드러워요.png",
+    "/emoji/불쇼에요.png",
+    "/emoji/슬퍼요.png",
+    "/emoji/싫은데요.png",
+    "/emoji/싱거워요.png",
+    "/emoji/아쉬운데요.png",
+    "/emoji/요리해요.png",
+    "/emoji/우와.png",
+    "/emoji/우욱.png",
+    "/emoji/잘가요.png",
+    "/emoji/진짜좋은데요.png",
+    "/emoji/짜요.png",
+    "/emoji/추천해요.png",
+    "/emoji/화이팅.png"
     // 추후 개선
 ];
 
 let stompClient = null;
 // 연결
 function connect() {
-    const socket = new SockJS("/ws")
+    const socket = new SockJS(CONTEXT_PATH + "/ws")
     stompClient = Stomp.over(socket);
 
     stompClient.connect({}, () => {
@@ -190,6 +199,12 @@ function loadEmojis() {
     });
 }
 
+// 버튼 클릭으로 전송
+function handleClick(event) {
+    sendMessage();
+    event.preventDefault();
+}
+
 // 엔터키로 전송
 function handleKey(event) {
     if (event.key === "Enter") {
@@ -198,5 +213,69 @@ function handleKey(event) {
     }
 }
 
-connect();
-loadEmojis();
+window.addEventListener("DOMContentLoaded", () => {
+    connect();
+    loadEmojis();
+
+    const btn = document.getElementById("chatBtn");;
+    const chatContainer = document.querySelector(".chat-container");
+    const closeBtn = document.getElementById("chat-close-btn");
+    const emojiToggleBtn = document.getElementById("emoji-toggle-btn");
+    const emojiPanel = document.getElementById("emojiBox");
+    const chatInput = document.getElementById("msgInput");
+    const chatSendBtn = document.getElementById("chat-send-btn");
+
+    // 1. 스티키 버튼 (채팅창만 토글)
+    btn.addEventListener("click", () => {
+        chatContainer.style.display =
+            (chatContainer.style.display === "none" || chatContainer.style.display === "")
+                ? "flex" // 🌟 채팅창을 엽니다. 🌟
+                : "none";
+
+        // 채팅창 닫힐 때, 패널도 닫습니다.
+        if (chatContainer.style.display === "none") {
+            emojiPanel.style.display = "none";
+        }
+    });
+
+    // 2. 닫기 버튼 (채팅창만 닫기)
+    closeBtn.addEventListener("click", () => {
+        chatContainer.style.display = "none";
+        emojiPanel.style.display = "none";
+    });
+
+// 3. 🌟 이모티콘 토글 버튼 로직 수정 🌟
+    if (IS_LOGGED_IN) {
+        // [로그인 상태]: 정상적으로 패널을 토글합니다.
+        emojiToggleBtn.addEventListener("click", () => {
+            emojiPanel.style.display =
+                (emojiPanel.style.display === "none" || emojiPanel.style.display === "")
+                    ? "flex"
+                    : "none";
+        });
+
+    } else {
+        // [로그아웃 상태]: 클릭 시 경고창만 띄우고 토글하지 않습니다.
+        emojiToggleBtn.addEventListener("click", () => {
+            alert("로그인 하세요.");
+        });
+
+        // 7️⃣ 기존에 추가했던 로그인 여부 체크 및 기능 제한 코드를 이 아래로 이동
+        chatInput.placeholder = "로그인 하세요.";
+        chatInput.disabled = true;
+
+        chatSendBtn.onclick = (e) => {
+            e.preventDefault();
+            alert("로그인 하세요.");
+        };
+
+        // 이모티콘 패널 내부 버튼의 기능은 이제 토글 버튼이 막혔으므로 중요도가 낮아지지만,
+        // 혹시 모를 상황에 대비해 경고창 기능으로 유지합니다.
+        document.querySelectorAll("#emojiBox button").forEach(btn => {
+            btn.onclick = (e) => {
+                e.preventDefault();
+                alert("로그인 하세요.");
+            };
+        });
+    }
+});
