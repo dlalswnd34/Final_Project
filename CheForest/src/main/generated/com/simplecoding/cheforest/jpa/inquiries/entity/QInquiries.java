@@ -31,6 +31,8 @@ public class QInquiries extends EntityPathBase<Inquiries> {
 
     public final StringPath isFaq = createString("isFaq");
 
+    public final NumberPath<Long> likeCount = createNumber("likeCount", Long.class);
+
     public final NumberPath<Long> memberIdx = createNumber("memberIdx", Long.class);
 
     public final StringPath questionContent = createString("questionContent");

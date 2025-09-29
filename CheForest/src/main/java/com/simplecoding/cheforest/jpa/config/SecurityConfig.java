@@ -33,6 +33,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // DispatcherType.FORWARD = jsp redirection 허용 , DispatcherType.INCLUDE = jsp:include 허용
                         .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.INCLUDE).permitAll()
+                        // 🌟🌟🌟 핵심 수정: /ws/** 경로에 대한 접근을 무조건 허용 🌟🌟🌟
+                        .requestMatchers("/ws/**").permitAll() // 👈 이 줄을 추가해야 합니다.
                         //  [1] 관리자 전용 페이지
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
 

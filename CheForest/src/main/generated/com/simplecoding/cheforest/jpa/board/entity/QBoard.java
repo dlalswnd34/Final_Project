@@ -41,6 +41,8 @@ public class QBoard extends EntityPathBase<Board> {
 
     public final StringPath prepare = createString("prepare");
 
+    public final StringPath prepareAmount = createString("prepareAmount");
+
     public final StringPath thumbnail = createString("thumbnail");
 
     public final StringPath title = createString("title");

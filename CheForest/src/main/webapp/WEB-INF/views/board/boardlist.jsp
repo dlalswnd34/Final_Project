@@ -573,6 +573,8 @@
     <script src="/js/board/board.js"></script>
 
     <!-- 게시판 콘텐츠 로드 -->
+<%--<!-- ===== 챗 UI + JS 연결 (푸터 위로 이동) ===== -->--%>
+<jsp:include page="/WEB-INF/views/chat/chat.jsp" />
     <script>
         async function loadBoardContent() {
             try {
