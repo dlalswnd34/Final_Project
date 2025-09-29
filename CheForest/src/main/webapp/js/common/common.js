@@ -5,10 +5,49 @@
 window.CheForest = window.CheForest || {};
 
 // 페이지 네비게이션 함수
-function showPage(page) {
-    console.log('Navigate to:', page);
-    // JSP에서 실제 페이지 이동 로직을 구현
-    // 예: window.location.href = page + '.jsp';
+function showPage(page, id) {
+    switch (page) {
+        case 'home':
+            window.location.href = '../..';
+            break;
+        case 'recipes':
+            window.location.href = '/recipe/list';
+            break;
+        case 'board':
+            window.location.href = '/board/list';
+            break;
+        case 'board-view':
+            if (id) {
+                window.location.href = '/board/view?boardId=' + id;
+            } else {
+                alert('게시글 ID가 없습니다.');
+            }
+            break;
+        case 'board-write':
+            window.location.href = '/board/add';
+            break;
+        case 'qna':
+            window.location.href = '/qna';
+            break;
+        case 'events':
+            window.location.href = '/event/events';
+            break;
+        case 'test':
+            window.location.href = '/event/test';
+            break;
+        case 'mypage':
+            window.location.href = '/mypage/mypage';
+            break;
+        case 'login':
+            window.location.href = '/auth/login';
+            break;
+        case 'season':
+            window.location.href = '/season';
+            break;
+        default:
+            // 기본적으로 page.jsp로 이동
+            window.location.href = '/' + page + '.jsp';
+    }
 }
 
 // 네비게이션 활성화 상태 업데이트
