@@ -61,7 +61,7 @@ public interface RecipeRepository extends JpaRepository<Recipe, String> {
     List<Recipe> findRandomDustGood();
 
     // 9. 제철 재료 레시피 검색(미완성)
-//    List<Recipe> findBySeasonIsNotNullAndTitleKrContaining(String keyword);
+    List<Recipe> findBySeasonIsNotNullAndTitleKrContainingIgnoreCase(String keyword);
 
 }
 
