@@ -39,30 +39,39 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
         }
         // ✅ 소셜 로그인
         else if (principal instanceof OAuth2User oAuth2User) {
-            String email = (String) oAuth2User.getAttributes().get("email");
-            member = memberRepository.findByEmail(email).orElse(null);
+            Object socialIdObj = oAuth2User.getAttributes().get("id");   // Kakao → Long
+            String socialId = (socialIdObj != null) ? String.valueOf(socialIdObj) : null;
 
-            String provider = (String) oAuth2User.getAttributes().get("provider");
-            if (provider != null) {
+            Object providerObj = oAuth2User.getAttributes().get("provider");
+            String provider = (providerObj instanceof String) ? (String) providerObj : null;
+
+            if (socialId != null && provider != null) {
+                member = memberRepository
+                        .findBySocialIdAndProvider(socialId, provider.toUpperCase())
+                        .orElse(null);
+
                 request.getSession().setAttribute("provider", provider.toUpperCase());
             }
         }
 
-        // ✅ 닉네임 중복 체크
-        if (member != null && memberRepository.existsByNicknameAndMemberIdxNot(
-                member.getNickname(), member.getMemberIdx())) {
-            log.info("닉네임 중복 발생 → 닉네임 변경 페이지로 이동");
-            response.sendRedirect("/auth/nickname/change");
+        // ✅ 자동 생성된 닉네임이면 모달용 세션 저장
+        if (member != null && member.getNickname() != null && member.getNickname().contains("_")) {
+            String originalNickname = member.getNickname().split("_")[0];
+            request.getSession().setAttribute("originalNickname", originalNickname);
+
+            log.info("자동 생성된 닉네임 감지 → 모달 표시 준비 (원래 닉네임: {}, 현재 닉네임: {})",
+                    originalNickname, member.getNickname());
+
+            // 홈으로 이동 → JSP에서 모달 표시
+            response.sendRedirect("/");
             return;
         }
 
-// ✅ SavedRequest 확인
+        // ✅ SavedRequest 확인 (원래 요청 페이지로 복귀)
         SavedRequest savedRequest = new HttpSessionRequestCache().getRequest(request, response);
 
         if (savedRequest != null) {
             String targetUrl = savedRequest.getRedirectUrl();
-
-            // 🚨 /error 로 시작하면 홈으로 강제 이동
             if (targetUrl != null && !targetUrl.contains("/error")) {
                 log.info("로그인 성공 → 원래 요청한 페이지로 이동: {}", targetUrl);
                 response.sendRedirect(targetUrl);

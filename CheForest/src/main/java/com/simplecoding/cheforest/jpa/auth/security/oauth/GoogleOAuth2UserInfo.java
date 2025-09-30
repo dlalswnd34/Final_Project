@@ -31,6 +31,11 @@ public class GoogleOAuth2UserInfo implements OAuth2UserInfo {
     }
 
     @Override
+    public String getIdKey() {
+        return "sub";   // ✅ principalName 속성으로 쓸 key 이름
+    }
+
+    @Override
     public Map<String, Object> getAttributes() {
         return attributes;
     }

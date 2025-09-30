@@ -54,32 +54,32 @@ document.addEventListener("DOMContentLoaded", function () {
     const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
     const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
 
-    // ==============================
-    // AJAX 공통 요청
-    // ==============================
-    async function ajaxRequest(url, method, data) {
-        const headers = { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" };
-        if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
-
-        let fetchOptions = { method, headers };
-        if (method.toUpperCase() === "GET") {
-            if (data) {
-                const params = new URLSearchParams(data).toString();
-                url += (url.includes("?") ? "&" : "?") + params;
-            }
-        } else {
-            fetchOptions.body = new URLSearchParams(data).toString();
-        }
-
-        const response = await fetch(url, fetchOptions);
-        const contentType = response.headers.get("content-type");
-
-        if (contentType && contentType.includes("application/json")) {
-            return await response.json();
-        } else {
-            return await response.text();
-        }
-    }
+    // // ==============================
+    // // AJAX 공통 요청
+    // // ==============================
+    // async function ajaxRequest(url, method, data) {
+    //     const headers = { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" };
+    //     if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
+    //
+    //     let fetchOptions = { method, headers };
+    //     if (method.toUpperCase() === "GET") {
+    //         if (data) {
+    //             const params = new URLSearchParams(data).toString();
+    //             url += (url.includes("?") ? "&" : "?") + params;
+    //         }
+    //     } else {
+    //         fetchOptions.body = new URLSearchParams(data).toString();
+    //     }
+    //
+    //     const response = await fetch(url, fetchOptions);
+    //     const contentType = response.headers.get("content-type");
+    //
+    //     if (contentType && contentType.includes("application/json")) {
+    //         return await response.json();
+    //     } else {
+    //         return await response.text();
+    //     }
+    // }
 
     // ==============================
     // 실시간 검증: 아이디

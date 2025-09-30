@@ -41,39 +41,39 @@ public class SecurityConfig {
                         //  [2] 로그인 필요한 페이지
                         .requestMatchers(
                                 "/mypage/**",
-                                "/이런식으로 더 추가하면 됩니다./**"
+                                "/auth/nickname/update"
                         ).authenticated()
 
 
                         // [3] 나머지 페이지는 모두 허용
                         .anyRequest().permitAll()
                 )
-                // ✅ 일반 로그인 설정
+                // 일반 로그인 설정
                 .formLogin(form -> form
                         .loginPage("/auth/login")
                         .loginProcessingUrl("/auth/login")
                         .usernameParameter("loginId")
                         .passwordParameter("password")
-                        .successHandler(customLoginSuccessHandler) // 성공 핸들러
+                        .successHandler(customLoginSuccessHandler)
                         .failureUrl("/auth/login?error=true")
                         .permitAll()
                 )
-                // ✅ 소셜 로그인 설정
+                // 소셜 로그인 설정
                 .oauth2Login(oauth -> oauth
                         .loginPage("/auth/login")
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                        .successHandler(customLoginSuccessHandler) // 성공 핸들러
+                        .successHandler(customLoginSuccessHandler)
                 )
-                // ✅ 로그아웃 설정
+                // 로그아웃 설정
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
                         .logoutSuccessHandler(customLogoutSuccessHandler)
                         .permitAll()
 
-                )
-                // 보안토큰설정(현재 비활성화, 나중에 추가해주세요! 설정하면 POST 부분은 전부 보안토큰걸림)
-                .csrf(csrf -> csrf.disable()
                 );
+//                // 보안토큰설정(현재 비활성화, 나중에 추가해주세요! 설정하면 POST 부분은 전부 보안토큰걸림)
+//                .csrf(csrf -> csrf.disable()
+//                )
 
         return http.build();
     }

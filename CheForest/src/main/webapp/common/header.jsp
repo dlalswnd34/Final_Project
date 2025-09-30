@@ -1,15 +1,16 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
-
-<!DOCTYPE html>
-<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>CheForest - 요리 레시피 공유 사이트</title>
     <link rel="stylesheet" href="/css/common.css">
-    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/home.css">
+
+    <!-- ✅ CSRF Meta -->
+    <sec:csrfMetaTags/>
 </head>
 <body>
 <!-- CheForest Header -->
@@ -141,48 +142,8 @@
                     <span class="nav-underline"></span>
                 </button>
 
-<%--                <!-- 드롭다운 메뉴 -->--%>
-<%--                <div--%>
-<%--                        id="ingredientsDropdown"--%>
-<%--                        class="absolute top-full left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-xl opacity-0 invisible transform -translate-y-2 transition-all duration-200 z-50"--%>
-<%--                        onmouseenter="showIngredientsDropdown()"--%>
-<%--                        onmouseleave="hideIngredientsDropdown()"--%>
-<%--                >--%>
-<%--                    <div class="py-2">--%>
-<%--                        <button--%>
-<%--                                onclick="showPage('ingredients')"--%>
-<%--                                class="w-full text-left px-6 py-3 text-base text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors font-medium"--%>
-<%--                        >--%>
-<%--                            <span class="text-lg mr-3">🌸</span>--%>
-<%--                            봄철 식재료--%>
-<%--                        </button>--%>
-<%--                        <button--%>
-<%--                                onclick="showPage('ingredients')"--%>
-<%--                                class="w-full text-left px-6 py-3 text-base text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors font-medium"--%>
-<%--                        >--%>
-<%--                            <span class="text-lg mr-3">☀️</span>--%>
-<%--                            여름철 식재료--%>
-<%--                        </button>--%>
-<%--                        <button--%>
-<%--                                onclick="showPage('ingredients')"--%>
-<%--                                class="w-full text-left px-6 py-3 text-base text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors font-medium"--%>
-<%--                        >--%>
-<%--                            <span class="text-lg mr-3">🍂</span>--%>
-<%--                            가을철 식재료--%>
-<%--                        </button>--%>
-<%--                        <button--%>
-<%--                                onclick="showPage('ingredients')"--%>
-<%--                                class="w-full text-left px-6 py-3 text-base text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors font-medium"--%>
-<%--                        >--%>
-<%--                            <span class="text-lg mr-3">❄️</span>--%>
-<%--                            겨울철 식재료--%>
-<%--                        </button>--%>
-<%--                    </div>--%>
-<%--                </div>--%>
-
             <div class="relative group">
                 <button
-                        onclick="showPage('events')"
                         class="nav-item relative font-medium transition-colors text-gray-700 hover:text-orange-500"
                         data-page="events"
                 >
@@ -234,13 +195,13 @@
         <nav id="mobileMenu" class="hidden sm:hidden py-3 border-t border-gray-200">
             <div class="flex flex-col space-y-2">
                 <a href="<c:url value='/'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">홈</a>
-                <a href="<c:url value='/recipes'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">
+                <a href="<c:url value='/recipe/list'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">
                     <div><div>CheForest</div><div>레시피</div></div>
                 </a>
-                <a href="<c:url value='/board'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">
+                <a href="<c:url value='/board/list'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">
                     <div><div>사용자</div><div>레시피</div></div>
                 </a>
-                <a href="<c:url value='/ingredients'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">계절 식재료</a>
+                <a href="<c:url value='/season'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">계절 식재료</a>
                 <a href="<c:url value='/grade'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">등급 안내</a>
                 <a href="<c:url value='/events'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">이벤트</a>
                 <a href="<c:url value='/qna'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">Q&A</a>
@@ -250,7 +211,7 @@
                     <a href="<c:url value='/admin'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">🛡️ 관리자 모드</a>
                 </sec:authorize>
 
-                <a href="<c:url value='/mypage'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">👤 마이페이지</a>
+                <a href="<c:url value='/mypage/mypage'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">👤 마이페이지</a>
 
                 <!-- 로그인 상태 -->
                 <sec:authorize access="isAuthenticated()">
@@ -274,6 +235,58 @@
             </div>
         </nav>
     </div>
+    <!-- 닉네임 변경 모달 -->
+    <div id="nicknameModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+            <h2 class="text-lg font-bold mb-4">닉네임 변경</h2>
+            <p class="text-sm text-gray-600 mb-4">
+                닉네임이 자동으로 변경되었습니다.<br/><br/>
+                <span class="block">
+               🔹 원래 닉네임:
+               <strong class="text-gray-700">
+                   <c:out value="${sessionScope.originalNickname}" default="(없음)"/>
+               </strong>
+            </span>
+                <span class="block mt-1">
+               🔹 자동 생성된 닉네임:
+               <strong class="text-orange-500">
+                   <c:out value="${pageContext.request.userPrincipal != null
+                       ? pageContext.request.userPrincipal.principal.member.nickname : ''}" default="(없음)"/>
+               </strong>
+            </span>
+                <br/>
+                새로운 닉네임을 입력해주세요.
+            </p>
+
+            <!-- ✅ Form 방식 -->
+            <form action="<c:url value='/auth/nickname/update'/>" method="post" class="space-y-3">
+                <input type="text" name="nickname" id="newNickname"
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2"
+                       placeholder="새 닉네임 입력" required />
+
+                <!-- CSRF -->
+                <sec:csrfInput/>
+
+                <div class="flex justify-end space-x-2">
+                    <button type="button" onclick="closeNicknameModal()" class="px-4 py-2 bg-gray-200 rounded-lg">취소</button>
+                    <button type="submit" class="px-4 py-2 bg-orange-500 text-white rounded-lg">변경하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ✅ 조건부 모달 실행 -->
+    <sec:authorize access="isAuthenticated()">
+        <c:if test="${pageContext.request.userPrincipal.principal.member.nickname ne null
+                 and fn:contains(pageContext.request.userPrincipal.principal.member.nickname, '_')}">
+            <script>
+                window.addEventListener("DOMContentLoaded", function () {
+                    document.getElementById("nicknameModal").classList.remove("hidden");
+                    document.getElementById("nicknameModal").classList.add("flex");
+                });
+            </script>
+        </c:if>
+    </sec:authorize>
 </header>
 
     <!-- Tailwind CSS -->
@@ -285,6 +298,37 @@
 
 <script>
     lucide.createIcons();
+
+    function closeNicknameModal() {
+        document.getElementById("nicknameModal").classList.add("hidden");
+    }
+
+    document.querySelector("#nicknameModal form")?.addEventListener("submit", async function (e) {
+        e.preventDefault(); // 기본 제출 막음
+
+        const newNickname = document.getElementById("newNickname").value.trim();
+        if (!newNickname) {
+            alert("닉네임을 입력해주세요.");
+            return;
+        }
+
+        try {
+            // 닉네임 중복 체크
+            const available = await ajaxRequest("/auth/check-nickname", "GET", { nickname: newNickname });
+            if (!available) {
+                alert("이미 사용중인 닉네임입니다. 다른 닉네임을 입력해주세요.");
+                return;
+            }
+
+            // 중복 없으면 원래 form 제출 실행
+            e.target.submit();
+
+        } catch (err) {
+            console.error(err);
+            alert("서버 오류가 발생했습니다.");
+        }
+    });
 </script>
+
 </body>
 </html>
