@@ -476,76 +476,7 @@
             </div>
         </section>
 
-        <!-- 이벤트 & 클래스 섹션 -->
-        <section class="py-16 bg-gradient-to-br from-orange-50/30 to-pink-50/30">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-12">
-                    <div class="flex items-center justify-center mb-4">
-                        <i data-lucide="trophy" class="h-8 w-8 text-orange-500 mr-3"></i>
-                        <h2 class="text-4xl font-black brand-gradient">이벤트 & 클래스</h2>
-                    </div>
-                    <p class="text-gray-600 max-w-2xl mx-auto">
-                        CheForest의 쿠킹 스튜디오에서 새로운 요리 경험을 만나보세요! <br>
-                        창의적인 레시피 공모전부터 나만의 요리 성향 발견까지, 새로은 경험의 공간으로 당신을 초대합니다.
-                    </p>
-                </div>
 
-                <div class="grid md:grid-cols-2 gap-8">
-                    <!-- 진행중인 이벤트 -->
-                    <div class="bg-white rounded-xl shadow-lg p-6">
-                        <div class="flex items-center mb-4">
-                            <i data-lucide="gift" class="h-6 w-6 text-red-500 mr-2"></i>
-                            <h3 class="text-xl font-semibold">진행중인 이벤트</h3>
-                        </div>
-
-                        <div class="space-y-4">
-                            <!-- 이벤트 아이템 - 하나의 구조만 (JSP에서 반복 처리) -->
-                            <div class="border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow">
-                                <div class="flex justify-between items-start mb-2">
-                                    <h4 class="font-medium text-gray-900">이벤트 제목 자리</h4>
-                                    <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs">진행중</span>
-                                </div>
-                                <p class="text-sm text-gray-600 mb-3">이벤트 설명 자리</p>
-                                <div class="flex justify-between items-center text-sm">
-                                    <span class="text-gray-500">기간: 이벤트 기간 자리</span>
-                                    <button class="text-orange-500 hover:text-orange-600 font-medium">자세히 보기</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 예정된 클래스 -->
-                    <div class="bg-white rounded-xl shadow-lg p-6">
-                        <div class="flex items-center mb-4">
-                            <i data-lucide="graduation-cap" class="h-6 w-6 text-blue-500 mr-2"></i>
-                            <h3 class="text-xl font-semibold">예정된 클래스</h3>
-                        </div>
-
-                        <div class="space-y-4">
-                            <!-- 클래스 아이템 - 하나의 구조만 (JSP에서 반복 처리) -->
-                            <div class="border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow">
-                                <div class="flex justify-between items-start mb-2">
-                                    <h4 class="font-medium text-gray-900">클래스 제목 자리</h4>
-                                    <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs">모집중</span>
-                                </div>
-                                <p class="text-sm text-gray-600 mb-3">클래스 설명 자리</p>
-                                <div class="flex justify-between items-center text-sm">
-                                    <span class="text-gray-500">일시: 클래스 일시 자리</span>
-                                    <button class="text-blue-500 hover:text-blue-600 font-medium">신청하기</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 더보기 버튼 -->
-                <div class="text-center mt-10">
-                    <button id="moreEventsBtn" class="btn-orange text-white px-8 py-3 rounded-lg transition-all duration-200">
-                        모든 이벤트 보기
-                    </button>
-                </div>
-            </div>
-        </section>
     </main>
 
     <!-- JavaScript 파일 -->
@@ -572,7 +503,7 @@
             }
         });
     });
-
+</script>
     <jsp:include page="/common/footer.jsp"/>
 </body>
 </html>

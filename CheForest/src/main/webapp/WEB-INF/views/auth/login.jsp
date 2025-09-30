@@ -65,9 +65,9 @@
 
                 <!-- 아이디/비번 찾기 -->
                 <div class="login-links">
-                    <a href="/forgot-id" class="auth-link">아이디를 잊으셨나요?</a>
+                    <a href="/auth/find-id" class="auth-link">아이디를 잊으셨나요?</a>
                     <div class="divider-vertical"></div>
-                    <a href="/forgot-password" class="auth-link">비밀번호를 잊으셨나요?</a>
+                    <a href="/auth/find-password" class="auth-link">비밀번호를 잊으셨나요?</a>
                 </div>
             </div>
 
@@ -86,7 +86,8 @@
                 </div>
                 <div class="social-buttons">
                     <!-- 구글 -->
-                    <button class="social-btn google-btn">
+                    <button class="social-btn google-btn"
+                            onclick="location.href='/oauth2/authorization/google'">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
                             <path fill="#EA4335" d="M24 9.5c3.9 0 6.6 1.7 8.1 3.1l6-5.9C34.6 3.6 29.7 1.5 24 1.5 14.9 1.5 7.1 7.3 4.1 15.2l7.1 5.5C12.9 15.1 18 9.5 24 9.5z"/>
                             <path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.2-.4-4.7H24v9.1h12.6c-.5 2.7-2 5-4.2 6.5l6.5 5.1c3.8-3.5 6.2-8.7 6.2-15z"/>
@@ -95,13 +96,15 @@
                         </svg>
                     </button>
                     <!-- 카카오 -->
-                    <button class="social-btn kakao-btn">
+                    <button class="social-btn kakao-btn"
+                            onclick="location.href='/oauth2/authorization/kakao'">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
                             <path fill="#3C1E1E" d="M16 3C8.8 3 3 7.9 3 14c0 3.5 2.1 6.6 5.5 8.6-.2.7-.9 3.3-1 3.8 0 0-.1.5.3.3.4-.2 3.8-2.5 4.4-2.9.9.1 1.7.2 2.8.2 7.2 0 13-4.9 13-11S23.2 3 16 3z"/>
                         </svg>
                     </button>
                     <!-- 네이버 -->
-                    <button class="social-btn naver-btn">
+                    <button class="social-btn naver-btn"
+                            onclick="location.href='/oauth2/authorization/naver'">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
                             <path fill="#03C75A" d="M7 5h6.3l5.7 8.8V5H25v22h-6.3l-5.7-8.8V27H7z"/>
                         </svg>

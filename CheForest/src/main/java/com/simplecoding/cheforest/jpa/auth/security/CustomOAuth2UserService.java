@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -23,39 +24,45 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     private final MemberRepository memberRepository;
 
+    private String generateUniqueNickname(String baseNickname) {
+        String nickname = baseNickname;
+        int suffix = 1;
+
+        while (memberRepository.existsByNickname(nickname)) {
+            nickname = baseNickname + "_" + suffix++;
+        }
+        return nickname;
+    }
+
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        // 기본 서비스로 attributes 불러오기
         OAuth2User oAuth2User = new DefaultOAuth2UserService().loadUser(userRequest);
 
-        // 어떤 provider 인지 확인 (google, kakao, naver)
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        Map<String, Object> attributes = oAuth2User.getAttributes();
+        Map<String, Object> attributes = new HashMap<>(oAuth2User.getAttributes());
 
-        // Provider별 파싱
         OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(registrationId, attributes);
 
-        // ✅ DB 조회 or 신규 저장
         Member member = memberRepository.findBySocialIdAndProvider(userInfo.getId(), registrationId.toUpperCase())
                 .orElseGet(() -> memberRepository.save(
                         Member.builder()
                                 .socialId(userInfo.getId())
                                 .provider(registrationId.toUpperCase())
-                                .email(userInfo.getEmail())
-                                .nickname(userInfo.getName())
+                                .email(userInfo.getEmail() != null ? userInfo.getEmail() : "NO_EMAIL")
+                                .nickname(generateUniqueNickname(userInfo.getName()))
                                 .profile(userInfo.getImageUrl())
                                 .role(Member.Role.USER)
+                                // 기본값들
+                                .password("SOCIAL_LOGIN")
+                                .tempPasswordYn("N")
+                                .point(0L)
+                                .grade("씨앗")
                                 .build()
                 ));
 
-        // attributes 안에 provider 추가
         attributes.put("provider", registrationId.toUpperCase());
 
-        // 로그인 객체 반환
-        return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority(member.getRole().name())),
-                userInfo.getAttributes(),
-                "id" // 기본 키 → provider별로 다르지만, attributes는 Factory에서 정리되어 있음
-        );
+        return new CustomOAuth2User(member, attributes);
     }
+
 }

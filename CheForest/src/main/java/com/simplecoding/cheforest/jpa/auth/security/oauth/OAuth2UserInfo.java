@@ -7,6 +7,7 @@ public interface OAuth2UserInfo {
     String getName();
     String getEmail();
     String getImageUrl();
+    String getIdKey();
 
     Map<String, Object> getAttributes(); // 원본 attributes 필요할 때 사용
 }

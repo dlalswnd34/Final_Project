@@ -44,7 +44,7 @@ function showPage(page, id) {
         case 'season':
             window.location.href = '/season';
             break;
-        case 'dustmap':
+        case 'dust':
             window.location.href = '/dustmap';
             break;
         default:
@@ -81,6 +81,34 @@ function updateActiveNavigation(page) {
 function initializeLucideIcons() {
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
+    }
+}
+
+// api
+async function ajaxRequest(url, method, data) {
+    const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
+    const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
+
+    const headers = { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" };
+    if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
+
+    let fetchOptions = { method, headers };
+    if (method.toUpperCase() === "GET") {
+        if (data) {
+            const params = new URLSearchParams(data).toString();
+            url += (url.includes("?") ? "&" : "?") + params;
+        }
+    } else {
+        fetchOptions.body = new URLSearchParams(data).toString();
+    }
+
+    const response = await fetch(url, fetchOptions);
+    const contentType = response.headers.get("content-type");
+
+    if (contentType && contentType.includes("application/json")) {
+        return await response.json();
+    } else {
+        return await response.text();
     }
 }
 
