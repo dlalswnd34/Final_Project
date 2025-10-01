@@ -13,14 +13,17 @@ public class MypageMyPostDto {
     private Long viewCount;
     private Long likeCount;
 
+
+
     // JPQL에서 사용할 생성자
-    public MypageMyPostDto(Long boardId, String title, LocalDateTime writeDate, Long viewCount, Long likeCount) {
+    public MypageMyPostDto(Long boardId, String title, LocalDateTime insertTime, Long viewCount, Long likeCount) {
 
         this.boardId = boardId;
         this.title = title;
         this.insertTime = insertTime;
         this.viewCount = viewCount;
         this.likeCount = likeCount;
+
 
 
     }
