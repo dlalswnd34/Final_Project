@@ -24,11 +24,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+/**
+ * BoardController - 목록/상세/등록/수정/삭제 + 파일URL 주입(썸네일/조리법)
+ */
 @Slf4j
 @Controller
 @RequiredArgsConstructor
@@ -37,6 +37,15 @@ public class BoardController {
     private final BoardService boardService;
     private final FileService fileService;
     private final MypageService mypageService;
+
+    /**
+     * FileDto -> 브라우저에서 접근 가능한 공개 URL로 변환
+     * (미리보기 inline 엔드포인트 사용)
+     */
+    private String toPublicUrl(FileDto f) {
+        if (f == null) return null;
+        return "/file/board/preview/" + f.getFileId();
+    }
 
     // 1. 목록 조회
     @GetMapping("/board/list")
@@ -48,28 +57,28 @@ public class BoardController {
             @AuthenticationPrincipal CustomUserDetails loginUser,
             Model model
     ) {
-        // 👉 현재 카테고리/검색 로그
-        log.info("👉 category = '{}', keyword = '{}', searchType = '{}'", category, keyword, searchType);
+        // 로그
+        log.info("👉 category='{}', keyword='{}', searchType='{}'", category, keyword, searchType);
 
-        // ✅ 일반 게시글 목록
+        // 일반 게시글 목록
         Page<BoardListDto> boards = boardService.searchBoards(keyword, category, searchType, pageable);
         model.addAttribute("boards", boards.getContent());
         model.addAttribute("pageInfo", boards);
 
-        // ✅ 인기글
+        // 인기글
         List<BoardListDto> bestPosts = (category == null || category.isBlank())
                 ? boardService.getBestPosts()
                 : boardService.getBestPostsByCategory(category);
         model.addAttribute("bestPosts", bestPosts);
 
-        // ✅ 로그인 사용자 관련 통계
+        // 로그인 사용자 통계
         if (loginUser != null) {
             Long memberIdx = loginUser.getMember().getMemberIdx();
 
-            long myPostsCount = mypageService.getMyPostsCount(memberIdx, null);
-            long likedPostsCount = mypageService.getLikedBoardsCount(memberIdx, null);
+            long myPostsCount       = mypageService.getMyPostsCount(memberIdx, null);
+            long likedPostsCount    = mypageService.getLikedBoardsCount(memberIdx, null);
             long receivedLikesCount = mypageService.getReceivedBoardLikes(memberIdx);
-            long myCommentsCount = mypageService.getMyCommentsCount(memberIdx, null);
+            long myCommentsCount    = mypageService.getMyCommentsCount(memberIdx, null);
 
             model.addAttribute("myPostsTotalCount", myPostsCount);
             model.addAttribute("likedPostsTotalCount", likedPostsCount);
@@ -91,22 +100,38 @@ public class BoardController {
     @PostMapping("/board/add")
     public String add(
             @ModelAttribute BoardSaveReq dto,
+            @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
+            @RequestParam(value = "instructionImage", required = false) List<MultipartFile> steps, // [KEEP]
             @AuthenticationPrincipal CustomUserDetails loginUser
     ) throws IOException {
 
-        // ✅ 이메일 꺼내는 방법
-        String email = loginUser.getMember().getEmail();
+        // 로그인
         Long memberIdx = loginUser.getMember().getMemberIdx();
+        String email   = loginUser.getMember().getEmail();
 
-        // 1) 글 + 대표 이미지 저장
-        Long boardId = boardService.create(dto, loginUser.getEmail());
+        // 1) 게시글 저장 → ID 확보
+        Long boardId = boardService.create(dto, email);
 
-        // 2) 단계별 이미지 저장 (있으면)
-        if (dto.getInstructionImage() != null && !dto.getInstructionImage().isEmpty()) {
-            fileService.saveBoardFiles(boardId, loginUser.getMember().getMemberIdx(), dto.getInstructionImage());
+        // 2) 대표(썸네일) 저장
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            FileDto thumb = fileService.saveFile(thumbnail, "BOARD", boardId, "THUMBNAIL", memberIdx);
+            if (thumb != null) {
+                // ★ 썸네일을 브라우저 공개 URL로 저장해두면 이후 조회도 간편
+                String publicThumbUrl = toPublicUrl(thumb);
+                boardService.updateThumbnail(boardId, publicThumbUrl);
+            }
         }
 
-        String encodedCategory = URLEncoder.encode(dto.getCategory(), "UTF-8");
+        // 3) 단계(조리법) 이미지 저장 (내부에서 STEP_1, STEP_2 ...로 저장되도록 구현되어 있어야 함)
+        if (steps != null && !steps.isEmpty()) {
+            fileService.saveBoardFiles(boardId, memberIdx, steps);
+        }
+
+        // 4) 목록으로 리다이렉트
+        String encodedCategory = URLEncoder.encode(
+                dto.getCategory() == null ? "" : dto.getCategory(),
+                StandardCharsets.UTF_8
+        );
         return "redirect:/board/list?category=" + encodedCategory;
     }
 
@@ -153,16 +178,15 @@ public class BoardController {
         return "redirect:/board/list";
     }
 
-    // 8. 상세 조회
+    // 8. 상세 조회 (썸네일 + 조리법 이미지 URL 주입)
     @GetMapping("/board/view")
     public String view(@RequestParam("boardId") Long boardId, Model model,
                        @AuthenticationPrincipal MemberDetailDto loginUser) throws Exception {
         BoardDetailDto board = boardService.getBoardDetail(boardId);
 
-        // JSON 파싱
+        // 조리법 JSON 파싱
         ObjectMapper mapper = new ObjectMapper();
         List<StepDto> instructions = new ArrayList<>();
-
         if (board.getContent() != null && !board.getContent().isBlank()) {
             try {
                 instructions = mapper.readValue(
@@ -170,20 +194,47 @@ public class BoardController {
                         new TypeReference<List<StepDto>>() {}
                 );
             } catch (Exception e) {
-                // 만약 JSON 파싱 실패하면 그냥 빈 리스트 유지
-                e.printStackTrace();
+                log.warn("조리법 JSON 파싱 실패: {}", e.getMessage());
+            }
+        }
+
+        // 파일 목록 조회
+        List<FileDto> files = fileService.getFilesByBoardId(boardId);
+
+        // 썸네일 URL (THUMBNAIL 우선, 없으면 board.thumbnail 사용)
+        String thumbnailPath = files.stream()
+                .filter(f -> "THUMBNAIL".equalsIgnoreCase(f.getUsePosition()))
+                .findFirst()
+                .map(this::toPublicUrl)     // ★ 공개 URL 변환
+                .orElse(board.getThumbnail());
+
+        // 단계 이미지 URL을 instructions[i].image에 주입 (STEP_1, STEP_2, ...)
+        for (int i = 0; i < instructions.size(); i++) {
+            final int stepNo = i + 1;
+            String stepUrl = files.stream()
+                    .filter(f -> ("STEP_" + stepNo).equalsIgnoreCase(f.getUsePosition()))
+                    .findFirst()
+                    .map(this::toPublicUrl) // ★ 공개 URL 변환
+                    .orElse(null);
+            if (stepUrl != null) {
+                instructions.get(i).setImage(stepUrl);
             }
         }
 
         model.addAttribute("board", board);
         model.addAttribute("loginUser", loginUser);
-        model.addAttribute("instructions", instructions); // JSP에서 사용할 데이터
+        model.addAttribute("instructions", instructions);
+        model.addAttribute("thumbnailPath", thumbnailPath);
 
+        boolean isOwner = (loginUser != null)
+                && (loginUser.getNickname() != null)
+                && loginUser.getNickname().equals(board.getNickname());
+        model.addAttribute("isOwner", isOwner);
 
         return "board/boardview";
     }
 
-//    카테고리별 총 게시글 보이게하는 api
+    // 카테고리별 총 게시글
     @GetMapping("/board/counts")
     @ResponseBody
     public Map<String, Long> getBoardCounts() {
@@ -202,5 +253,4 @@ public class BoardController {
     public String guide() {
         return "support/guide";
     }
-
 }

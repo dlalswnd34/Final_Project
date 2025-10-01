@@ -1,18 +1,24 @@
+// src/main/java/com/simplecoding/cheforest/jpa/file/service/FileService.java
 package com.simplecoding.cheforest.jpa.file.service;
 
+import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.common.MapStruct;
 import com.simplecoding.cheforest.jpa.file.dto.FileDto;
 import com.simplecoding.cheforest.jpa.file.entity.File;
 import com.simplecoding.cheforest.jpa.file.repository.FileRepository;
-import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -25,75 +31,109 @@ public class FileService {
     private final MapStruct mapStruct;
     private final EntityManager em; // Member 참조용
 
-    // 실제 파일 저장 경로 (외부 경로)
-    private final String uploadDir = "src/main/webapp/resources/upload/";
+    // 외부 저장 경로 (application.properties: file.upload-dir=C:/cheforest/uploads)
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 
-    // 단일 파일 저장
-    public FileDto saveFile(MultipartFile file, String useType, Long useTargetId, String usePosition, Long uploaderId) throws IOException {
-        if (file.isEmpty()) return null;
-
-        String orgFileName = file.getOriginalFilename();
-        String storedFileName = UUID.randomUUID() + "_" + orgFileName;
-
-        // 실제 저장 위치
-        java.io.File dest = new java.io.File(uploadDir + storedFileName);
-        if (!dest.getParentFile().exists()) {
-            dest.getParentFile().mkdirs();
+    // ====== 공통 유틸 ======
+    /** 확장자를 1회만 추출(.jpg.jpg 방지)하고, 저장 파일명을 UUID_원본이름+확장자 형태로 생성 */
+    private String buildSavedName(String originalFilename) {
+        String cleaned = StringUtils.cleanPath(Objects.requireNonNull(originalFilename));
+        String base = cleaned;
+        String ext = "";
+        int dot = cleaned.lastIndexOf('.');
+        if (dot != -1 && dot < cleaned.length() - 1) {
+            ext = cleaned.substring(dot);         // ".jpg"
+            base = cleaned.substring(0, dot);     // "image"
         }
-        file.transferTo(dest);
+        return UUID.randomUUID() + "_" + base + ext;
+    }
 
-        // 업로더 Member 참조
+    private Path ensureDir() throws IOException {
+        Path dir = Paths.get(uploadDir).toAbsolutePath().normalize();
+        Files.createDirectories(dir);
+        return dir;
+    }
+
+    /** OS 경로 → 웹 경로(/upload/**)로 변환하여 DB에 저장 */
+    private String toWebPath(String savedName) {
+        return "/upload/" + savedName;
+    }
+
+    // ====== 단일 파일 저장 ======
+    public FileDto saveFile(MultipartFile file,
+                            String useType,
+                            Long useTargetId,
+                            String usePosition,
+                            Long uploaderId) throws IOException {
+        if (file == null || file.isEmpty()) return null;
+        if (useTargetId == null) {
+            throw new IllegalArgumentException(
+                    "saveFile() called with null useTargetId. useType=" + useType + ", usePosition=" + usePosition
+            );
+        }
+        String savedName = buildSavedName(file.getOriginalFilename());
+        Path dir = ensureDir();
+        Path target = dir.resolve(savedName);
+
+        try (InputStream in = file.getInputStream()) {
+            Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
+        }
+
         Member uploader = em.getReference(Member.class, uploaderId);
 
-        // DB에 저장할 경로는 웹에서 접근 가능한 상대경로
-        String webPath = "/resources/upload/" + storedFileName;
-
         File fileEntity = File.builder()
-                .fileName(storedFileName)
-                .filePath(webPath) // 웹 접근 경로 저장
-                .fileType(getFileExtension(orgFileName))
+                .fileName(savedName)                 // 실제 파일명만 저장
+                .filePath(toWebPath(savedName))      // 웹 접근 경로(/upload/...)
+                .fileType(getFileExtension(savedName))
                 .useType(useType)
                 .useTargetId(useTargetId)
-                .usePosition(usePosition)
+                .usePosition(usePosition)            // "THUMBNAIL", "STEP_1", ...
                 .uploader(uploader)
                 .build();
 
         return mapStruct.toDto(fileRepository.save(fileEntity));
     }
 
-    // 여러 파일 저장 + 첫 번째 파일 ID 반환
+    // ====== 여러 파일 저장 + 첫 번째 파일 ID 반환 (슬롯 저장 유지) ======
     public Long saveBoardFiles(Long boardId, Long uploaderId, List<MultipartFile> files) throws IOException {
         if (files == null || files.isEmpty()) return null;
 
         Long firstFileId = null;
+        int idx = 0;
         for (MultipartFile file : files) {
-            if (file.isEmpty()) continue;
+            if (file == null || file.isEmpty()) { idx++; continue; }
 
-            FileDto dto = saveFile(file, "BOARD", boardId, "CONTENT", uploaderId);
+            // 슬롯명 예: 대표/썸네일 등은 외부에서 saveFile 호출 시 usePosition으로 "THUMBNAIL" 넘기면 됨
+            // 여기서는 단계 이미지 가정: STEP_1, STEP_2 ...
+            String usePosition = "STEP_" + (idx + 1);
+            FileDto dto = saveFile(file, "BOARD", boardId, usePosition, uploaderId);
+
             if (firstFileId == null && dto != null) {
                 firstFileId = dto.getFileId();
             }
+            idx++;
         }
         return firstFileId;
     }
 
-    // 파일 단건 조회
+    // ====== 파일 단건 조회 ======
     public FileDto getFile(Long fileId) {
         return fileRepository.findById(fileId)
                 .map(mapStruct::toDto)
                 .orElse(null);
     }
 
-    // 실제 파일 읽어오기
+    // ====== 실제 파일 읽기 (필요시) ======
     public byte[] loadFileData(FileDto fileDto) throws IOException {
-        java.io.File file = new java.io.File(uploadDir + fileDto.getFileName());
-        if (!file.exists()) {
-            return null;
-        }
-        return java.nio.file.Files.readAllBytes(file.toPath());
+        if (fileDto == null) return null;
+        Path dir = Paths.get(uploadDir).toAbsolutePath().normalize();
+        Path file = dir.resolve(fileDto.getFileName());
+        if (!Files.exists(file)) return null;
+        return Files.readAllBytes(file);
     }
 
-    // 게시글별 파일 목록 조회
+    // ====== 게시글별 파일 목록 ======
     public List<FileDto> getFilesByBoardId(Long boardId) {
         return fileRepository.findByUseTypeAndUseTargetId("BOARD", boardId)
                 .stream()
@@ -101,55 +141,51 @@ public class FileService {
                 .collect(Collectors.toList());
     }
 
-    // 파일 삭제 (DB + 실제 파일)
+    // ====== 파일 삭제 (DB + 실제 파일) ======
     public void deleteFile(Long fileId) {
         fileRepository.findById(fileId).ifPresent(file -> {
-            java.io.File f = new java.io.File(uploadDir + file.getFileName());
-            if (f.exists()) {
-                f.delete();
-            }
+            try {
+                Path dir = Paths.get(uploadDir).toAbsolutePath().normalize();
+                Path target = dir.resolve(file.getFileName());
+                Files.deleteIfExists(target);
+            } catch (IOException ignored) {}
             fileRepository.delete(file);
         });
     }
 
-    // 게시글 삭제 시 전체 삭제
+    // ====== 대상+타입 전체 삭제 ======
     public void deleteAllByTargetIdAndType(Long targetId, String useType) {
-        fileRepository.findByUseTypeAndUseTargetId(useType, targetId)
-                .forEach(file -> {
-                    java.io.File f = new java.io.File("C:/upload/" + file.getFileName());
-                    if (f.exists()) {
-                        f.delete();
-                    }
-                });
+        List<File> list = fileRepository.findByUseTypeAndUseTargetId(useType, targetId);
+        Path dir = Paths.get(uploadDir).toAbsolutePath().normalize();
+
+        for (File f : list) {
+            try {
+                Path target = dir.resolve(f.getFileName());
+                Files.deleteIfExists(target);
+            } catch (IOException ignored) {}
+        }
         fileRepository.deleteByUseTargetIdAndUseType(targetId, useType);
     }
 
-    // 프로필 최신 파일 조회
+    // ====== 프로필 최신 파일 ======
     public FileDto getProfileFileByMemberId(Long memberId) {
         return fileRepository.findTop1ByUseTypeAndUseTargetIdOrderByInsertTimeDesc("MEMBER", memberId)
                 .map(mapStruct::toDto)
                 .orElse(null);
     }
 
-    private String getFileExtension(String fileName) {
-        if (fileName == null || !fileName.contains(".")) return "";
-        return fileName.substring(fileName.lastIndexOf(".") + 1);
-    }
-
-    // 회원 프로필 수정용
-    @Transactional
+    // ====== 프로필 교체 ======
     public FileDto replaceProfileImage(Long memberId, MultipartFile profileImage) throws IOException {
-        // 기존 프로필 최신 파일 조회 후 삭제
         FileDto oldFile = getProfileFileByMemberId(memberId);
         if (oldFile != null) {
             deleteFile(oldFile.getFileId());
         }
-        // 새 프로필 저장 (웹에서 접근 가능한 상대경로로 저장됨)
         return saveFile(profileImage, "MEMBER", memberId, "PROFILE", memberId);
     }
-//   확장자를 MIME 타입으로 변환
+
+    // ====== 도우미 ======
     public String getMimeType(String extension) {
-        if (extension == null) return "application/octet-stream"; // 기본값
+        if (extension == null) return "application/octet-stream";
         return switch (extension.toLowerCase()) {
             case "jpg", "jpeg" -> "image/jpeg";
             case "png" -> "image/png";
@@ -159,4 +195,10 @@ public class FileService {
         };
     }
 
+    private String getFileExtension(String fileName) {
+        if (fileName == null) return "";
+        int dot = fileName.lastIndexOf('.');
+        if (dot == -1 || dot == fileName.length() - 1) return "";
+        return fileName.substring(dot + 1);
+    }
 }
