@@ -118,6 +118,4 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
             nativeQuery = true)
     Page<MemberAdminDto> findSuspendedWithBoardCounts(Pageable pageable);
 
-
-
 }
