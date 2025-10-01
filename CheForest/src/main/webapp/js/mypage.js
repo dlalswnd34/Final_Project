@@ -1,27 +1,63 @@
 // CheForest 마이페이지 JavaScript
 
 document.addEventListener('DOMContentLoaded', function() {
-    // 탭 전환 기능을 위한 구조 (실제 동작은 JSP에서 구현)
-    const menuItems = document.querySelectorAll('.menu-item');
-    const tabContents = document.querySelectorAll('.tab-content');
+    // 탭 전환 기능 초기화
+    initializeTabSwitching();
 
-    // 메뉴 항목 클릭 이벤트 (구조만)
-    menuItems.forEach(item => {
-        item.addEventListener('click', function() {
-            // 탭 전환 로직이 들어갈 자리
-            console.log('메뉴 클릭:', this.dataset.tab);
+    // 탭 전환 기능 구현
+    function initializeTabSwitching() {
+        const menuItems = document.querySelectorAll('.menu-item');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // 메뉴 항목 클릭 이벤트
+        menuItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const tabId = this.dataset.tab;
+
+                // 모든 메뉴 항목에서 active 클래스 제거
+                menuItems.forEach(menu => menu.classList.remove('active'));
+
+                // 클릭한 메뉴 항목에 active 클래스 추가
+                this.classList.add('active');
+
+                // 모든 탭 컨텐츠 숨김
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                });
+
+                // 선택한 탭 컨텐츠 표시 (애니메이션을 위한 약간의 지연)
+                const targetTab = document.getElementById(`tab-${tabId}`);
+                if (targetTab) {
+                    setTimeout(() => {
+                        targetTab.classList.add('active');
+                    }, 50);
+                }
+
+                console.log('탭 전환:', tabId);
+            });
         });
-    });
+    }
 
     // 프로필 이미지 로딩 실패 시 폴백 처리
-    const profileImage = document.getElementById('profile-image');
-    const avatarFallback = document.getElementById('avatar-fallback');
+    initializeProfileImage();
 
-    if (profileImage) {
-        profileImage.addEventListener('error', function() {
-            // 이미지 로딩 실패 시 폴백 표시 로직
-            console.log('프로필 이미지 로딩 실패');
-        });
+    function initializeProfileImage() {
+        const profileImage = document.getElementById('profile-image');
+        const avatarFallback = document.getElementById('avatar-fallback');
+
+        if (profileImage && avatarFallback) {
+            profileImage.addEventListener('error', function() {
+                profileImage.style.display = 'none';
+                avatarFallback.style.display = 'flex';
+                console.log('프로필 이미지 로딩 실패 - 폴백 표시');
+            });
+
+            profileImage.addEventListener('load', function() {
+                profileImage.style.display = 'block';
+                avatarFallback.style.display = 'none';
+                console.log('프로필 이미지 로딩 성공');
+            });
+        }
     }
 
     // 새 레시피 작성 버튼

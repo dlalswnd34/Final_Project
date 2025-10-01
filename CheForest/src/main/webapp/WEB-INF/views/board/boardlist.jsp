@@ -45,6 +45,7 @@
 
                     <input type="hidden" name="category" value="${param.category}"/>
 
+                    <%--검색관련 div--%>
                     <div class="flex items-center gap-2 flex-grow">
                         <!-- 정렬 옵션: name="searchType" 추가 및 선택 상태 유지 로직 추가 -->
                         <select id="boardSortSelect" name="searchType" class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">

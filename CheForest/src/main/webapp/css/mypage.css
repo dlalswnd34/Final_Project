@@ -6,8 +6,8 @@
     background-color: #ffffff;
 }
 
-.container {
-    max-width: 1200px;
+.mypage-main .container {
+    max-width : 1140px;
     margin: 0 auto;
     padding: 0 16px;
 }
@@ -131,7 +131,7 @@
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
 }
 
@@ -209,14 +209,14 @@
 }
 
 .content-layout {
-    display: flex;
+    display: grid;
+    grid-template-columns: 256px 1fr;
     gap: 32px;
 }
 
 /* 사이드바 */
 .sidebar {
     width: 256px;
-    flex-shrink: 0;
 }
 
 .sidebar-content {
@@ -225,7 +225,8 @@
     border-radius: 12px;
     padding: 24px;
     position: sticky;
-    top: 96px;
+    top: 32px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .sidebar-title {
@@ -288,10 +289,15 @@
 
 .tab-content {
     display: none;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .tab-content.active {
     display: block;
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .content-grid {
@@ -728,11 +734,18 @@
 /* 반응형 디자인 */
 @media (max-width: 1024px) {
     .content-layout {
-        flex-direction: column;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        gap: 24px;
     }
 
     .sidebar {
         width: 100%;
+        order: 1;
+    }
+
+    .main-content {
+        order: 2;
     }
 
     .sidebar-content {
@@ -743,18 +756,18 @@
         flex-direction: row;
         overflow-x: auto;
         gap: 4px;
+        padding-bottom: 4px;
     }
 
     .menu-item {
         white-space: nowrap;
         flex-shrink: 0;
+        min-width: fit-content;
     }
 }
 
 @media (max-width: 768px) {
-    .container {
-        padding: 0 12px;
-    }
+    .mypage-main .container { padding: 0 12px; }
 
     .profile-info {
         flex-direction: column;
