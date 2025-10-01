@@ -12,13 +12,16 @@ public class MypageMyPostDto {
     private LocalDateTime insertTime;  // LocalDateTime 으로 변경
     private Long viewCount;
     private Long likeCount;
+    private String thumbnail;
+
 
     // JPQL에서 사용할 생성자
-    public MypageMyPostDto(Long boardId, String title, LocalDateTime writeDate, Long viewCount, Long likeCount) {
+    public MypageMyPostDto(Long boardId, String title, LocalDateTime insertTime, Long viewCount, Long likeCount, String thumbnail) {
         this.boardId = boardId;
         this.title = title;
         this.insertTime = insertTime;
         this.viewCount = viewCount;
         this.likeCount = likeCount;
+        this.thumbnail = thumbnail;
     }
 }
