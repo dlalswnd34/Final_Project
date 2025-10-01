@@ -6,7 +6,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Entity
+@Entity(name = "Likes")
 @Table(name = "BOARD_LIKE",
         uniqueConstraints = {
                 @UniqueConstraint(name="UQ_BOARD_LIKE",
