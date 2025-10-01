@@ -51,6 +51,8 @@ public class QMember extends EntityPathBase<Member> {
 
     public final StringPath socialId = createString("socialId");
 
+    public final StringPath suspension = createString("suspension");
+
     public final StringPath tempPasswordYn = createString("tempPasswordYn");
 
     //inherited
