@@ -146,8 +146,6 @@ public class BoardController {
         // 3) 포인트 적립 (글 작성 기준)
         pointService.addPointWithLimit(member, "POST");
 
-        String encodedCategory = URLEncoder.encode(dto.getCategory(), StandardCharsets.UTF_8);
-
         return "redirect:/board/list?category=" + encodedCategory;
     }
 
