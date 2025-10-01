@@ -24,6 +24,18 @@ public class CustomUserDetails implements UserDetails, Serializable {
         return member.getMemberIdx();
     }
 
+    public String getNickname() {   // ✅ JSP에서 principal.nickname
+        return member.getNickname();
+    }
+
+    public String getGrade() {      // ✅ JSP에서 principal.grade
+        return member.getGrade();
+    }
+
+    public String getProfile() {  // ✅ JSP에서 principal.profileImage
+        return member.getProfile();
+    }
+
     public String getEmail() {
         return member.getEmail();
     }
