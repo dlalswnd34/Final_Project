@@ -146,7 +146,7 @@ public class BoardService {
         // 6) 썸네일 재지정 로직
         if (firstNewFileId != null) {
             // (A) 새 업로드가 있으면 → 첫 번째 파일을 썸네일로 교체
-            board.setThumbnail("/file/download?fileId=" + firstNewFileId);
+            board.setThumbnail("/file/board/preview/" + firstNewFileId);
 
         } else if (deleteImageIds != null && !deleteImageIds.isEmpty()) {
             // (B) 새 업로드는 없는데 기존 썸네일이 삭제되었으면 → null 처리
