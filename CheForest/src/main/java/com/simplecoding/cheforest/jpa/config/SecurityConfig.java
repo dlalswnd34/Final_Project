@@ -40,6 +40,7 @@ public class SecurityConfig {
                         //  [2] 로그인 필요한 페이지
                         .requestMatchers(
                                 "/mypage/**",
+                                "/board/add/","/board/edition", "/board/edit",
                                 "/auth/nickname/update"
                         ).authenticated()
                         // [3] 나머지 페이지는 모두 허용

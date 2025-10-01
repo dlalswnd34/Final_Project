@@ -231,7 +231,7 @@ public class BoardService {
         long hours = minutes / 60;
         if (hours < 24) return hours + "시간 전";
 
-        long days = minutes / 24;
+        long days = hours / 24;
         if (days < 7) return days + "일 전";
 
         long weeks = days / 7;
