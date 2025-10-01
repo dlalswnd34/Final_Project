@@ -23,7 +23,13 @@
                 <h2 class="card-title">CheForest</h2>
                 <p class="card-description">요리와 함께하는 즐거운 시간을 시작하세요</p>
             </div>
-
+            <!-- 에러 모달 -->
+            <div id="errorModal" class="modal-overlay">
+                <div class="modal-content">
+                    <p>아이디 또는 비밀번호가 올바르지 않습니다.</p>
+                    <button id="closeModalBtn">확인</button>
+                </div>
+            </div>
             <!-- 로그인 폼 -->
             <div class="card-content">
                 <!-- ✅ Spring Security 맞춘 form -->
@@ -123,5 +129,24 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const errorParam = new URLSearchParams(window.location.search).get("error");
+        const errorModal = document.getElementById("errorModal");
+        const closeModalBtn = document.getElementById("closeModalBtn");
+
+        if (errorParam && errorModal) {
+            errorModal.classList.add("active");
+        }
+
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener("click", function() {
+                errorModal.classList.remove("active");
+            });
+        }
+    });
+</script>
+
 </body>
 </html>

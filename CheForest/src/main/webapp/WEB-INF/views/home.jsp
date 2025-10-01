@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CheForest - 요리 레시피 공유 사이트</title>
-    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/common/common.css">
     <link rel="stylesheet" href="/css/home.css">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
