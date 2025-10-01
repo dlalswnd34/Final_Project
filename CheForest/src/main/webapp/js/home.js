@@ -211,7 +211,7 @@ function initializeButtons() {
     if (moreRecipesBtn) {
         moreRecipesBtn.addEventListener('click', function() {
             // JSP에서 레시피 페이지로 이동 처리
-            location.href = 'recipes.jsp';
+            location.href = '/recipe/list';
         });
     }
 
