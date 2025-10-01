@@ -64,7 +64,7 @@
                             />
                         </div>
 
-                        <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-lg text-sm transition-colors">
                             <i data-lucide="search" class="h-4 w-4"></i>
                         </button>
                     </div>
