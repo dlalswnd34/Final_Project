@@ -110,6 +110,7 @@ public class BoardController {
             @AuthenticationPrincipal CustomUserDetails loginUser
     ) throws IOException {
 
+
         // 로그인
         Long memberIdx = loginUser.getMember().getMemberIdx();
         String email   = loginUser.getMember().getEmail();
@@ -117,7 +118,6 @@ public class BoardController {
         // ✅ 로그인한 회원 엔티티 조회
         Member member = memberRepository.findById(loginUser.getMember().getMemberIdx())
                 .orElseThrow(() -> new RuntimeException("회원 정보를 찾을 수 없습니다."));
-
 
         // 1) 게시글 저장 → ID 확보
         Long boardId = boardService.create(dto, email);
