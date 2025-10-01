@@ -1,5 +1,8 @@
 package com.simplecoding.cheforest.jpa.review.controller;
 
+import com.simplecoding.cheforest.jpa.auth.entity.Member;
+import com.simplecoding.cheforest.jpa.auth.repository.MemberRepository;
+import com.simplecoding.cheforest.jpa.point.service.PointService;
 import com.simplecoding.cheforest.jpa.review.dto.ReviewDto;
 import com.simplecoding.cheforest.jpa.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +18,8 @@ import java.util.List;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final PointService pointService;   // ✅ 포인트 서비스 주입
+    private final MemberRepository memberRepository;
 
     // 댓글/대댓글 등록
     @PostMapping
@@ -22,7 +27,16 @@ public class ReviewController {
         if (dto.getBoardId() == null || dto.getWriterIdx() == null) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(reviewService.save(dto));
+
+        // 1) 댓글 저장
+        ReviewDto saved = reviewService.save(dto);
+
+        // 2) 포인트 적립 (댓글 작성자 기준)
+        Member member = memberRepository.findById(dto.getWriterIdx())
+                .orElseThrow(() -> new RuntimeException("회원 정보를 찾을 수 없습니다."));
+        pointService.addPointWithLimit(member, "COMMENT");
+
+        return ResponseEntity.ok(saved);
     }
 
     // 댓글 수정

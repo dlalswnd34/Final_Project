@@ -21,7 +21,27 @@ public class PointService {
     private final PointHistoryRepository pointHistoryRepository;
     private final MemberRepository memberRepository;
 
-    // ✅ 포인트 적립 + 등급 자동 갱신
+    // ✅ 제한 포함된 포인트 적립
+    public void addPointWithLimit(Member member, String actionType) {
+        // 1. 오늘 총 포인트
+        Long todayTotal = pointHistoryRepository.sumTodayPoints(member.getMemberIdx());
+        if (todayTotal >= 500) {
+            return; // 하루 500점 제한
+        }
+
+        // 2. 오늘 해당 액션 횟수
+        Long todayActionCount = pointHistoryRepository.countTodayActions(member.getMemberIdx(), actionType);
+
+        if ("POST".equals(actionType)) {
+            if (todayActionCount >= 3) return; // 글 3개 제한
+            addPoint(member, "POST", 100L);
+        } else if ("COMMENT".equals(actionType)) {
+            if (todayActionCount >= 20) return; // 댓글 20개 제한
+            addPoint(member, "COMMENT", 10L);
+        }
+    }
+
+    // ✅ 순수 포인트 적립 (재사용용)
     public void addPoint(Member member, String actionType, Long point) {
         // 1. 포인트 이력 저장
         PointHistory history = new PointHistory();
@@ -40,7 +60,7 @@ public class PointService {
         memberRepository.save(member);
     }
 
-    // ✅ 등급 계산 (5단계 자동)
+    // ✅ 등급 계산
     private String calculateGrade(Long point) {
         if (point == null) return "씨앗";
         if (point < 1000) return "씨앗";
@@ -70,7 +90,6 @@ public class PointService {
     public Long getNextGradePoint(Long currentPoint) {
         if (currentPoint == null) return 1000L;
         if (currentPoint >= 4000) return 0L; // 숲은 최고 등급
-
         long remainder = currentPoint % 1000;
         return 1000 - remainder;
     }

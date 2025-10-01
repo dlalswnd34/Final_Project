@@ -14,7 +14,7 @@ public interface PointHistoryRepository extends JpaRepository<PointHistory, Long
     @Query(value = "SELECT NVL(SUM(p.POINT), 0) " +
             "FROM POINT_HISTORY p " +
             "WHERE p.MEMBER_IDX = :memberIdx " +
-            "AND TRUNC(p.CREATED_DATE) = TRUNC(SYSDATE)",
+            "AND TRUNC(p.INSERT_TIME) = TRUNC(SYSDATE)",
             nativeQuery = true)
     Long sumTodayPoints(@Param("memberIdx") Long memberIdx);
 
@@ -26,6 +26,16 @@ public interface PointHistoryRepository extends JpaRepository<PointHistory, Long
     Long sumPointsInPeriod(@Param("memberId") Long memberId,
                            @Param("start") LocalDateTime start,
                            @Param("end") LocalDateTime end);
+
+    // 오늘 특정 액션 횟수 (예: POST, COMMENT)
+    @Query(value = "SELECT COUNT(*) " +
+            "FROM POINT_HISTORY p " +
+            "WHERE p.MEMBER_IDX = :memberIdx " +
+            "AND p.ACTION_TYPE = :actionType " +
+            "AND TRUNC(p.INSERT_TIME) = TRUNC(SYSDATE)",
+            nativeQuery = true)
+    Long countTodayActions(@Param("memberIdx") Long memberIdx,
+                           @Param("actionType") String actionType);
 
     // 3. 최근 포인트 이력 (N개)
     List<PointHistory> findTop5ByMember_MemberIdxOrderByInsertTimeDesc(Long memberId);
