@@ -29,6 +29,7 @@
 <%--  <c:if test="${empty myPosts}">--%>
 <%--    <p>작성한 글이 없습니다.</p>--%>
 <%--  </c:if>--%>
+
   <!-- 페이지 헤더 -->
   <section class="mypage-header">
     <div class="container">
