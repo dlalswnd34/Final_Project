@@ -2,6 +2,8 @@ package com.simplecoding.cheforest.jpa.board.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.simplecoding.cheforest.jpa.auth.entity.Member;
+import com.simplecoding.cheforest.jpa.auth.repository.MemberRepository;
 import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
 import com.simplecoding.cheforest.jpa.board.dto.*;
 import com.simplecoding.cheforest.jpa.board.service.BoardService;
@@ -9,6 +11,7 @@ import com.simplecoding.cheforest.jpa.file.dto.FileDto;
 import com.simplecoding.cheforest.jpa.file.service.FileService;
 import com.simplecoding.cheforest.jpa.auth.dto.MemberDetailDto;
 import com.simplecoding.cheforest.jpa.mypage.service.MypageService;
+import com.simplecoding.cheforest.jpa.point.service.PointService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -37,6 +40,8 @@ public class BoardController {
     private final BoardService boardService;
     private final FileService fileService;
     private final MypageService mypageService;
+    private final MemberRepository memberRepository;
+    private final PointService pointService;
 
     /**
      * FileDto -> 브라우저에서 접근 가능한 공개 URL로 변환
@@ -109,6 +114,11 @@ public class BoardController {
         Long memberIdx = loginUser.getMember().getMemberIdx();
         String email   = loginUser.getMember().getEmail();
 
+        // ✅ 로그인한 회원 엔티티 조회
+        Member member = memberRepository.findById(loginUser.getMember().getMemberIdx())
+                .orElseThrow(() -> new RuntimeException("회원 정보를 찾을 수 없습니다."));
+
+
         // 1) 게시글 저장 → ID 확보
         Long boardId = boardService.create(dto, email);
 
@@ -132,6 +142,12 @@ public class BoardController {
                 dto.getCategory() == null ? "" : dto.getCategory(),
                 StandardCharsets.UTF_8
         );
+
+        // 3) 포인트 적립 (글 작성 기준)
+        pointService.addPointWithLimit(member, "POST");
+
+        String encodedCategory = URLEncoder.encode(dto.getCategory(), StandardCharsets.UTF_8);
+
         return "redirect:/board/list?category=" + encodedCategory;
     }
 

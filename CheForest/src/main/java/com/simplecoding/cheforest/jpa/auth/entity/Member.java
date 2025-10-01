@@ -53,4 +53,15 @@ public class Member extends BaseTimeEntity implements Serializable {
     // 채팅용
     @OneToMany(mappedBy = "sender")
     private List<Message> messages = new ArrayList<>();
+
+    // 포인트 증가 + 등급 변경 로직
+    public void addPoint(long value) {
+        this.point += value;
+
+        if (point >= 4000) this.grade = "숲";
+        else if (point >= 3000) this.grade = "나무";
+        else if (point >= 2000) this.grade = "새싹";
+        else if (point >= 1000) this.grade = "뿌리";
+        else this.grade = "씨앗";
+    }
 }
