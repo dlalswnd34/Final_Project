@@ -72,20 +72,30 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
             M.UPDATE_TIME AS updateTime,
             M.POINT AS point,
             M.GRADE AS grade,
-            M.SUSPENSION AS status,
+            M.SUSPENSION AS status,        
             M.LAST_LOGIN_TIME AS lastLoginTime,
             (SELECT COUNT(*) FROM BOARD B WHERE B.WRITER_IDX = M.MEMBER_IDX) AS boardCount,
             (SELECT COUNT(*) FROM BOARD_REVIEW BR WHERE BR.WRITER_IDX = M.MEMBER_IDX) AS boardReviewCount
         FROM MEMBER M
         WHERE M.ROLE != 'LEFT'
+        AND (
+            M.NICKNAME LIKE %:keyword%
+            OR TO_CHAR(M.MEMBER_IDX) LIKE %:keyword%
+        )
+        ORDER BY M.INSERT_TIME DESC
         """,
-            countQuery =  """
-                SELECT COUNT(*)
-                FROM MEMBER M
-                WHERE M.ROLE != 'LEFT'
-                """,
+            countQuery = """
+        SELECT COUNT(*)
+        FROM MEMBER M
+        WHERE M.ROLE != 'LEFT'
+        AND (
+            M.NICKNAME LIKE %:keyword%
+            OR TO_CHAR(M.MEMBER_IDX) LIKE %:keyword%
+        )
+        """,
             nativeQuery = true)
-    Page<MemberAdminDto> findAllWithBoardCounts(Pageable pageable);
+    Page<MemberAdminDto> findAllWithBoardCounts(@Param("keyword") String keyword,
+                                                Pageable pageable);
     // ADMIN 통계용 작성한 게시글,댓글수 추가한 제재당한 회원정보(페이지네이션)
     @Query(
             value = """
@@ -108,14 +118,24 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
         FROM MEMBER M
         WHERE M.SUSPENSION IS NOT NULL
         AND M.ROLE != 'LEFT'
+        AND (
+            M.NICKNAME LIKE %:keyword%
+            OR TO_CHAR(M.MEMBER_IDX) LIKE %:keyword%
+        )
         """,
             countQuery =  """
-                SELECT COUNT(*)
-                FROM MEMBER M
-                WHERE M.SUSPENSION IS NOT NULL
-                AND M.ROLE != 'LEFT'
-                """,
+        SELECT COUNT(*)
+        FROM MEMBER M
+        WHERE M.SUSPENSION IS NOT NULL
+        AND M.ROLE != 'LEFT'
+        AND (
+            M.NICKNAME LIKE %:keyword%
+            OR TO_CHAR(M.MEMBER_IDX) LIKE %:keyword%
+        )
+        """,
             nativeQuery = true)
-    Page<MemberAdminDto> findSuspendedWithBoardCounts(Pageable pageable);
+    Page<MemberAdminDto> findSuspendedWithBoardCounts(@Param("keyword") String keyword,
+                                                      Pageable pageable);
+
 
 }

@@ -96,7 +96,7 @@ function setupMobileMenuCloseOnOutsideClick() {
     document.addEventListener('click', function(event) {
         const mobileMenu = document.getElementById('mobileMenu');
         const menuButton = document.querySelector('[onclick="toggleMobileMenu()"]');
-        
+
         if (isMobileMenuOpen && mobileMenu && menuButton) {
             if (!mobileMenu.contains(event.target) && !menuButton.contains(event.target)) {
                 toggleMobileMenu();
@@ -123,7 +123,7 @@ function initializeHeader() {
     // setupSearchHandlers();
     setupDropdownEvents();
     setupMobileMenuCloseOnOutsideClick();
-    
+
     // 스크롤 이벤트 리스너
     window.addEventListener('scroll', window.CheForest.common.debounce(handleHeaderScroll, 10));
 }
@@ -147,3 +147,21 @@ window.CheForest.header = {
     handleSearch,
     initializeHeader
 };
+document.getElementById('searchBtn').addEventListener('click', function() {
+    const query = document.getElementById('searchInput').value.trim();
+    if (query) {
+        // URL 인코딩해서 이동
+        window.location.href = `/search?totalKeyword=${encodeURIComponent(query)}`;
+    } else {
+        alert('검색어를 입력해주세요.');
+    }
+});
+document.getElementById('searchInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('searchBtn').click();
+    }
+});
+setInterval(function () {
+    navigator.sendBeacon("/ping");
+}, 1000);

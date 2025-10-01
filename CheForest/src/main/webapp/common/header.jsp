@@ -35,11 +35,14 @@
                         <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4"></i>
                         <input
                                 type="text"
-                                placeholder="레시피, 재료, 요리법 검색..."
+                                id="searchInput"
+                                placeholder="통합검색..."
                                 class="search-input pl-10 pr-12 py-2 w-full border-2 border-gray-200 rounded-full bg-gray-50 cursor-pointer"
                         />
                         <button
+                                id="searchBtn"
                                 class="search-btn absolute right-1 top-1/2 transform -translate-y-1/2 h-7 px-3 text-white rounded-full text-sm"
+                                onclick="totalsearch()"
                         >
                             <i data-lucide="search" class="h-3 w-3"></i>
                         </button>
@@ -50,7 +53,7 @@
             <!-- 우측 사용자 메뉴 -->
             <div class="flex items-center space-x-2">
                 <!-- 모바일 검색 -->
-                <button class="md:hidden header-icon-btn p-2 rounded-lg" onclick="showPage('search')" title="검색">
+                <button class="md:hidden header-icon-btn p-2 rounded-lg" >
                     <i data-lucide="search" class="h-5 w-5"></i>
                 </button>
 
