@@ -98,7 +98,7 @@ public class DustMapController {
         } catch (Exception e) {
             log.error("레시피 추천 오류", e);
             // ✅ Flask 실패 시 Fallback → 자바에서 랜덤 한식 5개
-            recipes = recipeService.getRandomRecipes("한식", 5);
+            recipes = recipeService.getRandomRecipesByCategory("한식", 5);
         }
 
         dto.setRecipes(recipes);

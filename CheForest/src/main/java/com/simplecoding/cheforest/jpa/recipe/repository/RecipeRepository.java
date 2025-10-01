@@ -78,26 +78,31 @@ import java.util.List;
 
 public interface RecipeRepository extends JpaRepository<Recipe, String> {
 
-    // ✅ 1. 전체 검색: 제목만 부분일치
+    // ✅ 1-1. 전체 + 제목 검색: 제목만 부분일치
     Page<Recipe> findByTitleKrContainingIgnoreCase(String titleKr, Pageable pageable);
 
-    // ✅ 1-1. 카테고리 지정: 카테고리는 정확일치, 제목은 부분일치
+    // 🌟 [추가] 1-2. 카테고리 지정 단독: 카테고리만 정확일치 (검색어 없을 때 사용)
+    Page<Recipe> findByCategoryKr(String categoryKr, Pageable pageable);
+
+    // ✅ 1-3. 카테고리 + 제목 검색: 카테고리는 정확일치, 제목은 부분일치
     Page<Recipe> findByCategoryKrAndTitleKrContainingIgnoreCase(
             String categoryKr,
             String titleKr,
             Pageable pageable
     );
 
-    // 🌟 [추가된 로직] 1-2. 카테고리 지정: 카테고리는 정확일치, 재료는 부분일치
-    // 이 메서드를 통해 Service 레이어에서 재료 검색 요청이 들어왔을 때 호출할 수 있습니다.
+    // 🌟 [추가] 1-4. 카테고리 + 재료 검색: 카테고리는 정확일치, 재료는 부분일치
     Page<Recipe> findByCategoryKrAndIngredientKrContainingIgnoreCase(
             String categoryKr,
             String ingredientKr,
             Pageable pageable
     );
 
+    // 🌟 [추가] 1-5. 전체 + 재료 검색: 재료만 부분일치
+    Page<Recipe> findByIngredientKrContainingIgnoreCase(String ingredientKr, Pageable pageable);
+
+
     // 2. 랜덤 조회 (Oracle RANDOM → JPA 네이티브 쿼리 사용)
-    // ⚠️ count 파라미터는 Repository에서 처리 불가 → Service에서 limit 적용
     @Query(value = """
             SELECT *
             FROM API_RECIPE
@@ -105,7 +110,7 @@ public interface RecipeRepository extends JpaRepository<Recipe, String> {
             ORDER BY DBMS_RANDOM.VALUE
             """, nativeQuery = true)
     List<Recipe> findRandomByCategory(String categoryKr);
-    // ------------------------- 👆 기존 구조 그대로 두되, count는 제거 --------------------------
+    // ------------------------- 👆 기존 구조 그대로 유지 --------------------------
 
     // 3. 썸네일만 전체 조회
     @Query("SELECT r.recipeId, r.thumbnail FROM Recipe r")
@@ -140,3 +145,5 @@ public interface RecipeRepository extends JpaRepository<Recipe, String> {
     List<Recipe> findBySeasonIsNotNullAndTitleKrContainingIgnoreCase(String keyword);
 
 }
+
+
