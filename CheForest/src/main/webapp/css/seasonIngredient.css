@@ -61,7 +61,7 @@ body { font-family: 'Gowun Dodum', sans-serif; font-size: 14px; line-height: 1.6
 .login-btn:hover { background: linear-gradient(to right, var(--grad-from), var(--grad-to)); }
 
 /* 메인 */
-.ingredients-content { max-width: 88rem; margin: 0 auto; padding: 2rem 1rem; }
+.ingredients-content { max-width: 78rem; margin: 0 auto; padding: 2rem 1rem; }
 
 /* 페이지 헤더 */
 .page-header { text-align: center; margin-bottom: 3rem; }
@@ -86,7 +86,7 @@ body { font-family: 'Gowun Dodum', sans-serif; font-size: 14px; line-height: 1.6
 .tab-text { font-size: 1rem; }
 
 /* 그리드 */
-.ingredients-grid { row-gap: 36px; display: grid; grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); gap: 1.5rem; margin-bottom: 4rem; }
+.ingredients-grid { row-gap: 36px; display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: 1.5rem; margin-bottom: 4rem; }
 
 /* 카드 */
 .ingredient-card { display: flex; flex-direction: column; height: 100%; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);

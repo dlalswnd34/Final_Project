@@ -37,14 +37,11 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**").permitAll() // 👈 이 줄을 추가해야 합니다.
                         //  [1] 관리자 전용 페이지
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
-
                         //  [2] 로그인 필요한 페이지
                         .requestMatchers(
                                 "/mypage/**",
                                 "/auth/nickname/update"
                         ).authenticated()
-
-
                         // [3] 나머지 페이지는 모두 허용
                         .anyRequest().permitAll()
                 )

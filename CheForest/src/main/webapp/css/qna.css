@@ -1,5 +1,11 @@
 /* Q&A 페이지 스타일 */
 
+.qna-page .container {
+    max-width: 1216px;   /* 원하는 폭 */
+    margin: 0 auto;      /* ✅ 가운데 정렬 */
+    padding: 0 16px;
+}
+
 /* 페이지 헤더 */
 .qna-header {
     background: linear-gradient(to right, #ec4899, #f97316);
@@ -667,33 +673,33 @@
     .qna-header {
         padding: 2rem 0;
     }
-    
+
     .qna-header-icon h1 {
         font-size: 1.875rem;
     }
-    
+
     .qna-header-description {
         font-size: 1.125rem;
     }
-    
+
     .qna-header-features {
         flex-direction: column;
         gap: 1rem;
     }
-    
+
     .qna-content {
         padding: 1.5rem 0;
         gap: 1.5rem;
     }
-    
+
     .qna-sidebar {
         position: static;
     }
-    
+
     .community-stats {
         grid-template-columns: 1fr;
     }
-    
+
     .answer-content {
         margin-left: 0;
     }
