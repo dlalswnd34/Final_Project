@@ -351,3 +351,29 @@ function calculateLevelProgress(currentPosts, currentLevel) {
 
     return Math.min(Math.max(progress, 0), 100);
 }
+//  좋아요 레시피/게시글 전환 탭
+(function () {
+    const root = document.getElementById('tab-liked');
+    if (!root) return;
+
+    const btns = root.querySelectorAll('.mypage-like-tabbtn');
+    const panes = root.querySelectorAll('.mypage-like-pane');
+
+    btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const key = btn.getAttribute('data-like-tab'); // 'admin' | 'user'
+
+            // 버튼 on/off
+            btns.forEach(b => b.classList.toggle('is-active', b === btn));
+
+            // 패널 on/off
+            panes.forEach(p => {
+                const isMatch = p.id === `mypage-like-pane-${key}`;
+                p.classList.toggle('is-active', isMatch);
+            });
+
+            // 접근성 속성 업데이트
+            btns.forEach(b => b.setAttribute('aria-selected', b === btn ? 'true' : 'false'));
+        });
+    });
+})();

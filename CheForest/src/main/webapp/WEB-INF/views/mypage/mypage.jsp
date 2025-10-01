@@ -16,19 +16,6 @@
 <body>
 <jsp:include page="/common/header.jsp"/>
 <main class="mypage-main">
-<%--  <!-- 1) 총 개수 -->--%>
-<%--  <p>내가 쓴 글: <c:out value="${myPostsTotalCount}" /> 개</p>--%>
-
-<%--  <!-- 2) 한 건만 테스트 -->--%>
-<%--  <c:if test="${not empty myPosts}">--%>
-<%--    <p>첫 번째 글 제목: <c:out value="${myPosts[0].title}" /></p>--%>
-<%--    <p>작성일(원형): <c:out value="${myPosts[0].insertTime}" /></p>--%>
-<%--  </c:if>--%>
-
-<%--  <!-- 비어있는 경우 안내 -->--%>
-<%--  <c:if test="${empty myPosts}">--%>
-<%--    <p>작성한 글이 없습니다.</p>--%>
-<%--  </c:if>--%>
 
   <!-- 페이지 헤더 -->
   <section class="mypage-header">
@@ -46,7 +33,7 @@
               <span class="level-icon">🌳</span>
               <span class="level-text">나무</span>
             </span>
-            <span class="join-date">가입일: 2023년 3월 15일</span>
+            <span class="join-date">가입일:<c:out value="${joinDate}" default="-" /></span>
           </div>
           <div class="level-progress">
             <span class="progress-label">다음 등급까지</span>
@@ -169,41 +156,126 @@
           </div>
 
           <!-- 내 레시피 탭 -->
-          <div class="tab-content" id="tab-recipes">
+
+          <div class="tab-content active" id="tab-recipes">
             <div class="tab-header">
-              <h2 class="tab-title"><c:choose>
-                <c:when test="${activeTab eq 'myboard'}">
-                  내 레시피 (<c:out value='${myPostsTotalCount}' default='0'/>개)
-                </c:when>
-                <c:when test="${activeTab eq 'liked-recipe'}">
-                  좋아요한 레시피 (<c:out value='${likedRecipesTotalCount}' default='0'/>개)
-                </c:when>
-                <c:otherwise>
-                  좋아요한 게시글 (<c:out value='${likedPostsTotalCount}' default='0'/>개)
-                </c:otherwise>
-              </c:choose></h2>
-              <a href="<c:out value='/board/add'/>"
-                 class="btn-primary" id="btn-create-recipe">
-                <span class="btn-icon">👨‍🍳</span>새 레시피 작성</a>
+              <h2 class="tab-title">작성한 레시피 (<c:out value="${myPostsTotalCount}" default="0"/>개)</h2>
+
+              <!-- 추후 C:OUT 변경 요망  -->
+              <a href="/board/write" class="btn-primary" id="btn-create-recipe">
+                <span class="btn-icon">👨‍🍳</span> 새 레시피 작성
+              </a>
             </div>
-            <div class="recipe-list">
-              <div class="recipe-item">
-                <img src="레시피이미지URL" alt="레시피 제목" class="recipe-image">
-                <div class="recipe-info">
-                  <h3 class="recipe-title">레시피 제목 자리</h3>
-                  <div class="recipe-meta">
-                    <span class="recipe-category">카테고리명</span>
-                    <span class="recipe-stat"><span class="stat-icon">👁️</span><span>조회수</span></span>
-                    <span class="recipe-stat"><span class="stat-icon">❤️</span><span>좋아요수</span></span>
-                    <span class="recipe-date">작성일</span>
+
+            <c:if test="${empty myPosts}">
+              <div class="recipe-list">
+                <div class="recipe-item">
+                  <div class="recipe-info">
+                    <div class="recipe-title">작성한 레시피가 없습니다.</div>
                   </div>
                 </div>
-                <div class="recipe-actions">
-                  <button class="btn-edit"><span class="btn-icon">✏️</span>수정</button>
-                  <button class="btn-delete"><span class="btn-icon">🗑️</span>삭제</button>
-                </div>
               </div>
-            </div>
+            </c:if>
+
+            <c:if test="${not empty myPosts}">
+              <div class="recipe-list">
+                <c:forEach var="post" items="${myPosts}">
+                  <!-- 맵에서 안전하게 값 꺼내고 기본값 지정 -->
+                  <c:set var="__thumbRaw" value="${thumbnailById[post.boardId + '']}" />
+                  <c:set var="__thumb" value="/images/default_thumbnail.png" />
+                  <c:if test="${not empty __thumbRaw}">
+                    <c:set var="__thumb" value="${__thumbRaw}" />
+                  </c:if>
+
+                  <c:set var="__catRaw" value="${categoryById[post.boardId + '']}" />
+                  <c:set var="__cat" value="기타" />
+                  <c:if test="${not empty __catRaw}">
+                    <c:set var="__cat" value="${__catRaw}" />
+                  </c:if>
+
+                  <div class="recipe-item">
+                    <!-- 썸네일 -->
+                    <img src="${__thumb}" alt="썸네일" class="recipe-image" />
+
+                    <!-- 본문 -->
+                    <div class="recipe-info">
+                      <div class="recipe-title">
+                        <c:out value="${post.title}" />
+                      </div>
+
+                      <div class="recipe-meta">
+                        <span class="recipe-category"><c:out value="${__cat}" /></span>
+                        <span class="recipe-stat">🔍 <c:out value="${post.viewCount}" default="0"/></span>
+                        <span class="recipe-stat">❤️ <c:out value="${post.likeCount}" default="0"/></span>
+                        <!-- LocalDateTime 그대로 출력 (형식화 원하면 컨트롤러에서 문자열로 가공) -->
+                        <span class="recipe-stat"><c:out value="${post.insertTime}" /></span>
+                      </div>
+                    </div>
+
+                    <!-- 액션 -->
+                    <!-- (반복문 안) 각 카드 렌더링 중, 액션 영역 바로 위에 URL 준비 -->
+                    <c:url var="viewUrl" value="/board/view">
+                      <c:param name="boardId" value="${post.boardId}"/>
+                    </c:url>
+                    <c:url var="editUrl" value="/board/edition">
+                      <c:param name="boardId" value="${post.boardId}"/>
+                    </c:url>
+
+                    <div class="recipe-actions">
+                      <!-- ✅ 조회 버튼: 상세 페이지 이동 -->
+                      <a href="${viewUrl}" class="btn-view">조회</a>
+
+                      <!-- 기존 버튼들 유지 -->
+                      <a href="${editUrl}" class="btn-edit">수정</a>
+                      <button type="button" class="btn-delete" data-id="${post.boardId}">삭제</button>
+                    </div>
+                  </div>
+                </c:forEach>
+              </div>
+              <!-- 페이지네이션: 작성한 레시피 리스트 하단에 삽입 -->
+              <c:if test="${not empty myPostsPaginationInfo and myPostsPaginationInfo.totalPages > 1}">
+                <c:set var="page" value="${myPostsPaginationInfo}"/>
+                <c:set var="current" value="${page.number + 1}"/>   <%-- 1-based --%>
+                <c:set var="totalPages" value="${page.totalPages}"/>
+                <c:set var="blockSize" value="10"/>
+                <c:set var="blockStart" value="${((current-1) / blockSize) * blockSize + 1}"/>
+                <c:set var="blockEnd" value="${blockStart + blockSize - 1}"/>
+                <c:if test="${blockEnd > totalPages}">
+                  <c:set var="blockEnd" value="${totalPages}"/>
+                </c:if>
+
+                <nav class="pagination" aria-label="myPosts pagination">
+                  <!-- « 이전 블록 -->
+                  <c:set var="prevBlock" value="${blockStart - blockSize}"/>
+                  <c:if test="${prevBlock < 1}">
+                    <c:set var="prevBlock" value="1"/>
+                  </c:if>
+                  <c:url var="prevBlockUrl" value="/mypage">
+                    <c:param name="myPostsPage" value="${prevBlock}"/>
+                  </c:url>
+                  <a href="${prevBlockUrl}" class="btn-view ${blockStart == 1 ? 'disabled' : ''}">«</a>
+
+                  <!-- 번호 -->
+                  <c:forEach var="i" begin="${blockStart}" end="${blockEnd}">
+                    <c:url var="numUrl" value="/mypage">
+                      <c:param name="myPostsPage" value="${i}"/>
+                    </c:url>
+                    <a href="${numUrl}" class="btn-view ${i == current ? 'active' : ''}">${i}</a>
+                  </c:forEach>
+
+                  <!-- » 다음 블록 -->
+                  <c:set var="nextBlock" value="${blockStart + blockSize}"/>
+                  <c:if test="${nextBlock > totalPages}">
+                    <c:set var="nextBlock" value="${totalPages}"/>
+                  </c:if>
+                  <c:url var="nextBlockUrl" value="/mypage">
+                    <c:param name="myPostsPage" value="${nextBlock}"/>
+                  </c:url>
+                  <a href="${nextBlockUrl}" class="btn-view ${blockEnd == totalPages ? 'disabled' : ''}">»</a>
+                </nav>
+              </c:if>
+
+            </c:if>
           </div>
 
 
@@ -225,24 +297,188 @@
             </div>
           </div>
 
-          <!-- 좋아요 탭 -->
+
+          <!-- 좋아요 탭 (관리자/사용자 분리) : 더미데이터 버전 -->
           <div class="tab-content" id="tab-liked">
-            <h2 class="tab-title">좋아요한 레시피 (47개)</h2>
-            <div class="liked-list">
-              <div class="liked-item">
-                <img src="레시피이미지URL" alt="레시피 제목" class="liked-image">
-                <div class="liked-info">
-                  <h3 class="liked-title">레시피 제목 자리</h3>
-                  <div class="liked-meta">
-                    <span class="liked-author">by 작성자닉네임</span>
-                    <span class="liked-category">카테고리명</span>
-                    <span class="liked-date">작성일</span>
+            <div class="mypage-like-head">
+              <h2 class="tab-title">좋아요한 레시피</h2>
+
+              <!-- 탭 버튼 -->
+              <div class="mypage-like-tabs" role="tablist">
+                <button type="button"
+                        class="mypage-like-tabbtn is-active"
+                        data-like-tab="admin"
+                        aria-controls="mypage-like-pane-admin"
+                        aria-selected="true">
+                  👨‍🍳 관리자 레시피
+                </button>
+                <button type="button"
+                        class="mypage-like-tabbtn"
+                        data-like-tab="user"
+                        aria-controls="mypage-like-pane-user"
+                        aria-selected="false">
+                  🧑‍🍳 사용자 레시피
+                </button>
+              </div>
+            </div>
+
+            <!-- 레시피 좋아요 탭 -->
+            <div id="mypage-like-pane-admin" class="mypage-like-pane is-active" role="tabpanel">
+              <div class="mypage-like-list">
+
+                <c:if test="${empty likedRecipes}">
+                  <p class="empty">좋아요한 레시피가 없습니다.</p>
+                </c:if>
+
+                <c:forEach var="r" items="${likedRecipes}">
+                  <!-- 카드 전체 클릭: js 분리( /js/mypage-like.js ) -->
+                  <div class="mypage-like-item link-card"
+                       data-href="/recipe/view?recipeId=${r.recipeId}">
+
+                    <div class="mypage-like-left">
+                      <img class="mypage-like-thumb"
+                           src="${empty r.thumbnail ? '/images/default_recipe.jpg' : r.thumbnail}"
+                           alt="<c:out value='${r.titleKr}'/>"
+                           onerror="this.src='/images/default_recipe.jpg'"/>
+
+                      <div class="mypage-like-info">
+                        <div class="mypage-like-title"><c:out value="${r.titleKr}"/></div>
+
+                        <!-- 카테고리 배지: recipelist.css 규칙에 맞춘 클래스 매핑 -->
+                        <c:set var="catCls" value=""/>
+                        <c:choose>
+                          <c:when test="${r.categoryKr eq '한식'}"><c:set var="catCls" value="korean"/></c:when>
+                          <c:when test="${r.categoryKr eq '양식'}"><c:set var="catCls" value="western"/></c:when>
+                          <c:when test="${r.categoryKr eq '중식'}"><c:set var="catCls" value="chinese"/></c:when>
+                          <c:when test="${r.categoryKr eq '일식'}"><c:set var="catCls" value="japanese"/></c:when>
+                          <c:when test="${r.categoryKr eq '디저트'}"><c:set var="catCls" value="dessert"/></c:when>
+                        </c:choose>
+
+                        <div class="mypage-like-meta">
+                          <span class="category-badge ${catCls}"><c:out value="${r.categoryKr}"/></span>
+                          <span class="meta-date"><c:out value="${r.likeDateText}"/></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- (반복문 안) 액션 영역 바로 위에서 조회 URL 준비 -->
+                    <c:url var="recipeViewUrl" value="/recipe/view">
+                      <c:param name="recipeId" value="${r.recipeId}"/>
+                    </c:url>
+
+                    <div class="mypage-like-actions">
+                      <!-- 조회: 레시피 상세 이동. 카드 전체 클릭과 충돌 방지 -->
+                      <a href="${recipeViewUrl}" class="btn-view" onclick="event.stopPropagation();">조회</a>
+
+                      <!-- 삭제: 지금은 동작 비활성 (JS 핸들러가 붙지 않도록 클래스 변경) -->
+                      <button type="button"
+                              class="btn-delete disabled"
+                              aria-disabled="true"
+                              title="현재 비활성화된 기능입니다"
+                              onclick="event.stopPropagation();">
+                        삭제
+                      </button>
+                    </div>
+                  </div>
+                </c:forEach>
+
+              </div>
+
+              <!-- ===== 페이지네이션: 좋아요한 레시피 하단 (1페이지여도 노출) ===== -->
+              <c:if test="${not empty likedRecipesPaginationInfo and likedRecipesPaginationInfo.totalPages >= 1}">
+                <c:set var="page" value="${likedRecipesPaginationInfo}"/>
+                <c:set var="current" value="${page.number + 1}"/>   <%-- 1-based --%>
+                <c:set var="totalPages" value="${page.totalPages}"/>
+                <c:set var="blockSize" value="10"/>
+                <c:set var="blockStart" value="${((current-1) / blockSize) * blockSize + 1}"/>
+                <c:set var="blockEnd" value="${blockStart + blockSize - 1}"/>
+                <c:if test="${blockEnd > totalPages}">
+                  <c:set var="blockEnd" value="${totalPages}"/>
+                </c:if>
+
+                <nav class="pagination" aria-label="likedRecipes pagination">
+                  <!-- « 이전 블록 -->
+                  <c:set var="prevBlock" value="${blockStart - blockSize}"/>
+                  <c:if test="${prevBlock < 1}">
+                    <c:set var="prevBlock" value="1"/>
+                  </c:if>
+                  <c:url var="prevBlockUrl" value="/mypage">
+                    <c:param name="tab" value="${activeTab}"/>
+                    <c:param name="myPostsPage" value="${empty param.myPostsPage ? 1 : param.myPostsPage}"/>
+                    <c:param name="likedPostsPage" value="${prevBlock}"/>
+                  </c:url>
+                  <a href="${prevBlockUrl}" class="btn-view ${blockStart == 1 ? 'disabled' : ''}">«</a>
+
+                  <!-- 번호 -->
+                  <c:forEach var="i" begin="${blockStart}" end="${blockEnd}">
+                    <c:url var="numUrl" value="/mypage">
+                      <c:param name="tab" value="${activeTab}"/>
+                      <c:param name="myPostsPage" value="${empty param.myPostsPage ? 1 : param.myPostsPage}"/>
+                      <c:param name="likedPostsPage" value="${i}"/>
+                    </c:url>
+                    <a href="${numUrl}" class="btn-view ${i == current ? 'active' : ''}">${i}</a>
+                  </c:forEach>
+
+                  <!-- » 다음 블록 -->
+                  <c:set var="nextBlock" value="${blockStart + blockSize}"/>
+                  <c:if test="${nextBlock > totalPages}">
+                    <c:set var="nextBlock" value="${totalPages}"/>
+                  </c:if>
+                  <c:url var="nextBlockUrl" value="/mypage">
+                    <c:param name="tab" value="${activeTab}"/>
+                    <c:param name="myPostsPage" value="${empty param.myPostsPage ? 1 : param.myPostsPage}"/>
+                    <c:param name="likedPostsPage" value="${nextBlock}"/>
+                  </c:url>
+                  <a href="${nextBlockUrl}" class="btn-view ${blockEnd == totalPages ? 'disabled' : ''}">»</a>
+                </nav>
+              </c:if>
+
+            </div>
+
+
+
+            <!-- 사용자 레시피 (더미) -->
+            <div id="mypage-like-pane-user" class="mypage-like-pane" role="tabpanel">
+              <div class="mypage-like-list">
+
+                <div class="mypage-like-item">
+                  <div class="mypage-like-left">
+                    <img class="mypage-like-thumb" src="/images/no-image.png" alt="에어프라이어 치킨">
+                    <div class="mypage-like-info">
+                      <div class="mypage-like-title">에어프라이어 치킨</div>
+                      <div class="mypage-like-meta">
+                        <span class="meta-author">by user_cha</span>
+                        <span class="meta-cat">간편식</span>
+                        <span class="meta-date">2025.09.20</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mypage-like-actions">
+                    <a class="mypage-like-viewbtn" href="#">보기 →</a>
                   </div>
                 </div>
-                <button class="btn-view-recipe">레시피 보기<span class="btn-arrow">→</span></button>
+
+                <div class="mypage-like-item">
+                  <div class="mypage-like-left">
+                    <img class="mypage-like-thumb" src="/images/no-image.png" alt="토마토 달걀볶음">
+                    <div class="mypage-like-info">
+                      <div class="mypage-like-title">토마토 달걀볶음</div>
+                      <div class="mypage-like-meta">
+                        <span class="meta-author">by sunny</span>
+                        <span class="meta-cat">중식</span>
+                        <span class="meta-date">2025.09.10</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mypage-like-actions">
+                    <a class="mypage-like-viewbtn" href="#">보기 →</a>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
+
 
           <!-- 설정 탭 -->
           <div class="tab-content" id="tab-settings">

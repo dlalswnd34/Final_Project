@@ -1,20 +1,32 @@
+
 package com.simplecoding.cheforest.jpa.mypage.dto;
 
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class MypageLikedRecipeDto {
 
-    private String recipeId;
-    private String titleKr;
-    private String categoryKr;
-    private Long likeCount;
+    private final String recipeId;
+    private final String titleKr;
+    private final String categoryKr;
+    private final Long   likeCount;
+    private final String thumbnail;
+    private final String likeDateText;
 
-    // JPQL에서 사용할 생성자
-    public MypageLikedRecipeDto(String recipeId, String titleKr, String categoryKr, Long likeCount) {
+    // JPQL new(...) 에서 쓰는 생성자 — 시그니처 정확히 6개
+    public MypageLikedRecipeDto(
+            String recipeId,
+            String titleKr,
+            String categoryKr,
+            Long likeCount,
+            String thumbnail,
+            String likeDateText
+    ) {
         this.recipeId = recipeId;
         this.titleKr = titleKr;
         this.categoryKr = categoryKr;
         this.likeCount = likeCount;
+        this.thumbnail = thumbnail;
+        this.likeDateText = likeDateText;
     }
 }

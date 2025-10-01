@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseTimeEntity {
     @CreatedDate
-    @Column(updatable = false)
+    @Column(name = "INSERT_TIME",updatable = false)
     private LocalDateTime insertTime;
     @LastModifiedDate
     private LocalDateTime updateTime;

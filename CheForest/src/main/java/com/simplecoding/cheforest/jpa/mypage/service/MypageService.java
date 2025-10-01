@@ -1,5 +1,6 @@
 package com.simplecoding.cheforest.jpa.mypage.service;
 
+import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageLikedBoardDto;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageLikedRecipeDto;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageMyPostDto;
@@ -10,6 +11,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @Service
@@ -23,10 +27,6 @@ public class MypageService {
     public Page<MypageMyPostDto> getMyPosts(Long memberIdx, String keyword, Pageable pageable) {
         log.info("내가 작성한 글 조회 - memberIdx={}, keyword={}", memberIdx, keyword);
         return mypageRepository.findMyPosts(memberIdx, keyword, pageable);
-    }
-
-    public Page<MypageMyPostDto> getMyPosts(Long memberIdx, Pageable pageable) {
-        return mypageRepository.findMyPosts(memberIdx, pageable);
     }
 
     public long getMyPostsCount(Long memberIdx, String keyword) {
@@ -55,13 +55,12 @@ public class MypageService {
         return mypageRepository.countLikedRecipes(memberIdx, keyword);
     }
 
-    // ===== 통계 =====
-    /** 컨트롤러 호환용(키워드 포함 시그니처) */
+    // ===== 내가 작성한 댓글 수 =====
     public long getMyCommentsCount(Long memberIdx, String keyword) {
         return mypageRepository.countMyComments(memberIdx, keyword);
     }
 
-    /** 상단 카드용(키워드 없이 총합) */
+    // ===== 합계 =====
     public long getMyCommentsTotalCount(Long memberIdx) {
         return mypageRepository.countMyComments(memberIdx, null);
     }
@@ -69,4 +68,15 @@ public class MypageService {
     public long getReceivedBoardLikes(Long memberIdx) {
         return mypageRepository.sumReceivedBoardLikes(memberIdx);
     }
+
+//    가입일
+    public String getMemberJoinDateText(Long memberIdx) {
+        LocalDateTime dt = mypageRepository.findById(memberIdx)
+                .map(Member::getInsertTime)
+                .orElse(null);
+        return (dt == null) ? null : dt.format(DateTimeFormatter.ofPattern("yyyy년 M월 d일"));
+    }
+
+
+
 }

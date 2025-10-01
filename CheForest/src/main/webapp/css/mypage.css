@@ -838,3 +838,108 @@
         font-size: 24px;
     }
 }
+
+/* === MyPage: 좋아요 탭 분리(관리자/사용자) — 더미 데이터 버전도 동일 사용 === */
+.mypage-like-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:8px 0 12px}
+.mypage-like-tabs{display:flex;gap:8px;border-bottom:1px solid #f1f5f9}
+.mypage-like-tabbtn{appearance:none;border:none;background:transparent;cursor:pointer;padding:10px 14px;border-radius:10px 10px 0 0;font:500 14px/1.2 'Gowun Dodum',sans-serif;color:#64748b;transition:.2s;position:relative}
+.mypage-like-tabbtn:hover{background:#f8fafc;color:#475569}
+.mypage-like-tabbtn.is-active{color:#f97316;background:#fff7ed}
+.mypage-like-tabbtn.is-active::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(135deg,#f97316,#ec4899)}
+
+.mypage-like-pane{display:none;padding-top:12px}
+.mypage-like-pane.is-active{display:block}
+
+.mypage-like-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.mypage-like-item{display:flex;align-items:center;gap:14px;padding:12px 14px;border:1px solid #f1f5f9;border-radius:12px;background:#fff;text-decoration:none;color:#1e293b;transition:.2s}
+.mypage-like-item:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,.06)}
+.mypage-like-thumb{width:72px;height:72px;border-radius:10px;object-fit:cover;flex:0 0 auto;background:#f8fafc}
+.mypage-like-info{flex:1 1 auto;min-width:0}
+.mypage-like-title{font-weight:600;font-size:15px;line-height:1.3;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mypage-like-meta{display:flex;flex-wrap:wrap;gap:8px;font-size:12px;color:#64748b}
+.mypage-like-go{color:#f97316;font-weight:600;white-space:nowrap}
+.mypage-like-empty{padding:18px;border:1px dashed #e2e8f0;border-radius:12px;color:#64748b;background:#fff}
+
+@media (max-width:480px){.mypage-like-list{grid-template-columns:1fr}}
+
+/* === MyPage: 좋아요 탭 — 리스트 1열 형식으로 덮어쓰기 === */
+.mypage-like-list{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+/* 한 줄 카드 */
+.mypage-like-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:14px 16px;
+    border:1px solid #f1f5f9;
+    border-radius:12px;
+    background:#fff;
+    transition:.2s;
+}
+.mypage-like-item:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 25px rgba(0,0,0,.06);
+}
+
+/* 좌측(썸네일+정보) */
+.mypage-like-left{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    min-width:0;
+    flex:1 1 auto;
+}
+.mypage-like-thumb{
+    width:72px; height:72px; border-radius:10px; object-fit:cover; background:#f8fafc; flex:0 0 auto;
+}
+.mypage-like-info{ min-width:0; }
+.mypage-like-title{
+    font-weight:600; font-size:16px; line-height:1.35; margin-bottom:6px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.mypage-like-meta{
+    display:flex; flex-wrap:wrap; gap:10px; font-size:12px; color:#64748b;
+}
+
+/* 우측 “보기” 버튼 */
+.mypage-like-actions{ flex:0 0 auto; display:flex; align-items:center; gap:8px; }
+.mypage-like-viewbtn{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:8px 12px; border:1px solid #f97316; border-radius:8px;
+    color:#f97316; text-decoration:none; font-weight:600; font-size:13px;
+    background:#fff7ed; /* 살짝 톤 */
+}
+.mypage-like-viewbtn:hover{
+    background:#ffd7ba; /* hover */
+    border-color:#f97316;
+}
+
+/* 반응형: 모바일에서 좌우 여백과 버튼 줄바꿈 최소화 */
+@media (max-width:480px){
+    .mypage-like-item{ padding:12px }
+    .mypage-like-title{ font-size:15px }
+    .mypage-like-viewbtn{ padding:8px 10px; font-size:12px }
+}
+/* MyPage pagination */
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .pagination .btn-view.active {
+            background: #f97316;
+            color: #fff;
+            border-color: #f97316;
+            pointer-events: none;
+        }
+        .pagination .btn-view.disabled {
+            opacity: .5;
+            pointer-events: none;
+        }
