@@ -114,7 +114,8 @@ public class MemberService {
         return memberRepository.findSuspendedWithBoardCounts(pageable);
     }
 
-//    회원 탈퇴
+
+    //    회원 탈퇴
     @Transactional
     public void withdraw(Long memberIdx) {
         Member member = memberRepository.findById(memberIdx)
@@ -128,6 +129,7 @@ public class MemberService {
 
         // ✅ Role을 LEFT로 변경
         member.setRole(Member.Role.LEFT);
+        memberRepository.save(member);
     }
 
     // ================= 비밀번호 찾기: 인증번호 발송 =================
@@ -182,4 +184,24 @@ public class MemberService {
         // 비밀번호 재설정 완료 후 세션에서 제거
         session.removeAttribute("pwResetMemberId");
     }
+    //  회원 제재하기(admin 용)
+    public void applySuspension(Long memberIdx) {
+        Member member = memberRepository.findById(memberIdx)
+                .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
+        member.setSuspension("정지");
+        memberRepository.save(member);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

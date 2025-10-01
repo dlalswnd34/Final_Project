@@ -57,8 +57,17 @@ public class Recipe {
     @Column(name = "DUST_GOOD", length = 1, nullable = false)
     private String dustGood = "N";
 
-//   제철재료 레시피 검색 컬럼
+    //   제철재료 레시피 검색 컬럼
     @Column(name = "season")
     private String season; // spring, summer, autumn, winter
-}
 
+    /**
+     * 조회수 1 증가 로직
+     */
+    public void addViewCount() {
+        if (this.viewCount == null) {
+            this.viewCount = 0L;
+        }
+        this.viewCount += 1;
+    }
+}

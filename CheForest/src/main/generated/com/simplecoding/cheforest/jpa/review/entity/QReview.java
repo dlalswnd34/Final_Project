@@ -22,21 +22,19 @@ public class QReview extends EntityPathBase<Review> {
 
     public static final QReview review = new QReview("review");
 
-    public final com.simplecoding.cheforest.jpa.common.QBaseTimeEntity _super = new com.simplecoding.cheforest.jpa.common.QBaseTimeEntity(this);
-
     public final com.simplecoding.cheforest.jpa.board.entity.QBoard board;
 
     public final StringPath content = createString("content");
 
-    //inherited
-    public final DateTimePath<java.time.LocalDateTime> insertTime = _super.insertTime;
+    public final DateTimePath<java.time.LocalDateTime> insertTime = createDateTime("insertTime", java.time.LocalDateTime.class);
+
+    public final NumberPath<Long> parentId = createNumber("parentId", Long.class);
 
     public final NumberPath<Long> reviewId = createNumber("reviewId", Long.class);
 
-    //inherited
-    public final DateTimePath<java.time.LocalDateTime> updateTime = _super.updateTime;
+    public final DateTimePath<java.time.LocalDateTime> updateTime = createDateTime("updateTime", java.time.LocalDateTime.class);
 
-    public final com.simplecoding.cheforest.jpa.auth.entity.QMember writer;
+    public final NumberPath<Long> writerIdx = createNumber("writerIdx", Long.class);
 
     public QReview(String variable) {
         this(Review.class, forVariable(variable), INITS);
@@ -57,7 +55,6 @@ public class QReview extends EntityPathBase<Review> {
     public QReview(Class<? extends Review> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.board = inits.isInitialized("board") ? new com.simplecoding.cheforest.jpa.board.entity.QBoard(forProperty("board"), inits.get("board")) : null;
-        this.writer = inits.isInitialized("writer") ? new com.simplecoding.cheforest.jpa.auth.entity.QMember(forProperty("writer")) : null;
     }
 
 }

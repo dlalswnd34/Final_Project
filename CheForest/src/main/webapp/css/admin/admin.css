@@ -1085,7 +1085,7 @@ body {
     border: 1px solid #f1f5f9;
     border-radius: 12px;
     margin-bottom: 16px;
-    overflow: hidden;
+    overflow: visible;
     transition: all 0.2s ease;
 }
 
@@ -2088,7 +2088,14 @@ body {
     background: linear-gradient(135deg, #ec4899, #f97316);
     color: white;
 }
-
+.status-badge.status-정상 {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    color: #166534;
+}
+.status-badge.status-활성 {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    color: #166534;
+}
 .status-badge.status-active {
     background: linear-gradient(135deg, #dcfce7, #bbf7d0);
     color: #166534;
@@ -2098,7 +2105,10 @@ body {
     background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
     color: #374151;
 }
-
+.status-badge.status-정지 {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #92400e;
+}
 .status-badge.status-suspended {
     background: linear-gradient(135deg, #fef3c7, #fde68a);
     color: #92400e;

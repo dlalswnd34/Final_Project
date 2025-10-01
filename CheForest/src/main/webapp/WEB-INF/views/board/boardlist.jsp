@@ -64,7 +64,7 @@
                             />
                         </div>
 
-                        <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-lg text-sm transition-colors">
                             <i data-lucide="search" class="h-4 w-4"></i>
                         </button>
                     </div>
@@ -402,7 +402,6 @@
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="boardRegularGrid">
-                                <!-- ✅ 우리 DB 데이터 반복 렌더링 -->
                                 <c:forEach var="post" items="${boards}">
                                     <div class="board-recipe-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-lg cursor-pointer"
                                          data-category="${post.category}"
@@ -412,29 +411,35 @@
                                          data-title="${post.title}"
                                          onclick="location.href='/board/view?boardId=${post.boardId}'">
 
-                                        <!-- 썸네일 -->
                                         <div class="relative">
                                             <img src="<c:out value='${post.thumbnail}'/>"
                                                  alt="<c:out value='${post.title}'/>"
                                                  class="board-card-image w-full h-48 object-cover"
                                                  onerror="this.src='/images/default_thumbnail.png'"/>
+
+                                            <div class="absolute top-2 right-2 flex flex-col space-y-1">
+                                                <span class="category-badge
+                                                    ${post.category eq '한식' ? ' korean' : ''}
+                                                    ${post.category eq '양식' ? ' western' : ''}
+                                                    ${post.category eq '중식' ? ' chinese' : ''}
+                                                    ${post.category eq '일식' ? ' japanese' : ''}
+                                                    ${post.category eq '디저트' ? ' dessert' : ''}">
+                                                    <c:out value="${post.category}" />
+                                                </span>
+                                                    <%-- HOT/NEW 뱃지는 필요에 따라 여기에 추가할 수 있습니다. --%>
+                                            </div>
                                         </div>
 
-                                        <!-- 본문 -->
                                         <div class="p-4">
-                                            <!-- 제목 -->
                                             <h4 class="board-card-title mb-2 transition-colors line-clamp-1">
                                                 <c:out value="${post.title}"/>
                                             </h4>
 
-                                            <!-- 작성자 -->
                                             <p class="text-sm text-gray-500 mb-3 line-clamp-2">
                                                 <c:out value="${post.nickname}"/> 님의 레시피
                                             </p>
 
-                                            <!-- 하단 통계 -->
                                             <div class="flex items-center justify-between pt-3 border-t border-gray-200">
-                                                <!-- 조회수 / 좋아요 -->
                                                 <div class="flex items-center space-x-3 text-sm">
                                                     <div class="flex items-center space-x-1 text-gray-500">
                                                         <i data-lucide="eye" class="h-4 w-4"></i>
@@ -446,7 +451,6 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- 작성시간 -->
                                                 <div class="text-xs text-gray-400">
                                                     <c:out value="${post.createdAgo}"/>
                                                 </div>
@@ -455,7 +459,6 @@
                                     </div>
                                 </c:forEach>
 
-                                <!-- 검색 결과 없음 -->
                                 <div class="col-span-full text-center py-12"
                                      id="boardNoResultsSection"
                                      style="display: none;">

@@ -1,5 +1,6 @@
 package com.simplecoding.cheforest.jpa.recipe.dto;
 
+import com.simplecoding.cheforest.jpa.recipe.entity.Recipe;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -72,5 +73,25 @@ public class RecipeDto {
         return Arrays.stream(instructionKr.split("\\r?\\n"))
                 .filter(s -> !s.isBlank())
                 .toList();
+    }
+
+    public RecipeDto(Recipe entity) {
+        this.recipeId = entity.getRecipeId();
+        this.titleKr = entity.getTitleKr();
+        this.categoryKr = entity.getCategoryKr();
+        this.instructionKr = entity.getInstructionKr();
+        this.ingredientKr = entity.getIngredientKr();
+        this.measureKr = entity.getMeasureKr();
+        this.titleEn = entity.getTitleEn();
+        this.categoryEn = entity.getCategoryEn();
+        this.instructionEn = entity.getInstructionEn();
+        this.ingredientEn = entity.getIngredientEn();
+        this.measureEn = entity.getMeasureEn();
+        this.thumbnail = entity.getThumbnail();
+        this.area = entity.getArea();
+        this.likeCount = entity.getLikeCount();
+        this.viewCount = entity.getViewCount();
+        this.difficulty = entity.getDifficulty();
+        this.cookTime = entity.getCookTime();
     }
 }

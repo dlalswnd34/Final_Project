@@ -1,234 +1,290 @@
-// CheForest 게시글 상세보기 JavaScript
-document.addEventListener('DOMContentLoaded', function() {
+// CheForest 게시글 상세보기 JS
+document.addEventListener("DOMContentLoaded", function () {
+    const commentTextarea = document.getElementById("commentTextarea");
+    const commentForm = document.getElementById("commentForm");
+    const commentsList = document.getElementById("commentsList");
 
-    const commentSubmitBtn = document.getElementById('commentSubmitBtn');
-    const commentTextarea = document.getElementById('commentTextarea');
-    const commentsList = document.getElementById('commentsList');
+    const boardId = window.boardId || document.querySelector("input[name='boardId']")?.value;
+    const loginUser = window.loginUser || null;
 
-    const boardId = window.boardId || null;
-    const loginUser = window.loginUser || { memberIdx: 0, nickname: "익명" };
+    if (boardId) loadComments(boardId);
 
-    // ================= 댓글 초기 로드 =================
-    if (boardId) {
-        loadComments(boardId);
+    // -------- utils --------
+    function formatDate(dateString) {
+        if (!dateString) return "";
+        return new Date(dateString).toLocaleString("ko-KR");
+    }
+    function autoResize(t) {
+        t.style.height = "auto";
+        t.style.height = t.scrollHeight + "px";
+    }
+    function prepareTextarea(t) {
+        t.removeAttribute("style");
+        t.removeAttribute("cols");
+        t.removeAttribute("rows");
+        autoResize(t);
+        t.addEventListener("input", () => autoResize(t));
+        t.focus();
     }
 
+    // -------- fetch comments --------
     function loadComments(boardId) {
         fetch(`/reviews/board/${boardId}`)
             .then(res => res.json())
             .then(data => {
-                commentsList.innerHTML = '';
-                if (data.length === 0) {
+                commentsList.innerHTML = "";
+                if (!data.length) {
                     commentsList.innerHTML = '<div class="empty-box">아직 댓글이 없습니다.</div>';
                 } else {
-                    data.forEach(review => renderComment(review));
+                    data.forEach(review => commentsList.appendChild(renderComment(review)));
                 }
+                lucide.createIcons();
             })
             .catch(err => console.error("댓글 불러오기 실패:", err));
     }
 
-    // ================= 댓글 등록 =================
-    if (commentSubmitBtn && commentTextarea) {
-        commentTextarea.addEventListener('input', function() {
-            commentSubmitBtn.disabled = this.value.trim().length === 0;
-        });
-
-        commentSubmitBtn.addEventListener('click', function() {
+    // -------- write comment --------
+    if (commentForm) {
+        commentForm.addEventListener("submit", function (e) {
+            e.preventDefault();
             const content = commentTextarea.value.trim();
             if (!content) return;
 
-            fetch('/reviews', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            fetch("/reviews", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    boardId: boardId,
-                    writerIdx: loginUser.memberIdx,   // ✅ 작성자 ID
-                    nickname: loginUser.nickname,     // ✅ 작성자 닉네임
-                    content: content,
-                    parentId: null
-                })
+                    boardId,
+                    writerIdx: loginUser.memberIdx,
+                    nickname: loginUser.nickname,
+                    authorGrade: loginUser.grade,
+                    content,
+                    parentId: null,
+                }),
             })
-                .then(res => {
-                    if (!res.ok) throw new Error("댓글 등록 실패");
-                    return res.json();
-                })
+                .then(res => res.json())
                 .then(data => {
-                    renderComment(data, true); // 새 댓글은 위에 prepend
-                    commentTextarea.value = '';
-                    commentSubmitBtn.disabled = true;
+                    commentsList.prepend(renderComment(data));
+                    commentTextarea.value = "";
+                    lucide.createIcons();
                 })
-                .catch(err => console.error(err));
+                .catch(err => console.error("댓글 등록 실패:", err));
         });
     }
 
-    // ================= 댓글 DOM 추가 함수 =================
-    function renderComment(review, isNew = false) {
-        const div = document.createElement('div');
-        div.classList.add('comment-item');
-        div.setAttribute('data-review-id', review.reviewId);
-
-        let actionBtns = '';
-        if (loginUser.memberIdx === review.writerIdx) {
-            actionBtns = `
-              <div class="comment-actions">
-                <button class="edit-btn submit-btn small" data-id="${review.reviewId}">수정</button>
-                <button class="delete-btn submit-btn small" data-id="${review.reviewId}">삭제</button>
-              </div>
-            `;
-        }
+    // -------- comment DOM --------
+    function renderComment(review) {
+        const div = document.createElement("div");
+        div.classList.add("comment-item");
+        div.setAttribute("data-review-id", review.reviewId);
 
         div.innerHTML = `
-          <div class="comment-header">
-            <div class="comment-meta">
-              <span class="comment-nickname">${review.nickname || '익명'}</span>
-              <span class="comment-date">${formatDate(review.insertTime)}</span>
-            </div>
+      <div class="comment-header">
+        <div class="commenter-info" style="display:flex; gap:1rem; align-items:flex-start;">
+          <div class="commenter-avatar">
+            <img src="${review.authorImage || "/images/default_profile.png"}" class="avatar-img">
           </div>
-          <div class="comment-body">
-            <p class="comment-content">${review.content}</p>
-            <div class="comment-buttons">
-              ${actionBtns}
-              <button class="replyBtn submit-btn small" data-parent-id="${review.reviewId}">답글</button>
+          <div class="commenter-details">
+            <div class="commenter-name-line">
+              <span class="commenter-name">${review.nickname}</span>
+              <span class="user-grade grade-${review.authorGrade}">${review.authorGrade}</span>
             </div>
+            <div class="comment-time">${formatDate(review.insertTime)}</div>
+            <div class="comment-body">${review.content}</div>
           </div>
-          <div class="replies"></div>
-        `;
+        </div>
+      </div>
+      <div class="comment-actions">
+        <button class="vote-btn like-vote ${review.isLiked ? "liked" : ""}" data-id="${review.reviewId}">
+          <i data-lucide="thumbs-up"></i><span class="vote-count">${review.likes || 0}</span>
+        </button>
+        <button class="reply-btn" data-parent-id="${review.reviewId}">
+          <i data-lucide="corner-up-left"></i> 답글
+        </button>
+        ${String(review.writerIdx) === String(loginUser?.memberIdx) ? `
+          <button class="edit-btn" data-id="${review.reviewId}">수정</button>
+          <button class="delete-btn" data-id="${review.reviewId}">삭제</button>
+        ` : ""}
+      </div>
+      <div class="replies"></div>
+    `;
 
-        if (isNew) {
-            commentsList.prepend(div);
-            // "아직 댓글이 없습니다" 안내 제거
-            const emptyBox = commentsList.querySelector('.empty-box');
-            if (emptyBox) emptyBox.remove();
-        } else {
-            commentsList.appendChild(div);
-        }
+        div.querySelector(".like-vote").addEventListener("click", () =>
+            toggleLike(review.reviewId, div.querySelector(".like-vote"))
+        );
+        div.querySelector(".reply-btn").addEventListener("click", () =>
+            showReplyForm(review.reviewId, div)
+        );
+        const editBtn = div.querySelector(".edit-btn");
+        if (editBtn) editBtn.addEventListener("click", () => showEditForm(review, div));
 
-        // 수정/삭제 이벤트
-        const editBtn = div.querySelector('.edit-btn');
-        if (editBtn) {
-            editBtn.addEventListener('click', () => editComment(review.reviewId, div));
-        }
-        const deleteBtn = div.querySelector('.delete-btn');
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', () => deleteComment(review.reviewId, div));
-        }
+        const deleteBtn = div.querySelector(".delete-btn");
+        if (deleteBtn) deleteBtn.addEventListener("click", () => deleteReview(review.reviewId, div));
 
-        // 답글 이벤트
-        const replyBtn = div.querySelector('.replyBtn');
-        if (replyBtn) {
-            replyBtn.addEventListener('click', () => showReplyForm(review.reviewId, div));
-        }
-
-        // 대댓글도 재귀 렌더링
-        if (review.replies && review.replies.length > 0) {
-            const repliesContainer = div.querySelector('.replies');
-            review.replies.forEach(reply => {
-                const replyEl = renderComment(reply);
-                repliesContainer.appendChild(replyEl);
-            });
-        }
+        const repliesContainer = div.querySelector(".replies");
+        if (review.replies?.length) review.replies.forEach(r => repliesContainer.appendChild(renderReply(r)));
 
         return div;
     }
 
-    // ================= 댓글 수정 =================
-    function editComment(reviewId, commentElement) {
-        const contentEl = commentElement.querySelector('.comment-content');
-        const oldContent = contentEl.textContent;
-        const newContent = prompt("댓글을 수정하세요:", oldContent);
-        if (!newContent || newContent.trim() === "" || newContent === oldContent) return;
+    // -------- reply DOM --------
+    function renderReply(reply) {
+        const div = document.createElement("div");
+        div.classList.add("reply-item");
+        div.innerHTML = `
+      <div class="reply-border">
+        <div class="reply-avatar">
+          <img src="${reply.authorImage || "/images/default_profile.png"}" class="avatar-img">
+        </div>
+        <div class="reply-details">
+          <div class="reply-author-line">
+            <div>
+              <span class="reply-author">${reply.nickname}</span>
+              <span class="user-grade grade-${reply.authorGrade}">${reply.authorGrade}</span>
+            </div>
+            <div class="reply-time">${formatDate(reply.insertTime)}</div>
+          </div>
+          <p class="reply-text">${reply.content}</p>
+          <div class="reply-actions">
+            <button class="vote-btn like-vote small ${reply.isLiked ? "liked" : ""}" data-id="${reply.reviewId}">
+              <i data-lucide="thumbs-up"></i>
+              ${reply.likes > 0 ? `<span class="vote-count">${reply.likes}</span>` : ""}
+            </button>
+            ${String(reply.writerIdx) === String(loginUser?.memberIdx) ? `
+              <button class="edit-btn small" data-id="${reply.reviewId}">수정</button>
+              <button class="delete-btn small" data-id="${reply.reviewId}">삭제</button>
+            ` : ""}
+          </div>
+        </div>
+      </div>
+    `;
 
-        fetch(`/reviews/${reviewId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                content: newContent,
-                writerIdx: loginUser.memberIdx
-            })
-        })
-            .then(res => {
-                if (!res.ok) throw new Error("댓글 수정 실패");
-                return res.json();
-            })
-            .then(data => {
-                contentEl.textContent = data.content;
-            })
-            .catch(err => console.error(err));
+        div.querySelector(".like-vote").addEventListener("click", () =>
+            toggleLike(reply.reviewId, div.querySelector(".like-vote"))
+        );
+        const editBtn = div.querySelector(".edit-btn");
+        if (editBtn) editBtn.addEventListener("click", () => showEditForm(reply, div));
+        const deleteBtn = div.querySelector(".delete-btn");
+        if (deleteBtn) deleteBtn.addEventListener("click", () => deleteReview(reply.reviewId, div));
+
+        return div;
     }
 
-    // ================= 댓글 삭제 =================
-    function deleteComment(reviewId, commentElement) {
-        if (!confirm("정말 이 댓글을 삭제하시겠습니까?")) return;
+    // -------- edit --------
+    function showEditForm(review, element) {
+        const body = element.querySelector(".comment-body, .reply-text");
+        if (!body) return;
 
-        fetch(`/reviews/${reviewId}`, { method: 'DELETE' })
-            .then(res => {
-                if (!res.ok) throw new Error("댓글 삭제 실패");
-                return res.text();
+        const originalContent = review.content;
+
+        // 회색 박스 없이, 내부만 교체
+        body.classList.add("comment-edit"); // 레이아웃 힌트(테두리/배경은 CSS에서 제거)
+        body.innerHTML = `
+      <textarea class="edit-textarea">${originalContent}</textarea>
+      <div class="edit-actions">
+        <button class="cancel-btn">취소</button>
+        <button class="save-btn">저장</button>
+      </div>
+    `;
+
+        const textarea = body.querySelector(".edit-textarea");
+        prepareTextarea(textarea);
+
+        body.querySelector(".cancel-btn").addEventListener("click", () => {
+            body.innerHTML = originalContent;
+            body.classList.remove("comment-edit");
+        });
+
+        body.querySelector(".save-btn").addEventListener("click", () => {
+            const newContent = textarea.value.trim();
+            if (!newContent) return;
+
+            fetch(`/reviews/${review.reviewId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...review, content: newContent }),
             })
-            .then(() => {
-                commentElement.remove();
-
-                // 댓글 없으면 "아직 댓글이 없습니다" 표시
-                if (!commentsList.querySelector('.comment-item')) {
-                    commentsList.innerHTML = '<div class="empty-box">아직 댓글이 없습니다.</div>';
-                }
-            })
-            .catch(err => console.error(err));
-    }
-
-    // ================= 답글 폼 표시 =================
-    function showReplyForm(parentId, commentElement) {
-        let replyForm = commentElement.querySelector('.reply-form');
-        if (replyForm) {
-            replyForm.remove(); // 이미 있으면 토글 제거
-            return;
-        }
-
-        replyForm = document.createElement('div');
-        replyForm.classList.add('reply-form');
-        replyForm.innerHTML = `
-          <textarea class="reply-textarea" placeholder="답글을 입력하세요"></textarea>
-          <button class="reply-submit submit-btn small">등록</button>
-        `;
-
-        const repliesContainer = commentElement.querySelector('.replies');
-        repliesContainer.prepend(replyForm);
-
-        const replyTextarea = replyForm.querySelector('.reply-textarea');
-        const replySubmit = replyForm.querySelector('.reply-submit');
-
-        replySubmit.addEventListener('click', () => {
-            const content = replyTextarea.value.trim();
-            if (!content) return;
-
-            fetch('/reviews', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    boardId: boardId,
-                    writerIdx: loginUser.memberIdx,
-                    nickname: loginUser.nickname,
-                    content: content,
-                    parentId: parentId
+                .then(res => res.json())
+                .then(updated => {
+                    body.innerHTML = updated.content;
+                    body.classList.remove("comment-edit");
+                    lucide.createIcons();
                 })
-            })
-                .then(res => {
-                    if (!res.ok) throw new Error("답글 등록 실패");
-                    return res.json();
-                })
-                .then(data => {
-                    const replyEl = renderComment(data, false);
-                    repliesContainer.appendChild(replyEl);
-                    replyForm.remove();
-                })
-                .catch(err => console.error(err));
+                .catch(err => console.error("댓글 수정 실패:", err));
         });
     }
 
-    // ================= 공통 유틸 =================
-    function formatDate(dateString) {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        return date.toLocaleString('ko-KR');
+    // -------- delete --------
+    function deleteReview(reviewId, element) {
+        if (!confirm("정말 삭제하시겠습니까?")) return;
+        fetch(`/reviews/${reviewId}`, { method: "DELETE" })
+            .then(res => { if (res.ok) element.remove(); })
+            .catch(err => console.error("댓글 삭제 실패:", err));
+    }
+
+    // -------- like --------
+    function toggleLike(reviewId, btn) {
+        fetch(`/reviews/${reviewId}/vote`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ like: true }),
+        })
+            .then(res => res.json())
+            .then(data => {
+                btn.classList.toggle("liked", data.isLiked);
+                btn.querySelector(".vote-count").textContent = data.likes;
+            })
+            .catch(err => console.error("좋아요 실패:", err));
+    }
+
+    // -------- reply write --------
+    function showReplyForm(parentId, commentElement) {
+        const repliesContainer = commentElement.querySelector(".replies");
+        let replyForm = commentElement.querySelector(".reply-write");
+        if (replyForm) { replyForm.remove(); return; }
+
+        replyForm = document.createElement("div");
+        replyForm.classList.add("reply-write"); // (CSS에서 테두리/배경 제거)
+        replyForm.innerHTML = `
+      <form>
+        <textarea class="reply-textarea" placeholder="답글을 입력하세요"></textarea>
+        <div class="reply-actions">
+          <button type="button" class="cancel-btn">취소</button>
+          <button type="submit" class="reply-submit-btn"><i data-lucide="send"></i> 답글 등록</button>
+        </div>
+      </form>
+    `;
+        repliesContainer.prepend(replyForm);
+        lucide.createIcons();
+
+        const rta = replyForm.querySelector(".reply-textarea");
+        prepareTextarea(rta);
+
+        replyForm.querySelector(".cancel-btn").addEventListener("click", () => replyForm.remove());
+        replyForm.querySelector("form").addEventListener("submit", e => {
+            e.preventDefault();
+            const content = rta.value.trim();
+            if (!content) return;
+
+            fetch("/reviews", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    boardId,
+                    writerIdx: loginUser.memberIdx,
+                    nickname: loginUser.nickname,
+                    authorGrade: loginUser.grade,
+                    content,
+                    parentId,
+                }),
+            })
+                .then(res => res.json())
+                .then(data => {
+                    repliesContainer.appendChild(renderReply(data));
+                    replyForm.remove();
+                    lucide.createIcons();
+                })
+                .catch(err => console.error("답글 등록 실패:", err));
+        });
     }
 });

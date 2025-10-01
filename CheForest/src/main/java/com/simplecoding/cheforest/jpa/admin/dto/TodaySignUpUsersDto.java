@@ -16,8 +16,4 @@ public class TodaySignUpUsersDto {
     private String nickname;
     private Date insertTime;
     private String profile;
-    private String tempPasswordYn;
-    private String socialId;
-    private String provider;
-    private Date updateTime;
 }
