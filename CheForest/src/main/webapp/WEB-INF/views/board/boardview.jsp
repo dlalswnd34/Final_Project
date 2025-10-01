@@ -8,7 +8,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><c:out value="${board.title}" default="게시글 상세보기"/> - CheForest</title>
-  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/common/common.css">
   <link rel="stylesheet" href="/css/board/boardview.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>

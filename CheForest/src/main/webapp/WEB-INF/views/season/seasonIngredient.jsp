@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>제철 식재료 - CheForest</title>
-    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/common/common.css">
     <link rel="stylesheet" href="/css/seasonIngredient.css">
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>

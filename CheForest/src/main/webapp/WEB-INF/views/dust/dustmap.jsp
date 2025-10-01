@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>대한민국 미세먼지 & 레시피 추천 지도</title>
-    <link rel="stylesheet" href="/css/dustmap.css">
+    <link rel="stylesheet" href="/css/dust/dustmap.css">
 </head>
 <body>
 <h2>대한민국 지역별 미세먼지 & 레시피 추천</h2>

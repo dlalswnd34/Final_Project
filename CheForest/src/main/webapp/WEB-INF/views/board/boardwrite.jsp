@@ -8,7 +8,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>게시글 작성 - CheForest</title>
-  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/common/common.css">
   <link rel="stylesheet" href="/css/board/boardwrite.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400&display=swap" rel="stylesheet">
