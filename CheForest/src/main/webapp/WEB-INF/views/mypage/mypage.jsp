@@ -16,7 +16,6 @@
 <body>
 <jsp:include page="/common/header.jsp"/>
 <main class="mypage-main">
-
 <%--  <!-- 1) 총 개수 -->--%>
 <%--  <p>내가 쓴 글: <c:out value="${myPostsTotalCount}" /> 개</p>--%>
 
