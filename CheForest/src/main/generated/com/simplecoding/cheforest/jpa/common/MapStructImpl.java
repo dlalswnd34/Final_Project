@@ -21,6 +21,7 @@ import com.simplecoding.cheforest.jpa.like.dto.LikeSaveReq;
 import com.simplecoding.cheforest.jpa.like.entity.Like;
 import com.simplecoding.cheforest.jpa.recipe.dto.RecipeDto;
 import com.simplecoding.cheforest.jpa.recipe.entity.Recipe;
+import com.simplecoding.cheforest.jpa.review.dto.ReviewDto;
 import com.simplecoding.cheforest.jpa.review.entity.Review;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-09-29T14:07:46+0900",
+    date = "2025-10-01T09:08:15+0900",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.16 (Azul Systems, Inc.)"
 )
 @Component
@@ -192,54 +193,66 @@ public class MapStructImpl implements MapStruct {
     }
 
     @Override
-    public Review toEntity(ReviewSaveReq dto) {
+    public ReviewDto toDto(Review entity) {
+        if ( entity == null ) {
+            return null;
+        }
+
+        ReviewDto.ReviewDtoBuilder reviewDto = ReviewDto.builder();
+
+        reviewDto.boardId( entityBoardBoardId( entity ) );
+        reviewDto.reviewId( entity.getReviewId() );
+        reviewDto.writerIdx( entity.getWriterIdx() );
+        reviewDto.content( entity.getContent() );
+        reviewDto.insertTime( entity.getInsertTime() );
+        reviewDto.updateTime( entity.getUpdateTime() );
+        reviewDto.parentId( entity.getParentId() );
+
+        return reviewDto.build();
+    }
+
+    @Override
+    public Review toEntity(ReviewDto dto) {
         if ( dto == null ) {
             return null;
         }
 
         Review.ReviewBuilder review = Review.builder();
 
-        review.board( reviewSaveReqToBoard( dto ) );
-        review.writer( reviewSaveReqToMember( dto ) );
+        review.board( reviewDtoToBoard( dto ) );
+        review.reviewId( dto.getReviewId() );
+        review.writerIdx( dto.getWriterIdx() );
         review.content( dto.getContent() );
+        review.insertTime( dto.getInsertTime() );
+        review.updateTime( dto.getUpdateTime() );
+        review.parentId( dto.getParentId() );
 
         return review.build();
     }
 
     @Override
-    public ReviewRes toDto(Review entity) {
-        if ( entity == null ) {
-            return null;
-        }
-
-        ReviewRes reviewRes = new ReviewRes();
-
-        reviewRes.setBoardId( entityBoardBoardId( entity ) );
-        reviewRes.setWriterIdx( entityWriterMemberIdx( entity ) );
-        reviewRes.setNickname( entityWriterNickname( entity ) );
-        reviewRes.setReviewId( entity.getReviewId() );
-        reviewRes.setContent( entity.getContent() );
-        reviewRes.setInsertTime( entity.getInsertTime() );
-        reviewRes.setUpdateTime( entity.getUpdateTime() );
-
-        return reviewRes;
-    }
-
-    @Override
-    public void updateEntityFromDto(ReviewUpdateReq dto, Review entity) {
+    public void updateEntityFromDto(ReviewDto dto, Review entity) {
         if ( dto == null ) {
             return;
         }
 
-        if ( entity.getBoard() == null ) {
-            entity.setBoard( Board.builder().build() );
-        }
-        reviewUpdateReqToBoard( dto, entity.getBoard() );
         if ( dto.getReviewId() != null ) {
             entity.setReviewId( dto.getReviewId() );
         }
+        if ( dto.getWriterIdx() != null ) {
+            entity.setWriterIdx( dto.getWriterIdx() );
+        }
         if ( dto.getContent() != null ) {
             entity.setContent( dto.getContent() );
+        }
+        if ( dto.getInsertTime() != null ) {
+            entity.setInsertTime( dto.getInsertTime() );
+        }
+        if ( dto.getUpdateTime() != null ) {
+            entity.setUpdateTime( dto.getUpdateTime() );
+        }
+        if ( dto.getParentId() != null ) {
+            entity.setParentId( dto.getParentId() );
         }
     }
 
@@ -627,30 +640,6 @@ public class MapStructImpl implements MapStruct {
         return profile;
     }
 
-    protected Board reviewSaveReqToBoard(ReviewSaveReq reviewSaveReq) {
-        if ( reviewSaveReq == null ) {
-            return null;
-        }
-
-        Board.BoardBuilder board = Board.builder();
-
-        board.boardId( reviewSaveReq.getBoardId() );
-
-        return board.build();
-    }
-
-    protected Member reviewSaveReqToMember(ReviewSaveReq reviewSaveReq) {
-        if ( reviewSaveReq == null ) {
-            return null;
-        }
-
-        Member.MemberBuilder member = Member.builder();
-
-        member.memberIdx( reviewSaveReq.getWriterIdx() );
-
-        return member.build();
-    }
-
     private Long entityBoardBoardId(Review review) {
         if ( review == null ) {
             return null;
@@ -666,44 +655,16 @@ public class MapStructImpl implements MapStruct {
         return boardId;
     }
 
-    private Long entityWriterMemberIdx(Review review) {
-        if ( review == null ) {
+    protected Board reviewDtoToBoard(ReviewDto reviewDto) {
+        if ( reviewDto == null ) {
             return null;
-        }
-        Member writer = review.getWriter();
-        if ( writer == null ) {
-            return null;
-        }
-        Long memberIdx = writer.getMemberIdx();
-        if ( memberIdx == null ) {
-            return null;
-        }
-        return memberIdx;
-    }
-
-    private String entityWriterNickname(Review review) {
-        if ( review == null ) {
-            return null;
-        }
-        Member writer = review.getWriter();
-        if ( writer == null ) {
-            return null;
-        }
-        String nickname = writer.getNickname();
-        if ( nickname == null ) {
-            return null;
-        }
-        return nickname;
-    }
-
-    protected void reviewUpdateReqToBoard(ReviewUpdateReq reviewUpdateReq, Board mappingTarget) {
-        if ( reviewUpdateReq == null ) {
-            return;
         }
 
-        if ( reviewUpdateReq.getBoardId() != null ) {
-            mappingTarget.setBoardId( reviewUpdateReq.getBoardId() );
-        }
+        Board.BoardBuilder board = Board.builder();
+
+        board.boardId( reviewDto.getBoardId() );
+
+        return board.build();
     }
 
     private Long fileUploaderMemberIdx(File file) {
