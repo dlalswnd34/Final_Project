@@ -44,6 +44,7 @@ public class Member extends BaseTimeEntity implements Serializable {
 
     // made by yes_ung 09/25
     private Date lastLoginTime;
+    private String suspension;
 
     public enum Role {
         USER, ADMIN, LEFT

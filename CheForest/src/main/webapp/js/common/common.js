@@ -47,6 +47,9 @@ function showPage(page, id) {
         case 'dust':
             window.location.href = '/dustmap';
             break;
+        case 'search':
+            window.location.href = '/search';
+            break;
         default:
             // 기본적으로 page.jsp로 이동
             window.location.href = '/' + page + '.jsp';

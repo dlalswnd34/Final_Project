@@ -134,6 +134,56 @@ public class InquiriesController {
     ) {
         return inquiriesService.searchInquiries(keyword, status, pageable);
     }
+    //   FAQ로 등록 및 해제
+    @PostMapping("/inquiries/FAQ")
+    public ResponseEntity<String> submitFaq(@RequestBody Map<String, Object> payload) {
+        try {
+            Long inquiryId = Long.valueOf(payload.get("inquiryId").toString());
+            log.info("FAQ 등록 및 해제 요청 수신: {}", inquiryId);
+
+            Optional<Inquiries> optional = inquiriesRepository.findById(inquiryId);
+            if (optional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("문의 내역을 찾을 수 없습니다.");
+            }
+
+            Inquiries inquiry = optional.get();
+            if (inquiry.getIsFaq() == null || inquiry.getIsFaq().equals("N")) {
+                inquiry.setIsFaq("Y");
+            } else if (inquiry.getIsFaq().equals("Y")) {
+                inquiry.setIsFaq("N");
+            }
+            inquiriesRepository.save(inquiry);
+            String resultMessage = inquiry.getIsFaq().equals("Y") ? "FAQ로 등록되었습니다." : "FAQ 등록이 해제되었습니다.";
+
+            return ResponseEntity.ok(resultMessage);
+
+        } catch (Exception e) {
+            log.error("FAQ 등록 및 해제 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
+        }
+    }
+   // 문의사항 삭제
+    @PostMapping("/inquiries/delete")
+    public ResponseEntity<String> deleteInquiries(@RequestBody Map<String, Object> payload) {
+        try {
+            Long inquiryId = Long.valueOf(payload.get("inquiryId").toString());
+            log.info("문의사항 삭제 요청 수신: {}", inquiryId);
+
+            Optional<Inquiries> optional = inquiriesRepository.findById(inquiryId);
+            if (optional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("문의 내역을 찾을 수 없습니다.");
+            }
+
+            inquiriesRepository.deleteById(inquiryId);
+            String resultMessage = "성공적으로 문의사항이 삭제되었습니다.";
+
+            return ResponseEntity.ok(resultMessage);
+
+        } catch (Exception e) {
+            log.error("FAQ 등록 및 해제 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
+        }
+    }
 
 
 

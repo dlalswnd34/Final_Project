@@ -28,6 +28,6 @@ public class IntegratedSearchController {
         model.addAttribute("totalKeyword", totalKeyword);
         model.addAttribute("pages", pages);
         model.addAttribute("searches", pages.getContent()); // 결과 배열
-        return "search_all";                                           // jsp(통합검색 결과페이지)
+        return "search/searchAll";                                           // jsp(통합검색 결과페이지)
     }
 }

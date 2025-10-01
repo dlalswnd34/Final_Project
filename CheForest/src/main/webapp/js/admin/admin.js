@@ -317,7 +317,7 @@ const InquiryManager = {
             status: status
         });
 
-        fetch(`/api/searchInquiries?${queryParams.toString()}`)
+        fetch(`/apiInquiries?${queryParams.toString()}`)
             .then(res => res.json())
             .then(data => {
                 this.currentPage = page;
@@ -374,9 +374,18 @@ const InquiryManager = {
                             <i data-lucide="${inquiry.answerContent ? 'edit-3' : 'reply'}" style="width: 14px; height: 14px;"></i>
                             ${inquiry.answerContent ? '수정' : '답변'}
                         </button>
-                        <button class="event-action-btn" onclick="AdminAllTabs.showInquiryActions(${inquiry.inquiryId})">
-                            <i data-lucide="more-vertical" style="width: 14px; height: 14px;"></i>
-                        </button>
+                        <div style="position: relative;">
+                          <button class="event-action-btn toggle-menu-btn" data-inquiry-id="${inquiry.inquiryId}">
+                              <i data-lucide="more-vertical" style="width: 14px; height: 14px;"></i>
+                          </button>
+                      
+                          <div class="inquiry-actions-menu" id="inquiry-actions-${inquiry.inquiryId}" style="display: none;">
+                              <div class="menu-title">문의 관리</div>
+                              <div class="menu-item" onclick="InquiryManager.registerAsFAQ(${inquiry.inquiryId})">공개 FAQ로 등록/해제</div>
+                              <div class="menu-item delete" onclick="InquiryManager.deleteInquiry(${inquiry.inquiryId})">삭제</div>
+                          </div>
+                      </div>
+                      
                     </div>
                 </div>
                 ${inquiry.answerContent ? `
@@ -400,6 +409,8 @@ const InquiryManager = {
         container.innerHTML = contentHTML + paginationHTML;
 
         lucide.createIcons();
+        // 토글 이벤트 실행
+        this.bindInquiryMenuEvents();
     },
 
     renderPagination: function (totalPages) {
@@ -411,7 +422,123 @@ const InquiryManager = {
             buttons += `<button class="${i === this.currentPage ? 'active' : ''}" onclick="InquiryManager.loadInquiries(${i})">${i}</button>`;
         }
         pagination.innerHTML = buttons;
+    },
+
+    bindInquiryMenuEvents: function () {
+        // 메뉴 토글 버튼 이벤트
+        document.querySelectorAll('.toggle-menu-btn').forEach(button => {
+            button.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const inquiryId = button.getAttribute('data-inquiry-id');
+                const menu = document.getElementById(`inquiry-actions-${inquiryId}`);
+
+                document.querySelectorAll('.inquiry-actions-menu').forEach(m => {
+                    if (m !== menu) m.style.display = 'none';
+                });
+
+                menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+            });
+        });
+
+        // 외부 클릭 시 메뉴 닫기
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.inquiry-actions-menu').forEach(menu => {
+                menu.style.display = 'none';
+            });
+        });
+    },
+    // FAQ 등록
+    registerAsFAQ: async function (inquiryId){
+        if (!inquiryId) {
+            this.showNotification('문의 ID를 찾을 수 없습니다. 다시 시도해주세요.', 'error');
+            return;
+        }
+        const button = document.querySelector(`button.toggle-menu-btn[data-inquiry-id="${inquiryId}"]`);
+        const originalHTML = button.innerHTML;
+
+        try {
+            // 👉 로딩 상태 표시
+            button.disabled = true;
+            button.innerHTML = `<span class="loading-spinner" style="width:14px; height:14px;"></span>`;
+
+            const response = await fetch('/inquiries/FAQ', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    inquiryId: inquiryId,
+                })
+            });
+
+            if (response.ok) {
+                const message = await response.text();
+                AdminAllTabs.showNotification(message, 'success');
+            } else {
+                AdminAllTabs.showNotification('FAQ 등록에 실패했습니다.', 'error');
+            }
+        } catch (error) {
+            console.error("에러 발생:", error);
+            this.showNotification('서버 오류가 발생했습니다. 관리자에게 문의하세요', 'error');
+        }  finally {
+            // 👉 로딩 끝 - 버튼 원상복구
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+            InquiryManager.loadInquiries();
+            PendingInquiryManager.fetchInquiriesAllCount();
+            PendingInquiryManager.fetchPendingCount();
+            PendingInquiryManager.fetchAnsweredCount();
+            PendingInquiryManager.fetchTodayCount();
+            PendingInquiryManager.fetchPendingInquiries();
+        }
+
+    },
+    // 문의사항 삭제하기
+    deleteInquiry: async function (inquiryId){
+        if (!inquiryId) {
+            this.showNotification('문의 ID를 찾을 수 없습니다. 다시 시도해주세요.', 'error');
+            return;
+        }
+        const button = document.querySelector(`button.toggle-menu-btn[data-inquiry-id="${inquiryId}"]`);
+        const originalHTML = button.innerHTML;
+
+        try {
+            // 👉 로딩 상태 표시
+            button.disabled = true;
+            button.innerHTML = `<span class="loading-spinner" style="width:14px; height:14px;"></span>`;
+
+            const response = await fetch('/inquiries/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    inquiryId: inquiryId,
+                })
+            });
+
+            if (response.ok) {
+                const message = await response.text();
+                AdminAllTabs.showNotification(message, 'success');
+            } else {
+                AdminAllTabs.showNotification('문의사항 삭제에 실패했습니다..', 'error');
+            }
+        } catch (error) {
+            console.error("에러 발생:", error);
+            this.showNotification('서버 오류가 발생했습니다. 관리자에게 문의하세요', 'error');
+        }finally {
+            // 👉 로딩 끝 - 버튼 원상복구
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+            InquiryManager.loadInquiries();
+            PendingInquiryManager.fetchInquiriesAllCount();
+            PendingInquiryManager.fetchPendingCount();
+            PendingInquiryManager.fetchAnsweredCount();
+            PendingInquiryManager.fetchTodayCount();
+            PendingInquiryManager.fetchPendingInquiries();
+        }
     }
+
 };
 const MemberManager = {
     currentPage: 1,
@@ -437,16 +564,15 @@ const MemberManager = {
     loadOnlineMember: function (page = 1) {
         this.showLoading();
 
-        fetch(`/api/allMember?page=${page - 1}&size=${this.pageSize}`)
+        fetch(`/admin/loggedInUserList`)
             .then(res => res.json())
             .then(data => {
-                this.currentPage = data.page;
-                this.latestMemberList = data.data;
-                this.renderOnlineMember(data.data);
-                this.renderOnlinePagination(data.totalPages);
+                this.currentPage = 1;
+                this.latestMemberList = data.loggedInUserList;
+                this.renderOnlineMember(data.loggedInUserList);
             })
             .catch(error => {
-                console.error("문의사항 불러오기 실패:", error);
+                console.error("접속유저 불러오기 실패:", error);
                 this.showError();
             });
     },
@@ -458,7 +584,7 @@ const MemberManager = {
             .then(data => {
                 this.currentPage = data.page;
                 this.latestMemberList = data.data;
-                this.renderMember(data.data);
+                this.renderSuspendedMember(data.data);
                 this.renderSuspendedPagination(data.totalPages);
             })
             .catch(error => {
@@ -473,13 +599,13 @@ const MemberManager = {
             container.innerHTML = `<p style="padding: 20px; text-align: center; color: #94a3b8; font-size: 30px">불러오는 중...</p>`;
         }
     },
-
     showError: function () {
         const container = document.getElementById("table-container");
         if (container) {
             container.innerHTML = `<p style="padding: 20px; text-align: center; color: red; font-size: 30px">데이터를 불러오는 데 실패했습니다.</p>`;
         }
     },
+    // 화면 생성
     renderMember: function (MemberList) {
         const container = document.getElementById("table-container");
         if (!container) return;
@@ -508,7 +634,7 @@ const MemberManager = {
             const isOnline = user.isOnline ?? false;
             const email = user.email ?? '';
             const grade = user.grade ?? '없음';
-            const status = user.status ?? 'unknown';
+            const status = user.status ?? '정상';
             const boardCount = user.boardCount ?? 0;
             const boardReviewCount = user.boardReviewCount ?? 0;
             const insertTime = user.insertTime ?? '';
@@ -519,8 +645,7 @@ const MemberManager = {
                 ? `<img src="${profile}" alt="${nickname}">`
                 : `<span>${String(nickname).charAt(0)}</span>`;
 
-            const statusIcon = this.getStatusIconName ? this.getStatusIconName(status) : 'help-circle';
-            const statusText = this.getStatusText ? this.getStatusText(status) : '알 수 없음';
+            const statusIcon = AdminAllTabs.getStatusIconName ? AdminAllTabs.getStatusIconName(status) : 'help-circle';
 
             return `
             <tr> 
@@ -546,7 +671,7 @@ const MemberManager = {
                         <div class="grade-badge grade-${grade}">${grade}</div>
                         <div class="status-badge status-${status}">
                             <i data-lucide="${statusIcon}" class="status-icon"></i>
-                            ${statusText}
+                            ${status}
                         </div>
                     </div>
                 </td>
@@ -575,10 +700,18 @@ const MemberManager = {
                         </div>
                     </div>
                 </td>
-                <td style="text-align: right;">
-                    <button class="action-btn" onclick="AdminAllTabs.showUserActions(${memberIdx})">
-                        <i data-lucide="more-vertical" style="width: 16px; height: 16px;"></i>
-                    </button>
+                <td style="display: flex;">
+                     <div style="position: relative; margin-left: auto;">
+                          <button class="event-action-btn toggle-menu-btn" data-member-id="${memberIdx}">
+                              <i data-lucide="more-vertical" style="width: 14px; height: 14px;"></i>
+                          </button>
+                      
+                          <div class="inquiry-actions-menu" id="inquiry-actions-${memberIdx}" style="display: none;">
+                              <div class="menu-title">회원 관리</div>
+                              <div class="menu-item" onclick="MemberManager.applySuspension(${memberIdx})">제재하기</div>
+                              <div class="menu-item delete" onclick="MemberManager.deleteUser(${memberIdx})">삭제</div>
+                          </div>
+                      </div>
                 </td>
             </tr>
         `;
@@ -590,8 +723,116 @@ const MemberManager = {
         container.innerHTML = contentHTML1 + contentHTML2 + contentHTML3 + paginationHTML;
 
         lucide.createIcons();
+
+        this.bindMemberMenuEvents();
     },
     renderOnlineMember: function (MemberList) {
+        const container = document.getElementById("table-container");
+        if (!container) return;
+
+        if (MemberList.length === 0) {
+            container.innerHTML = "<p>해당하는 회원이 없습니다.</p>";
+            return;
+        }
+
+        const contentHTML1 = `<table class="data-table">
+        <thead>
+            <tr>
+                <th>회원 정보</th>
+                <th>등급/상태</th>
+                <th>가입일</th>
+                <th>최근 로그인</th>
+                <th style="text-align: right;">관리</th>
+            </tr>
+        </thead>
+        <tbody id="users-table-body">`;
+
+        const contentHTML2 = MemberList.map(user => {
+            const nickname = user.nickname ?? '알수없음';
+            const profile = user.profile ?? '';
+            const isOnline = user.isOnline ?? false;
+            const email = user.email ?? '';
+            const grade = user.grade ?? '없음';
+            const status = user.status ?? '정상';
+            const boardCount = user.boardCount ?? 0;
+            const boardReviewCount = user.boardReviewCount ?? 0;
+            const insertTime = user.insertTime ?? '';
+            const lastLoginTime = user.lastLoginTime ?? '';
+            const memberIdx = user.memberIdx ?? 0;
+
+            const avatarHTML = profile
+                ? `<img src="${profile}" alt="${nickname}">`
+                : `<span>${String(nickname).charAt(0)}</span>`;
+
+            const statusIcon = AdminAllTabs.getStatusIconName ? AdminAllTabs.getStatusIconName(status) : 'help-circle';
+
+            return `
+            <tr> 
+                <td>
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <div class="avatar">
+                                ${avatarHTML}
+                            </div>
+                            ${isOnline ? '<div class="online-indicator"></div>' : ''}
+                        </div>
+                        <div class="user-details">
+                            <h4>${nickname} ${isOnline ? '<span class="online-badge">온라인</span>' : ''}</h4>
+                            <div class="user-email">
+                                ${email ? '<i data-lucide="mail" style="width: 12px; height: 12px;"></i>' : ''}
+                                ${email}
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <div class="grade-badge grade-${grade}">${grade}</div>
+                        <div class="status-badge status-${status}">
+                            <i data-lucide="${statusIcon}" class="status-icon"></i>
+                            ${status}
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div style="font-size: 12px; color: #64748b;">
+                        ${AdminAllTabs.formatDate ? AdminAllTabs.formatDate(insertTime) : ''}
+                    </div>
+                </td>
+                <td>
+                    <div style="font-size: 12px; color: #64748b;">
+                        ${AdminAllTabs.formatDate ? AdminAllTabs.formatDate(lastLoginTime) : ''}
+                        <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">
+                            ${AdminAllTabs.formatTime ? AdminAllTabs.formatTime(lastLoginTime) : ''}
+                        </div>
+                    </div>
+                </td>
+                <td style="display: flex;">
+                     <div style="position: relative; margin-left: auto;">
+                          <button class="event-action-btn toggle-menu-btn" data-member-id="${memberIdx}">
+                              <i data-lucide="more-vertical" style="width: 14px; height: 14px;"></i>
+                          </button>
+                      
+                          <div class="inquiry-actions-menu" id="inquiry-actions-${memberIdx}" style="display: none;">
+                              <div class="menu-title">회원 관리</div>
+                              <div class="menu-item" onclick="MemberManager.applyOnlineSuspension(${memberIdx})">제재하기</div>
+                              <div class="menu-item delete" onclick="MemberManager.deleteOnlineUser(${memberIdx})">삭제</div>
+                          </div>
+                      </div>
+                </td>
+            </tr>
+        `;
+        }).join('');
+
+        const contentHTML3 = `</tbody></table>`;
+        const paginationHTML = `<div id="pagination" class="pagination-container"></div>`;
+
+        container.innerHTML = contentHTML1 + contentHTML2 + contentHTML3 + paginationHTML;
+
+        lucide.createIcons();
+        this.bindMemberMenuEvents();
+    },
+    renderSuspendedMember: function (MemberList) {
         const container = document.getElementById("table-container");
         if (!container) return;
 
@@ -619,7 +860,7 @@ const MemberManager = {
             const isOnline = user.isOnline ?? false;
             const email = user.email ?? '';
             const grade = user.grade ?? '없음';
-            const status = user.status ?? 'unknown';
+            const status = user.status ?? '정상';
             const boardCount = user.boardCount ?? 0;
             const boardReviewCount = user.boardReviewCount ?? 0;
             const insertTime = user.insertTime ?? '';
@@ -630,8 +871,7 @@ const MemberManager = {
                 ? `<img src="${profile}" alt="${nickname}">`
                 : `<span>${String(nickname).charAt(0)}</span>`;
 
-            const statusIcon = this.getStatusIconName ? this.getStatusIconName(status) : 'help-circle';
-            const statusText = this.getStatusText ? this.getStatusText(status) : '알 수 없음';
+            const statusIcon = AdminAllTabs.getStatusIconName ? AdminAllTabs.getStatusIconName(status) : 'help-circle';
 
             return `
             <tr> 
@@ -657,7 +897,7 @@ const MemberManager = {
                         <div class="grade-badge grade-${grade}">${grade}</div>
                         <div class="status-badge status-${status}">
                             <i data-lucide="${statusIcon}" class="status-icon"></i>
-                            ${statusText}
+                            ${status}
                         </div>
                     </div>
                 </td>
@@ -686,10 +926,18 @@ const MemberManager = {
                         </div>
                     </div>
                 </td>
-                <td style="text-align: right;">
-                    <button class="action-btn" onclick="AdminAllTabs.showUserActions(${memberIdx})">
-                        <i data-lucide="more-vertical" style="width: 16px; height: 16px;"></i>
-                    </button>
+                <td style="display: flex;">
+                     <div style="position: relative; margin-left: auto;">
+                          <button class="event-action-btn toggle-menu-btn" data-member-id="${memberIdx}">
+                              <i data-lucide="more-vertical" style="width: 14px; height: 14px;"></i>
+                          </button>
+                      
+                          <div class="inquiry-actions-menu" id="inquiry-actions-${memberIdx}" style="display: none;">
+                              <div class="menu-title">회원 관리</div>
+                              <div class="menu-item" onclick="MemberManager.applySuspendedSuspension(${memberIdx})">제재하기</div>
+                              <div class="menu-item delete" onclick="MemberManager.deleteSuspendedUser(${memberIdx})">삭제</div>
+                          </div>
+                      </div>
                 </td>
             </tr>
         `;
@@ -701,7 +949,9 @@ const MemberManager = {
         container.innerHTML = contentHTML1 + contentHTML2 + contentHTML3 + paginationHTML;
 
         lucide.createIcons();
+        this.bindMemberMenuEvents();
     },
+    // 페이지네이션
     renderAllPagination: function (totalPages) {
         const pagination = document.getElementById("pagination");
         if (!pagination) return;
@@ -731,7 +981,278 @@ const MemberManager = {
             buttons += `<button class="${i === this.currentPage ? 'active' : ''}" onclick="MemberManager.loadSuspendedMember(${i})">${i}</button>`;
         }
         pagination.innerHTML = buttons;
+    },
+    // 회원 제재하기
+    applySuspension: async function (memberIdx){
+        if (!memberIdx) {
+            this.showNotification('해당 관리번호의 회원을 찾을 수 없습니다. 다시 시도해주세요.', 'error');
+            return;
+        }
+        const button = document.querySelector(`button.toggle-menu-btn[data-member-id="${memberIdx}"]`);
+        const originalHTML = button.innerHTML;
+
+        try {
+            // 👉 로딩 상태 표시
+            button.disabled = true;
+            button.innerHTML = `<span class="loading-spinner" style="width:14px; height:14px;"></span>`;
+
+            const response = await fetch('/admin/member/applySuspension', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    memberIdx: memberIdx,
+                })
+            });
+
+            if (response.ok) {
+                const message = await response.text();
+                AdminAllTabs.showNotification(message, 'success');
+            } else {
+                AdminAllTabs.showNotification('회원제재에 실패했습니다.', 'error');
+            }
+        } catch (error) {
+            console.error("에러 발생:", error);
+            this.showNotification('서버 오류가 발생했습니다. 관리자에게 문의하세요', 'error');
+        }  finally {
+            // 👉 로딩 끝 - 버튼 원상복구
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+            MemberManager.loadAllMember(MemberManager.currentPage);
+
+        }
+
+    },
+    applyOnlineSuspension: async function (memberIdx){
+        if (!memberIdx) {
+            this.showNotification('해당 관리번호의 회원을 찾을 수 없습니다. 다시 시도해주세요.', 'error');
+            return;
+        }
+        const button = document.querySelector(`button.toggle-menu-btn[data-member-id="${memberIdx}"]`);
+        const originalHTML = button.innerHTML;
+
+        try {
+            // 👉 로딩 상태 표시
+            button.disabled = true;
+            button.innerHTML = `<span class="loading-spinner" style="width:14px; height:14px;"></span>`;
+
+            const response = await fetch('/admin/member/applySuspension', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    memberIdx: memberIdx,
+                })
+            });
+
+            if (response.ok) {
+                const message = await response.text();
+                AdminAllTabs.showNotification(message, 'success');
+            } else {
+                AdminAllTabs.showNotification('회원제재에 실패했습니다.', 'error');
+            }
+        } catch (error) {
+            console.error("에러 발생:", error);
+            this.showNotification('서버 오류가 발생했습니다. 관리자에게 문의하세요', 'error');
+        }  finally {
+            // 👉 로딩 끝 - 버튼 원상복구
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+            MemberManager.loadOnlineMember(MemberManager.currentPage);
+
+        }
+
+    },
+    applySuspendedSuspension: async function (memberIdx){
+        if (!memberIdx) {
+            this.showNotification('해당 관리번호의 회원을 찾을 수 없습니다. 다시 시도해주세요.', 'error');
+            return;
+        }
+        const button = document.querySelector(`button.toggle-menu-btn[data-member-id="${memberIdx}"]`);
+        const originalHTML = button.innerHTML;
+
+        try {
+            // 👉 로딩 상태 표시
+            button.disabled = true;
+            button.innerHTML = `<span class="loading-spinner" style="width:14px; height:14px;"></span>`;
+
+            const response = await fetch('/admin/member/applySuspension', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    memberIdx: memberIdx,
+                })
+            });
+
+            if (response.ok) {
+                const message = await response.text();
+                AdminAllTabs.showNotification(message, 'success');
+            } else {
+                AdminAllTabs.showNotification('회원제재에 실패했습니다.', 'error');
+            }
+        } catch (error) {
+            console.error("에러 발생:", error);
+            this.showNotification('서버 오류가 발생했습니다. 관리자에게 문의하세요', 'error');
+        }  finally {
+            // 👉 로딩 끝 - 버튼 원상복구
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+            MemberManager.loadSuspendedMember(MemberManager.currentPage);
+
+        }
+
+    },
+    // 회원 삭제
+    deleteUser: async function (memberIdx){
+        if (!memberIdx) {
+            this.showNotification('해당 관리번호의 회원을 찾을 수 없습니다. 다시 시도해주세요.', 'error');
+            return;
+        }
+        const button = document.querySelector(`button.toggle-menu-btn[data-member-id="${memberIdx}"]`);
+        const originalHTML = button.innerHTML;
+
+        try {
+            // 👉 로딩 상태 표시
+            button.disabled = true;
+            button.innerHTML = `<span class="loading-spinner" style="width:14px; height:14px;"></span>`;
+
+            const response = await fetch('/admin/member/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    memberIdx: memberIdx
+                })
+            });
+
+            if (response.ok) {
+                const message = await response.text();
+                AdminAllTabs.showNotification(message, 'success');
+            } else {
+                AdminAllTabs.showNotification('회원 삭제에 실패했습니다.', 'error');
+            }
+        } catch (error) {
+            console.error("에러 발생:", error);
+            this.showNotification('서버 오류가 발생했습니다. 관리자에게 문의하세요', 'error');
+        }  finally {
+            // 👉 로딩 끝 - 버튼 원상복구
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+            MemberManager.loadAllMember(MemberManager.currentPage);
+        }
+
+    },
+    deleteOnlineUser: async function (memberIdx){
+        if (!memberIdx) {
+            this.showNotification('해당 관리번호의 회원을 찾을 수 없습니다. 다시 시도해주세요.', 'error');
+            return;
+        }
+        const button = document.querySelector(`button.toggle-menu-btn[data-member-id="${memberIdx}"]`);
+        const originalHTML = button.innerHTML;
+
+        try {
+            // 👉 로딩 상태 표시
+            button.disabled = true;
+            button.innerHTML = `<span class="loading-spinner" style="width:14px; height:14px;"></span>`;
+
+            const response = await fetch('/admin/member/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    memberIdx: memberIdx
+                })
+            });
+
+            if (response.ok) {
+                const message = await response.text();
+                AdminAllTabs.showNotification(message, 'success');
+            } else {
+                AdminAllTabs.showNotification('회원 삭제에 실패했습니다.', 'error');
+            }
+        } catch (error) {
+            console.error("에러 발생:", error);
+            this.showNotification('서버 오류가 발생했습니다. 관리자에게 문의하세요', 'error');
+        }  finally {
+            // 👉 로딩 끝 - 버튼 원상복구
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+            MemberManager.loadOnlineMember(MemberManager.currentPage);
+        }
+
+    },
+    deleteSuspendedUser: async function (memberIdx){
+        if (!memberIdx) {
+            this.showNotification('해당 관리번호의 회원을 찾을 수 없습니다. 다시 시도해주세요.', 'error');
+            return;
+        }
+        const button = document.querySelector(`button.toggle-menu-btn[data-member-id="${memberIdx}"]`);
+        const originalHTML = button.innerHTML;
+
+        try {
+            // 👉 로딩 상태 표시
+            button.disabled = true;
+            button.innerHTML = `<span class="loading-spinner" style="width:14px; height:14px;"></span>`;
+
+            const response = await fetch('/admin/member/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    memberIdx: memberIdx
+                })
+            });
+
+            if (response.ok) {
+                const message = await response.text();
+                AdminAllTabs.showNotification(message, 'success');
+            } else {
+                AdminAllTabs.showNotification('회원 삭제에 실패했습니다.', 'error');
+            }
+        } catch (error) {
+            console.error("에러 발생:", error);
+            this.showNotification('서버 오류가 발생했습니다. 관리자에게 문의하세요', 'error');
+        }  finally {
+            // 👉 로딩 끝 - 버튼 원상복구
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+            MemberManager.loadSuspendedMember(MemberManager.currentPage);
+        }
+
+    },
+    // 버튼 동작
+    bindMemberMenuEvents: function () {
+        // 메뉴 토글 버튼 이벤트
+        document.querySelectorAll('.toggle-menu-btn').forEach(button => {
+            button.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const memberIdx = button.getAttribute('data-member-id');
+                const menu = document.getElementById(`inquiry-actions-${memberIdx}`);
+
+                document.querySelectorAll('.inquiry-actions-menu').forEach(m => {
+                    if (m !== menu) m.style.display = 'none';
+                });
+
+                menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+            });
+        });
+
+        // 외부 클릭 시 메뉴 닫기
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.inquiry-actions-menu').forEach(menu => {
+                menu.style.display = 'none';
+            });
+        });
     }
+
+
 };
 
 
@@ -1077,6 +1598,7 @@ const AdminAllTabs = {
                 InquiryManager.loadInquiries(1);
             });
         }
+
     },
 
     // 설정 관리 렌더링
@@ -1366,9 +1888,11 @@ const AdminAllTabs = {
     // 유틸리티 함수들
     getStatusIconName(status) {
         switch (status) {
-            case '테스트': return 'check-circle';
+            case '정상': return 'check-circle';
+            case '활성': return 'check-circle';
             case 'active': return 'check-circle';
             case 'inactive': return 'clock';
+            case '정지': return 'alert-triangle';
             case 'suspended': return 'alert-triangle';
             case 'banned': return 'ban';
             case 'published': return 'check-circle';
