@@ -35,9 +35,20 @@
     <section class="py-8" style="background-color: rgba(156, 163, 175, 0.1);">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col lg:flex-row gap-6 items-center">
+
+                <%--검색관련 div--%>
+                <div class="flex items-center gap-2 flex-grow">
+                    <!-- 정렬 옵션: name="searchType" 추가 및 선택 상태 유지 로직 추가 -->
+                    <select id="boardSortSelect" name="searchType" class="border border-gray-300 rounded-lg px-3 py-3 text-sm bg-white">
+                        <!-- searchType이 'title'이거나 null일 때 기본값으로 선택 -->
+                        <option value="title" ${param.searchType == 'title' || param.searchType == null ? 'selected' : ''}>제목</option>
+                        <!-- searchType이 'ingredient'일 때 선택 -->
+                        <option value="ingredient" ${param.searchType == 'ingredient' ? 'selected' : ''}>재료</option>
+                    </select>
+
                 <!-- 검색바 -->
-                <div class="relative flex-1 w-full lg:max-w-md">
-                    <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5"></i>
+                <div class="relative flex-1 max-w-md">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4"></i>
                     <input
                             type="text"
                             name="searchKeyword"
@@ -46,6 +57,10 @@
                             class="recipe-search-input pl-10 pr-4 py-3 w-full border-2 border-gray-200 focus:border-orange-500 rounded-lg bg-white"
                     />
                 </div>
+
+                    <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        <i data-lucide="search" class="h-4 w-4"></i>
+                    </button>
             </div>
         </div>
     </section>
