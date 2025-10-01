@@ -16,6 +16,7 @@
 <body>
 <jsp:include page="/common/header.jsp"/>
 <main class="mypage-main">
+
 <%--  <!-- 1) 총 개수 -->--%>
 <%--  <p>내가 쓴 글: <c:out value="${myPostsTotalCount}" /> 개</p>--%>
 
@@ -29,6 +30,7 @@
 <%--  <c:if test="${empty myPosts}">--%>
 <%--    <p>작성한 글이 없습니다.</p>--%>
 <%--  </c:if>--%>
+
   <!-- 페이지 헤더 -->
   <section class="mypage-header">
     <div class="container">

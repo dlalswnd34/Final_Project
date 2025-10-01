@@ -15,13 +15,18 @@ public class MypageMyPostDto {
     private String thumbnail;
 
 
+
+
     // JPQL에서 사용할 생성자
-    public MypageMyPostDto(Long boardId, String title, LocalDateTime insertTime, Long viewCount, Long likeCount, String thumbnail) {
+
+    public MypageMyPostDto(Long boardId, String title, LocalDateTime insertTime, Long viewCount, Long likeCount) {
+
+
         this.boardId = boardId;
         this.title = title;
         this.insertTime = insertTime;
         this.viewCount = viewCount;
         this.likeCount = likeCount;
-        this.thumbnail = thumbnail;
+
     }
 }
