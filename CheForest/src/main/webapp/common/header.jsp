@@ -67,7 +67,7 @@
                 </button>
 
                 <!-- 마이페이지 -->
-                <a href="<c:url value='/mypage/mypage'/>" class="hidden sm:flex header-icon-btn p-2 rounded-lg" title="마이페이지">
+                <a href="<c:url value='/mypage'/>" class="hidden sm:flex header-icon-btn p-2 rounded-lg" title="마이페이지">
                     <i data-lucide="user" class="h-6 w-6"></i>
                 </a>
 
@@ -138,7 +138,7 @@
                         class="nav-item relative flex items-center space-x-1 font-medium transition-colors text-gray-700 hover:text-orange-500"
                         data-page="ingredients"
                 >
-                    <span>계절 식재료</span>
+                    <span>제철 식재료</span>
                     <span class="nav-underline"></span>
                 </button>
 
