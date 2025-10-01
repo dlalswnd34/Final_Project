@@ -1,4 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -25,6 +28,7 @@
             <div class="card-content">
                 <!-- ✅ Spring Security 맞춘 form -->
                 <form id="loginForm" action="/auth/login" method="post">
+                    <sec:csrfInput/>
                     <div class="form-group">
                         <label class="form-label">아이디</label>
                         <div class="input-wrapper">

@@ -47,8 +47,6 @@ public class QRecipe extends EntityPathBase<Recipe> {
 
     public final StringPath recipeId = createString("recipeId");
 
-    public final StringPath season = createString("season");
-
     public final StringPath thumbnail = createString("thumbnail");
 
     public final StringPath titleEn = createString("titleEn");
