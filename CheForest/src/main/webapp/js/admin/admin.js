@@ -12,92 +12,6 @@ let memberStatusChart = null;
 let monthlyActivityChart = null;
 
 // 샘플 데이터
-const sampleRecipes = [
-    {
-        id: 1,
-        title: '김치찌개',
-        author: '요리왕김셰프',
-        category: '한식',
-        image: 'https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=300&h=200&fit=crop',
-        cookingTime: 30,
-        difficulty: '쉬움',
-        servings: 4,
-        views: 1524,
-        likes: 89,
-        comments: 23,
-        status: 'published',
-        createdAt: '2024-12-15T10:30:00',
-        featured: true,
-        tags: ['김치', '찌개', '한식', '간단요리']
-    },
-    {
-        id: 2,
-        title: '까르보나라',
-        author: '파스타러버',
-        category: '양식',
-        image: 'https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=300&h=200&fit=crop',
-        cookingTime: 25,
-        difficulty: '보통',
-        servings: 2,
-        views: 2156,
-        likes: 156,
-        comments: 34,
-        status: 'published',
-        createdAt: '2024-12-14T15:20:00',
-        featured: false,
-        tags: ['파스타', '까르보나라', '양식', '크림']
-    },
-    {
-        id: 3,
-        title: '마파두부',
-        author: '매운맛조아',
-        category: '중식',
-        image: 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=300&h=200&fit=crop',
-        cookingTime: 20,
-        difficulty: '보통',
-        servings: 3,
-        views: 892,
-        likes: 67,
-        comments: 12,
-        status: 'private',
-        createdAt: '2024-12-13T09:45:00',
-        tags: ['두부', '마파', '중식', '매운맛']
-    },
-    {
-        id: 4,
-        title: '치즈케이크',
-        author: '디저트퀸',
-        category: '디저트',
-        image: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=300&h=200&fit=crop',
-        cookingTime: 45,
-        difficulty: '어려움',
-        servings: 8,
-        views: 3421,
-        likes: 234,
-        comments: 45,
-        status: 'published',
-        createdAt: '2024-12-12T14:10:00',
-        featured: true,
-        tags: ['치즈케이크', '디저트', '노오븐', '베이킹']
-    },
-    {
-        id: 5,
-        title: '라멘',
-        author: '라멘마스터',
-        category: '일식',
-        image: 'https://images.unsplash.com/photo-1557872943-16a5ac26437e?w=300&h=200&fit=crop',
-        cookingTime: 120,
-        difficulty: '어려움',
-        servings: 2,
-        views: 756,
-        likes: 43,
-        comments: 8,
-        status: 'draft',
-        createdAt: '2024-12-11T11:30:00',
-        tags: ['라멘', '일식', '국물', '면요리']
-    }
-];
-
 const samplePosts = [
     {
         id: 1,
@@ -317,13 +231,13 @@ const InquiryManager = {
             status: status
         });
 
-        fetch(`/apiInquiries?${queryParams.toString()}`)
+        fetch(`/api/searchInquiries?${queryParams.toString()}`)
             .then(res => res.json())
             .then(data => {
                 this.currentPage = page;
                 this.latestInquiries = data.content;
                 this.renderInquiries(data.content);
-                this.renderPagination(data.totalPages);
+                InquiryManager.renderPagination(data.totalPages);
             })
             .catch(error => {
                 console.error("문의사항 불러오기 실패:", error);
@@ -404,7 +318,7 @@ const InquiryManager = {
         `).join('');
 
         const paginationHTML = `
-        <div id="pagination" class="pagination-container"></div>`;
+        <div id="paginationInquiry" class="pagination-container"></div>`;
 
         container.innerHTML = contentHTML + paginationHTML;
 
@@ -414,7 +328,7 @@ const InquiryManager = {
     },
 
     renderPagination: function (totalPages) {
-        const pagination = document.getElementById("pagination");
+        const pagination = document.getElementById("paginationInquiry");
         if (!pagination) return;
 
         let buttons = "";
@@ -423,7 +337,6 @@ const InquiryManager = {
         }
         pagination.innerHTML = buttons;
     },
-
     bindInquiryMenuEvents: function () {
         // 메뉴 토글 버튼 이벤트
         document.querySelectorAll('.toggle-menu-btn').forEach(button => {
@@ -548,10 +461,20 @@ const MemberManager = {
     loadAllMember: function (page = 1) {
         this.showLoading();
 
-        fetch(`/api/allMember?page=${page - 1}&size=${this.pageSize}`)
+        //  검색어
+        const keyword = document.getElementById("user-search")?.value || "";
+
+        const queryParams = new URLSearchParams({
+            page: page - 1,
+            size: this.pageSize,
+            sort: "insertTime,desc",
+            keyword: keyword
+        });
+
+        fetch(`/api/allMember?${queryParams.toString()}`)
             .then(res => res.json())
             .then(data => {
-                this.currentPage = data.page;
+                this.currentPage = page;
                 this.latestMemberList = data.data;
                 this.renderMember(data.data);
                 this.renderAllPagination(data.totalPages);
@@ -575,14 +498,25 @@ const MemberManager = {
                 console.error("접속유저 불러오기 실패:", error);
                 this.showError();
             });
+
     },
     loadSuspendedMember: function (page = 1) {
         this.showLoading();
 
-        fetch(`/api/suspendedMember?page=${page - 1}&size=${this.pageSize}`)
+        //  검색어
+        const keyword = document.getElementById("user-search")?.value || "";
+
+        const queryParams = new URLSearchParams({
+            page: page - 1,
+            size: this.pageSize,
+            sort: "insertTime,desc",
+            keyword: keyword
+        });
+
+        fetch(`/api/suspendedMember?${queryParams.toString()}`)
             .then(res => res.json())
             .then(data => {
-                this.currentPage = data.page;
+                this.currentPage = page;
                 this.latestMemberList = data.data;
                 this.renderSuspendedMember(data.data);
                 this.renderSuspendedPagination(data.totalPages);
@@ -750,7 +684,7 @@ const MemberManager = {
         const contentHTML2 = MemberList.map(user => {
             const nickname = user.nickname ?? '알수없음';
             const profile = user.profile ?? '';
-            const isOnline = user.isOnline ?? false;
+            const isOnline = user.isOnline ?? '온라인';
             const email = user.email ?? '';
             const grade = user.grade ?? '없음';
             const status = user.status ?? '정상';
@@ -1254,6 +1188,399 @@ const MemberManager = {
 
 
 };
+const RecipeManager = {
+    currentPage: 1,
+    pageSize: 10,
+    latestRecipes: [],
+
+    loadRecipes: function (page = 1) {
+        this.showLoading();
+
+        // ① 검색어와 상태 가져오기
+        const keyword = document.getElementById("recipe-search")?.value || "";
+        const categoryKr = document.getElementById("recipe-category")?.value || "";
+        const searchType = document.getElementById("recipe-searchType")?.value || "";
+
+
+        // ② API URL 구성
+        const queryParams = new URLSearchParams({
+            page: page - 1,
+            size: this.pageSize,
+            keyword: keyword,
+            categoryKr: categoryKr,
+            searchType: searchType
+        });
+
+        fetch(`/admin/getRecipes?${queryParams.toString()}`)
+            .then(res => res.json())
+            .then(data => {
+                this.currentPage = page;
+                this.latestRecipes = data.data;
+                this.renderRecipes(data.data);
+                this.renderPagination(data.totalPages);
+            })
+            .catch(error => {
+                console.error("레시피 불러오기 실패:", error);
+                this.showError();
+            });
+    },
+    showLoading: function () {
+        const container = document.getElementById("recipes-grid");
+        if (container) {
+            container.innerHTML = `<p style="padding: 20px; text-align: center; color: #94a3b8; font-size: 30px">불러오는 중...</p>`;
+        }
+    },
+    showError: function () {
+        const container = document.getElementById("recipes-grid");
+        if (container) {
+            container.innerHTML = `<p style="padding: 20px; text-align: center; color: red; font-size: 30px">데이터를 불러오는 데 실패했습니다.</p>`;
+        }
+    },
+    renderRecipes: function (Recipes) {
+        const container = document.getElementById("recipes-grid");
+        if (!container) return;
+
+        if (Recipes.length === 0) {
+            container.innerHTML = "<p>해당하는 레시피가 없습니다.</p>";
+            return;
+        }
+
+        const contentHTML = Recipes.map(recipe => {
+            const shortDescription = recipe.instructionKr.length > 100
+                ? recipe.instructionKr.slice(0, 100) + "..."
+                : recipe.instructionKr;
+
+            return `
+        <div class="post-management-item">
+            <img src="${recipe.thumbnail}" alt="${recipe.titleKr}" class="post-image">
+            <div class="post-details">
+                <h4 class="post-main-title">${recipe.titleKr}</h4>
+                <p class="post-description">${shortDescription}</p>
+                <div class="post-badges">
+                    <span class="recipe-badge category">${recipe.categoryKr}</span>
+                </div>
+                <div class="post-management-meta">
+                    <span>👀 ${recipe.viewCount.toLocaleString()}</span>
+                    <span>❤️ ${recipe.likeCount}</span>
+                </div>
+            </div>
+            <div class="post-management-actions">
+                <button class="event-action-btn viewDetailsBt" data-recipe-id="${recipe.recipeId}" onclick="RecipeManager.viewDetails(${recipe.recipeId})">
+                    <i data-lucide="eye" style="width: 14px; height: 14px;"></i>
+                    상세보기
+                </button>
+                <button class="event-action-btn deleteRecipeBt" data-recipe-id="${recipe.recipeId}" onclick="RecipeManager.deleteRecipe('${recipe.recipeId}')">
+                    <i data-lucide="trash" style="width: 14px; height: 14px;"></i>
+                    삭제
+                </button>
+            </div>
+        </div>
+    `;
+        }).join('');
+
+
+        const paginationHTML = `
+        <div id="paginationRecipes" class="pagination-container"></div>`;
+
+        container.innerHTML = contentHTML + paginationHTML;
+
+        lucide.createIcons();
+        // 토글 이벤트 실행
+    },
+    renderPagination: function (totalPages) {
+        const pagination = document.getElementById("paginationRecipes");
+        if (!pagination) return;
+
+        const current = this.currentPage;
+        let buttons = "";
+
+        // 이전 화살표
+        if (current > 1) {
+            buttons += `<button onclick="RecipeManager.loadRecipes(${current - 1})">&laquo;</button>`;
+        } else {
+            buttons += `<button disabled>&laquo;</button>`;
+        }
+
+        // 페이지 번호 최대 5개 표시
+        // 현재 페이지를 가운데로 배치하되, 시작과 끝은 제한
+        let startPage = Math.max(1, current - 2);
+        let endPage = Math.min(totalPages, startPage + 4);
+
+        // startPage 조정 (endPage가 끝에 가까우면 다시 앞쪽으로 밀기)
+        startPage = Math.max(1, endPage - 4);
+
+        for (let i = startPage; i <= endPage; i++) {
+            buttons += `<button class="${i === current ? 'active' : ''}" onclick="RecipeManager.loadRecipes(${i})">${i}</button>`;
+        }
+
+        // 다음 화살표
+        if (current < totalPages) {
+            buttons += `<button onclick="RecipeManager.loadRecipes(${current + 1})">&raquo;</button>`;
+        } else {
+            buttons += `<button disabled>&raquo;</button>`;
+        }
+
+        pagination.innerHTML = buttons;
+    },
+
+    // 상세보기
+    viewDetails: async function (recipeId){
+        if (!recipeId) {
+            this.showNotification('일치하는 레시피ID를 찾을 수 없습니다. 다시 시도해주세요.', 'error');
+            return;
+        }
+        const button = document.querySelector(`button.viewDetailsBt[data-recipe-id="${recipeId}"]`);
+        const originalHTML = button.innerHTML;
+
+        button.disabled = true;
+        button.innerHTML = `<span class="loading-spinner" style="width:14px; height:14px;"></span>`;
+        const url = `/recipe/view?recipeId=${encodeURIComponent(recipeId)}`;
+        window.open(url, '_blank');  // 새 탭(또는 새 창)으로 열기
+
+
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+    },
+    // 레시피 삭제하기
+    deleteRecipe: async function (recipeId){
+        if (!recipeId) {
+            this.showNotification('해당ID의 레시피를 찾을 수 없습니다. 다시 시도해주세요.', 'error');
+            return;
+        }
+        const button = document.querySelector(`button.deleteRecipeBt[data-recipe-id="${recipeId}"]`);
+        const originalHTML = button.innerHTML;
+
+        try {
+            // 👉 로딩 상태 표시
+            button.disabled = true;
+            button.innerHTML = `<span class="loading-spinner" style="width:14px; height:14px;"></span>`;
+
+            const response = await fetch('/admin/deleteRecipes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    recipeId: recipeId,
+                })
+            });
+
+            if (response.ok) {
+                const message = await response.text();
+                AdminAllTabs.showNotification(message, 'success');
+            } else {
+                AdminAllTabs.showNotification('레시피 삭제에 실패했습니다..', 'error');
+            }
+        } catch (error) {
+            console.error("에러 발생:", error);
+            this.showNotification('서버 오류가 발생했습니다. 관리자에게 문의하세요', 'error');
+        }finally {
+            // 👉 로딩 끝 - 버튼 원상복구
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+            RecipeManager.loadRecipes(RecipeManager.currentPage);
+
+        }
+    }
+
+};
+const PostManager = {
+    currentPage: 1,
+    pageSize: 10,
+    latestRecipes: [],
+
+    loadPosts: function (page = 1) {
+        this.showLoading();
+
+        // ① 검색어와 상태 가져오기
+        const keyword = document.getElementById("post-search")?.value || "";
+        const category = document.getElementById("post-category")?.value || "";
+        const searchType = document.getElementById("post-searchType")?.value || "";
+
+
+        // ② API URL 구성
+        const queryParams = new URLSearchParams({
+            page: page - 1,
+            size: this.pageSize,
+            keyword: keyword,
+            category: category,
+            searchType: searchType
+        });
+
+        fetch(`/admin/getPosts?${queryParams.toString()}`)
+            .then(res => res.json())
+            .then(data => {
+                PostManager.currentPage = page;
+                PostManager.latestRecipes = data.data;
+                PostManager.renderRecipes(data.data);
+                PostManager.renderPagination(data.totalPages);
+            })
+            .catch(error => {
+                console.error("게시물 불러오기 실패:", error);
+                this.showError();
+            });
+    },
+    showLoading: function () {
+        const container = document.getElementById("posts-management-list");
+        if (container) {
+            container.innerHTML = `<p style="padding: 20px; text-align: center; color: #94a3b8; font-size: 30px">불러오는 중...</p>`;
+        }
+    },
+    showError: function () {
+        const container = document.getElementById("posts-management-list");
+        if (container) {
+            container.innerHTML = `<p style="padding: 20px; text-align: center; color: red; font-size: 30px">데이터를 불러오는 데 실패했습니다.</p>`;
+        }
+    },
+    renderRecipes: function (Recipes) {
+        const container = document.getElementById("posts-management-list");
+        if (!container) return;
+
+        if (Recipes.length === 0) {
+            container.innerHTML = "<p>해당하는 레시피가 없습니다.</p>";
+            return;
+        }
+
+        const contentHTML = Recipes.map(recipe => {
+            const content = recipe.content || ''; // null-safe 처리
+            const shortDescription = content.length > 100
+                ? content.slice(0, 100) + "..."
+                : content;
+
+            return `
+        <div class="post-management-item">
+            <img src="${recipe.thumbnail}" alt="${recipe.title}" class="post-image">
+            <div class="post-details">
+                <h4 class="post-main-title">${recipe.title}</h4>
+                <p class="post-description">${shortDescription}</p>
+                <div class="post-badges">
+                    <span class="recipe-badge category">${recipe.category}</span>
+                </div>
+                <div class="post-management-meta">
+                    <span>👀 ${recipe.viewCount.toLocaleString()}</span>
+                    <span>❤️ ${recipe.likeCount}</span>
+                </div>
+            </div>
+            <div class="post-management-actions">
+                <button class="event-action-btn viewDetailsBt" data-board-id="${recipe.boardId}" onclick="PostManager.viewDetails(${recipe.boardId})">
+                    <i data-lucide="eye" style="width: 14px; height: 14px;"></i>
+                    수정하기
+                </button>
+                <button class="event-action-btn deleteRecipeBt" data-board-id="${recipe.boardId}" onclick="PostManager.deleteRecipe('${recipe.boardId}')">
+                    <i data-lucide="trash" style="width: 14px; height: 14px;"></i>
+                    삭제
+                </button>
+            </div>
+        </div>
+    `;
+        }).join('');
+
+
+        const paginationHTML = `
+        <div id="paginationPosts" class="pagination-container"></div>`;
+
+        container.innerHTML = contentHTML + paginationHTML;
+
+        lucide.createIcons();
+        // 토글 이벤트 실행
+    },
+    renderPagination: function (totalPages) {
+        const pagination = document.getElementById("paginationPosts");
+        if (!pagination) return;
+
+        const current = this.currentPage;
+        let buttons = "";
+
+        // 이전 화살표
+        if (current > 1) {
+            buttons += `<button onclick="PostManager.loadRecipes(${current - 1})">&laquo;</button>`;
+        } else {
+            buttons += `<button disabled>&laquo;</button>`;
+        }
+
+        // 페이지 번호 최대 5개 표시
+        // 현재 페이지를 가운데로 배치하되, 시작과 끝은 제한
+        let startPage = Math.max(1, current - 2);
+        let endPage = Math.min(totalPages, startPage + 4);
+
+        // startPage 조정 (endPage가 끝에 가까우면 다시 앞쪽으로 밀기)
+        startPage = Math.max(1, endPage - 4);
+
+        for (let i = startPage; i <= endPage; i++) {
+            buttons += `<button class="${i === current ? 'active' : ''}" onclick="PostManager.loadRecipes(${i})">${i}</button>`;
+        }
+
+        // 다음 화살표
+        if (current < totalPages) {
+            buttons += `<button onclick="PostManager.loadRecipes(${current + 1})">&raquo;</button>`;
+        } else {
+            buttons += `<button disabled>&raquo;</button>`;
+        }
+
+        pagination.innerHTML = buttons;
+    },
+
+    // 수정하기
+    viewDetails: async function (recipeId){
+        if (!recipeId) {
+            this.showNotification('일치하는 레시피ID를 찾을 수 없습니다. 다시 시도해주세요.', 'error');
+            return;
+        }
+        const button = document.querySelector(`.viewDetailsBt[data-board-id="${recipeId}"]`);
+        const originalHTML = button.innerHTML;
+
+        button.disabled = true;
+        button.innerHTML = `<span class="loading-spinner" style="width:14px; height:14px;"></span>`;
+        const url = `/board/edition?recipeId=${encodeURIComponent(recipeId)}`;
+        window.open(url, '_blank');  // 새 탭(또는 새 창)으로 열기
+
+
+        button.disabled = false;
+        button.innerHTML = originalHTML;
+    },
+    // 게시물 삭제하기
+    deleteRecipe: async function (recipeId){
+        if (!recipeId) {
+            this.showNotification('해당ID의 게시물을 찾을 수 없습니다. 다시 시도해주세요.', 'error');
+            return;
+        }
+        const button = document.querySelector(`button.deleteRecipeBt[data-board-id="${recipeId}"]`);
+        const originalHTML = button.innerHTML;
+
+        try {
+            // 👉 로딩 상태 표시
+            button.disabled = true;
+            button.innerHTML = `<span class="loading-spinner" style="width:14px; height:14px;"></span>`;
+
+            const response = await fetch('/admin/deletePost', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    boardId: recipeId,
+                })
+            });
+
+            if (response.ok) {
+                const message = await response.text();
+                AdminAllTabs.showNotification(message, 'success');
+            } else {
+                AdminAllTabs.showNotification('게시물 삭제에 실패했습니다..', 'error');
+            }
+        } catch (error) {
+            console.error("에러 발생:", error);
+            this.showNotification('서버 오류가 발생했습니다. 관리자에게 문의하세요', 'error');
+        }finally {
+            // 👉 로딩 끝 - 버튼 원상복구
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+            PostManager.loadPosts(PostManager.currentPage);
+
+        }
+    }
+
+};
 
 
 
@@ -1386,7 +1713,30 @@ const AdminAllTabs = {
 
     // 회원 관리 렌더링
     renderUsersManagement() {
-        MemberManager.loadAllMember();
+
+        // 초기로드
+        const activeUserTabBtn = document.querySelector('.tab-btn.active[data-user-tab]');
+        const userTabValue = activeUserTabBtn ? activeUserTabBtn.getAttribute('data-user-tab') : 'all';
+        this.switchUserTab(userTabValue);
+        //  검색창 검색시 재로드
+        const searchInput = document.getElementById("user-search");
+        if (searchInput) {
+            searchInput.addEventListener("keydown", (event) => {
+                const activeUserTabBtn = document.querySelector('.tab-btn.active[data-user-tab]');
+                const userTabValue = activeUserTabBtn ? activeUserTabBtn.getAttribute('data-user-tab') : 'all';
+                if (event.key === "Enter") {
+                    if (userTabValue === 'all') {
+                        MemberManager.loadAllMember();
+                    } else if (userTabValue === 'online') {
+                        AdminAllTabs.showNotification('현재 접속인원은 검색기능을 지원하지 않습니다.', 'error');
+                        MemberManager.loadOnlineMember();
+                    } else if (userTabValue === 'suspended') {
+                        MemberManager.loadSuspendedMember();
+                    }
+                }
+            });
+        }
+
     },
 
     // 회원 탭 전환
@@ -1413,50 +1763,29 @@ const AdminAllTabs = {
 
     // 레시피 관리 렌더링
     renderRecipesManagement() {
-        const recipesGrid = document.getElementById('recipes-grid');
-        if (!recipesGrid) return;
+        RecipeManager.loadRecipes();
+        const searchInput = document.getElementById("recipe-search");
+        if (searchInput) {
+            searchInput.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") {
+                    RecipeManager.loadRecipes();
+                }
+            });
+        }
 
-        recipesGrid.innerHTML = sampleRecipes.map(recipe => `
-            <div class="recipe-card">
-                <img src="${recipe.image}" alt="${recipe.title}" class="recipe-image">
-                <div class="recipe-body">
-                    <div class="recipe-header">
-                        <h4 class="recipe-title">${recipe.title}</h4>
-                        <button class="action-btn" onclick="AdminAllTabs.showRecipeActions(${recipe.id})">
-                            <i data-lucide="more-vertical" style="width: 16px; height: 16px;"></i>
-                        </button>
-                    </div>
-                    <div class="recipe-meta">
-                        <span>${recipe.author}</span>
-                        <span>•</span>
-                        <span>${recipe.category}</span>
-                        <span>•</span>
-                        <span>${recipe.cookingTime}분</span>
-                    </div>
-                    <div class="recipe-stats">
-                        <div class="stat-item">
-                            <i data-lucide="eye" style="width: 12px; height: 12px;"></i>
-                            ${recipe.views.toLocaleString()}
-                        </div>
-                        <div class="stat-item">
-                            <i data-lucide="heart" style="width: 12px; height: 12px;"></i>
-                            ${recipe.likes}
-                        </div>
-                        <div class="stat-item">
-                            <i data-lucide="message-circle" style="width: 12px; height: 12px;"></i>
-                            ${recipe.comments}
-                        </div>
-                    </div>
-                    <div class="recipe-badges">
-                        ${recipe.featured ? '<div class="recipe-badge featured">인기</div>' : ''}
-                        <div class="recipe-badge category">${recipe.category}</div>
-                        <div class="recipe-badge ${this.getStatusClass(recipe.status)}">${this.getStatusText(recipe.status)}</div>
-                    </div>
-                </div>
-            </div>
-        `).join('');
+        const statusSelect = document.getElementById("recipe-category");
+        if (statusSelect) {
+            statusSelect.addEventListener("change", () => {
+                RecipeManager.loadRecipes();
+            });
+        }
+        const statusSelect2 = document.getElementById("recipe-searchType");
+        if (statusSelect2) {
+            statusSelect2.addEventListener("change", () => {
+                RecipeManager.loadRecipes();
+            });
+        }
 
-        lucide.createIcons();
     },
 
     // 레시피 탭 전환
@@ -1475,42 +1804,29 @@ const AdminAllTabs = {
 
     // 게시글 관리 렌더링
     renderPostsManagement() {
-        const postsList = document.getElementById('posts-management-list');
-        if (!postsList) return;
+        PostManager.loadPosts();
+        const searchInput = document.getElementById("post-search");
+        if (searchInput) {
+            searchInput.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") {
+                    PostManager.loadPosts();
+                }
+            });
+        }
 
-        postsList.innerHTML = samplePosts.map(post => `
-            <div class="post-management-item">
-                <img src="${post.image}" alt="${post.title}" class="post-image">
-                <div class="post-details">
-                    <h4 class="post-main-title">${post.title}</h4>
-                    <p class="post-description">${post.content}</p>
-                    <div class="post-badges">
-                        ${post.isHot ? '<span class="recipe-badge featured">HOT</span>' : ''}
-                        <span class="recipe-badge category">${post.category}</span>
-                        <span class="recipe-badge ${this.getStatusClass(post.status)}">${this.getStatusText(post.status)}</span>
-                    </div>
-                    <div class="post-management-meta">
-                        <span>👤 ${post.author}</span>
-                        <span>👀 ${post.views.toLocaleString()}</span>
-                        <span>❤️ ${post.likes}</span>
-                        <span>💬 ${post.comments}</span>
-                        <span>📅 ${this.formatDate(post.createdAt)}</span>
-                    </div>
-                </div>
-                <div class="post-management-actions">
-                    <button class="event-action-btn" onclick="AdminAllTabs.showNotification('게시글 상세보기', 'info')">
-                        <i data-lucide="eye" style="width: 14px; height: 14px;"></i>
-                        상세보기
-                    </button>
-                    <button class="event-action-btn" onclick="AdminAllTabs.showNotification('게시글 편집', 'info')">
-                        <i data-lucide="edit-3" style="width: 14px; height: 14px;"></i>
-                        편집
-                    </button>
-                </div>
-            </div>
-        `).join('');
+        const statusSelect = document.getElementById("post-category");
+        if (statusSelect) {
+            statusSelect.addEventListener("change", () => {
+                PostManager.loadPosts();
+            });
+        }
+        const statusSelect2 = document.getElementById("post-searchType");
+        if (statusSelect2) {
+            statusSelect2.addEventListener("change", () => {
+                PostManager.loadPosts();
+            });
+        }
 
-        lucide.createIcons();
     },
 
     // 게시글 탭 전환

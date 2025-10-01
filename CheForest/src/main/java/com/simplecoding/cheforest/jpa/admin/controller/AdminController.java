@@ -10,8 +10,16 @@ import com.simplecoding.cheforest.jpa.auth.dto.MemberAdminDto;
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
 import com.simplecoding.cheforest.jpa.auth.service.MemberService;
+import com.simplecoding.cheforest.jpa.board.dto.BoardListDto;
+import com.simplecoding.cheforest.jpa.board.entity.Board;
+import com.simplecoding.cheforest.jpa.board.service.BoardService;
 import com.simplecoding.cheforest.jpa.inquiries.dto.InquiryWithNicknameDto;
 import com.simplecoding.cheforest.jpa.inquiries.entity.Inquiries;
+import com.simplecoding.cheforest.jpa.recipe.dto.RecipeCardDTO;
+import com.simplecoding.cheforest.jpa.recipe.dto.RecipeDto;
+import com.simplecoding.cheforest.jpa.recipe.entity.Recipe;
+import com.simplecoding.cheforest.jpa.recipe.repository.RecipeRepository;
+import com.simplecoding.cheforest.jpa.recipe.service.RecipeService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -24,10 +32,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,6 +52,9 @@ public class AdminController {
     private final AdminService ytAdminService;
     private final MemberService MemberService;
     private final MemberService memberService;
+    private final RecipeService recipeService;
+    private final RecipeRepository  recipeRepository;
+    private final BoardService boardService;
 
     //    관리자 페이지
     @GetMapping("/admin")
@@ -64,6 +72,8 @@ public class AdminController {
         CountTodayNewBoardDTO countTodayNewBoard = ytAdminService.getCountTodayNewBoard();
 //        월별 작성된 게시글 및 가입자수 (통계용) json 자료형
         String monthlyActivityData = ytAdminService.getMonthlyActivityStats();
+//        게시물 최근작성 3개
+        List<Board> recentPosts = boardService.recentPosts();
 
 
         model.addAttribute("allMemberCount", allMemberCount);
@@ -72,6 +82,7 @@ public class AdminController {
         model.addAttribute("accountStatusCounts", accountStatusCounts);
         model.addAttribute("countTodayNewBoard", countTodayNewBoard);
         model.addAttribute("monthlyActivityData", monthlyActivityData);
+        model.addAttribute("recentPosts", recentPosts);
 
 
         return "admin/admin";
@@ -136,8 +147,9 @@ public class AdminController {
 
     @ResponseBody
     @GetMapping("/api/allMember")
-    public Map<String, Object> getAllMember(@PageableDefault(size = 10) Pageable pageable) {
-        Page<MemberAdminDto> pageResult = MemberService.adminAllMember(pageable);
+    public Map<String, Object> getAllMember(@RequestParam(required = false) String keyword,
+                                            @PageableDefault(size = 10, sort = "insertTime", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<MemberAdminDto> pageResult = MemberService.adminAllMember(keyword,pageable);
 
         Map<String, Object> response = new HashMap<>();
         response.put("data", pageResult.getContent());       // 실제 내용
@@ -149,8 +161,9 @@ public class AdminController {
 
     @ResponseBody
     @GetMapping("/api/suspendedMember")
-    public Map<String, Object> getSuspendedMember(@PageableDefault(size = 10) Pageable pageable) {
-        Page<MemberAdminDto> pageResult = MemberService.adminSuspendedMember(pageable);
+    public Map<String, Object> getSuspendedMember(@RequestParam(required = false) String keyword,
+                                                  @PageableDefault(size = 10, sort = "insertTime", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<MemberAdminDto> pageResult = MemberService.adminSuspendedMember(keyword,pageable);
 
         Map<String, Object> response = new HashMap<>();
         response.put("data", pageResult.getContent());       // 실제 내용
@@ -224,6 +237,98 @@ public String qna(Model model) {
 
         } catch (Exception e) {
             log.error("회원제재 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
+        }
+    }
+   //  관리자 페이지 레시피 조회
+   @ResponseBody
+   @GetMapping("/admin/getRecipes")
+   public Map<String, Object> getRecipes(@RequestParam(defaultValue = "") String keyword,
+                                         @RequestParam(defaultValue = "") String categoryKr,
+                                         @RequestParam(defaultValue = "") String searchType,
+                                         @PageableDefault(size = 10) Pageable pageable) {
+
+       log.info("getRecipes() called with keyword={}, categoryKr={}, searchType={}, page={}",
+               keyword, categoryKr, searchType, pageable.getPageNumber());
+
+       try {
+           Page<RecipeDto> pageResult = recipeService.getRecipeList(categoryKr, keyword, searchType, pageable);
+           Map<String, Object> response = new HashMap<>();
+           response.put("data", pageResult.getContent());
+           response.put("total", pageResult.getTotalElements());
+           response.put("totalPages", pageResult.getTotalPages());
+           response.put("page", pageResult.getNumber() + 1);
+           return response;
+
+       } catch (Exception e) {
+           log.error("레시피 목록 조회 중 예외 발생", e);
+           throw e; // 또는 ResponseEntity로 감싸서 에러 메시지 반환
+       }
+   }
+    // 관리자페이지 레시피 삭제
+    @ResponseBody
+    @PostMapping("/admin/deleteRecipes")
+    public ResponseEntity<String> deleteInquiries(@RequestBody Map<String, Object> payload) {
+        try {
+            String recipeId = payload.get("recipeId").toString();
+            log.info("레시피 삭제 요청 수신: {}", recipeId);
+
+            Optional<Recipe> optional = recipeRepository.findById(recipeId);
+            if (optional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 레시피를 찾을 수 없습니다.");
+            }
+
+            recipeRepository.deleteById(recipeId);
+            String resultMessage = "성공적으로 레시피가 삭제되었습니다.";
+
+            return ResponseEntity.ok(resultMessage);
+
+        } catch (Exception e) {
+            log.error("FAQ 등록 및 해제 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
+        }
+    }
+    //  관리자 페이지 게시물 조회
+    @ResponseBody
+    @GetMapping("/admin/getPosts")
+    public Map<String, Object> getPosts(@RequestParam(defaultValue = "") String keyword,
+                                          @RequestParam(defaultValue = "") String category,
+                                          @RequestParam(defaultValue = "") String searchType,
+                                          @PageableDefault(size = 10) Pageable pageable) {
+
+        log.info("getRecipes() called with keyword={}, categoryKr={}, searchType={}, page={}",
+                keyword, category, searchType, pageable.getPageNumber());
+
+        try {
+            Page<BoardListDto> pageResult = boardService.searchBoards(keyword, category, searchType, pageable);
+            Map<String, Object> response = new HashMap<>();
+            response.put("data", pageResult.getContent());
+            response.put("total", pageResult.getTotalElements());
+            response.put("totalPages", pageResult.getTotalPages());
+            response.put("page", pageResult.getNumber() + 1);
+            return response;
+
+        } catch (Exception e) {
+            log.error("레시피 목록 조회 중 예외 발생", e);
+            throw e; // 또는 ResponseEntity로 감싸서 에러 메시지 반환
+        }
+    }
+    // 관리자페이지 게시물 삭제
+    @ResponseBody
+    @PostMapping("/admin/deletePost")
+    public ResponseEntity<String> deleteInquiries1(@RequestBody Map<String, Object> payload) {
+        try {
+            Long boardId = Long.valueOf(payload.get("boardId").toString());
+            log.info("게시물 삭제 요청 수신: {}", boardId);
+
+            boardService.delete(boardId);
+
+            String resultMessage = "성공적으로 레시피가 삭제되었습니다.";
+
+            return ResponseEntity.ok(resultMessage);
+
+        } catch (Exception e) {
+            log.error("FAQ 등록 및 해제 중 오류 발생", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
         }
     }

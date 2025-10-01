@@ -229,4 +229,14 @@ public class BoardService {
         long years = days / 365;
         return years + "년 전";
     }
+    //   최근 3개 조회
+    public List<Board> recentPosts() {
+        return boardRepository.findTop3ByOrderByInsertTimeDesc();
+    }
+
+
+
+
+
+
 }

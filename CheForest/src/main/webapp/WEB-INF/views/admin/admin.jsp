@@ -245,69 +245,29 @@
                         </div>
                         <div class="card-body">
                             <div class="post-list">
-                                <div class="post-item" onclick="AdminAllTabs.showNotification('게시물 상세보기', 'info')">
-                                    <div class="post-content">
-                                        <h4 class="post-title">김치찌개 황금레시피 공개합니다!</h4>
-                                        <div class="post-meta">
-                                            <span class="post-author">요리왕김셰프</span>
-                                            <span class="post-category">한식</span>
-                                            <span class="post-time">2시간 전</span>
-                                        </div>
-                                        <div class="post-stats">
-                                                <span class="stat-item">
-                                                    <i data-lucide="heart" class="stat-icon"></i>
-                                                    89
-                                                </span>
+
+                                <c:forEach var="post" items="${recentPosts}">
+                                    <div class="post-item viewDetailsBt" data-board-id="${post.boardId}" onclick="PostManager.viewDetails(${post.boardId})">
+                                        <div class="post-content">
+                                            <h4 class="post-title">${post.title}</h4>
+                                            <div class="post-meta">
+                                                <span class="post-category">${post.category}</span>
+                                                <span class="post-time"> ${post.insertTime}</span>
+                                            </div>
+                                            <div class="post-stats">
                                             <span class="stat-item">
-                                                    <i data-lucide="message-circle" class="stat-icon"></i>
-                                                    23
-                                                </span>
-                                        </div>
-                                    </div>
-                                    <span class="post-status published">게시됨</span>
-                                </div>
-                                <div class="post-item">
-                                    <div class="post-content">
-                                        <h4 class="post-title">초보도 쉽게 만드는 파스타</h4>
-                                        <div class="post-meta">
-                                            <span class="post-author">파스타러버</span>
-                                            <span class="post-category">양식</span>
-                                            <span class="post-time">4시간 전</span>
-                                        </div>
-                                        <div class="post-stats">
-                                                <span class="stat-item">
-                                                    <i data-lucide="heart" class="stat-icon"></i>
-                                                    42
-                                                </span>
-                                            <span class="stat-item">
-                                                    <i data-lucide="message-circle" class="stat-icon"></i>
-                                                    15
-                                                </span>
-                                        </div>
-                                    </div>
-                                    <span class="post-status published">게시됨</span>
-                                </div>
-                                <div class="post-item">
-                                    <div class="post-content">
-                                        <h4 class="post-title">마라탕 만들기 도전!</h4>
-                                        <div class="post-meta">
-                                            <span class="post-author">매운맛조아</span>
-                                            <span class="post-category">중식</span>
-                                            <span class="post-time">6시간 전</span>
-                                        </div>
-                                        <div class="post-stats">
-                                                <span class="stat-item">
-                                                    <i data-lucide="heart" class="stat-icon"></i>
-                                                    31
-                                                </span>
-                                            <span class="stat-item">
-                                                    <i data-lucide="message-circle" class="stat-icon"></i>
-                                                    8
-                                                </span>
-                                        </div>
-                                    </div>
-                                    <span class="post-status pending">대기중</span>
-                                </div>
+                                                <i data-lucide="heart" class="stat-icon"></i>
+                                                ${post.likeCount}
+                                            </span>
+                                                                            <span class="stat-item">
+                                                <i data-lucide="eye" class="stat-icon"></i>
+                                                ${post.viewCount}
+                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                </c:forEach>
+
                             </div>
                         </div>
                     </div>
@@ -453,88 +413,87 @@
                         <div class="header-controls">
                             <div class="search-box">
                                 <i data-lucide="search" class="search-icon"></i>
-                                <input type="text" placeholder="레시피 제목, 작성자, 태그 검색..." class="search-input" id="recipe-search">
+                                <input type="text" placeholder="레시피 검색..." class="search-input" id="recipe-search">
                             </div>
+                            <select class="filter-select" id="recipe-searchType">
+                                <option value="title">요리명</option>
+                                <option value="ingredient">재료</option>
+                            </select>
                             <select class="filter-select" id="recipe-category">
-                                <option value="all">전체 카테고리</option>
+                                <option value="">전체 카테고리</option>
                                 <option value="한식">한식</option>
                                 <option value="양식">양식</option>
                                 <option value="중식">중식</option>
                                 <option value="일식">일식</option>
                                 <option value="디저트">디저트</option>
                             </select>
-                            <select class="filter-select" id="recipe-sort">
-                                <option value="views">조회수순</option>
-                                <option value="likes">좋아요순</option>
-                                <option value="title">제목순</option>
-                            </select>
-                            <button class="sort-btn" id="recipe-sort-order">
-                                <i data-lucide="sort-desc" class="btn-icon"></i>
-                            </button>
+<%--                            <button class="sort-btn" id="recipe-sort-order">--%>
+<%--                                <i data-lucide="sort-desc" class="btn-icon"></i>--%>
+<%--                            </button>--%>
                         </div>
                     </div>
 
                     <!-- 레시피 탭 -->
                     <div class="management-tabs">
                         <div class="tab-list">
-                            <button class="tab-btn active" data-recipe-tab="recipes">
-                                <i data-lucide="chef-hat" class="tab-icon"></i>
-                                <span>레시피 관리 (5)</span>
-                            </button>
-                            <button class="tab-btn" data-recipe-tab="ingredients">
-                                <i data-lucide="leaf" class="tab-icon"></i>
-                                <span>계절 식재료 (5)</span>
-                            </button>
+<%--                            <button class="tab-btn active" data-recipe-tab="recipes">--%>
+<%--                                <i data-lucide="chef-hat" class="tab-icon"></i>--%>
+<%--                                <span>레시피 관리 (5)</span>--%>
+<%--                            </button>--%>
+<%--                            <button class="tab-btn" data-recipe-tab="ingredients">--%>
+<%--                                <i data-lucide="leaf" class="tab-icon"></i>--%>
+<%--                                <span>계절 식재료 (5)</span>--%>
+<%--                            </button>--%>
                         </div>
                     </div>
 
                     <!-- 레시피 통계 카드 -->
-                    <div class="stats-grid-small" id="recipe-stats">
-                        <div class="stat-card card-blue">
-                            <div class="stat-content">
-                                <div class="stat-info">
-                                    <h3 class="stat-number">5</h3>
-                                    <p class="stat-label">전체 레시피</p>
-                                </div>
-                                <div class="iconSize2 stat-labelColor1">
-                                    <i data-lucide="chef-hat" class="icon"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stat-card card-green">
-                            <div class="stat-content">
-                                <div class="stat-info">
-                                    <h3 class="stat-number">3</h3>
-                                    <p class="stat-label">공개</p>
-                                </div>
-                                <div class="iconSize2 stat-labelColor1">
-                                    <i data-lucide="check-circle" class="icon"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stat-card card-gray">
-                            <div class="stat-content">
-                                <div class="stat-info">
-                                    <h3 class="stat-number">1</h3>
-                                    <p class="stat-label">임시저장</p>
-                                </div>
-                                <div class="iconSize2 stat-labelColor1">
-                                    <i data-lucide="edit-3" class="icon"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stat-card card-red">
-                            <div class="stat-content">
-                                <div class="stat-info">
-                                    <h3 class="stat-number">1</h3>
-                                    <p class="stat-label">비공개</p>
-                                </div>
-                                <div class="iconSize2 stat-labelColor1">
-                                    <i data-lucide="eye-off" class="icon"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<%--                    <div class="stats-grid-small" id="recipe-stats">--%>
+<%--                        <div class="stat-card card-blue">--%>
+<%--                            <div class="stat-content">--%>
+<%--                                <div class="stat-info">--%>
+<%--                                    <h3 class="stat-number">5</h3>--%>
+<%--                                    <p class="stat-label">전체 레시피</p>--%>
+<%--                                </div>--%>
+<%--                                <div class="iconSize2 stat-labelColor1">--%>
+<%--                                    <i data-lucide="chef-hat" class="icon"></i>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                        <div class="stat-card card-green">--%>
+<%--                            <div class="stat-content">--%>
+<%--                                <div class="stat-info">--%>
+<%--                                    <h3 class="stat-number">3</h3>--%>
+<%--                                    <p class="stat-label">공개</p>--%>
+<%--                                </div>--%>
+<%--                                <div class="iconSize2 stat-labelColor1">--%>
+<%--                                    <i data-lucide="check-circle" class="icon"></i>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                        <div class="stat-card card-gray">--%>
+<%--                            <div class="stat-content">--%>
+<%--                                <div class="stat-info">--%>
+<%--                                    <h3 class="stat-number">1</h3>--%>
+<%--                                    <p class="stat-label">임시저장</p>--%>
+<%--                                </div>--%>
+<%--                                <div class="iconSize2 stat-labelColor1">--%>
+<%--                                    <i data-lucide="edit-3" class="icon"></i>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                        <div class="stat-card card-red">--%>
+<%--                            <div class="stat-content">--%>
+<%--                                <div class="stat-info">--%>
+<%--                                    <h3 class="stat-number">1</h3>--%>
+<%--                                    <p class="stat-label">비공개</p>--%>
+<%--                                </div>--%>
+<%--                                <div class="iconSize2 stat-labelColor1">--%>
+<%--                                    <i data-lucide="eye-off" class="icon"></i>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                    </div>--%>
 
                     <!-- 레시피 그리드 -->
                     <div class="recipe-grid" id="recipes-grid">
@@ -552,101 +511,105 @@
                         <div class="header-left">
                             <h3 class="management-title">
                                 <i data-lucide="message-square" class="title-icon"></i>
-                                게시물 & 댓글 관리
+                                게시물 관리
                             </h3>
                         </div>
                         <div class="header-controls">
                             <div class="search-box">
                                 <i data-lucide="search" class="search-icon"></i>
-                                <input type="text" placeholder="제목, 내용, 작성자 검색..." class="search-input" id="post-search">
+                                <input type="text" placeholder="게시물 검색..." class="search-input" id="post-search">
                             </div>
+                            <select class="filter-select" id="post-searchType">
+                                <option value="title">요리명</option>
+                                <option value="ingredient">재료</option>
+                            </select>
                             <select class="filter-select" id="post-category">
-                                <option value="all">전체 카테고리</option>
+                                <option value="">전체 카테고리</option>
                                 <option value="한식">한식</option>
                                 <option value="양식">양식</option>
                                 <option value="중식">중식</option>
                                 <option value="일식">일식</option>
                                 <option value="디저트">디저트</option>
                             </select>
-                            <select class="filter-select" id="post-status">
-                                <option value="all">전체 상태</option>
-                                <option value="published">공개</option>
-                                <option value="private">비공개</option>
-                                <option value="reported">신고됨</option>
-                            </select>
-                            <select class="filter-select" id="post-sort">
-                                <option value="views">조회수순</option>
-                                <option value="likes">좋아요순</option>
-                                <option value="comments">댓글수순</option>
-                                <option value="title">제목순</option>
-                            </select>
-                            <button class="sort-btn" id="post-sort-order">
-                                <i data-lucide="sort-desc" class="btn-icon"></i>
-                            </button>
+<%--                            <select class="filter-select" id="post-status">--%>
+<%--                                <option value="all">전체 상태</option>--%>
+<%--                                <option value="published">공개</option>--%>
+<%--                                <option value="private">비공개</option>--%>
+<%--                                <option value="reported">신고됨</option>--%>
+<%--                            </select>--%>
+<%--                            <select class="filter-select" id="post-sort">--%>
+<%--                                <option value="views">조회수순</option>--%>
+<%--                                <option value="likes">좋아요순</option>--%>
+<%--                                <option value="comments">댓글수순</option>--%>
+<%--                                <option value="title">제목순</option>--%>
+<%--                            </select>--%>
+<%--                            <button class="sort-btn" id="post-sort-order">--%>
+<%--                                <i data-lucide="sort-desc" class="btn-icon"></i>--%>
+<%--                            </button>--%>
                         </div>
                     </div>
 
                     <!-- 게시글/댓글 탭 -->
-                    <div class="management-tabs">
-                        <div class="tab-list">
-                            <button class="tab-btn active" data-post-tab="posts">
-                                <i data-lucide="book-open" class="tab-icon"></i>
-                                <span>게시글 관리 (6)</span>
-                            </button>
-                            <button class="tab-btn" data-post-tab="comments">
-                                <i data-lucide="message-square" class="tab-icon"></i>
-                                <span>댓글 관리 (8)</span>
-                            </button>
-                        </div>
-                    </div>
+<%--                    <div class="management-tabs">--%>
+<%--                        <div class="tab-list">--%>
+<%--                            <button class="tab-btn active" data-post-tab="posts">--%>
+<%--                                <i data-lucide="book-open" class="tab-icon"></i>--%>
+<%--                                <span>게시글 관리 (6)</span>--%>
+<%--                            </button>--%>
+<%--                            <button class="tab-btn" data-post-tab="comments">--%>
+<%--                                <i data-lucide="message-square" class="tab-icon"></i>--%>
+<%--                                <span>댓글 관리 (8)</span>--%>
+<%--                            </button>--%>
+<%--                        </div>--%>
+<%--                    </div>--%>
 
                     <!-- 게시글 통계 카드 -->
-                    <div class="stats-grid-small" id="post-stats">
-                        <div class="stat-card card-blue">
-                            <div class="stat-content">
-                                <div class="stat-info">
-                                    <h3 class="stat-number">6</h3>
-                                    <p class="stat-label">전체 게시글</p>
-                                </div>
-                                <div class="iconSize2 stat-labelColor1">
-                                    <i data-lucide="book-open" class="icon"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stat-card card-green">
-                            <div class="stat-content">
-                                <div class="stat-info">
-                                    <h3 class="stat-number">5</h3>
-                                    <p class="stat-label">공개</p>
-                                </div>
-                                <div class="iconSize2 stat-labelColor1">
-                                    <i data-lucide="check-circle" class="icon"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stat-card card-red">
-                            <div class="stat-content">
-                                <div class="stat-info">
-                                    <h3 class="stat-number">1</h3>
-                                    <p class="stat-label">신고</p>
-                                </div>
-                                <div class="iconSize2 stat-labelColor1">
-                                    <i data-lucide="flag" class="icon"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stat-card card-orange">
-                            <div class="stat-content">
-                                <div class="stat-info">
-                                    <h3 class="stat-number">2</h3>
-                                    <p class="stat-label">인기글</p>
-                                </div>
-                                <div class="iconSize2 stat-labelColor1">
-                                    <i data-lucide="star" class="icon"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<%--                    <div class="stats-grid-small" id="post-stats">--%>
+<%--                        <div class="stat-card card-blue">--%>
+<%--                            <div class="stat-content">--%>
+<%--                                <div class="stat-info">--%>
+<%--                                    <h3 class="stat-number">6</h3>--%>
+<%--                                    <p class="stat-label">전체 게시글</p>--%>
+<%--                                </div>--%>
+<%--                                <div class="iconSize2 stat-labelColor1">--%>
+<%--                                    <i data-lucide="book-open" class="icon"></i>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                        <div class="stat-card card-green">--%>
+<%--                            <div class="stat-content">--%>
+<%--                                <div class="stat-info">--%>
+<%--                                    <h3 class="stat-number">5</h3>--%>
+<%--                                    <p class="stat-label">공개</p>--%>
+<%--                                </div>--%>
+<%--                                <div class="iconSize2 stat-labelColor1">--%>
+<%--                                    <i data-lucide="check-circle" class="icon"></i>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                        <div class="stat-card card-red">--%>
+<%--                            <div class="stat-content">--%>
+<%--                                <div class="stat-info">--%>
+<%--                                    <h3 class="stat-number">1</h3>--%>
+<%--                                    <p class="stat-label">신고</p>--%>
+<%--                                </div>--%>
+<%--                                <div class="iconSize2 stat-labelColor1">--%>
+<%--                                    <i data-lucide="flag" class="icon"></i>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                        <div class="stat-card card-orange">--%>
+<%--                            <div class="stat-content">--%>
+<%--                                <div class="stat-info">--%>
+<%--                                    <h3 class="stat-number">2</h3>--%>
+<%--                                    <p class="stat-label">인기글</p>--%>
+<%--                                </div>--%>
+<%--                                <div class="iconSize2 stat-labelColor1">--%>
+<%--                                    <i data-lucide="star" class="icon"></i>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                    </div>--%>
 
                     <!-- 게시글 리스트 -->
                     <div class="post-management-list" id="posts-management-list">

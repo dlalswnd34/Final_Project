@@ -106,12 +106,12 @@ public class MemberService {
     }
 
     // ADMIN 통계용 작성한 게시글,댓글수 추가한 전체 회원정보(페이지네이션)
-    public Page<MemberAdminDto> adminAllMember(Pageable pageable) {
-        return memberRepository.findAllWithBoardCounts(pageable);
+    public Page<MemberAdminDto> adminAllMember(String keyword,Pageable pageable) {
+        return memberRepository.findAllWithBoardCounts(keyword, pageable);
     }
     // ADMIN 통계용 작성한 게시글,댓글수 추가한 제재당한 회원정보(페이지네이션)
-    public Page<MemberAdminDto> adminSuspendedMember(Pageable pageable) {
-        return memberRepository.findSuspendedWithBoardCounts(pageable);
+    public Page<MemberAdminDto> adminSuspendedMember(String keyword,Pageable pageable) {
+        return memberRepository.findSuspendedWithBoardCounts(keyword, pageable);
     }
 
 

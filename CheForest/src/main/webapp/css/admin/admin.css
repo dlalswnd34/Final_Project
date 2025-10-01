@@ -815,10 +815,8 @@ body {
 
 /* 레시피 그리드 */
 .recipe-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-    padding: 24px;
+    padding: 10px;
+
 }
 
 .recipe-card {

@@ -5,6 +5,7 @@ import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
@@ -68,10 +69,11 @@ public class SecurityConfig {
                         .logoutSuccessHandler(customLogoutSuccessHandler)
                         .permitAll()
 
-                );
-//                // 보안토큰설정(현재 비활성화, 나중에 추가해주세요! 설정하면 POST 부분은 전부 보안토큰걸림)
+                )
+                // 보안토큰설정(현재 비활성화, 나중에 추가해주세요! 설정하면 POST 부분은 전부 보안토큰걸림)
 //                .csrf(csrf -> csrf.disable()
-//                )
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/ping")
+                );
 
         return http.build();
     }

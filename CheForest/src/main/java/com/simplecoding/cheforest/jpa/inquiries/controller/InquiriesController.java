@@ -147,10 +147,17 @@ public class InquiriesController {
             }
 
             Inquiries inquiry = optional.get();
-            if (inquiry.getIsFaq() == null || inquiry.getIsFaq().equals("N")) {
-                inquiry.setIsFaq("Y");
-            } else if (inquiry.getIsFaq().equals("Y")) {
+            // isFaq 값 정제
+            String isFaq = Optional.ofNullable(inquiry.getIsFaq())
+                    .map(String::trim)
+                    .map(String::toUpperCase)
+                    .orElse("N");
+
+            // 값 토글
+            if ("Y".equals(isFaq)) {
                 inquiry.setIsFaq("N");
+            } else {
+                inquiry.setIsFaq("Y");
             }
             inquiriesRepository.save(inquiry);
             String resultMessage = inquiry.getIsFaq().equals("Y") ? "FAQ로 등록되었습니다." : "FAQ 등록이 해제되었습니다.";
