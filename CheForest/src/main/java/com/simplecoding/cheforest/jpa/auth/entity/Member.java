@@ -55,6 +55,7 @@ public class Member extends BaseTimeEntity implements Serializable {
     private List<Message> messages = new ArrayList<>();
 
 
+
     // 포인트 증가 + 등급 변경 로직
     public void addPoint(long value) {
         this.point += value;
@@ -65,6 +66,7 @@ public class Member extends BaseTimeEntity implements Serializable {
         else if (point >= 1000) this.grade = "뿌리";
         else this.grade = "씨앗";
     }
+
 
 
 

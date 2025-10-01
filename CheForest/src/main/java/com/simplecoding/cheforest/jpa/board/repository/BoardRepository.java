@@ -49,6 +49,7 @@ public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecific
             @Param("keyword") String keyword);
 
 
+
     // 🔥 insertTime 기준으로 가장 최근 3건 조회
     List<Board> findTop3ByOrderByInsertTimeDesc();
 
