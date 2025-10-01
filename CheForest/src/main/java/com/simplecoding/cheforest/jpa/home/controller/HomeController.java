@@ -45,8 +45,4 @@ public class HomeController {
         return "home"; // home.jsp
     }
 
-    @GetMapping("/search/all")
-    public String search(Model model) {
-        return "search/searchAll";
-    }
 }

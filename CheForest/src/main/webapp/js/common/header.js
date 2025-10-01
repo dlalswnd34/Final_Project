@@ -51,28 +51,28 @@ function handleSearch() {
 }
 
 // 검색 입력 이벤트 핸들러
-function setupSearchHandlers() {
-    const searchInput = document.querySelector('.search-input');
-    if (searchInput) {
-        // Enter 키 이벤트
-        searchInput.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                handleSearch();
-            }
-        });
+// function setupSearchHandlers() {
+//     const searchInput = document.querySelector('.search-input');
+//     if (searchInput) {
+//         // Enter 키 이벤트
+//         searchInput.addEventListener('keydown', function(event) {
+//             if (event.key === 'Enter') {
+//                 handleSearch();
+//             }
+//         });
+//
+//         // 포커스 이벤트
+//         searchInput.addEventListener('focus', function() {
+//             showPage('search');
+//         });
+//     }
 
-        // 포커스 이벤트
-        searchInput.addEventListener('focus', function() {
-            showPage('search');
-        });
-    }
-
-    // 검색 버튼 클릭 이벤트
-    const searchButtons = document.querySelectorAll('.search-btn');
-    searchButtons.forEach(button => {
-        button.addEventListener('click', handleSearch);
-    });
-}
+//     // 검색 버튼 클릭 이벤트
+//     const searchButtons = document.querySelectorAll('.search-btn');
+//     searchButtons.forEach(button => {
+//         button.addEventListener('click', handleSearch);
+//     });
+// }
 
 // 드롭다운 마우스 이벤트 설정
 function setupDropdownEvents() {
@@ -120,7 +120,7 @@ function handleHeaderScroll() {
 
 // 헤더 초기화
 function initializeHeader() {
-    setupSearchHandlers();
+    // setupSearchHandlers();
     setupDropdownEvents();
     setupMobileMenuCloseOnOutsideClick();
     

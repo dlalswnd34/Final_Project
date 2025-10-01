@@ -43,11 +43,7 @@ public class AdminRepository {
                         (String) row[4],
                         (String) row[5],
                         (java.sql.Timestamp) row[6],
-                        (String) row[7],
-                        (String) row[8],
-                        (String) row[9],
-                        (String) row[10],
-                        (java.sql.Timestamp) row[11]
+                        (String) row[7]
                 ))
                 .collect(Collectors.toList());
     }

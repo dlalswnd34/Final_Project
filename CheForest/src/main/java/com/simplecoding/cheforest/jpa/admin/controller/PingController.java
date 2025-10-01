@@ -205,6 +205,9 @@ public class PingController {
                     userInfo.put("point", member.getPoint());
                     userInfo.put("grade", member.getGrade());
                     userInfo.put("profile", member.getProfile());
+                    userInfo.put("status", member.getSuspension());
+                    userInfo.put("insertTime", member.getInsertTime());
+                    userInfo.put("lastLoginTime", member.getLastLoginTime());
                     onlineLoggedInUsers.add(userInfo);
                 }
             }

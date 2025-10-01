@@ -323,6 +323,7 @@
                         </div>
                         <div class="card-body">
                             <div class="inquiry-list" id="inquiry-list">
+                                불러오는 중...
                                 <!-- JavaScript로 동적 생성 -->
                             </div>
                         </div>
@@ -399,16 +400,19 @@
                                     <i data-lucide="search" class="search-icon"></i>
                                     <input type="text" placeholder="회원 이름 또는 관리번호 검색..." class="search-input" id="user-search">
                                 </div>
-                                <select class="filter-select" id="user-sort">
-                                    <option value="joinDate">가입일순</option>
-                                    <option value="lastLogin">최근 로그인</option>
-                                    <option value="name">이름순</option>
-                                    <option value="posts">게시글순</option>
-                                </select>
-                                <button class="sort-btn" id="user-sort-order">
-                                    <i data-lucide="sort-desc" class="btn-icon"></i>
-                                </button>
+
+<%--                                <select class="filter-select" id="user-sort">--%>
+<%--                                    <option value="joinDate">가입일순</option>--%>
+<%--                                    <option value="lastLogin">최근 로그인</option>--%>
+<%--                                    <option value="name">이름순</option>--%>
+<%--                                    <option value="posts">게시글순</option>--%>
+<%--                                </select>--%>
+<%--                                <button class="sort-btn" id="user-sort-order">--%>
+<%--                                    <i data-lucide="sort-desc" class="btn-icon"></i>--%>
+<%--                                </button>--%>
+
                             </div>
+
                         </div>
 
                         <div class="management-tabs">

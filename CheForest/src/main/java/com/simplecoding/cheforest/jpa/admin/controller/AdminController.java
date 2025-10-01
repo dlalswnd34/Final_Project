@@ -11,6 +11,7 @@ import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
 import com.simplecoding.cheforest.jpa.auth.service.MemberService;
 import com.simplecoding.cheforest.jpa.inquiries.dto.InquiryWithNicknameDto;
+import com.simplecoding.cheforest.jpa.inquiries.entity.Inquiries;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.BufferedReader;
@@ -34,6 +36,7 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 // made by yes_ung
 @RequiredArgsConstructor
@@ -43,8 +46,9 @@ public class AdminController {
 
     private final AdminService ytAdminService;
     private final MemberService MemberService;
+    private final MemberService memberService;
 
-//    관리자 페이지
+    //    관리자 페이지
     @GetMapping("/admin")
     public String mainTest(HttpServletRequest request, Model model) {
         request.getSession(true); // 세션이 없으면 새로 생성
@@ -187,7 +191,42 @@ public String qna(Model model) {
     model.addAttribute("inquiriesIsFaqCount", inquiriesIsFaqCount);
         return "support/qna";
 }
+    // 관리자페이지 회원 제재하기
+    @ResponseBody
+    @PostMapping("/admin/member/applySuspension")
+    public ResponseEntity<String> applySuspensionMember(@RequestBody Map<String, Object> payload) {
+        try {
+            Long memberIdx = Long.valueOf(payload.get("memberIdx").toString());
+            log.info("회원 제재 요청 수신: {}", memberIdx);
 
+           memberService.applySuspension(memberIdx);
+
+            String resultMessage = "해당 회원에 대한 제재가 완료되었습니다.";
+            return ResponseEntity.ok(resultMessage);
+
+        } catch (Exception e) {
+            log.error("회원제재 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
+        }
+    }
+    // 관리자페이지 회원 삭제하기
+    @ResponseBody
+    @PostMapping("/admin/member/delete")
+    public ResponseEntity<String> deleteMember(@RequestBody Map<String, Object> payload) {
+        try {
+            Long memberIdx = Long.valueOf(payload.get("memberIdx").toString());
+            log.info("회원 삭제 요청 수신: {}", memberIdx);
+
+            memberService.withdraw(memberIdx);
+
+            String resultMessage = "해당 회원이 삭제되었습니다.";
+            return ResponseEntity.ok(resultMessage);
+
+        } catch (Exception e) {
+            log.error("회원제재 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
+        }
+    }
 
 
 
