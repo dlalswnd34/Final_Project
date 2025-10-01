@@ -7,7 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import java.io.IOException;
 import java.util.List;
 
@@ -109,6 +110,31 @@ public class FileController {
                     .body(fileData);
         } catch (IOException e) {
             log.error("게시판 파일 다운로드 실패", e);
+            return ResponseEntity.status(500).build();
+        }
+    }
+    @GetMapping("/board/preview/{fileId}")
+    public ResponseEntity<byte[]> previewBoardFile(@PathVariable Long fileId) {
+        try {
+            FileDto fileDto = fileService.getFile(fileId);
+            if (fileDto == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            byte[] fileData = fileService.loadFileData(fileDto);
+
+            // MIME 추정
+            String mime = fileService.getMimeType(fileDto.getFileType());
+            if (mime == null || mime.isBlank()) mime = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+
+            // ★ inline 으로 내려서 <img src="..."> 에 바로 표시되게
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_TYPE, mime)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileDto.getFileName() + "\"")
+                    .body(fileData);
+
+        } catch (IOException e) {
+            log.error("게시판 파일 미리보기 실패", e);
             return ResponseEntity.status(500).build();
         }
     }

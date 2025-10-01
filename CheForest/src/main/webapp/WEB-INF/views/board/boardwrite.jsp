@@ -26,7 +26,6 @@
         <a href="/board/list" class="back-to-list">레시피 목록으로</a>
       </button>
       <div class="nav-actions">
-        <!-- ✅ 임시저장 버튼 제거 -->
         <button class="submit-btn" id="submitBtn" type="button">레시피 등록</button>
       </div>
     </div>
@@ -98,9 +97,10 @@
         <h2 class="section-title">대표 이미지</h2>
 
         <div class="form-group">
-          <label class="form-label" for="mainImage">완성된 요리 사진을 업로드해주세요</label>
+          <label class="form-label" for="thumbnail">완성된 요리 사진을 업로드해주세요</label>
           <div class="image-upload-area" id="imageUploadArea">
-            <input type="file" class="image-input" id="mainImage" name="images"
+            <!-- [CHANGE#1] id/name을 컨트롤러와 일치: thumbnail -->
+            <input type="file" class="image-input" id="thumbnail" name="thumbnail"
                    accept="image/*" hidden>
             <div class="upload-placeholder" id="uploadPlaceholder">
               <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -122,6 +122,9 @@
               </button>
               <button type="button" class="change-image" id="changeImage">이미지 변경</button>
             </div>
+
+            <!-- [CHANGE#1-1] 대표 이미지 간단 프리뷰 박스(선택) -->
+            <div id="thumbPreview" class="preview" style="margin-top:8px;"></div>
           </div>
         </div>
       </div>
@@ -204,8 +207,9 @@
               <div class="form-group">
                 <label class="form-label">사진 (선택사항)</label>
                 <div class="instruction-image-upload">
+                  <!-- [CHANGE#2] name에서 [] 제거: instructionImage -->
                   <input type="file" class="instruction-image-input"
-                         name="instructionImage[]" accept="image/*" hidden>
+                         name="instructionImage" accept="image/*" hidden>
                   <div class="instruction-upload-placeholder">
                     <svg class="instruction-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -224,13 +228,16 @@
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
+            </div> <!-- /.instruction-content -->
+          </div> <!-- /.instruction-item -->
+        </div> <!-- /.instructions-container -->
 
         <div class="empty-state" id="instructionsEmpty" style="display: none;">
           <p class="empty-text">조리 방법을 추가해주세요</p>
         </div>
+
+        <!-- [CHANGE#2-1] 단계 이미지 전체 프리뷰(선택) -->
+        <div id="stepPreview" class="preview" style="margin-top:12px;"></div>
 
         <!-- 버튼 영역 -->
         <div class="form-actions">

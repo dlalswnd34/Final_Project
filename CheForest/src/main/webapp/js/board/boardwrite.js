@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 이미지 업로드 관련
     const imageUploadArea = document.getElementById('imageUploadArea');
-    const mainImageInput = document.getElementById('mainImage');
+    const mainImageInput = document.getElementById('thumbnail'); // [CHANGE#1] 기존 'mainImage' → 'thumbnail'
     const uploadPlaceholder = document.getElementById('uploadPlaceholder');
     const imagePreview = document.getElementById('imagePreview');
     const previewImg = document.getElementById('previewImg');
@@ -149,9 +149,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 클릭으로 파일 선택
         imageUploadArea.addEventListener('click', function(e) {
-            if (!removeImageBtn.contains(e.target) && !changeImageBtn.contains(e.target)) {
+            // ▼▼▼ 변경된 부분: null-safe 체크 추가 ▼▼▼
+            const isActionBtn =
+                (removeImageBtn && removeImageBtn.contains(e.target)) ||
+                (changeImageBtn && changeImageBtn.contains(e.target));
+
+            if (!isActionBtn) {
                 mainImageInput.click();
             }
+            // ▲▲▲ 변경된 부분 끝 ▲▲▲
         });
 
         // 파일 선택 시 미리보기
@@ -330,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <label class="form-label">사진 (선택사항)</label>
                         <div class="instruction-image-upload">
                             <input type="file" class="instruction-image-input" 
-                                   name="instructionImage[]" accept="image/*" hidden>
+                                   name="instructionImage" accept="image/*" hidden> <!-- [CHANGE#2] 기존 instructionImage[] → instructionImage -->
                             <div class="instruction-upload-placeholder">
                                 <svg class="instruction-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -662,7 +668,6 @@ document.addEventListener('DOMContentLoaded', function() {
             category: document.getElementById('category')?.value || '',
             difficulty: document.getElementById('difficulty')?.value || '',
             cookTime: document.getElementById('cookTime')?.value || '',
-            servings: document.getElementById('servings')?.value || '',
             description: document.getElementById('description')?.value || '',
             tags: document.getElementById('tags')?.value || '',
             tips: document.getElementById('tips')?.value || '',
@@ -914,7 +919,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-        // 접근성 개선
+    // 접근성 개선
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Tab') {
             document.body.classList.add('user-is-tabbing');
