@@ -84,15 +84,7 @@ public class BoardService {
         if (dto.getInstructionContent() != null) {
             for (int i = 0; i < dto.getInstructionContent().size(); i++) {
                 String text = dto.getInstructionContent().get(i);
-//                String image = null;
-//                if (dto.getInstructionImage() != null &&
-//                        dto.getInstructionImage().size() > i &&
-//                        !dto.getInstructionImage().get(i).isEmpty()) {
-//                    FileDto file = fileService.saveFile(dto.getInstructionImage().get(i),
-//                            "BOARD", null, "INSTRUCTION", writer.getMemberIdx());
-//                    image = file != null ? file.getFilePath() : null;
-//                }
-//                steps.add(new StepDto(text, image));
+
                 steps.add(new StepDto(text, null));
             }
         }
@@ -100,14 +92,6 @@ public class BoardService {
 
         boardRepository.save(board);
         Long boardId = board.getBoardId();
-
-//        if (dto.getMainImage() != null && !dto.getMainImage().isEmpty()) {
-//            FileDto thumbnail = fileService.saveFile(dto.getMainImage(),
-//                    "BOARD", boardId, "THUMBNAIL", writer.getMemberIdx());
-//            if (thumbnail != null) {
-//                board.setThumbnail(thumbnail.getFilePath());
-//            }
-//        }
 
         return boardId;
     }
@@ -215,6 +199,7 @@ public class BoardService {
     public long getTotalCount() {
         return boardRepository.count();
     }
+
     //    카테고리별 게시글 수
     public long getCountByCategory(String category) {
         return boardRepository.countByCategory(category);
