@@ -16,30 +16,6 @@
 <body>
 <jsp:include page="/common/header.jsp"/>
 <main class="mypage-main">
-  <!-- 1) 총 개수 -->
-  <p>좋아요한 게시글 수: <c:out value="${likedPostsTotalCount}" /> 개</p>
-
-  <!-- 2) 한 건만 테스트 -->
-  <c:if test="${not empty likedPosts}">
-    <p>첫 번째 글 제목: <c:out value="${likedPosts[0].title}" /></p>
-    <p>작성자: <c:out value="${likedPosts[0].writerName}" /></p>
-    <p>카테고리: <c:out value="${likedPosts[0].category}" /></p>
-    <p>좋아요 누른 시각:
-      <fmt:formatDate value="${likedPosts[0].likeDate}" pattern="yyyy-MM-dd HH:mm:ss" />
-    </p>
-    <p>썸네일 경로: <c:out value="${likedPosts[0].thumbnail}" /></p>
-
-    <img
-            src="<c:out value='${likedPosts[0].thumbnail}'/>"
-            alt="썸네일" width="100"
-            onerror="this.src='${pageContext.request.contextPath}/images/default_thumbnail.png';"
-    />
-  </c:if>
-
-  <!-- 3) 비어있는 경우 안내 -->
-  <c:if test="${empty likedPosts}">
-    <p>좋아요한 게시글이 없습니다.</p>
-  </c:if>
 
   <!-- 페이지 헤더 -->
   <section class="mypage-header">
@@ -474,8 +450,6 @@
             <div id="mypage-like-pane-user" class="mypage-like-pane" role="tabpanel">
               <div class="mypage-like-list">
 
-
-
                 <c:if test="${empty likedPosts}">
                   <p class="mypage-like-empty">좋아요한 사용자 레시피가 없습니다.</p>
                 </c:if>
@@ -504,15 +478,8 @@
 <%--                <fmt:formatDate value="${p.likeDate}" pattern="yyyy.MM.dd"/>--%>
               </span>
                         </div>
-
                       </div>
                     </div>
-                  </div>
-                  <div class="mypage-like-actions">
-                    <a class="mypage-like-viewbtn" href="#">보기 →</a>
-                  </div>
-                </div>
-
 
                     <!-- 우측 버튼: 조회 (카드 전체 클릭과 충돌 방지) -->
                     <c:url var="postViewUrl" value="/board/view">
@@ -529,16 +496,6 @@
                               onclick="event.stopPropagation(); alert('삭제(좋아요 해제)는 곧 제공됩니다.');">
                         삭제
                       </button>
-
-
-                    </div>
-
-                    <!-- 우측 버튼: 조회 (카드 전체 클릭과 충돌 방지) -->
-                    <c:url var="postViewUrl" value="/board/view">
-                      <c:param name="boardId" value="${p.boardId}"/>
-                    </c:url>
-                    <div class="mypage-like-actions">
-                      <a class="mypage-like-viewbtn" href="${postViewUrl}" onclick="event.stopPropagation();">보기 →</a>
                     </div>
                   </div>
                 </c:forEach>
