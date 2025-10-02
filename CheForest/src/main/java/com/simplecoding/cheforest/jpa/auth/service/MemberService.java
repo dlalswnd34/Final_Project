@@ -16,6 +16,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Random;
 
 @Slf4j
@@ -114,7 +117,6 @@ public class MemberService {
         return memberRepository.findSuspendedWithBoardCounts(keyword, pageable);
     }
 
-
     //    회원 탈퇴
     @Transactional
     public void withdraw(Long memberIdx) {
@@ -193,13 +195,34 @@ public class MemberService {
         // 비밀번호 재설정 완료 후 세션에서 제거
         session.removeAttribute("pwResetMemberId");
     }
-    //  회원 제재하기(admin 용)
-    public void applySuspension(Long memberIdx) {
-        Member member = memberRepository.findById(memberIdx)
-                .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
-        member.setSuspension("정지");
-        memberRepository.save(member);
+
+    // ================= 마지막 로그인 시간 갱신 =================
+    @Transactional
+    public void updateLastLoginTime(String loginId) {
+        memberRepository.findByLoginId(loginId)
+                .ifPresent(member -> {
+                    // 최신 LocalDateTime을 구식 Date로 변환합니다.
+                    Date date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+                    // 변환된 Date 값을 set 합니다.
+                    member.setLastLoginTime(date);
+                });
     }
 
+    //  회원 제재하기(admin 용)
+    public void applySuspension(Long memberIdx) {
+//        Member member = memberRepository.findById(memberIdx)
+//                .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
+//        member.setSuspension("정지");
+//        memberRepository.save(member);
+        Member member = memberRepository.findById(memberIdx)
+                .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
 
+        if (member.getSuspension() == null) {
+            member.setSuspension("정지");
+        } else {
+            member.setSuspension(null);
+        }
+
+        memberRepository.save(member);
+    }
 }
