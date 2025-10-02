@@ -1,5 +1,9 @@
 // CheForest 관리자 - 모든 탭 완전 구현 JavaScript
 
+// 시큐리티 보안토큰
+const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
 // 전역 변수
 let currentTab = 'dashboard';
 let currentUserTab = 'all';
@@ -377,7 +381,8 @@ const InquiryManager = {
             const response = await fetch('/inquiries/FAQ', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
                 },
                 body: JSON.stringify({
                     inquiryId: inquiryId,
@@ -423,7 +428,8 @@ const InquiryManager = {
             const response = await fetch('/inquiries/delete', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
                 },
                 body: JSON.stringify({
                     inquiryId: inquiryId,
@@ -933,7 +939,8 @@ const MemberManager = {
             const response = await fetch('/admin/member/applySuspension', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
                 },
                 body: JSON.stringify({
                     memberIdx: memberIdx,
@@ -974,7 +981,8 @@ const MemberManager = {
             const response = await fetch('/admin/member/applySuspension', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
                 },
                 body: JSON.stringify({
                     memberIdx: memberIdx,
@@ -1015,7 +1023,8 @@ const MemberManager = {
             const response = await fetch('/admin/member/applySuspension', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
                 },
                 body: JSON.stringify({
                     memberIdx: memberIdx,
@@ -1057,7 +1066,8 @@ const MemberManager = {
             const response = await fetch('/admin/member/delete', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
                 },
                 body: JSON.stringify({
                     memberIdx: memberIdx
@@ -1097,7 +1107,8 @@ const MemberManager = {
             const response = await fetch('/admin/member/delete', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
                 },
                 body: JSON.stringify({
                     memberIdx: memberIdx
@@ -1137,7 +1148,8 @@ const MemberManager = {
             const response = await fetch('/admin/member/delete', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
                 },
                 body: JSON.stringify({
                     memberIdx: memberIdx
@@ -1358,7 +1370,8 @@ const RecipeManager = {
             const response = await fetch('/admin/deleteRecipes', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
                 },
                 body: JSON.stringify({
                     recipeId: recipeId,
@@ -1555,7 +1568,8 @@ const PostManager = {
             const response = await fetch('/admin/deletePost', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
                 },
                 body: JSON.stringify({
                     boardId: recipeId,
@@ -2107,7 +2121,8 @@ const AdminAllTabs = {
             const response = await fetch('/inquiries/answer', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
                 },
                 body: JSON.stringify({
                     inquiryId: inquiryId,

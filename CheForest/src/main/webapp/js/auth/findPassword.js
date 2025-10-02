@@ -1,4 +1,6 @@
 // CheForest 비밀번호 찾기 페이지 JavaScript
+const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeFindPasswordPage();
@@ -58,7 +60,7 @@ function sendEmailCode() {
 
     fetch("/auth/find-password/send-code", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: { "Content-Type": "application/x-www-form-urlencoded", [csrfHeader]: csrfToken },
         body: new URLSearchParams({ loginId: userId, email: email })
     })
         .then(res => res.text())
@@ -88,7 +90,7 @@ function verifyEmailCode() {
 
     fetch("/auth/find-password/verify-code", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: { "Content-Type": "application/x-www-form-urlencoded", [csrfHeader]: csrfToken },
         body: new URLSearchParams({ code: code })
     })
         .then(res => res.text())
@@ -138,7 +140,7 @@ function submitNewPassword() {
 
     fetch("/auth/find-password/reset", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: { "Content-Type": "application/x-www-form-urlencoded", [csrfHeader]: csrfToken },
         body: new URLSearchParams({ newPassword: newPw })
     })
         .then(res => res.text())
