@@ -2,6 +2,7 @@ package com.simplecoding.cheforest.jpa.config;
 
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.auth.repository.MemberRepository;
+import com.simplecoding.cheforest.jpa.auth.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,8 @@ import java.io.IOException;
 public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final MemberRepository memberRepository;
+    private final MemberService memberService;
+
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -30,10 +33,12 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 
         Object principal = authentication.getPrincipal();
         Member member = null;
+        String loginId = null;
+
 
         // ✅ 일반 로그인
         if (principal instanceof UserDetails userDetails) {
-            String loginId = userDetails.getUsername();
+            loginId = userDetails.getUsername();
             member = memberRepository.findByLoginId(loginId).orElse(null);
             request.getSession().setAttribute("provider", "LOCAL");
         }
@@ -52,6 +57,12 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 
                 request.getSession().setAttribute("provider", provider.toUpperCase());
             }
+        }
+
+        // ✅ 마지막 로그인 시간 업데이트
+        if (loginId != null) {
+            memberService.updateLastLoginTime(loginId);
+            log.info("마지막 로그인 시간 업데이트 완료: {}", loginId);
         }
 
         // ✅ 자동 생성된 닉네임이면 모달용 세션 저장

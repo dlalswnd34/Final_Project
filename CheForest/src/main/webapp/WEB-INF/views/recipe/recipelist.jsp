@@ -226,7 +226,18 @@
                     <div>
                         <h3 class="text-xl flex items-center mb-6">
                             <i data-lucide="list" class="w-6 h-6 mr-3 text-orange-500"></i>
-                            전체 레시피 <span class="ml-2 px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">${totalCount}개</span>
+                            <%-- 👇 [수정됨] JSTL을 사용하여 제목을 동적으로 변경 --%>
+                            <c:choose>
+                                <%-- URL에 categoryKr 파라미터가 있을 경우 --%>
+                                <c:when test="${not empty categoryKr}">
+                                    <c:out value="${categoryKr}" /> 레시피
+                                </c:when>
+                                <%-- categoryKr 파라미터가 없을 경우 (전체 보기) --%>
+                                <c:otherwise>
+                                    전체 레시피
+                                </c:otherwise>
+                            </c:choose>
+                            <span class="ml-2 px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">${totalCount}개</span>
                         </h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                             <c:forEach var="recipe" items="${recipeList}">

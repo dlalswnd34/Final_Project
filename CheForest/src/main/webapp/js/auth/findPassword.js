@@ -13,10 +13,26 @@ function initializeFindPasswordPage() {
     const btnVerifyCode = document.getElementById('btn-verify-code');
     const emailCodeInput = document.getElementById('email-code');
     const resetForm = document.getElementById('reset-form');
+    const btnFooterFindId = document.getElementById('btn-footer-find-id');
+    const btnFooterLogin = document.getElementById('btn-footer-login');
 
     // 뒤로가기
     if (btnBack) {
         btnBack.addEventListener('click', () => goToLogin());
+    }
+
+    // 아이디 찾기 버튼 클릭 시 페이지 이동
+    if (btnFooterFindId) {
+        btnFooterFindId.addEventListener('click', () => {
+            window.location.href = '/auth/find-id';
+        });
+    }
+
+    // 로그인하기 버튼 클릭 시 페이지 이동
+    if (btnFooterLogin) {
+        btnFooterLogin.addEventListener('click', () => {
+            window.location.href = '/auth/login';
+        });
     }
 
     // 인증번호 발송

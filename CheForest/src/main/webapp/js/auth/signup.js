@@ -18,10 +18,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
     const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
 
-    // AJAX 공통 요청 함수
-    async function ajaxRequest(url, method, data = {}) {
+    // ✅ [구조 수정] AJAX 함수를 바깥으로 이동하여 어디서든 사용할 수 있게 합니다.
+    async function ajaxRequest(url, method, data = {}, contentType = 'application/x-www-form-urlencoded; charset=UTF-8') {
         const headers = {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            'Content-Type': contentType
         };
         if (csrfHeader && csrfToken && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method.toUpperCase())) {
             headers[csrfHeader] = csrfToken;
@@ -34,20 +34,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 url += (url.includes("?") ? "&" : "?") + new URLSearchParams(data).toString();
             }
         } else {
-            options.body = new URLSearchParams(data).toString();
+            if (contentType === 'application/json') {
+                options.body = JSON.stringify(data); // 데이터를 JSON 문자열로 변환
+            } else {
+                options.body = new URLSearchParams(data).toString();
+            }
         }
 
         try {
             const response = await fetch(url, options);
-            const responseText = await response.text(); // 응답을 먼저 텍스트로 받음
+            const responseText = await response.text();
 
             if (!response.ok) {
                 throw new Error(responseText || `서버 에러: ${response.status}`);
             }
 
-            const contentType = response.headers.get("content-type");
-            if (contentType && contentType.includes("application/json")) {
-                return JSON.parse(responseText); // 텍스트를 JSON으로 파싱
+            const resContentType = response.headers.get("content-type");
+            if (resContentType && resContentType.includes("application/json")) {
+                return JSON.parse(responseText);
             } else {
                 return responseText;
             }
@@ -57,8 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // (이하 코드는 이전과 거의 동일하며, 요청사항만 반영하여 수정되었습니다)
-
+    // HTML 요소 가져오기
     const signupForm = document.getElementById("signupForm");
     const userIdInput = document.getElementById("userId");
     const emailInput = document.getElementById("email");
@@ -79,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const successModal = document.getElementById("successModal");
     const modalTitle = document.getElementById("modalTitle");
     const modalMessage = document.getElementById("modalMessage");
-    const modalOkBtn = document.getElementById("modalOkBtn"); // 모달 OK 버튼
+    const modalOkBtn = document.getElementById("modalOkBtn");
     const toast = document.getElementById("toast");
     const toastMessage = document.getElementById("toastMessage");
 
@@ -90,6 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
         nicknameChecked: false,
     };
 
+    // (이하 다른 이벤트 리스너들은 변경 없음)
     let userIdTimer;
     userIdInput.addEventListener("keyup", () => {
         clearTimeout(userIdTimer);
@@ -113,7 +117,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     showError("userId", "이미 사용중인 아이디입니다.");
                 }
             } catch (err) {
-                // ✅ [수정] 토스트 -> 모달
                 showErrorModal("아이디 중복 확인 중 오류가 발생했습니다.");
             }
         }, 300);
@@ -142,7 +145,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     showError("nickname", "이미 사용중인 닉네임입니다.");
                 }
             } catch (err) {
-                // ✅ [수정] 토스트 -> 모달
                 showErrorModal("닉네임 중복 확인 중 오류가 발생했습니다.");
             }
         }, 300);
@@ -184,6 +186,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!email) return showErrorModal("이메일을 입력해주세요.");
 
             try {
+                // 이메일 발송은 x-www-form-urlencoded 방식 유지
                 const result = await ajaxRequest("/auth/send-email-code", "POST", { email });
                 if (String(result).trim().toUpperCase() === "OK") {
                     verificationState.emailSent = true;
@@ -191,11 +194,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     showElement(emailSentMessage);
                     showToast("인증번호가 발송되었습니다.", "success");
                 } else {
-                    // ✅ [수정] 토스트 -> 모달
                     showErrorModal("이메일 발송 실패", result);
                 }
             } catch (err) {
-                // ✅ [수정] 토스트 -> 모달
                 showErrorModal("이메일 발송 실패", err.message);
             }
         });
@@ -207,35 +208,27 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!code) return showErrorModal("인증번호를 입력해주세요.");
 
             try {
+                // 인증번호 확인도 x-www-form-urlencoded 방식 유지
                 const result = await ajaxRequest("/auth/verify-email-code", "POST", { code });
                 if (String(result) === 'true') {
-                    // ✅ [수정] 인증 완료 시 UI 개선
                     verificationState.emailVerified = true;
-
-                    // 입력창과 인증 버튼 숨기기
                     hideElement(emailCodeInput);
                     hideElement(verifyEmailBtn);
                     hideElement(emailSentMessage);
-
-                    // 인증 완료 메시지 보여주기
                     showElement(emailSuccess);
-
-                    // 이메일 재입력 및 재전송 방지
                     emailInput.disabled = true;
                     sendEmailBtn.disabled = true;
-
                     showToast("이메일 인증이 완료되었습니다.", "success");
                 } else {
-                    // ✅ [수정] 토스트 -> 모달
                     showErrorModal("인증 실패", "인증번호가 일치하지 않습니다.");
                 }
             } catch (err) {
-                // ✅ [수정] 토스트 -> 모달
                 showErrorModal("인증 실패", err.message);
             }
         });
     }
 
+    // ✅ 회원가입 최종 제출
     if (signupForm) {
         signupForm.addEventListener("submit", async function (e) {
             e.preventDefault();
@@ -255,8 +248,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     password: passwordInput.value.trim(),
                     confirmPassword: confirmPasswordInput.value.trim(),
                     nickname: nicknameInput.value.trim(),
+                    emailAuthCode: emailCodeInput.value.trim()
                 };
 
+                // 👇 [핵심 수정사항] 최종 회원가입 요청을 원래의 Form 데이터 방식으로 되돌립니다.
                 const result = await ajaxRequest("/auth/register/addition", "POST", formData);
 
                 if (String(result).trim().toUpperCase() === "OK") {
@@ -280,7 +275,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 유효성 검증 함수 (실패 시 모달 표시)
+    // (이하 헬퍼 함수들은 변경 없음)
     function validateSignupForm() {
         if (!verificationState.userIdChecked) {
             showErrorModal("아이디 중복 확인을 완료해주세요.");
@@ -313,28 +308,25 @@ document.addEventListener("DOMContentLoaded", function () {
     function showElement(el) { if (el) el.style.display = "block"; }
     function hideElement(el) { if (el) el.style.display = "none"; }
 
-    // ✅ [수정] 모달 함수 분리 (성공/에러)
     function showSuccessModal(title, message) {
         if (modalTitle) modalTitle.textContent = title;
         if (modalMessage) modalMessage.textContent = message;
         if (successModal) successModal.style.display = "flex";
     }
 
-    // (참고) 에러 모달은 HTML/CSS가 별도로 필요할 수 있습니다.
-    // 여기서는 기존 성공 모달을 재활용하는 것으로 가정합니다.
     function showErrorModal(title, message = "") {
         if (modalTitle) modalTitle.textContent = title;
         if (modalMessage) modalMessage.textContent = message;
         if (successModal) successModal.style.display = "flex";
-        // 확인 버튼 누르면 그냥 닫히도록 설정
         if(modalOkBtn) modalOkBtn.onclick = () => successModal.style.display = 'none';
     }
 
     function showToast(message, type = "info") {
-        if (!toast) return; // 토스트 없으면 그냥 무시
+        if (!toast) return;
         toastMessage.textContent = message;
         toast.className = `toast ${type}`;
         toast.style.display = "block";
         setTimeout(() => (toast.style.display = "none"), 3000);
     }
 });
+
