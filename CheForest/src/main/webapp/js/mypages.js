@@ -1,6 +1,8 @@
 // CheForest 마이페이지 JavaScript
 
 document.addEventListener('DOMContentLoaded', function() {
+    // 아이콘 초기화
+    if (window.lucide && lucide.createIcons) lucide.createIcons();
     // 탭 전환 기능 초기화
     initializeTabSwitching();
 
@@ -8,6 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function initializeTabSwitching() {
         const menuItems = document.querySelectorAll('.menu-item');
         const tabContents = document.querySelectorAll('.tab-content');
+
+
 
         // 메뉴 항목 클릭 이벤트
         menuItems.forEach(item => {
