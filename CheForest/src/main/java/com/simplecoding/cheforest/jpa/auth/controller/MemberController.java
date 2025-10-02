@@ -3,6 +3,7 @@ package com.simplecoding.cheforest.jpa.auth.controller;
 import com.simplecoding.cheforest.jpa.auth.dto.MemberDetailDto;
 import com.simplecoding.cheforest.jpa.auth.dto.MemberSignupDto;
 import com.simplecoding.cheforest.jpa.auth.dto.MemberUpdateDto;
+import com.simplecoding.cheforest.jpa.auth.dto.UserInfoDto;
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.auth.repository.MemberRepository;
 import com.simplecoding.cheforest.jpa.auth.security.CustomOAuth2User;
@@ -304,5 +305,39 @@ public class MemberController {
         ra.addFlashAttribute("msg", "닉네임이 변경되었습니다.");
         return "redirect:/";
     }
+
+    // ================= Ajax: 이모티콘 사용 정보 조회 (새로 추가) =================
+    /**
+     * 현재 로그인된 사용자의 닉네임, 등급, 최대 이모티콘 개수 등 정보를 JSON으로 반환
+     * @param user 현재 로그인된 사용자의 Principal (CustomUserDetails)
+     * @return UserInfoDto (JSON 응답)
+     */
+    @GetMapping("/api/user/info")
+    @ResponseBody // JSON 형태로 응답하기 위해 필수
+    public ResponseEntity<UserInfoDto> getUserInfo(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @AuthenticationPrincipal CustomOAuth2User oauth2User) {
+
+        // 1. Principal에서 Member 객체 추출
+        Member member = null;
+        if (user != null) {
+            // 일반 로그인 사용자
+            member = user.getMember();
+        } else if (oauth2User != null) {
+            // 소셜 로그인 사용자
+            member = oauth2User.getMember();
+        }
+
+        // 2. 로그인되지 않은 경우 처리
+        if (member == null) {
+            // HTTP 401 Unauthorized 반환
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // 3. DTO로 변환하여 반환
+        UserInfoDto userInfoDto = UserInfoDto.from(member);
+        return ResponseEntity.ok(userInfoDto);
+    }
+
 
 }
