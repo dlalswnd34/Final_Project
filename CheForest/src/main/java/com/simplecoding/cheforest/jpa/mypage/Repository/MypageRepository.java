@@ -45,37 +45,45 @@ public interface MypageRepository extends JpaRepository<Member, Long> {
                       @Param("keyword") String keyword);
 
     // ===== 내가 좋아요한 게시글 =====
+// 내가 좋아요한 게시글 (목록)
     @Query("""
-           SELECT new com.simplecoding.cheforest.jpa.mypage.dto.MypageLikedBoardDto(
-             b.boardId,
-             b.title,
-             m.nickname,
-             b.insertTime,
-             (b.viewCount + 0L),
-             (b.likeCount + 0L)
-           )
-           FROM Likes l, Board b
-             JOIN b.writer m
-           WHERE l.member.memberIdx = :memberIdx
-             AND l.likeType = 'BOARD'
-             AND l.boardId = b.boardId
-             AND (:keyword IS NULL OR b.title LIKE CONCAT('%', :keyword, '%'))
-           ORDER BY l.likeDate DESC
-           """)
+SELECT new com.simplecoding.cheforest.jpa.mypage.dto.MypageLikedBoardDto(
+  b.boardId,
+  b.title,
+  m.nickname,
+  b.insertTime,
+  (b.viewCount + 0L),
+  (b.likeCount + 0L),
+  b.category,
+  b.thumbnail,
+  l.likeDate
+)
+FROM Likes l
+JOIN Board b ON b.boardId = l.boardId
+JOIN b.writer m
+WHERE l.member.memberIdx = :memberIdx
+  AND l.likeType = 'BOARD'
+  AND (:keyword IS NULL OR b.title LIKE CONCAT('%', :keyword, '%'))
+ORDER BY l.likeDate DESC
+""")
     Page<MypageLikedBoardDto> findLikedBoards(@Param("memberIdx") Long memberIdx,
                                               @Param("keyword") String keyword,
                                               Pageable pageable);
 
+    // 내가 좋아요한 게시글 (개수)
     @Query("""
-           SELECT COUNT(l)
-           FROM Likes l, Board b
-           WHERE l.member.memberIdx = :memberIdx
-             AND l.likeType = 'BOARD'
-             AND l.boardId = b.boardId
-             AND (:keyword IS NULL OR b.title LIKE CONCAT('%', :keyword, '%'))
-           """)
+SELECT COUNT(l)
+FROM Likes l
+JOIN Board b ON b.boardId = l.boardId
+WHERE l.member.memberIdx = :memberIdx
+  AND l.likeType = 'BOARD'
+  AND (:keyword IS NULL OR b.title LIKE CONCAT('%', :keyword, '%'))
+""")
     long countLikedBoards(@Param("memberIdx") Long memberIdx,
                           @Param("keyword") String keyword);
+
+
+
 
     // 내가 좋아요한 레시피
     @Query("""

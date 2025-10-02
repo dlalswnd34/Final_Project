@@ -911,7 +911,7 @@
 .mypage-like-viewbtn{
     display:inline-flex; align-items:center; gap:6px;
     padding:8px 12px; border:1px solid #f97316; border-radius:8px;
-    color:#f97316; text-decoration:none; font-weight:600; font-size:13px;
+    color:#f97316; text-decoration:none; font-weight:400; font-size:13px;
     background:#fff7ed; /* 살짝 톤 */
 }
 .mypage-like-viewbtn:hover{
@@ -943,3 +943,94 @@
             opacity: .5;
             pointer-events: none;
         }
+    /*여기부터 좋아요 탭버튼*/
+    /* 탭 래퍼 정렬 */
+    .mypage-like-tabs{
+        display:flex;
+        gap:18px;
+        align-items:flex-end;
+        margin-bottom:8px;
+    }
+
+    /* 탭 버튼: 아이콘 수평정렬 + 크기 확대(두 탭 동일 폭) */
+    .mypage-like-tabbtn{
+        --tab-width: 188px;          /* ← 탭 폭(원하면 180~200px 사이로 조정) */
+        flex: 0 0 var(--tab-width);
+        display:inline-flex;
+        align-items:center;          /* 아이콘/텍스트 수직 중앙 정렬 */
+        gap:10px;                    /* 아이콘-텍스트 간격 */
+        padding:12px 18px;           /* 높이 여유 */
+        min-height:48px;             /* 아이콘이 눌리지 않게 */
+        line-height:1;               /* 줄높이로 인한 들뜸 방지 */
+        white-space:nowrap;          /* 줄바꿈 방지 */
+        border:0;
+        background:transparent;      /* 스타일은 기존 그대로 유지 */
+        position:relative;
+    }
+
+    /* 아이콘 크기(루시드/이미지/이모지 대응) */
+    .mypage-like-tabbtn i,
+    .mypage-like-tabbtn [data-lucide],
+    .mypage-like-tabbtn svg{
+        width:22px;
+        height:22px;
+        flex:0 0 22px;
+    }
+
+    /* 활성 탭 하이라인(기존과 동일하게 유지) */
+    .mypage-like-tabbtn.is-active::after{
+        content:"";
+        position:absolute;
+        left:0 ;                   /* 좌우 여백은 패딩과 맞춰주면 깔끔 */
+        right:18px;
+        bottom:-6px;
+        height:3px;
+        background:linear-gradient(90deg,#ec4899,#f97316);
+        border-radius:2px;
+    }
+
+    /* CheForest 텍스트 그라데이션 (이미 있으면 중복 추가 X) */
+    .brand-gradient{
+        background:linear-gradient(90deg,#ec4899,#f97316);
+        -webkit-background-clip:text;
+        background-clip:text;
+        color:transparent;
+        font-weight:800;
+    }
+/* boardlist와 동일 룩의 인라인 배지 */
+.category-badge{
+    font-size:.75rem;           /* 12px */
+    padding:.25rem .5rem;       /* 4px 8px */
+    border-radius:.375rem;      /* 6px */
+    font-weight:500;
+    display:inline-block;
+    vertical-align:middle;
+    line-height:1;              /* 줄맞춤 */
+    margin-left:.25rem;         /* 제목/텍스트와 간격 */
+}
+
+/* 값 그대로 매칭 (데이터-카테고리) */
+.category-badge[data-category="한식"]   { background:#fef2f2; color:#b91c1c; }
+.category-badge[data-category="양식"]   { background:#f0fdf4; color:#16a34a; }
+.category-badge[data-category="중식"]   { background:#fefce8; color:#ca8a04; }
+.category-badge[data-category="일식"]   { background:#eff6ff; color:#2563eb; }
+.category-badge[data-category="디저트"] { background:#faf5ff; color:#9333ea; }
+
+/* 사용자 레시피 탭 조회 버튼을 CheForest와 동일 룩으로 */
+.mypage-like-viewbtn {
+    background: white;
+    color: #ea580c;
+    border: 1px solid #fdba74;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.mypage-like-viewbtn:hover {
+    background: #fff7ed;
+}
+
