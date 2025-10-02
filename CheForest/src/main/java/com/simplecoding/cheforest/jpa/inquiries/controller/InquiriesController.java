@@ -1,6 +1,7 @@
 package com.simplecoding.cheforest.jpa.inquiries.controller;
 
 
+import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails; // ✅ CustomUserDetails 임포트
 import com.simplecoding.cheforest.jpa.inquiries.dto.InquiryWithNicknameDto;
 import com.simplecoding.cheforest.jpa.inquiries.entity.Inquiries;
 import com.simplecoding.cheforest.jpa.inquiries.repository.InquiriesRepository;
@@ -15,13 +16,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
 @Log4j2
 @RequiredArgsConstructor
-@RestController
+@RestController // REST API 전용 컨트롤러
 public class InquiriesController {
 
     private final InquiriesService inquiriesService;
@@ -82,6 +86,7 @@ public class InquiriesController {
 
             Inquiries inquiry = optional.get();
             inquiry.setAnswerContent(dto.getAnswerContent());
+            // 답변 완료 시 상태와 일시 업데이트
             inquiry.setAnswerStatus("답변완료");
             inquiry.setAnswerAt(new Date());
 
@@ -119,7 +124,7 @@ public class InquiriesController {
         inquiry.setQuestionContent(requestDto.getMessage());
         inquiry.setCreatedAt(new Date());
         inquiry.setAnswerStatus("대기중"); // 초기값 지정
-        inquiry.setLikeCount(0L);         // 초기값 지정
+        // inquiry.setLikeCount(0L); // LIKE_COUNT 필드가 필수는 아닐 수 있으므로 제거 혹은 기본값 설정 확인 필요
 
         // 저장
         inquiriesRepository.save(inquiry);
@@ -169,7 +174,7 @@ public class InquiriesController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
         }
     }
-   // 문의사항 삭제
+    // 문의사항 삭제 (관리자용)
     @PostMapping("/inquiries/delete")
     public ResponseEntity<String> deleteInquiries(@RequestBody Map<String, Object> payload) {
         try {
@@ -187,18 +192,104 @@ public class InquiriesController {
             return ResponseEntity.ok(resultMessage);
 
         } catch (Exception e) {
-            log.error("FAQ 등록 및 해제 중 오류 발생", e);
+            log.error("문의사항 삭제 중 오류 발생", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
         }
     }
 
 
+    /**
+     * 마이페이지: 로그인된 사용자의 문의 내역을 페이징하여 조회하는 API
+     */
+    @GetMapping("/api/mypage/inquiries")
+    public Map<String, Object> getMyInquiries(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        if (userDetails == null) {
+            log.warn("인증되지 않은 사용자가 마이페이지 문의 내역 접근 시도.");
+            // 인증이 필요한 API이므로, 이 경우 보통 401을 반환하거나 빈 맵 반환
+            // 여기서는 빈 맵을 반환하고 JS에서 처리하도록 합니다.
+            return Collections.emptyMap();
+        }
+
+        Long currentMemberIdx;
+        try {
+            // UserDetails를 CustomUserDetails로 캐스팅하고 getMemberIdx()를 호출
+            CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
+            currentMemberIdx = customUserDetails.getMemberIdx();
+
+        } catch (ClassCastException e) {
+            log.error("UserDetails를 CustomUserDetails로 캐스팅 실패: {}", userDetails.getClass().getName());
+            return Collections.emptyMap();
+        } catch (Exception e) {
+            log.error("사용자 ID를 가져오는 중 예상치 못한 오류 발생", e);
+            return Collections.emptyMap();
+        }
 
 
+        // Service 호출
+        Page<InquiryWithNicknameDto> pageResult = inquiriesService.getMyInquiries(currentMemberIdx, pageable);
+        long totalCount = pageResult.getTotalElements(); // Service에서 totalCount를 이미 계산하므로 pageResult.getTotalElements() 사용
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", pageResult.getContent());
+        response.put("total", totalCount);
+        response.put("totalPages", pageResult.getTotalPages());
+        response.put("page", pageResult.getNumber() + 1); // 1-based
+        response.put("size", pageable.getPageSize());
+
+        log.info("마이페이지 문의 내역 조회 (memberIdx: {}): {}개", currentMemberIdx, totalCount);
+
+        return response;
+    }
+
+    /**
+     * 마이페이지: 사용자가 자신의 문의를 삭제하는 API
+     */
+    @PostMapping("/inquiries/my/delete") // 마이페이지용 별도 API
+    public ResponseEntity<String> deleteMyInquiry(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody Map<String, Object> payload
+    ) {
+        try {
+            if (userDetails == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+            }
+
+            Long inquiryId = Long.valueOf(payload.get("inquiryId").toString());
+
+            Long currentMemberIdx;
+            try {
+                CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
+                currentMemberIdx = customUserDetails.getMemberIdx();
+
+            } catch (ClassCastException e) {
+                log.error("UserDetails를 CustomUserDetails로 캐스팅 실패: {}", userDetails.getClass().getName());
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증 객체 형식이 올바르지 않습니다.");
+            } catch (Exception e) {
+                log.error("인증된 사용자 ID 변환 실패", e);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증된 사용자 정보를 가져올 수 없습니다.");
+            }
+
+            // InquiriesService에 구현된 비즈니스 로직(소유권 및 상태 검증)을 사용합니다.
+            inquiriesService.deleteInquiry(inquiryId, currentMemberIdx);
+
+            return ResponseEntity.ok("성공적으로 문의사항이 삭제되었습니다.");
 
 
-
-
-
-
+        } catch (SecurityException e) {
+            // 소유권이나 답변 완료 상태로 인한 오류 처리
+            log.warn("문의 삭제 권한/상태 오류: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            // 문의 ID를 찾을 수 없는 오류 처리
+            log.warn("문의 삭제 요청 시 ID를 찾을 수 없음: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            log.error("문의사항 삭제 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
+        }
+    }
 }
