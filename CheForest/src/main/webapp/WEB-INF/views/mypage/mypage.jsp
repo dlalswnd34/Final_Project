@@ -204,11 +204,28 @@
                       </div>
 
                       <div class="recipe-meta">
-                        <span class="recipe-category"><c:out value="${__cat}" /></span>
+                        <span class="category-badge" data-category="${__cat}"><c:out value="${__cat}" /></span>
                         <span class="recipe-stat">🔍 <c:out value="${post.viewCount}" default="0"/></span>
                         <span class="recipe-stat">❤️ <c:out value="${post.likeCount}" default="0"/></span>
-                        <!-- LocalDateTime 그대로 출력 (형식화 원하면 컨트롤러에서 문자열로 가공) -->
-                        <span class="recipe-stat"><c:out value="${post.insertTime}" /></span>
+                        <!-- 문제 발생시 이코드 다시사용 -->
+                        <%--<span class="recipe-stat"><c:out value="${post.insertTime}" /></span>--%>
+                        <%-- fmt로 날짜변환 코드  --%>
+                          <%-- ISO 문자열의 'T' 제거 후, 초 유무에 따라 파싱 --%>
+                                <c:set var="dtStr" value="${post.insertTime}" />
+                                <c:set var="dtStr" value="${fn:replace(dtStr, 'T', ' ')}" />
+
+                                <c:choose>
+                                  <c:when test="${fn:length(dtStr) == 16}">
+                                    <fmt:parseDate value="${dtStr}" pattern="yyyy-MM-dd HH:mm" var="dt"/>
+                                  </c:when>
+                                  <c:otherwise>
+                                    <fmt:parseDate value="${dtStr}" pattern="yyyy-MM-dd HH:mm:ss" var="dt"/>
+                                  </c:otherwise>
+                                </c:choose>
+
+                                <span class="recipe-stat">
+                                <fmt:formatDate value="${dt}" pattern="yyyy년 MM월 dd일 a hh시 mm분"/>
+                                </span>
                       </div>
                     </div>
 
@@ -298,7 +315,7 @@
           </div>
 
 
-          <!-- 좋아요 탭 (관리자/사용자 분리) : 더미데이터 버전 -->
+          <!-- 좋아요 탭 (관리자/사용자 분리) -->
           <div class="tab-content" id="tab-liked">
             <div class="mypage-like-head">
               <h2 class="tab-title">좋아요한 레시피</h2>
@@ -310,7 +327,9 @@
                         data-like-tab="admin"
                         aria-controls="mypage-like-pane-admin"
                         aria-selected="true">
-                  👨‍🍳 관리자 레시피
+                  <i data-lucide="chef-hat" class="h-5 w-5 text-orange-500"></i>
+                  <span class="brand-gradient">CheForest</span>
+                  <span>레시피</span>
                 </button>
                 <button type="button"
                         class="mypage-like-tabbtn"
@@ -344,19 +363,9 @@
                       <div class="mypage-like-info">
                         <div class="mypage-like-title"><c:out value="${r.titleKr}"/></div>
 
-                        <!-- 카테고리 배지: recipelist.css 규칙에 맞춘 클래스 매핑 -->
-                        <c:set var="catCls" value=""/>
-                        <c:choose>
-                          <c:when test="${r.categoryKr eq '한식'}"><c:set var="catCls" value="korean"/></c:when>
-                          <c:when test="${r.categoryKr eq '양식'}"><c:set var="catCls" value="western"/></c:when>
-                          <c:when test="${r.categoryKr eq '중식'}"><c:set var="catCls" value="chinese"/></c:when>
-                          <c:when test="${r.categoryKr eq '일식'}"><c:set var="catCls" value="japanese"/></c:when>
-                          <c:when test="${r.categoryKr eq '디저트'}"><c:set var="catCls" value="dessert"/></c:when>
-                        </c:choose>
-
                         <div class="mypage-like-meta">
-                          <span class="category-badge ${catCls}"><c:out value="${r.categoryKr}"/></span>
-                          <span class="meta-date"><c:out value="${r.likeDateText}"/></span>
+                        <span class="category-badge" data-category="${r.categoryKr}"><c:out value="${r.categoryKr}"/></span>
+                       <%-- <span class="meta-date"><c:out value="${r.likeDateText}"/></span>--%>
                         </div>
                       </div>
                     </div>
@@ -441,15 +450,36 @@
             <div id="mypage-like-pane-user" class="mypage-like-pane" role="tabpanel">
               <div class="mypage-like-list">
 
-                <div class="mypage-like-item">
-                  <div class="mypage-like-left">
-                    <img class="mypage-like-thumb" src="/images/no-image.png" alt="에어프라이어 치킨">
-                    <div class="mypage-like-info">
-                      <div class="mypage-like-title">에어프라이어 치킨</div>
-                      <div class="mypage-like-meta">
-                        <span class="meta-author">by user_cha</span>
-                        <span class="meta-cat">간편식</span>
-                        <span class="meta-date">2025.09.20</span>
+
+                <c:if test="${empty likedPosts}">
+                  <p class="mypage-like-empty">좋아요한 사용자 레시피가 없습니다.</p>
+                </c:if>
+
+                <c:forEach var="p" items="${likedPosts}">
+                  <!-- 카드 전체 클릭 이동 -->
+                  <div class="mypage-like-item link-card"
+                       data-href="/board/view?boardId=${p.boardId}">
+
+                    <div class="mypage-like-left">
+                      <!-- 썸네일 -->
+                      <img class="mypage-like-thumb"
+                           src="${empty p.thumbnail ? '/images/default_thumbnail.png' : p.thumbnail}"
+                           alt="<c:out value='${p.title}'/>"
+                           onerror="this.src='/images/default_thumbnail.png'"/>
+
+                      <!-- 본문 -->
+                      <div class="mypage-like-info">
+                        <div class="mypage-like-title"><c:out value="${p.title}"/></div>
+
+                        <!-- 메타: 작성자 / 카테고리 / 좋아요일 -->
+                        <div class="mypage-like-meta">
+                          <span class="meta-author">by <c:out value="${p.writerName}"/></span>
+                          <span class="category-badge" data-category="${p.category}"><c:out value="${p.category}"/></span>
+                          <span class="meta-date">
+<%--                <fmt:formatDate value="${p.likeDate}" pattern="yyyy.MM.dd"/>--%>
+              </span>
+                        </div>
+
                       </div>
                     </div>
                   </div>
@@ -458,16 +488,23 @@
                   </div>
                 </div>
 
-                <div class="mypage-like-item">
-                  <div class="mypage-like-left">
-                    <img class="mypage-like-thumb" src="/images/no-image.png" alt="토마토 달걀볶음">
-                    <div class="mypage-like-info">
-                      <div class="mypage-like-title">토마토 달걀볶음</div>
-                      <div class="mypage-like-meta">
-                        <span class="meta-author">by sunny</span>
-                        <span class="meta-cat">중식</span>
-                        <span class="meta-date">2025.09.10</span>
-                      </div>
+
+                    <!-- 우측 버튼: 조회 (카드 전체 클릭과 충돌 방지) -->
+                    <c:url var="postViewUrl" value="/board/view">
+                      <c:param name="boardId" value="${p.boardId}"/>
+                    </c:url>
+
+                    <div class="mypage-like-actions">
+                      <a class="mypage-like-viewbtn"
+                         href="${postViewUrl}"
+                         onclick="event.stopPropagation();">조회</a>
+
+                      <!-- 삭제는 추후 구현: 지금은 안내만 -->
+                      <button type="button" class="btn-delete"
+                              onclick="event.stopPropagation(); alert('삭제(좋아요 해제)는 곧 제공됩니다.');">
+                        삭제
+                      </button>
+
                     </div>
                   </div>
                   <div class="mypage-like-actions">
@@ -551,6 +588,6 @@
 <jsp:include page="/common/footer.jsp"/>
 
 <script src="/js/common.js"></script>
-<script src="/js/mypage.js"></script>
+<script src="/js/mypages.js"></script>
 </body>
 </html>
