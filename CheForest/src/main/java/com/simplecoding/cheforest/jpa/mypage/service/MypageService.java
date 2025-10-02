@@ -4,14 +4,17 @@ import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageLikedBoardDto;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageLikedRecipeDto;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageMyPostDto;
+import com.simplecoding.cheforest.jpa.mypage.dto.MypageReviewDto;
 import com.simplecoding.cheforest.jpa.mypage.repository.MypageRepository;
+import com.simplecoding.cheforest.jpa.review.entity.Review;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.simplecoding.cheforest.jpa.review.entity.Review;
+import com.simplecoding.cheforest.jpa.review.repository.ReviewRepository;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -20,8 +23,9 @@ import java.time.format.DateTimeFormatter;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MypageService {
-
+    private final ReviewRepository reviewRepository;
     private final MypageRepository mypageRepository;
+
 
     // ===== 내가 작성한 글 =====
     public Page<MypageMyPostDto> getMyPosts(Long memberIdx, String keyword, Pageable pageable) {
@@ -29,9 +33,12 @@ public class MypageService {
         return mypageRepository.findMyPosts(memberIdx, keyword, pageable);
     }
 
+
+
     public long getMyPostsCount(Long memberIdx, String keyword) {
         return mypageRepository.countMyPosts(memberIdx, keyword);
     }
+
 
     public long getMyPostsTotalViewCount(Long memberIdx) {
         return mypageRepository.sumMyPostsViewCount(memberIdx);
@@ -55,6 +62,27 @@ public class MypageService {
         return mypageRepository.countLikedRecipes(memberIdx, keyword);
     }
 
+    public Page<MypageReviewDto> getMyReviews(Long memberIdx, Pageable pageable) {
+        Page<Review> page = reviewRepository.findByWriterIdxOrderByInsertTimeDesc(memberIdx, pageable);
+
+        return page.map(r -> {
+            java.util.Date insertDate = (r.getInsertTime() == null)
+                    ? null
+                    : java.sql.Timestamp.valueOf(r.getInsertTime()); // LDT -> Date
+            java.util.Date updateDate = (r.getUpdateTime() == null)
+                    ? null
+                    : java.sql.Timestamp.valueOf(r.getUpdateTime()); // LDT -> Date
+
+            return new MypageReviewDto(
+                    r.getReviewId(),
+                    (r.getBoard() != null) ? r.getBoard().getBoardId() : null,
+                    (r.getBoard() != null) ? r.getBoard().getTitle()   : null,
+                    r.getContent(),
+                    insertDate,
+                    updateDate
+            );
+        });
+    }
     // ===== 내가 작성한 댓글 수 =====
     public long getMyCommentsCount(Long memberIdx, String keyword) {
         return mypageRepository.countMyComments(memberIdx, keyword);

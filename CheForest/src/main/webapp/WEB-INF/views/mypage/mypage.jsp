@@ -16,6 +16,7 @@
 <body>
 <jsp:include page="/common/header.jsp"/>
 <main class="mypage-main">
+  
 
   <section class="mypage-header">
     <div class="container">
@@ -232,7 +233,8 @@
                   </div>
                 </c:forEach>
               </div>
-              <c:if test="${not empty myPostsPaginationInfo and myPostsPaginationInfo.totalPages > 1}">
+              <!-- 페이지네이션: 작성한 레시피 리스트 하단에 삽입 -->
+              <c:if test="${not empty myPostsPaginationInfo and myPostsPaginationInfo.totalPages >= 1}">
                 <c:set var="page" value="${myPostsPaginationInfo}"/>
                 <c:set var="current" value="${page.number + 1}"/>   <%-- 1-based --%>
                 <c:set var="totalPages" value="${page.totalPages}"/>
@@ -276,20 +278,91 @@
 
 
           <div class="tab-content" id="tab-comments">
-            <h2 class="tab-title">작성한 댓글 (156개)</h2>
+            <h2 class="tab-title">작성한 댓글 (<c:out value="${myReviewsTotalCount}" default="0"/>개)</h2>
+
             <div class="comment-list">
-              <div class="comment-item">
-                <div class="comment-header">
-                  <h3 class="comment-recipe-title">레시피 제목 자리</h3>
-                  <span class="comment-date">작성일</span>
+
+              <!-- 비어있을 때 -->
+              <c:if test="${empty myReviews}">
+                <p class="mypage-like-empty">작성한 댓글이 없습니다.</p>
+              </c:if>
+
+              <!-- 반복 렌더링 -->
+              <c:forEach var="rv" items="${myReviews}">
+                <!-- 카드 전체 클릭 이동 (좋아요 탭과 동일 패턴) -->
+                <div class="comment-item link-card"
+                     data-href="/board/view?boardId=${rv.boardId}">
+                  <div class="comment-header">
+                    <h3 class="comment-recipe-title"><c:out value="${rv.boardTitle}"/></h3>
+                    <span class="comment-date">
+            <c:choose>
+              <c:when test="${not empty rv.insertTime}">
+                <fmt:formatDate value="${rv.insertTime}" pattern="yyyy-MM-dd"/>
+              </c:when>
+              <c:otherwise>-</c:otherwise>
+            </c:choose>
+          </span>
+                  </div>
+
+                  <p class="comment-content"><c:out value="${rv.content}"/></p>
+
+                  <!-- 조회/삭제 (카드 클릭과 충돌 방지: stopPropagation) -->
+                  <c:url var="boardViewUrl" value="/board/view">
+                    <c:param name="boardId" value="${rv.boardId}"/>
+                  </c:url>
+                  <div class="comment-actions">
+                    <a class="btn-view" href="${boardViewUrl}" onclick="event.stopPropagation();">레시피 보기</a>
+                    <button type="button" class="btn-delete" data-id="${rv.reviewId}" onclick="event.stopPropagation();">삭제</button>
+                  </div>
                 </div>
-                <p class="comment-content">댓글 내용 자리입니다. 실제 댓글 내용이 여기에 표시됩니다.</p>
-                <div class="comment-actions">
-                  <button class="btn-view">레시피 보기</button>
-                  <button class="btn-delete"><span class="btn-icon">🗑️</span>삭제</button>
-                </div>
-              </div>
+              </c:forEach>
             </div>
+
+            <!-- ===== 페이지네이션(1페이지라도 노출) ===== -->
+            <c:if test="${not empty myReviewsPaginationInfo and myReviewsPaginationInfo.totalPages >= 1}">
+              <c:set var="page" value="${myReviewsPaginationInfo}"/>
+              <c:set var="current" value="${page.number + 1}"/>  <%-- 1-based --%>
+              <c:set var="totalPages" value="${page.totalPages}"/>
+              <c:set var="blockSize" value="10"/>
+              <c:set var="blockStart" value="${((current-1) / blockSize) * blockSize + 1}"/>
+              <c:set var="blockEnd" value="${blockStart + blockSize - 1}"/>
+              <c:if test="${blockEnd > totalPages}">
+                <c:set var="blockEnd" value="${totalPages}"/>
+              </c:if>
+
+              <nav class="pagination" aria-label="myReviews pagination">
+                <!-- « 이전 블록 -->
+                <c:set var="prevBlock" value="${blockStart - blockSize}"/>
+                <c:if test="${prevBlock < 1}">
+                  <c:set var="prevBlock" value="1"/>
+                </c:if>
+                <c:url var="prevBlockUrl" value="/mypage">
+                  <c:param name="tab" value="comments"/>
+                  <c:param name="myReviewsPage" value="${prevBlock}"/>
+                </c:url>
+                <a href="${prevBlockUrl}" class="btn-view ${blockStart == 1 ? 'disabled' : ''}">«</a>
+
+                <!-- 번호 -->
+                <c:forEach var="i" begin="${blockStart}" end="${blockEnd}">
+                  <c:url var="numUrl" value="/mypage">
+                    <c:param name="tab" value="comments"/>
+                    <c:param name="myReviewsPage" value="${i}"/>
+                  </c:url>
+                  <a href="${numUrl}" class="btn-view ${i == current ? 'active' : ''}">${i}</a>
+                </c:forEach>
+
+                <!-- » 다음 블록 -->
+                <c:set var="nextBlock" value="${blockStart + blockSize}"/>
+                <c:if test="${nextBlock > totalPages}">
+                  <c:set var="nextBlock" value="${totalPages}"/>
+                </c:if>
+                <c:url var="nextBlockUrl" value="/mypage">
+                  <c:param name="tab" value="comments"/>
+                  <c:param name="myReviewsPage" value="${nextBlock}"/>
+                </c:url>
+                <a href="${nextBlockUrl}" class="btn-view ${blockEnd == totalPages ? 'disabled' : ''}">»</a>
+              </nav>
+            </c:if>
           </div>
 
 
@@ -507,18 +580,7 @@
                 </nav>
               </c:if>
             </div>
-
           </div>
-
-
-
-
-
-
-
-
-
-
 
           <%--문의 내역 관련--%>
           <div class="tab-content active" id="tab-inquiries">
@@ -582,15 +644,6 @@
             </div>
           </div>
           <%--문의 내역 관련 끝--%>
-
-
-
-
-
-
-
-
-
 
           <div class="tab-content" id="tab-settings">
             <div class="settings-grid">
