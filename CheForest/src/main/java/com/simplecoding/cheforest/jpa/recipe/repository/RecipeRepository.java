@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -75,6 +76,17 @@ public interface RecipeRepository extends JpaRepository<Recipe, String> {
 
     // 9. 제철 재료 레시피 검색(미완성)
     List<Recipe> findBySeasonIsNotNullAndTitleKrContainingIgnoreCase(String keyword);
+
+
+    // ✅ 인기 레시피 조회 (중복 제거)
+    @Query("SELECT DISTINCT r FROM Recipe r ORDER BY r.likeCount DESC, r.viewCount DESC, r.recipeId DESC")
+    List<Recipe> findTop5PopularRecipes(org.springframework.data.domain.Pageable pageable);
+
+    // ✅ 제목 검색 (중복 제거)
+    @Query("SELECT DISTINCT r FROM Recipe r WHERE LOWER(r.titleKr) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<Recipe> searchRecipes(@Param("keyword") String keyword, org.springframework.data.domain.Pageable pageable);
+
+
 
 }
 

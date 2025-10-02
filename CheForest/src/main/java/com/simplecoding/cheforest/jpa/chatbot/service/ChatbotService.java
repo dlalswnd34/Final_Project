@@ -13,6 +13,7 @@ import java.util.List;
 public class ChatbotService {
 
     private final ChatbotFaqRepository faqRepository;
+    private final OpenAiService openAiService; // ✅ GPT API 호출 서비스
 
     // 1) FAQ 전체 조회
     public List<ChatbotFaqDto> findAll() {
@@ -92,11 +93,19 @@ public class ChatbotService {
     }
 
     // ---------------------------
-    // 🤖 챗봇 로직 (DB 검색만 유지)
+    // 🤖 챗봇 로직 (FAQ → GPT Fallback)
     // ---------------------------
     public String findAnswerFromFaq(String question) {
         return faqRepository.findTopByQuestionContainingIgnoreCase(question)
                 .map(ChatbotFaq::getAnswer)
                 .orElse(null);
+    }
+
+    public String getChatbotAnswer(String question) {
+        String faqAnswer = findAnswerFromFaq(question);
+        if (faqAnswer != null) {
+            return faqAnswer;
+        }
+        return openAiService.askChefBot(question); // GPT 호출
     }
 }

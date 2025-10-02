@@ -4,6 +4,8 @@ import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.board.entity.Board;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Pageable;
+
 
 import java.util.List;
 
@@ -33,6 +35,15 @@ public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecific
     @Query("update Board b set b.thumbnail = :thumbnail where b.boardId = :boardId")
     void updateThumbnail(@Param("boardId") Long boardId, @Param("thumbnail") String thumbnail);
 
+    // 인기글 조회 (조회수 기준, 중복 제거)
+    @Query("SELECT DISTINCT b FROM Board b ORDER BY b.viewCount DESC")
+    List<Board> findTop5ByOrderByLikeCountDesc();
+
+    // 제목 검색 (중복 제거)
+    @Query("SELECT DISTINCT b FROM Board b WHERE b.title LIKE %:keyword%")
+    List<Board> searchBoards(@Param("keyword") String keyword, Pageable pageable);
+
+
 
     // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -55,5 +66,17 @@ public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecific
 
     @Query("select b.boardId, b.category, b.thumbnail from Board b where b.boardId in :ids")
     List<Object[]> findMetaByIds(@Param("ids") List<Long> ids);
+
+    // 카테고리별 랜덤 1개 게시글
+    @Query(value = """
+    SELECT * 
+    FROM BOARD b
+    WHERE b.CATEGORY = :category
+    ORDER BY DBMS_RANDOM.VALUE
+    FETCH FIRST :limit ROWS ONLY
+    """, nativeQuery = true)
+    List<Board> findRandomBoardsByCategory(@Param("category") String category,
+                                           @Param("limit") int limit);
+
 
 }

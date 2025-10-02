@@ -1,5 +1,8 @@
 // CheForest 아이디 찾기 페이지 JavaScript
 
+const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
 document.addEventListener('DOMContentLoaded', function() {
     initializeFindIdPage();
 });
@@ -63,7 +66,7 @@ async function sendEmailCode() {
     try {
         const res = await fetch('/auth/find-id/send-code', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', [csrfHeader]: csrfToken},
             body: new URLSearchParams({ email })
         });
         const result = await res.text();
@@ -93,7 +96,7 @@ async function verifyEmailCode() {
     try {
         const res = await fetch('/auth/find-id/verify-code', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', [csrfHeader]: csrfToken},
             body: new URLSearchParams({ email, code })
         });
         const result = await res.text();

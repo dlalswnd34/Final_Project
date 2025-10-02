@@ -88,7 +88,7 @@
           <label class="form-label" for="cookTime">조리시간 *</label>
           <input type="text" class="form-input" id="cookTime" name="cookTime"
                  placeholder="예: 30분" required>
-          <div class="form-help">예: 30분, 1시간 30분</div>
+          <div class="form-help">예: 30분, 60분</div>
         </div>
       </div>
 

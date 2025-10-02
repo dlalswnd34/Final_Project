@@ -88,4 +88,34 @@ public class ChatbotRestController {
                     .body(Map.of("error", e.getMessage()));
         }
     }
+
+    // ✅ 사용자 질문 처리 (FAQ → GPT Fallback, POST 방식)
+    @PostMapping("/ask")
+    public ResponseEntity<?> askChatbot(@RequestBody Map<String, String> request) {
+        try {
+            String question = request.get("question");
+            if (question == null || question.isBlank()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "질문이 비어있습니다."));
+            }
+
+            String answer = chatbotService.getChatbotAnswer(question);
+            return ResponseEntity.ok(Map.of("answer", answer));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ✅ 사용자 질문 처리 (GET - 테스트용)
+    @GetMapping("/ask")
+    public ResponseEntity<?> askChatbotGet(@RequestParam String question) {
+        try {
+            String answer = chatbotService.getChatbotAnswer(question);
+            return ResponseEntity.ok(Map.of("answer", answer));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
 }

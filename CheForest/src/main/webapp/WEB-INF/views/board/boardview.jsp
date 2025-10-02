@@ -21,6 +21,23 @@
     /* 비어있을 때 안내 박스 */
     .empty-box { padding:16px; border:1px dashed #e5e7eb; border-radius:8px; color:#6b7280; background:#fafafa; }
   </style>
+
+  <!-- ✅ 로그인 상태에 따라 memberIdx 내려주기 -->
+  <sec:authorize access="isAuthenticated()">
+    <sec:authentication property="principal" var="loginUser"/>
+    <script>
+      const memberIdx = "${loginUser.memberIdx}";
+      console.log("로그인 사용자 memberIdx:", memberIdx);
+    </script>
+  </sec:authorize>
+  <sec:authorize access="!isAuthenticated()">
+    <script>
+      const memberIdx = null;
+      console.log("비로그인 상태");
+    </script>
+  </sec:authorize>
+
+
 </head>
 <body>
 <jsp:include page="/common/header.jsp"/>
@@ -48,16 +65,20 @@
             </svg>
             수정
           </button>
-          <button class="delete-btn" id="deleteBtn" onclick="if(confirm('정말 삭제하시겠습니까?')) location.href='/board/delete?boardId=${board.boardId}'">
-            <svg class="delete-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M3 6h18" />
-              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-              <line x1="10" y1="11" x2="10" y2="17" />
-              <line x1="14" y1="11" x2="14" y2="17" />
-            </svg>
-            삭제
-          </button>
+          <form action="/board/delete" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+            <input type="hidden" name="boardId" value="${board.boardId}">
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+            <button class="delete-btn" type="submit">
+              <svg class="delete-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M3 6h18" />
+                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                <line x1="10" y1="11" x2="10" y2="17" />
+                <line x1="14" y1="11" x2="14" y2="17" />
+              </svg>
+              삭제
+            </button>
+          </form>
         </sec:authorize>
       </div>
     </div>
@@ -118,7 +139,7 @@
             <svg class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M19.5 12.5 12 20l-7.5-7.5a5 5 0 0 1 7.5-7 5 5 0 0 1 7.5 7Z"/>
             </svg>
-            <span class="count"><c:out value="${board.likeCount}" default="0"/></span>
+            <span class="count" id="likeCountText"><c:out value="${board.likeCount}" default="0"/></span>
           </button>
 
           <div class="action-btn view-btn" title="조회수">
@@ -285,6 +306,49 @@
           </div>
         </sec:authorize>
 
+
+        <!-- ===== JS ===== -->
+        <script>
+          document.addEventListener('DOMContentLoaded', function () {
+            const triggers = document.querySelectorAll('.tab-trigger');
+            const contents = document.querySelectorAll('.tab-content');
+            triggers.forEach(btn => {
+              btn.addEventListener('click', () => {
+                const key = btn.getAttribute('data-tab');
+                triggers.forEach(b => b.classList.remove('active'));
+                contents.forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(key + 'Content').classList.add('active');
+              });
+            });
+            initLikeButton({ likeType: "BOARD", boardId: "${board.boardId}", recipeId: null, memberIdx: memberIdx });
+          });
+          lucide.createIcons();
+        </script>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="/js/like.js"></script>
+
+        <script>
+          document.addEventListener('DOMContentLoaded', function () {
+            lucide.createIcons();
+          });
+        </script>
+
+
+        <!-- 로그인 사용자 정보 (JS에서 사용) -->
+        <sec:authorize access="isAuthenticated()">
+          <script>
+            window.boardId = <c:out value="${board.boardId}" default="0"/>;
+            window.loginUser = {
+              memberIdx: "<sec:authentication property='principal.memberIdx' />",
+              nickname: "<sec:authentication property='principal.nickname' />",
+              grade: "<sec:authentication property='principal.grade' />",
+              profile: "<sec:authentication property='principal.profile' />"
+            };
+          </script>
+        </sec:authorize>
+
         <!-- 비로그인 상태 -->
         <sec:authorize access="!isAuthenticated()">
           <div class="empty-box">✋ 댓글 작성은 로그인 후 이용해주세요</div>
@@ -325,6 +389,8 @@
     </c:otherwise>
     </c:choose>
   </div>
+
+
 
   <!-- ✅ 댓글 API용 전역변수 -->
   <sec:authorize access="isAuthenticated()">
