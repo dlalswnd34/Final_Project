@@ -16,25 +16,36 @@
   <style>
     .whitespace-pre-line { white-space: pre-line; }
     .empty-box { padding:16px; border:1px dashed #e5e7eb; border-radius:8px; color:#6b7280; background:#fafafa; }
-    /* ✅ 초기에는 영어 필드를 숨김. lang-en 클래스가 붙은 요소는 display: none */
     .lang-en { display: none; }
-    /* 토글 버튼 기본 스타일 */
     .toggle-btn {
-      background-color: #f97316; /* blue-500 */
+      background-color: #f97316;
       color: white;
       font-weight: bold;
       padding: 4px 12px;
       border-radius: 6px;
-      font-size: 0.875rem; /* text-sm */
-      margin-bottom: 12px; /* mb-3 */
+      font-size: 0.875rem;
+      margin-bottom: 12px;
       transition: background-color 0.2s;
       cursor: pointer;
       border: none;
     }
-    .toggle-btn:hover {
-      background-color: #d66214; /* blue-600 */
-    }
+    .toggle-btn:hover { background-color: #d66214; }
   </style>
+
+  <!-- ✅ 로그인 상태에 따라 memberIdx 내려주기 -->
+  <sec:authorize access="isAuthenticated()">
+    <sec:authentication property="principal" var="loginUser"/>
+    <script>
+      const memberIdx = "${loginUser.memberIdx}";
+      console.log("로그인 사용자 memberIdx:", memberIdx);
+    </script>
+  </sec:authorize>
+  <sec:authorize access="!isAuthenticated()">
+    <script>
+      const memberIdx = null;
+      console.log("비로그인 상태");
+    </script>
+  </sec:authorize>
 </head>
 <body>
 <jsp:include page="/common/header.jsp"/>
@@ -83,12 +94,13 @@
                 <span class="lang-en"><c:out value="${recipe.titleEn}" default="No Title"/></span>
               </h1>
 
+              <!-- ✅ 좋아요 / 조회수 (원래 버튼 복원) -->
               <div class="action-buttons">
                 <button class="action-btn like-btn" id="likeBtn" type="button">
                   <svg class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path d="M19.5 12.5 12 20l-7.5-7.5a5 5 0 0 1 7.5-7 5 5 0 0 1 7.5 7Z"/>
                   </svg>
-                  <span class="count"><c:out value="${recipe.likeCount}" default="0"/></span>
+                  <span class="count" id="likeCountText"><c:out value="${recipe.likeCount}" default="0"/></span>
                 </button>
 
                 <div class="action-btn view-btn" title="조회수">
@@ -128,27 +140,22 @@
         </div>
 
         <div class="recipe-content">
-
+          <!-- 재료 -->
           <div class="recipe-section">
             <div class="section-header">
               <h2 class="text-xl font-bold text-gray-800 border-b-2 pb-1 mb-3">재료</h2>
             </div>
             <div class="ingredients-container">
-
               <div class="lang-kr">
                 <c:choose>
                   <c:when test="${not empty recipe.ingredientDisplayList}">
                     <div class="ingredient-grid">
                       <c:forEach var="item" items="${recipe.ingredientDisplayList}">
-                        <div class="ingredient-item">
-                          • <span class="ingredient-name"><c:out value="${item}"/></span>
-                        </div>
+                        <div class="ingredient-item">• <span class="ingredient-name"><c:out value="${item}"/></span></div>
                       </c:forEach>
                     </div>
                   </c:when>
-                  <c:otherwise>
-                    <div class="empty-box">등록된 재료가 없습니다.</div>
-                  </c:otherwise>
+                  <c:otherwise><div class="empty-box">등록된 재료가 없습니다.</div></c:otherwise>
                 </c:choose>
               </div>
 
@@ -157,26 +164,22 @@
                   <c:when test="${not empty recipe.ingredientEnDisplayList}">
                     <div class="ingredient-grid">
                       <c:forEach var="item" items="${recipe.ingredientEnDisplayList}">
-                        <div class="ingredient-item">
-                          • <span class="ingredient-name"><c:out value="${item}"/></span>
-                        </div>
+                        <div class="ingredient-item">• <span class="ingredient-name"><c:out value="${item}"/></span></div>
                       </c:forEach>
                     </div>
                   </c:when>
-                  <c:otherwise>
-                    <div class="empty-box">No ingredients registered.</div>
-                  </c:otherwise>
+                  <c:otherwise><div class="empty-box">No ingredients registered.</div></c:otherwise>
                 </c:choose>
               </div>
             </div>
           </div>
 
+          <!-- 조리법 -->
           <div class="recipe-section">
             <div class="section-header">
               <h2 class="text-xl font-bold text-gray-800 border-b-2 pb-1 mb-3">조리법</h2>
             </div>
             <div class="cooking-steps">
-
               <div class="lang-kr">
                 <c:choose>
                   <c:when test="${not empty recipe.instructionSteps}">
@@ -189,9 +192,7 @@
                       </c:if>
                     </c:forEach>
                   </c:when>
-                  <c:otherwise>
-                    <div class="empty-box">등록된 조리법이 없습니다.</div>
-                  </c:otherwise>
+                  <c:otherwise><div class="empty-box">등록된 조리법이 없습니다.</div></c:otherwise>
                 </c:choose>
               </div>
 
@@ -207,9 +208,7 @@
                       </c:if>
                     </c:forEach>
                   </c:when>
-                  <c:otherwise>
-                    <div class="empty-box">No instructions registered.</div>
-                  </c:otherwise>
+                  <c:otherwise><div class="empty-box">No instructions registered.</div></c:otherwise>
                 </c:choose>
               </div>
             </div>
@@ -229,55 +228,39 @@
   </c:choose>
 </div>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const likeBtn = document.getElementById('likeBtn');
-    if (likeBtn) likeBtn.addEventListener('click', () => likeBtn.classList.toggle('liked'));
-  });
-  lucide.createIcons();
-</script>
-
+<!-- 언어 토글 -->
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const toggleButton = document.getElementById('toggle-lang-btn');
-    // 한국어 필드 전체
     const krElements = document.querySelectorAll('.lang-kr');
-    // 영어 필드 전체
     const enElements = document.querySelectorAll('.lang-en');
 
     if (toggleButton) {
-      // 초기 상태 설정은 CSS (.lang-en { display: none; })가 담당
-
       toggleButton.addEventListener('click', function() {
         const currentLang = this.getAttribute('data-current-lang');
         let newLang = '';
-
-        if (currentLang === 'kr') {
-          // 한국어 -> 영어로 전환
-          newLang = 'en';
-          this.innerText = '한국어로 보기';
-        } else {
-          // 영어 -> 한국어로 전환
-          newLang = 'kr';
-          this.innerText = 'English로 보기';
-        }
-
-        // 모든 요소의 display 속성을 토글하여 화면에 표시/숨김
-        krElements.forEach(el => {
-          // 한국어일 때 기본값(block), 아닐 때 none
-          el.style.display = newLang === 'kr' ? '' : 'none';
-        });
-
-        enElements.forEach(el => {
-          // 💡 수정된 부분: 영문일 때 'block'으로 강제 설정 (display:none 해제)
-          // 대부분의 div 요소에는 'block'을 사용하는 것이 가장 확실합니다.
-          el.style.display = newLang === 'en' ? 'block' : 'none';
-        });
-
-        // 버튼 상태 업데이트
+        if (currentLang === 'kr') { newLang = 'en'; this.innerText = '한국어로 보기'; }
+        else { newLang = 'kr'; this.innerText = 'English로 보기'; }
+        krElements.forEach(el => el.style.display = newLang === 'kr' ? '' : 'none');
+        enElements.forEach(el => el.style.display = newLang === 'en' ? 'block' : 'none');
         this.setAttribute('data-current-lang', newLang);
       });
     }
+  });
+</script>
+
+<!-- jQuery + like.js -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/js/like.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    lucide.createIcons();
+    initLikeButton({
+      likeType: "RECIPE",
+      boardId: null,
+      recipeId: "${recipe.recipeId}",
+      memberIdx: memberIdx
+    });
   });
 </script>
 

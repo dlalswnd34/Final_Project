@@ -17,6 +17,7 @@ import com.simplecoding.cheforest.jpa.auth.repository.MemberRepository;
 import com.simplecoding.cheforest.jpa.review.service.ReviewService;   // ✅ 추가
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -234,9 +236,37 @@ public class BoardService {
         return boardRepository.findTop3ByOrderByInsertTimeDesc();
     }
 
+    // 인기 게시글 (좋아요 수 기준)
+    @Transactional(readOnly = true)
+// 인기 게시글
+    public List<BoardListDto> findPopularBoards() {
+        return boardRepository.findTop5ByOrderByLikeCountDesc()
+                .stream()
+                .map(board -> mapStruct.toListDto(board))  // ✅ 이렇게 람다식으로
+                .toList();
+    }
 
+    // 게시글 검색
+    public List<BoardListDto> searchBoards(String keyword) {
+        return boardRepository.searchBoards(keyword, PageRequest.of(0, 5))
+                .stream()
+                .map(mapStruct::toListDto)
+                .toList();
+    }
+    // ✅ 카테고리별 랜덤 게시글 1개
+    public BoardListDto getRandomBoardByCategory(String category) {
+        List<Board> candidates = boardRepository.findRandomBoardsByCategory(category, 5);
 
+        if (candidates == null || candidates.isEmpty()) return null;
 
+        Board randomBoard = candidates.get(new Random().nextInt(candidates.size()));
+        return mapStruct.toListDto(randomBoard);
+    }
 
 
 }
+
+
+
+
+

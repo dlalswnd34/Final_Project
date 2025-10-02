@@ -1220,6 +1220,11 @@ body {
     gap: 8px;
 }
 
+.like-btn.liked svg {
+    fill: red;
+    stroke: red;
+}
+
 .step-number {
     font-weight: bold;
     color: #f97316; /* 주황 강조 */

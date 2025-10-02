@@ -1,11 +1,13 @@
 package com.simplecoding.cheforest.jpa.recipe.service;
 
+import com.simplecoding.cheforest.jpa.common.MapStruct;
 import com.simplecoding.cheforest.jpa.recipe.dto.RecipeDto;
 import com.simplecoding.cheforest.jpa.recipe.entity.Recipe;
 import com.simplecoding.cheforest.jpa.recipe.repository.RecipeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,8 @@ import java.util.stream.Collectors;
 public class RecipeService {
 
     private final RecipeRepository recipeRepository;
+    private final MapStruct mapStruct;
+
 
     // 1. 레시피 목록 조회 (카테고리 + 검색 + 검색타입 + 페이징)
     public Page<RecipeDto> getRecipeList(String categoryKr, String searchKeyword, String searchType, Pageable pageable) {
@@ -124,5 +128,33 @@ public class RecipeService {
     // 10. 이미지 캐싱 로직 (생략)
     public void downloadAndCacheAllImages() {
         // 로직 생략
+    }
+
+    // ✅ 랜덤 1개 추천
+    public RecipeDto getRandomRecipeByCategory(String categoryKr) {
+        return recipeRepository.findRandomByCategory(categoryKr)
+                .stream()
+                .findFirst()
+                .map(mapStruct::toDto)
+                .orElse(null);
+    }
+
+
+
+
+    // ✅ 인기 레시피 (Top 5)
+    public List<RecipeDto> findPopularRecipes() {
+        return recipeRepository.findTop5PopularRecipes(PageRequest.of(0, 5))
+                .stream()
+                .map(mapStruct::toDto)
+                .toList();
+    }
+
+    // ✅ 레시피 검색
+    public List<RecipeDto> searchRecipes(String keyword) {
+        return recipeRepository.searchRecipes(keyword, PageRequest.of(0, 5))
+                .stream()
+                .map(mapStruct::toDto)
+                .toList();
     }
 }
