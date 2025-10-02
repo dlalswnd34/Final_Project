@@ -86,7 +86,10 @@ function startLogstash() {
     const btn = document.getElementById('logstash-btn');
     btn.disabled = true;
 
-    fetch('/api/logstash/start', { method: 'POST' })
+    fetch('/api/logstash/start', {
+        method: 'POST',
+        headers: { [csrfHeader]: csrfToken }
+    })
         .then(res => res.json())
         .then(data => alert(data.message))
         .catch(err => alert('Error: ' + err))

@@ -1,4 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -7,6 +10,9 @@
   <title>비밀번호 찾기 - CheForest</title>
   <link rel="stylesheet" href="/css/common/common.css">
   <link rel="stylesheet" href="/css/auth/findPassword.css">
+  <%-- CSRF 토큰 정보를 meta 태그에 추가 --%>
+  <meta name="_csrf" content="${_csrf.token}">
+  <meta name="_csrf_header" content="${_csrf.headerName}">
 </head>
 <body>
 <main class="find-password-main">

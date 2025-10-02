@@ -65,16 +65,20 @@
             </svg>
             수정
           </button>
-          <button class="delete-btn" id="deleteBtn" onclick="if(confirm('정말 삭제하시겠습니까?')) location.href='/board/delete?boardId=${board.boardId}'">
-            <svg class="delete-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M3 6h18" />
-              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-              <line x1="10" y1="11" x2="10" y2="17" />
-              <line x1="14" y1="11" x2="14" y2="17" />
-            </svg>
-            삭제
-          </button>
+          <form action="/board/delete" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+            <input type="hidden" name="boardId" value="${board.boardId}">
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+            <button class="delete-btn" type="submit">
+              <svg class="delete-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M3 6h18" />
+                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                <line x1="10" y1="11" x2="10" y2="17" />
+                <line x1="14" y1="11" x2="14" y2="17" />
+              </svg>
+              삭제
+            </button>
+          </form>
         </sec:authorize>
       </div>
     </div>

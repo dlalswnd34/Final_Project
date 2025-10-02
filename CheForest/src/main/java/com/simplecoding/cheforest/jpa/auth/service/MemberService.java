@@ -132,6 +132,15 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    // ================= 회원가입: 이메일 인증번호 발송 =================
+    public String sendSignupVerificationCode(String email) {
+        if (memberRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+        }
+        // ✅ emailService가 반환하는 인증 코드를 다시 return
+        return emailService.sendAuthCode(email);
+    }
+
     // ================= 비밀번호 찾기: 인증번호 발송 =================
     public void sendPasswordResetCode(String loginId, String email, HttpSession session) {
         // 1. 회원 존재 여부 확인
@@ -191,17 +200,6 @@ public class MemberService {
         member.setSuspension("정지");
         memberRepository.save(member);
     }
-
-
-
-
-
-
-
-
-
-
-
 
 
 }
