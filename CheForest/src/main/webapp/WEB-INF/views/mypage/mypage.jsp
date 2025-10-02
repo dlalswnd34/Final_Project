@@ -18,6 +18,9 @@
 <main class="mypage-main">
   
 
+  <%-- JSTL: URL 파라미터를 확인하여 현재 활성화할 탭을 결정합니다. 기본값은 'profile'입니다. --%>
+  <c:set var="activeTab" value="${empty param.tab ? 'profile' : param.tab}" />
+
   <section class="mypage-header">
     <div class="container">
       <div class="profile-info">
@@ -93,20 +96,21 @@
           <div class="sidebar-content">
             <h3 class="sidebar-title"><span class="sidebar-icon">👤</span>마이메뉴</h3>
             <div class="menu-list">
-              <button class="menu-item active" data-tab="profile"><span class="menu-icon">👤</span><span class="menu-text">프로필</span></button>
-              <button class="menu-item" data-tab="recipes"><span class="menu-icon">👨‍🍳</span><span class="menu-text">내 레시피</span></button>
-              <button class="menu-item" data-tab="comments"><span class="menu-icon">💬</span><span class="menu-text">내 댓글</span></button>
-              <button class="menu-item" data-tab="liked"><span class="menu-icon">❤️</span><span class="menu-text">좋아요</span></button>
-              <button class="menu-item" data-tab="inquiries"><span class="menu-icon">❓</span><span class="menu-label">문의 내역</span>
-                <button class="menu-item" data-tab="settings"><span class="menu-icon">⚙️</span><span class="menu-text">설정</span></button>
-              </button>
+              <%-- JSTL: activeTab에 따라 active 클래스 적용 --%>
+              <button class="menu-item ${activeTab == 'profile' ? 'active' : ''}" data-tab="profile"><span class="menu-icon">👤</span><span class="menu-text">프로필</span></button>
+              <button class="menu-item ${activeTab == 'recipes' ? 'active' : ''}" data-tab="recipes"><span class="menu-icon">👨‍🍳</span><span class="menu-text">내 레시피</span></button>
+              <button class="menu-item ${activeTab == 'comments' ? 'active' : ''}" data-tab="comments"><span class="menu-icon">💬</span><span class="menu-text">내 댓글</span></button>
+              <button class="menu-item ${activeTab == 'liked' ? 'active' : ''}" data-tab="liked"><span class="menu-icon">❤️</span><span class="menu-text">좋아요</span></button>
+              <button class="menu-item ${activeTab == 'inquiries' ? 'active' : ''}" data-tab="inquiries"><span class="menu-icon">❓</span><span class="menu-text">문의 내역</span></button>
+              <button class="menu-item ${activeTab == 'settings' ? 'active' : ''}" data-tab="settings"><span class="menu-icon">⚙️</span><span class="menu-text">설정</span></button>
             </div>
           </div>
         </aside>
 
         <section class="main-content">
 
-          <div class="tab-content active" id="tab-profile">
+          <%-- JSTL: activeTab에 따라 active 클래스 적용 --%>
+          <div class="tab-content ${activeTab == 'profile' ? 'active' : ''}" id="tab-profile">
             <div class="content-grid">
               <div class="info-card">
                 <div class="card-header">
@@ -150,7 +154,8 @@
             </div>
           </div>
 
-          <div class="tab-content" id="tab-recipes">
+          <%-- JSTL: activeTab에 따라 active 클래스 적용 --%>
+          <div class="tab-content ${activeTab == 'recipes' ? 'active' : ''}" id="tab-recipes">
             <div class="tab-header">
               <h2 class="tab-title">작성한 레시피 (<c:out value="${myPostsTotalCount}" default="0"/>개)</h2>
 
@@ -196,9 +201,7 @@
                         <span class="category-badge" data-category="${__cat}"><c:out value="${__cat}" /></span>
                         <span class="recipe-stat">🔍 <c:out value="${post.viewCount}" default="0"/></span>
                         <span class="recipe-stat">❤️ <c:out value="${post.likeCount}" default="0"/></span>
-                          <%--<span class="recipe-stat"><c:out value="${post.insertTime}" /></span>--%>
-                          <%-- fmt로 날짜변환 코드  --%>
-                          <%-- ISO 문자열의 'T' 제거 후, 초 유무에 따라 파싱 --%>
+                          <%-- fmt로 날짜변환 코드 (기존 로직 유지) --%>
                         <c:set var="dtStr" value="${post.insertTime}" />
                         <c:set var="dtStr" value="${fn:replace(dtStr, 'T', ' ')}" />
 
@@ -251,12 +254,14 @@
                     <c:set var="prevBlock" value="1"/>
                   </c:if>
                   <c:url var="prevBlockUrl" value="/mypage">
+                    <c:param name="tab" value="${activeTab}"/> <%-- tab 파라미터 추가 --%>
                     <c:param name="myPostsPage" value="${prevBlock}"/>
                   </c:url>
                   <a href="${prevBlockUrl}" class="btn-view ${blockStart == 1 ? 'disabled' : ''}">«</a>
 
                   <c:forEach var="i" begin="${blockStart}" end="${blockEnd}">
                     <c:url var="numUrl" value="/mypage">
+                      <c:param name="tab" value="${activeTab}"/> <%-- tab 파라미터 추가 --%>
                       <c:param name="myPostsPage" value="${i}"/>
                     </c:url>
                     <a href="${numUrl}" class="btn-view ${i == current ? 'active' : ''}">${i}</a>
@@ -267,6 +272,7 @@
                     <c:set var="nextBlock" value="${totalPages}"/>
                   </c:if>
                   <c:url var="nextBlockUrl" value="/mypage">
+                    <c:param name="tab" value="${activeTab}"/> <%-- tab 파라미터 추가 --%>
                     <c:param name="myPostsPage" value="${nextBlock}"/>
                   </c:url>
                   <a href="${nextBlockUrl}" class="btn-view ${blockEnd == totalPages ? 'disabled' : ''}">»</a>
@@ -276,10 +282,9 @@
             </c:if>
           </div>
 
-
-          <div class="tab-content" id="tab-comments">
-            <h2 class="tab-title">작성한 댓글 (<c:out value="${myReviewsTotalCount}" default="0"/>개)</h2>
-
+          <%-- JSTL: activeTab에 따라 active 클래스 적용 --%>
+          <div class="tab-content ${activeTab == 'comments' ? 'active' : ''}" id="tab-comments">
+            <h2 class="tab-title">작성한 댓글 (156개)</h2>
             <div class="comment-list">
 
               <!-- 비어있을 때 -->
@@ -366,7 +371,8 @@
           </div>
 
 
-          <div class="tab-content" id="tab-liked">
+          <%-- JSTL: activeTab에 따라 active 클래스 적용 --%>
+          <div class="tab-content ${activeTab == 'liked' ? 'active' : ''}" id="tab-liked">
             <div class="mypage-like-head">
               <h2 class="tab-title">좋아요한 레시피</h2>
 
@@ -412,7 +418,6 @@
 
                         <div class="mypage-like-meta">
                           <span class="category-badge" data-category="${r.categoryKr}"><c:out value="${r.categoryKr}"/></span>
-                            <%-- <span class="meta-date"><c:out value="${r.likeDateText}"/></span>--%>
                         </div>
                       </div>
                     </div>
@@ -456,7 +461,7 @@
                   <c:url var="prevBlockUrl" value="/mypage">
                     <c:param name="tab" value="${activeTab}"/>
                     <c:param name="myPostsPage" value="${empty param.myPostsPage ? 1 : param.myPostsPage}"/>
-                    <c:param name="likedPostsPage" value="${prevBlock}"/>
+                    <c:param name="likedRecipesPage" value="${prevBlock}"/> <%-- likedPostsPage -> likedRecipesPage 수정 (오타 정정) --%>
                   </c:url>
                   <a href="${prevBlockUrl}" class="btn-view ${blockStart == 1 ? 'disabled' : ''}">«</a>
 
@@ -464,7 +469,7 @@
                     <c:url var="numUrl" value="/mypage">
                       <c:param name="tab" value="${activeTab}"/>
                       <c:param name="myPostsPage" value="${empty param.myPostsPage ? 1 : param.myPostsPage}"/>
-                      <c:param name="likedPostsPage" value="${i}"/>
+                      <c:param name="likedRecipesPage" value="${i}"/> <%-- likedPostsPage -> likedRecipesPage 수정 (오타 정정) --%>
                     </c:url>
                     <a href="${numUrl}" class="btn-view ${i == current ? 'active' : ''}">${i}</a>
                   </c:forEach>
@@ -476,7 +481,7 @@
                   <c:url var="nextBlockUrl" value="/mypage">
                     <c:param name="tab" value="${activeTab}"/>
                     <c:param name="myPostsPage" value="${empty param.myPostsPage ? 1 : param.myPostsPage}"/>
-                    <c:param name="likedPostsPage" value="${nextBlock}"/>
+                    <c:param name="likedRecipesPage" value="${nextBlock}"/> <%-- likedPostsPage -> likedRecipesPage 수정 (오타 정정) --%>
                   </c:url>
                   <a href="${nextBlockUrl}" class="btn-view ${blockEnd == totalPages ? 'disabled' : ''}">»</a>
                 </nav>
@@ -510,7 +515,6 @@
                           <span class="meta-author">by <c:out value="${p.writerName}"/></span>
                           <span class="category-badge" data-category="${p.category}"><c:out value="${p.category}"/></span>
                           <span class="meta-date">
-                              <%--                <fmt:formatDate value="${p.likeDate}" pattern="yyyy.MM.dd"/>--%>
                           </span>
                         </div>
                       </div>
@@ -525,8 +529,9 @@
                          href="${postViewUrl}"
                          onclick="event.stopPropagation();">조회</a>
 
+                        <%-- alert()를 console.log()로 대체하여 사용자에게 블로킹 팝업이 뜨는 것을 방지 --%>
                       <button type="button" class="btn-delete"
-                              onclick="event.stopPropagation(); alert('삭제(좋아요 해제)는 곧 제공됩니다.');">
+                              onclick="event.stopPropagation(); console.log('삭제(좋아요 해제)는 곧 제공됩니다.');">
                         삭제
                       </button>
                     </div>
@@ -582,70 +587,39 @@
             </div>
           </div>
 
-          <%--문의 내역 관련--%>
-          <div class="tab-content active" id="tab-inquiries">
-            <div class="tab-header">
-              <h2>문의 내역 (3개)</h2>
-              <button class="btn btn-primary" onclick="goToInquiry()">새 문의하기</button>
+
+
+
+
+
+
+
+          <%-- 문의 내역 관련 --%>
+          <%-- JSTL: activeTab에 따라 active 클래스 적용 --%>
+          <div class="tab-content ${activeTab == 'inquiries' ? 'active' : ''}" id="tab-inquiries"> <div class="tab-header">
+            <h2>문의 내역 (<span id="inquiry-count">...</span>개)</h2>
+            <button class="btn btn-primary" onclick="goToInquiry()">새 문의하기</button>
+          </div>
+
+            <div class="inquiries-list" id="inquiries-list-container">
+              <p class="loading-message">문의 내역을 불러오는 중...</p>
             </div>
 
-            <div class="inquiries-list">
-              <div class="inquiry-card">
-                <div class="inquiry-header">
-                  <div class="inquiry-title">레시피 등록 오류 문의</div>
-                  <span class="status-badge completed">답변완료</span>
-                </div>
-                <div class="inquiry-meta">
-                  <span class="inquiry-date">2024-09-15</span>
-                </div>
-                <div class="inquiry-content">
-                  레시피를 등록하려고 하는데 이미지 업로드가 안 됩니다.
-                  파일 크기는 2MB 이하인데 계속 오류가 발생해요.
-                </div>
-                <div class="inquiry-actions">
-                  <button class="btn btn-outline">답변 보기</button>
-                </div>
-              </div>
-
-              <div class="inquiry-card">
-                <div class="inquiry-header">
-                  <div class="inquiry-title">등급 상승 기준 문의</div>
-                  <span class="status-badge in-progress">답변대기</span>
-                </div>
-                <div class="inquiry-meta">
-                  <span class="inquiry-date">2024-09-18</span>
-                </div>
-                <div class="inquiry-content">
-                  레시피를 많이 작성했는데 등급이 올라가지 않네요.
-                  정확한 등급 상승 기준이 궁금합니다.
-                </div>
-                <div class="inquiry-actions">
-                  <button class="btn btn-outline">수정하기</button>
-                  <button class="btn btn-outline delete">삭제하기</button>
-                </div>
-              </div>
-
-              <div class="inquiry-card">
-                <div class="inquiry-header">
-                  <div class="inquiry-title">댓글 신고 처리 관련</div>
-                  <span class="status-badge completed">답변완료</span>
-                </div>
-                <div class="inquiry-meta">
-                  <span class="inquiry-date">2024-09-10</span>
-                </div>
-                <div class="inquiry-content">
-                  부적절한 댓글을 신고했는데 아직 처리가 안 된 것 같아요.
-                  신고 처리는 보통 얼마나 걸리나요?
-                </div>
-                <div class="inquiry-actions">
-                  <button class="btn btn-outline">답변 보기</button>
-                </div>
-              </div>
+            <div class="pagination-container" id="inquiries-pagination">
             </div>
           </div>
-          <%--문의 내역 관련 끝--%>
+          <%-- 문의 내역 관련 끝--%>
 
-          <div class="tab-content" id="tab-settings">
+
+
+
+
+
+
+
+
+          <%-- JSTL: activeTab에 따라 active 클래스 적용 --%>
+          <div class="tab-content ${activeTab == 'settings' ? 'active' : ''}" id="tab-settings">
             <div class="settings-grid">
               <div class="settings-card">
                 <div class="card-header">

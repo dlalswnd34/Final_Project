@@ -1,4 +1,32 @@
-/* CheForest 마이페이지 스타일 */
+/* --------------------------------------------------
+ * CheForest 마이페이지 스타일 (V2 - 개선 및 통일)
+ * -------------------------------------------------- */
+
+/* 1. CSS 변수 정의 (브랜드 색상 통일성 확보) */
+:root {
+    /* CheForest Brand Colors */
+    --color-brand-primary: #f97316; /* Main Orange */
+    --color-brand-secondary: #ec4899; /* Pink */
+    --color-brand-gradient: linear-gradient(to right, var(--color-brand-secondary), var(--color-brand-primary));
+    --color-brand-bg-light: #fff7ed; /* 연한 오렌지 배경 */
+
+    /* Utility Colors */
+    --color-text-dark: #1f2937;
+    --color-text-sub: #6b7280;
+    --color-border-light: #e5e7eb;
+    --color-border-subtle: #d1d5db;
+    --color-bg-light: #f9fafb;
+    --color-bg-subtle: #f3f4f6;
+
+    /* Status Colors */
+    --color-status-complete-bg: #dcfce7;
+    --color-status-complete-text: #166534;
+    --color-status-pending-bg: #fef3c7;
+    --color-status-pending-text: #92400e;
+    --color-danger-text: #dc2626;
+    --color-danger-border: #fca5a5;
+    --color-danger-bg: #fef2f2;
+}
 
 /* 메인 컨테이너 */
 .mypage-main {
@@ -14,7 +42,7 @@
 
 /* 페이지 헤더 */
 .mypage-header {
-    background: linear-gradient(to right, #ec4899, #f97316);
+    background: var(--color-brand-gradient);
     color: white;
     padding: 48px 0;
 }
@@ -126,7 +154,7 @@
 /* 통계 섹션 */
 .stats-section {
     padding: 32px 0;
-    background: #f8f9fa;
+    background: var(--color-bg-subtle);
 }
 
 .stats-grid {
@@ -179,28 +207,28 @@
     font-size: 32px;
     font-weight: 700;
     margin-bottom: 4px;
-    color: #1f2937;
+    color: var(--color-text-dark);
 }
 
 .stat-recipes .stat-number {
-    color: #ea580c;
+    color: #ea580c; /* 오렌지 계열 */
 }
 
 .stat-comments .stat-number {
-    color: #db2777;
+    color: #db2777; /* 핑크 계열 */
 }
 
 .stat-likes .stat-number {
-    color: #dc2626;
+    color: #dc2626; /* 레드 계열 */
 }
 
 .stat-views .stat-number {
-    color: #2563eb;
+    color: #2563eb; /* 블루 계열 */
 }
 
 .stat-label {
     font-size: 14px;
-    color: #6b7280;
+    color: var(--color-text-sub);
 }
 
 /* 메인 컨텐츠 섹션 */
@@ -221,7 +249,7 @@
 
 .sidebar-content {
     background: white;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-border-light);
     border-radius: 12px;
     padding: 24px;
     position: sticky;
@@ -236,11 +264,11 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #1f2937;
+    color: var(--color-text-dark);
 }
 
 .sidebar-icon {
-    color: #f97316;
+    color: var(--color-brand-primary);
 }
 
 .menu-list {
@@ -265,11 +293,11 @@
 }
 
 .menu-item:hover {
-    background: #f3f4f6;
+    background: var(--color-bg-subtle);
 }
 
 .menu-item.active {
-    background: linear-gradient(to right, #ec4899, #f97316);
+    background: var(--color-brand-gradient);
     color: white;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
@@ -308,21 +336,21 @@
 /* 정보 카드 */
 .info-card {
     background: white;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-border-light);
     border-radius: 12px;
     overflow: hidden;
 }
 
 .card-header {
     padding: 20px 24px;
-    border-bottom: 1px solid #e5e7eb;
-    background: #f9fafb;
+    border-bottom: 1px solid var(--color-border-light);
+    background: var(--color-bg-light);
 }
 
 .card-title {
     font-size: 18px;
     font-weight: 600;
-    color: #1f2937;
+    color: var(--color-text-dark);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -388,7 +416,7 @@
 
 .level-desc {
     font-size: 14px;
-    color: #6b7280;
+    color: var(--color-text-sub);
 }
 
 /* 활동 현황 */
@@ -410,13 +438,13 @@
 }
 
 .activity-badge {
-    background: #f3f4f6;
+    background: var(--color-bg-subtle);
     color: #374151;
     padding: 4px 12px;
     border-radius: 16px;
     font-size: 14px;
     font-weight: 500;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--color-border-subtle);
 }
 
 /* 탭 헤더 */
@@ -430,12 +458,16 @@
 .tab-title {
     font-size: 20px;
     font-weight: 600;
-    color: #1f2937;
+    color: var(--color-text-dark);
 }
 
-/* 버튼 스타일 */
+/* --------------------------------------------------
+ * 2. 버튼 스타일 통일성 확보 (핵심 개선)
+ * -------------------------------------------------- */
+
+/* 2-1. Primary Button */
 .btn-primary {
-    background: #f97316;
+    background: var(--color-brand-primary);
     color: white;
     border: none;
     padding: 12px 20px;
@@ -449,67 +481,65 @@
 }
 
 .btn-primary:hover {
-    background: linear-gradient(to right, #ec4899, #f97316);
+    background: var(--color-brand-gradient);
 }
 
+/* 2-2. Outline Button (문의 내역 버튼, 수정/보기/삭제 등의 기본 스타일) */
+.btn {
+    /* 모든 버튼에 공통적인 스타일 (JS에서 사용되는 일반 .btn에 대비) */
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+.btn-outline,
 .btn-edit,
-.btn-view {
-    background: white;
-    color: #ea580c;
-    border: 1px solid #fdba74;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.btn-edit:hover,
-.btn-view:hover {
-    background: #fff7ed;
-}
-
-.btn-delete {
-    background: white;
-    color: #dc2626;
-    border: 1px solid #fca5a5;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.btn-delete:hover {
-    background: #fef2f2;
-}
-
+.btn-view,
 .btn-view-recipe {
     background: white;
-    color: #ea580c;
-    border: 1px solid #fdba74;
-    padding: 8px 16px;
+    color: var(--color-brand-primary); /* 오렌지색 텍스트 */
+    border: 1px solid #fdba74; /* 연한 오렌지색 경계 */
+    padding: 8px 12px;
     border-radius: 6px;
     font-size: 14px;
     cursor: pointer;
     transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
+    text-decoration: none; /* Link/a 태그처럼 사용될 때 대비 */
 }
 
+.btn-outline:hover,
+.btn-edit:hover,
+.btn-view:hover,
 .btn-view-recipe:hover {
-    background: #fff7ed;
+    background: var(--color-brand-bg-light); /* #fff7ed */
+    border-color: var(--color-brand-primary);
+}
+
+/* 2-3. Delete/Danger Button */
+.btn-delete,
+.btn-outline.delete {
+    background: white;
+    color: var(--color-danger-text);
+    border: 1px solid var(--color-danger-border);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-delete:hover,
+.btn-outline.delete:hover {
+    background: var(--color-danger-bg);
 }
 
 .btn-danger {
-    background: #dc2626;
+    background: var(--color-danger-text);
     color: white;
     border: none;
     padding: 8px 16px;
@@ -544,16 +574,17 @@
 .comment-item,
 .liked-item {
     background: white;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-border-light);
     border-radius: 12px;
     padding: 20px;
-    transition: box-shadow 0.2s ease;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .recipe-item:hover,
 .comment-item:hover,
 .liked-item:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
 }
 
 .recipe-item {
@@ -580,7 +611,7 @@
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 8px;
-    color: #1f2937;
+    color: var(--color-text-dark);
 }
 
 .recipe-meta,
@@ -589,17 +620,17 @@
     align-items: center;
     gap: 16px;
     font-size: 14px;
-    color: #6b7280;
+    color: var(--color-text-sub);
 }
 
 .recipe-category,
 .liked-category {
-    background: #f3f4f6;
+    background: var(--color-bg-subtle);
     color: #374151;
     padding: 2px 8px;
     border-radius: 12px;
     font-size: 12px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--color-border-subtle);
 }
 
 .recipe-stat {
@@ -628,13 +659,13 @@
 .comment-recipe-title {
     font-size: 16px;
     font-weight: 600;
-    color: #ea580c;
+    color: var(--color-brand-primary);
 }
 
 .comment-date,
 .liked-date {
     font-size: 14px;
-    color: #6b7280;
+    color: var(--color-text-sub);
 }
 
 .comment-content {
@@ -657,7 +688,7 @@
 }
 
 .liked-author {
-    color: #6b7280;
+    color: var(--color-text-sub);
 }
 
 /* 설정 */
@@ -668,13 +699,13 @@
 
 .settings-card {
     background: white;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-border-light);
     border-radius: 12px;
     overflow: hidden;
 }
 
 .danger-card {
-    border-color: #fca5a5;
+    border-color: var(--color-danger-border);
 }
 
 .form-grid {
@@ -698,7 +729,7 @@
 
 .form-group input {
     padding: 12px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--color-border-subtle);
     border-radius: 8px;
     font-size: 14px;
     transition: border-color 0.2s ease;
@@ -706,13 +737,13 @@
 
 .form-group input:focus {
     outline: none;
-    border-color: #f97316;
+    border-color: var(--color-brand-primary);
     box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
 }
 
 .danger-zone {
-    background: #fef2f2;
-    border: 1px solid #fca5a5;
+    background: var(--color-danger-bg);
+    border: 1px solid var(--color-danger-border);
     border-radius: 8px;
     padding: 20px;
 }
@@ -720,7 +751,7 @@
 .danger-title {
     font-size: 16px;
     font-weight: 600;
-    color: #dc2626;
+    color: var(--color-danger-text);
     margin-bottom: 8px;
 }
 
@@ -731,7 +762,124 @@
     line-height: 1.5;
 }
 
-/* 반응형 디자인 */
+/* --------------------------------------------------
+ * 3. 문의 내역 (Inquiries) 스타일 + 호버 효과 추가
+ * -------------------------------------------------- */
+
+.inquiries-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.inquiry-card {
+    background: white;
+    border: 1px solid var(--color-border-light);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    transition: box-shadow 0.2s ease, transform 0.2s ease; /* transition 추가 */
+}
+
+.inquiry-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* 호버 효과 추가 */
+    transform: translateY(-1px); /* 살짝 올리는 효과 */
+}
+
+.inquiry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.inquiry-title {
+    font-weight: 600;
+    font-size: 1.125rem;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-badge.completed {
+    background-color: var(--color-status-complete-bg);
+    color: var(--color-status-complete-text);
+}
+
+.status-badge.in-progress {
+    background-color: var(--color-status-pending-bg);
+    color: var(--color-status-pending-text);
+}
+
+.inquiry-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: var(--color-text-sub);
+}
+
+.inquiry-content {
+    color: #374151;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.inquiry-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* --------------------------------------------------
+ * 4. 페이지네이션 스타일 (테마 색상으로 통일)
+ * -------------------------------------------------- */
+
+.pagination-wrapper {
+    display: flex; /* 버튼을 가로로 정렬 */
+    gap: 8px;      /* 버튼 사이에 간격 추가 */
+    margin-top: 24px; /* 여유 공간 */
+    justify-content: center; /* 중앙 정렬 */
+}
+
+.page-btn {
+    padding: 8px 14px; /* 클릭 영역 확보 */
+    border: 1px solid var(--color-border-subtle);
+    background-color: #fff;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--color-text-dark);
+    transition: all 0.2s ease;
+}
+
+.page-btn:hover:not(.active) {
+    background-color: var(--color-bg-subtle);
+    border-color: var(--color-brand-primary);
+    color: var(--color-brand-primary);
+}
+
+.page-btn.active {
+    background-color: var(--color-brand-primary); /* 메인 오렌지 색상 */
+    color: white;
+    border-color: var(--color-brand-primary);
+    box-shadow: 0 2px 5px rgba(249, 115, 22, 0.3);
+    pointer-events: none; /* 활성 페이지는 클릭 불가 */
+}
+
+.page-btn[disabled] {
+    cursor: not-allowed;
+    opacity: 0.4;
+    color: var(--color-text-sub);
+}
+
+
+/* --------------------------------------------------
+ * 반응형 디자인 (기존 로직 유지)
+ * -------------------------------------------------- */
 @media (max-width: 1024px) {
     .content-layout {
         grid-template-columns: 1fr;
@@ -810,6 +958,15 @@
     .recipe-actions {
         justify-content: center;
     }
+
+    .inquiry-header {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .inquiry-actions {
+        flex-wrap: wrap;
+    }
 }
 
 @media (max-width: 480px) {
@@ -839,272 +996,47 @@
     }
 }
 
-/* === MyPage: 좋아요 탭 분리(관리자/사용자) — 더미 데이터 버전도 동일 사용 === */
+/* 나머지 좋아요 탭 관련 스타일 (기존과 동일하게 유지) */
 .mypage-like-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:8px 0 12px}
-.mypage-like-tabs{display:flex;gap:8px;border-bottom:1px solid #f1f5f9}
-.mypage-like-tabbtn{appearance:none;border:none;background:transparent;cursor:pointer;padding:10px 14px;border-radius:10px 10px 0 0;font:500 14px/1.2 'Gowun Dodum',sans-serif;color:#64748b;transition:.2s;position:relative}
-.mypage-like-tabbtn:hover{background:#f8fafc;color:#475569}
-.mypage-like-tabbtn.is-active{color:#f97316;background:#fff7ed}
-.mypage-like-tabbtn.is-active::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(135deg,#f97316,#ec4899)}
+.mypage-like-tabs{display:flex;gap:18px;align-items:flex-end;margin-bottom:8px;}
+.mypage-like-tabbtn{--tab-width: 188px;flex: 0 0 var(--tab-width);display:inline-flex;align-items:center;gap:10px;padding:12px 18px;min-height:48px;line-height:1;white-space:nowrap;border:0;background:transparent;position:relative;cursor:pointer;font-family:inherit;}
+.mypage-like-tabbtn:hover{background:var(--color-bg-light);color:#475569}
+.mypage-like-tabbtn.is-active{color:var(--color-brand-primary);background:var(--color-brand-bg-light)}
+.mypage-like-tabbtn.is-active::after{content:"";position:absolute;left:0 ;right:18px;bottom:-6px;height:3px;background:linear-gradient(90deg,var(--color-brand-secondary),var(--color-brand-primary));border-radius:2px;}
+.mypage-like-tabbtn i,.mypage-like-tabbtn [data-lucide],.mypage-like-tabbtn svg{width:22px;height:22px;flex:0 0 22px;}
 
 .mypage-like-pane{display:none;padding-top:12px}
 .mypage-like-pane.is-active{display:block}
 
-.mypage-like-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
-.mypage-like-item{display:flex;align-items:center;gap:14px;padding:12px 14px;border:1px solid #f1f5f9;border-radius:12px;background:#fff;text-decoration:none;color:#1e293b;transition:.2s}
-.mypage-like-item:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,.06)}
-.mypage-like-thumb{width:72px;height:72px;border-radius:10px;object-fit:cover;flex:0 0 auto;background:#f8fafc}
-.mypage-like-info{flex:1 1 auto;min-width:0}
-.mypage-like-title{font-weight:600;font-size:15px;line-height:1.3;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mypage-like-meta{display:flex;flex-wrap:wrap;gap:8px;font-size:12px;color:#64748b}
-.mypage-like-go{color:#f97316;font-weight:600;white-space:nowrap}
+.mypage-like-list{display:flex;flex-direction:column;gap:12px;}
+.mypage-like-item{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;border:1px solid #f1f5f9;border-radius:12px;background:#fff;transition:.2s;}
+.mypage-like-item:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,.06);}
+.mypage-like-left{display:flex;align-items:center;gap:14px;min-width:0;flex:1 1 auto;}
+.mypage-like-thumb{width:72px; height:72px; border-radius:10px; object-fit:cover; background:#f8fafc; flex:0 0 auto;}
+.mypage-like-info{ min-width:0; }
+.mypage-like-title{font-weight:600; font-size:16px; line-height:1.35; margin-bottom:6px;white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.mypage-like-meta{display:flex; flex-wrap:wrap; gap:10px; font-size:12px; color:#64748b;}
+.mypage-like-actions{ flex:0 0 auto; display:flex; align-items:center; gap:8px; }
 .mypage-like-empty{padding:18px;border:1px dashed #e2e8f0;border-radius:12px;color:#64748b;background:#fff}
 
-@media (max-width:480px){.mypage-like-list{grid-template-columns:1fr}}
-
-/* === MyPage: 좋아요 탭 — 리스트 1열 형식으로 덮어쓰기 === */
-.mypage-like-list{
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-}
-
-/* 한 줄 카드 */
-.mypage-like-item{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:16px;
-    padding:14px 16px;
-    border:1px solid #f1f5f9;
-    border-radius:12px;
-    background:#fff;
-    transition:.2s;
-}
-.mypage-like-item:hover{
-    transform:translateY(-2px);
-    box-shadow:0 8px 25px rgba(0,0,0,.06);
-}
-
-/* 좌측(썸네일+정보) */
-.mypage-like-left{
-    display:flex;
-    align-items:center;
-    gap:14px;
-    min-width:0;
-    flex:1 1 auto;
-}
-.mypage-like-thumb{
-    width:72px; height:72px; border-radius:10px; object-fit:cover; background:#f8fafc; flex:0 0 auto;
-}
-.mypage-like-info{ min-width:0; }
-.mypage-like-title{
-    font-weight:600; font-size:16px; line-height:1.35; margin-bottom:6px;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
-.mypage-like-meta{
-    display:flex; flex-wrap:wrap; gap:10px; font-size:12px; color:#64748b;
-}
-
-/* 우측 “보기” 버튼 */
-.mypage-like-actions{ flex:0 0 auto; display:flex; align-items:center; gap:8px; }
-.mypage-like-viewbtn{
-    display:inline-flex; align-items:center; gap:6px;
-    padding:8px 12px; border:1px solid #f97316; border-radius:8px;
-    color:#f97316; text-decoration:none; font-weight:400; font-size:13px;
-    background:#fff7ed; /* 살짝 톤 */
-}
-.mypage-like-viewbtn:hover{
-    background:#ffd7ba; /* hover */
-    border-color:#f97316;
-}
-
-/* 반응형: 모바일에서 좌우 여백과 버튼 줄바꿈 최소화 */
 @media (max-width:480px){
+    .mypage-like-list{grid-template-columns:1fr}
     .mypage-like-item{ padding:12px }
     .mypage-like-title{ font-size:15px }
-    .mypage-like-viewbtn{ padding:8px 10px; font-size:12px }
 }
-/* MyPage pagination */
-        .pagination {
-            margin-top: 20px;
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .pagination .btn-view.active {
-            background: #f97316;
-            color: #fff;
-            border-color: #f97316;
-            pointer-events: none;
-        }
-        .pagination .btn-view.disabled {
-            opacity: .5;
-            pointer-events: none;
-        }
-    /*여기부터 좋아요 탭버튼*/
-    /* 탭 래퍼 정렬 */
-    .mypage-like-tabs{
-        display:flex;
-        gap:18px;
-        align-items:flex-end;
-        margin-bottom:8px;
-    }
 
-    /* 탭 버튼: 아이콘 수평정렬 + 크기 확대(두 탭 동일 폭) */
-    .mypage-like-tabbtn{
-        --tab-width: 188px;          /* ← 탭 폭(원하면 180~200px 사이로 조정) */
-        flex: 0 0 var(--tab-width);
-        display:inline-flex;
-        align-items:center;          /* 아이콘/텍스트 수직 중앙 정렬 */
-        gap:10px;                    /* 아이콘-텍스트 간격 */
-        padding:12px 18px;           /* 높이 여유 */
-        min-height:48px;             /* 아이콘이 눌리지 않게 */
-        line-height:1;               /* 줄높이로 인한 들뜸 방지 */
-        white-space:nowrap;          /* 줄바꿈 방지 */
-        border:0;
-        background:transparent;      /* 스타일은 기존 그대로 유지 */
-        position:relative;
-    }
-
-    /* 아이콘 크기(루시드/이미지/이모지 대응) */
-    .mypage-like-tabbtn i,
-    .mypage-like-tabbtn [data-lucide],
-    .mypage-like-tabbtn svg{
-        width:22px;
-        height:22px;
-        flex:0 0 22px;
-    }
-
-    /* 활성 탭 하이라인(기존과 동일하게 유지) */
-    .mypage-like-tabbtn.is-active::after{
-        content:"";
-        position:absolute;
-        left:0 ;                   /* 좌우 여백은 패딩과 맞춰주면 깔끔 */
-        right:18px;
-        bottom:-6px;
-        height:3px;
-        background:linear-gradient(90deg,#ec4899,#f97316);
-        border-radius:2px;
-    }
-
-    /* CheForest 텍스트 그라데이션 (이미 있으면 중복 추가 X) */
-    .brand-gradient{
-        background:linear-gradient(90deg,#ec4899,#f97316);
-        -webkit-background-clip:text;
-        background-clip:text;
-        color:transparent;
-        font-weight:800;
-    }
-/* boardlist와 동일 룩의 인라인 배지 */
+.brand-gradient{
+    background:linear-gradient(90deg,var(--color-brand-secondary),var(--color-brand-primary));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    font-weight:800;
+}
 .category-badge{
-    font-size:.75rem;           /* 12px */
-    padding:.25rem .5rem;       /* 4px 8px */
-    border-radius:.375rem;      /* 6px */
-    font-weight:500;
-    display:inline-block;
-    vertical-align:middle;
-    line-height:1;              /* 줄맞춤 */
-    margin-left:.25rem;         /* 제목/텍스트와 간격 */
+    font-size:.75rem;padding:.25rem .5rem;border-radius:.375rem;font-weight:500;display:inline-block;vertical-align:middle;line-height:1;margin-left:.25rem;
 }
-
-/* 값 그대로 매칭 (데이터-카테고리) */
 .category-badge[data-category="한식"]   { background:#fef2f2; color:#b91c1c; }
 .category-badge[data-category="양식"]   { background:#f0fdf4; color:#16a34a; }
 .category-badge[data-category="중식"]   { background:#fefce8; color:#ca8a04; }
 .category-badge[data-category="일식"]   { background:#eff6ff; color:#2563eb; }
 .category-badge[data-category="디저트"] { background:#faf5ff; color:#9333ea; }
-
-/* 사용자 레시피 탭 조회 버튼을 CheForest와 동일 룩으로 */
-.mypage-like-viewbtn {
-    background: white;
-    color: #ea580c;
-    border: 1px solid #fdba74;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-}
-.mypage-like-viewbtn:hover {
-    background: #fff7ed;
-}
-
-/* 문의 내역 스타일 */
-.inquiries-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.inquiry-card {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    transition: box-shadow 0.2s ease;
-}
-
-.inquiry-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 0.75rem;
-}
-
-.inquiry-title {
-    font-weight: 600;
-    font-size: 1.125rem;
-}
-
-.status-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 1rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.status-badge.completed {
-    background-color: #dcfce7;
-    color: #166534;
-}
-
-.status-badge.in-progress {
-    background-color: #fef3c7;
-    color: #92400e;
-}
-
-.inquiry-meta {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    font-size: 0.875rem;
-    color: #6b7280;
-}
-
-.inquiry-content {
-    color: #374151;
-    margin-bottom: 1rem;
-    line-height: 1.6;
-}
-
-.inquiry-actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-/* 반응형 */
-@media (max-width: 768px) {
-    .inquiry-header {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .inquiry-actions {
-        flex-wrap: wrap;
-    }
-}
