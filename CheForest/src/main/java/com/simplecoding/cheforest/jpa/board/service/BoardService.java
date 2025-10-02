@@ -77,6 +77,14 @@ public class BoardService {
         Board board = mapStruct.toEntity(dto);
         board.setWriter(writer);
 
+//        조리시간(cookTime)에서 숫자만 추출하여 설정하는 로직 추가
+        if (dto.getCookTime() != null && !dto.getCookTime().isBlank()) {
+            String cookTimeStr = dto.getCookTime().replaceAll("[^0-9]", "");
+            if (!cookTimeStr.isEmpty()) {
+                board.setCookTime(Integer.parseInt(cookTimeStr));
+            }
+        }
+
         board.setPrepare(StringUtil.joinList(dto.getIngredientName()));
         board.setPrepareAmount(StringUtil.joinList(dto.getIngredientAmount()));
 
@@ -98,48 +106,104 @@ public class BoardService {
 
     // 4. 게시글 수정
     @Transactional
-    public void update(BoardUpdateReq dto,
+    public void update(Long boardId,
+                       BoardSaveReq dto,
                        String writerEmail,
-                       List<MultipartFile> images,
                        List<Long> deleteImageIds) throws IOException {
 
-        // 1) 게시글 찾기
-        Board board = boardRepository.findById(dto.getBoardId())
-                .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + dto.getBoardId()));
+        // 1) 기존 게시글 조회
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + boardId));
 
-        // 2) 작성자 검증
+        // 2) 작성자 검증 (기존 로직 유지 - 좋습니다 👍)
         if (!board.getWriter().getEmail().equals(writerEmail)) {
             throw new SecurityException("작성자만 수정할 수 있습니다.");
         }
 
-        // 3) 텍스트 업데이트 (MapStruct: null 무시)
-        mapStruct.updateEntity(dto, board);
+        // 3) 기본 정보 업데이트
+        board.setTitle(dto.getTitle());
+        board.setCategory(dto.getCategory());
+        board.setDifficulty(dto.getDifficulty());
 
-        // 4) 기존 파일 삭제
+        // ✅ [수정] "30분" -> 30으로 변환. 숫자 외 문자 모두 제거
+        String cookTimeStr = dto.getCookTime().replaceAll("[^0-9]", "");
+        if (!cookTimeStr.isEmpty()) {
+            board.setCookTime(Integer.parseInt(cookTimeStr));
+        }
+
+        // 4) 재료 → 문자열 변환 (기존 로직 유지)
+        board.setPrepare(StringUtil.joinList(dto.getIngredientName()));
+        board.setPrepareAmount(StringUtil.joinList(dto.getIngredientAmount()));
+
+        // 5) ✅ [수정] 조리법 업데이트 (글 + 이미지 통합 로직)
+        // 기존 조리법 정보 불러오기
+        List<StepDto> originalSteps = board.getContent() != null && !board.getContent().isBlank() ?
+                JsonUtil.fromJsonList(board.getContent(), StepDto.class) : new ArrayList<>();
+
+        List<StepDto> newSteps = new ArrayList<>();
+        List<String> contents = dto.getInstructionContent();
+        List<MultipartFile> images = dto.getInstructionImage();
+
+        if (contents != null) {
+            for (int i = 0; i < contents.size(); i++) {
+                String content = contents.get(i);
+                MultipartFile imageFile = (images != null && i < images.size()) ? images.get(i) : null;
+                String imageUrl = null;
+
+                // 새 이미지가 업로드된 경우
+                if (imageFile != null && !imageFile.isEmpty()) {
+                    // 기존에 이미지가 있었다면 삭제
+                    if (i < originalSteps.size() && originalSteps.get(i).getImage() != null) {
+                        try {
+                            String oldUrl = originalSteps.get(i).getImage();
+                            Long oldFileId = Long.parseLong(oldUrl.substring(oldUrl.lastIndexOf('/') + 1));
+                            fileService.deleteFile(oldFileId);
+                        } catch (Exception e) {
+                            // log.error("기존 조리법 이미지 삭제 실패", e);
+                        }
+                    }
+                    // 새 이미지 저장
+                    FileDto stepImage = fileService.saveFile(imageFile, "BOARD_STEP", boardId, String.valueOf(i + 1), board.getWriter().getMemberIdx());
+                    imageUrl = "/file/board/preview/" + stepImage.getFileId();
+                }
+                // 새 이미지가 없고, 기존 이미지를 유지해야 하는 경우
+                else if (i < originalSteps.size()) {
+                    imageUrl = originalSteps.get(i).getImage();
+                }
+                newSteps.add(new StepDto(content, imageUrl));
+            }
+        }
+        board.setContent(JsonUtil.toJson(newSteps));
+
+
+        // 6) 삭제 요청된 기존 첨부 파일 처리 (기존 로직 유지)
         if (deleteImageIds != null && !deleteImageIds.isEmpty()) {
             deleteImageIds.forEach(fileService::deleteFile);
         }
 
-        // 5) 새 파일 저장
-        Long firstNewFileId = null;
-        if (images != null && !images.isEmpty()) {
-            firstNewFileId = fileService.saveBoardFiles(board.getBoardId(),
-                    board.getWriter().getMemberIdx(), images);
+        // 7) ✅ [수정] 대표 이미지 교체 (기존 파일 삭제 로직 추가)
+        if (dto.getMainImage() != null && !dto.getMainImage().isEmpty()) {
+            // 기존 썸네일 파일이 있었다면 삭제
+            if (board.getThumbnail() != null && !board.getThumbnail().isEmpty()) {
+                try {
+                    // URL에서 fileId 추출 (예: /file/board/preview/123 -> 123)
+                    String oldUrl = board.getThumbnail();
+                    Long oldFileId = Long.parseLong(oldUrl.substring(oldUrl.lastIndexOf('/') + 1));
+                    fileService.deleteFile(oldFileId);
+                } catch (Exception e) {
+                    // log.error("기존 썸네일 삭제 실패", e); // 실제 운영에서는 로그를 남기는 것이 좋습니다.
+                }
+            }
+
+            // 새 썸네일 저장 및 URL 설정
+            FileDto thumb = fileService.saveFile(dto.getMainImage(),
+                    "BOARD", boardId, "THUMBNAIL", board.getWriter().getMemberIdx());
+            if (thumb != null) {
+                board.setThumbnail("/file/board/preview/" + thumb.getFileId());
+            }
         }
-
-        // 6) 썸네일 재지정 로직
-        if (firstNewFileId != null) {
-            // (A) 새 업로드가 있으면 → 첫 번째 파일을 썸네일로 교체
-            board.setThumbnail("/file/board/preview/" + firstNewFileId);
-
-        } else if (deleteImageIds != null && !deleteImageIds.isEmpty()) {
-            // (B) 새 업로드는 없는데 기존 썸네일이 삭제되었으면 → null 처리
-            board.setThumbnail(null);
-        }
-
-        // 7) JPA 더티체킹 → commit 시점에 자동 반영
+        // JPA 더티체킹(Dirty Checking)으로 메소드 종료 시 자동으로 DB에 update 쿼리가 실행됩니다.
     }
-
 
     // 5. 게시글 삭제
     public void delete(Long boardId) {

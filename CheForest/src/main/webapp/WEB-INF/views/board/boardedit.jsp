@@ -89,17 +89,18 @@
           <input type="text" class="form-input" id="cookTime" name="cookTime"
                  value="<c:out value='${board.cookTime}'/>"
                  placeholder="예: 30분" required>
-          <div class="form-help">예: 30분, 1시간 30분</div>
+          <div class="form-help">예: 30분, 60분</div>
         </div>
       </div>
 
-      <!-- 대표 이미지 업로드 (신규 업로드는 name="images") -->
+      <!-- 대표 이미지 업로드 -->
       <div class="form-section">
         <h2 class="section-title">대표 이미지</h2>
         <div class="form-group">
           <label class="form-label" for="mainImage">완성 사진을 업로드하거나 기존 이미지를 유지하세요</label>
           <div class="image-upload-area" id="imageUploadArea">
-            <input type="file" class="image-input" id="mainImage" name="images" accept="image/*" hidden>
+            <!-- ✅ 이름을 BoardSaveReq에 맞춤 -->
+            <input type="file" class="image-input" id="mainImage" name="mainImage" accept="image/*" hidden>
             <div class="upload-placeholder" id="uploadPlaceholder">
               <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -111,8 +112,7 @@
               <p class="upload-help">JPG, PNG (최대 5MB)</p>
             </div>
             <div class="image-preview" id="imagePreview" style="<c:out value='${empty board.thumbnail ? "display:none;" : "display:block;"}'/>">
-              <img class="preview-img" id="previewImg"
-                   src="<c:out value='${board.thumbnail}'/>" alt="미리보기">
+              <img class="preview-img" id="previewImg" src="<c:out value='${board.thumbnail}'/>" alt="미리보기">
               <button type="button" class="remove-image" id="removeImage">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -132,8 +132,9 @@
           <h2 class="section-title">기존 첨부</h2>
           <div id="existingFiles" class="tags-preview">
             <c:forEach var="f" items="${fileList}">
+              <c:url var="filePreviewUrl" value="/file/board/preview/${f.fileId}"/>
               <span class="tag-item existing-file" data-file-id="${f.fileId}">
-                <a href="${f.url}" target="_blank"><c:out value="${f.originalName}"/></a>
+                <a href="${filePreviewUrl}" target="_blank"><c:out value="${f.fileName}"/></a>
                 <button type="button" class="tag-remove" onclick="markDeleteFile(${f.fileId}, this)">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -213,7 +214,7 @@
         </div>
       </div>
 
-      <!-- 조리법 (단계 사진 업로드도 name="images") -->
+      <!-- 조리법 (단계 사진 업로드) -->
       <div class="form-section">
         <div class="section-header">
           <h2 class="section-title">조리법</h2>
@@ -242,15 +243,14 @@
                   <div class="instruction-content">
                     <div class="form-group">
                       <label class="form-label">조리 방법</label>
-                      <textarea class="form-textarea" name="instructionContent[]" rows="4" required>
-                        <c:out value="${ins.content}"/>
-                      </textarea>
+                      <textarea class="form-textarea" name="instructionContent[]" rows="4" required><c:out value='${ins.content}'/></textarea>
                     </div>
 
                     <div class="form-group">
                       <label class="form-label">사진 (선택사항)</label>
                       <div class="instruction-image-upload">
-                        <input type="file" class="instruction-image-input" name="images" accept="image/*" hidden>
+                        <!-- ✅ 이름을 BoardSaveReq에 맞춤 -->
+                        <input type="file" class="instruction-image-input" name="instructionImage" accept="image/*" hidden>
                         <div class="instruction-upload-placeholder" style="<c:out value='${empty ins.image ? "display:flex;" : "display:none;"}'/>">
                           <svg class="instruction-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/>
@@ -290,7 +290,7 @@
                   <div class="form-group">
                     <label class="form-label">사진 (선택사항)</label>
                     <div class="instruction-image-upload">
-                      <input type="file" class="instruction-image-input" name="images" accept="image/*" hidden>
+                      <input type="file" class="instruction-image-input" name="instructionImage" accept="image/*" hidden>
                       <div class="instruction-upload-placeholder">
                         <svg class="instruction-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/>
