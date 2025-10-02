@@ -51,10 +51,4 @@ public class InquiriesService {
     public Page<InquiryWithNicknameDto> searchInquiries(String keyword, String status, Pageable pageable) {
         return inquiriesRepository.findByKeywordAndStatus(keyword, status, pageable);
     }
-
-
-
-
-
-
 }

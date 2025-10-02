@@ -17,7 +17,6 @@
 <jsp:include page="/common/header.jsp"/>
 <main class="mypage-main">
 
-  <!-- 페이지 헤더 -->
   <section class="mypage-header">
     <div class="container">
       <div class="profile-info">
@@ -49,7 +48,6 @@
 
 
 
-  <!-- 통계 섹션 -->
   <section class="stats-section">
     <div class="container">
       <div class="stats-grid">
@@ -78,20 +76,18 @@
           </div>
           <div class="stat-label">받은 좋아요</div>
         </div>
-          <div class="stat-card stat-views">
-            <div class="stat-icon">🔍</div>
-            <div class="stat-number"><fmt:formatNumber value="${myPostsTotalViewCount}" type="number"/></div>
-            <div class="stat-label">총 조회수</div>
-          </div>
+        <div class="stat-card stat-views">
+          <div class="stat-icon">🔍</div>
+          <div class="stat-number"><fmt:formatNumber value="${myPostsTotalViewCount}" type="number"/></div>
+          <div class="stat-label">총 조회수</div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- 메인 컨텐츠 -->
   <section class="content-section">
     <div class="container">
       <div class="content-layout">
-        <!-- 사이드바 -->
         <aside class="sidebar">
           <div class="sidebar-content">
             <h3 class="sidebar-title"><span class="sidebar-icon">👤</span>마이메뉴</h3>
@@ -100,18 +96,17 @@
               <button class="menu-item" data-tab="recipes"><span class="menu-icon">👨‍🍳</span><span class="menu-text">내 레시피</span></button>
               <button class="menu-item" data-tab="comments"><span class="menu-icon">💬</span><span class="menu-text">내 댓글</span></button>
               <button class="menu-item" data-tab="liked"><span class="menu-icon">❤️</span><span class="menu-text">좋아요</span></button>
-              <button class="menu-item" data-tab="settings"><span class="menu-icon">⚙️</span><span class="menu-text">설정</span></button>
+              <button class="menu-item" data-tab="inquiries"><span class="menu-icon">❓</span><span class="menu-label">문의 내역</span>
+                <button class="menu-item" data-tab="settings"><span class="menu-icon">⚙️</span><span class="menu-text">설정</span></button>
+              </button>
             </div>
           </div>
         </aside>
 
-        <!-- 메인 컨텐츠 본문(※ main 금지, section/div 사용) -->
         <section class="main-content">
 
-          <!-- 프로필 탭 -->
           <div class="tab-content active" id="tab-profile">
             <div class="content-grid">
-              <!-- 등급 현황 카드 -->
               <div class="info-card">
                 <div class="card-header">
                   <h3 class="card-title"><span class="title-icon">🏆</span>등급 현황</h3>
@@ -138,7 +133,6 @@
                 </div>
               </div>
 
-              <!-- 활동 현황 카드 -->
               <div class="info-card">
                 <div class="card-header">
                   <h3 class="card-title"><span class="title-icon">📈</span>활동 현황</h3>
@@ -155,13 +149,10 @@
             </div>
           </div>
 
-          <!-- 내 레시피 탭 -->
-
-          <div class="tab-content active" id="tab-recipes">
+          <div class="tab-content" id="tab-recipes">
             <div class="tab-header">
               <h2 class="tab-title">작성한 레시피 (<c:out value="${myPostsTotalCount}" default="0"/>개)</h2>
 
-              <!-- 추후 C:OUT 변경 요망  -->
               <a href="/board/write" class="btn-primary" id="btn-create-recipe">
                 <span class="btn-icon">👨‍🍳</span> 새 레시피 작성
               </a>
@@ -180,7 +171,6 @@
             <c:if test="${not empty myPosts}">
               <div class="recipe-list">
                 <c:forEach var="post" items="${myPosts}">
-                  <!-- 맵에서 안전하게 값 꺼내고 기본값 지정 -->
                   <c:set var="__thumbRaw" value="${thumbnailById[post.boardId + '']}" />
                   <c:set var="__thumb" value="/images/default_thumbnail.png" />
                   <c:if test="${not empty __thumbRaw}">
@@ -194,10 +184,8 @@
                   </c:if>
 
                   <div class="recipe-item">
-                    <!-- 썸네일 -->
                     <img src="${__thumb}" alt="썸네일" class="recipe-image" />
 
-                    <!-- 본문 -->
                     <div class="recipe-info">
                       <div class="recipe-title">
                         <c:out value="${post.title}" />
@@ -207,30 +195,27 @@
                         <span class="category-badge" data-category="${__cat}"><c:out value="${__cat}" /></span>
                         <span class="recipe-stat">🔍 <c:out value="${post.viewCount}" default="0"/></span>
                         <span class="recipe-stat">❤️ <c:out value="${post.likeCount}" default="0"/></span>
-                        <!-- 문제 발생시 이코드 다시사용 -->
-                        <%--<span class="recipe-stat"><c:out value="${post.insertTime}" /></span>--%>
-                        <%-- fmt로 날짜변환 코드  --%>
+                          <%--<span class="recipe-stat"><c:out value="${post.insertTime}" /></span>--%>
+                          <%-- fmt로 날짜변환 코드  --%>
                           <%-- ISO 문자열의 'T' 제거 후, 초 유무에 따라 파싱 --%>
-                                <c:set var="dtStr" value="${post.insertTime}" />
-                                <c:set var="dtStr" value="${fn:replace(dtStr, 'T', ' ')}" />
+                        <c:set var="dtStr" value="${post.insertTime}" />
+                        <c:set var="dtStr" value="${fn:replace(dtStr, 'T', ' ')}" />
 
-                                <c:choose>
-                                  <c:when test="${fn:length(dtStr) == 16}">
-                                    <fmt:parseDate value="${dtStr}" pattern="yyyy-MM-dd HH:mm" var="dt"/>
-                                  </c:when>
-                                  <c:otherwise>
-                                    <fmt:parseDate value="${dtStr}" pattern="yyyy-MM-dd HH:mm:ss" var="dt"/>
-                                  </c:otherwise>
-                                </c:choose>
+                        <c:choose>
+                          <c:when test="${fn:length(dtStr) == 16}">
+                            <fmt:parseDate value="${dtStr}" pattern="yyyy-MM-dd HH:mm" var="dt"/>
+                          </c:when>
+                          <c:otherwise>
+                            <fmt:parseDate value="${dtStr}" pattern="yyyy-MM-dd HH:mm:ss" var="dt"/>
+                          </c:otherwise>
+                        </c:choose>
 
-                                <span class="recipe-stat">
+                        <span class="recipe-stat">
                                 <fmt:formatDate value="${dt}" pattern="yyyy년 MM월 dd일 a hh시 mm분"/>
                                 </span>
                       </div>
                     </div>
 
-                    <!-- 액션 -->
-                    <!-- (반복문 안) 각 카드 렌더링 중, 액션 영역 바로 위에 URL 준비 -->
                     <c:url var="viewUrl" value="/board/view">
                       <c:param name="boardId" value="${post.boardId}"/>
                     </c:url>
@@ -239,17 +224,14 @@
                     </c:url>
 
                     <div class="recipe-actions">
-                      <!-- ✅ 조회 버튼: 상세 페이지 이동 -->
                       <a href="${viewUrl}" class="btn-view">조회</a>
 
-                      <!-- 기존 버튼들 유지 -->
                       <a href="${editUrl}" class="btn-edit">수정</a>
                       <button type="button" class="btn-delete" data-id="${post.boardId}">삭제</button>
                     </div>
                   </div>
                 </c:forEach>
               </div>
-              <!-- 페이지네이션: 작성한 레시피 리스트 하단에 삽입 -->
               <c:if test="${not empty myPostsPaginationInfo and myPostsPaginationInfo.totalPages > 1}">
                 <c:set var="page" value="${myPostsPaginationInfo}"/>
                 <c:set var="current" value="${page.number + 1}"/>   <%-- 1-based --%>
@@ -262,7 +244,6 @@
                 </c:if>
 
                 <nav class="pagination" aria-label="myPosts pagination">
-                  <!-- « 이전 블록 -->
                   <c:set var="prevBlock" value="${blockStart - blockSize}"/>
                   <c:if test="${prevBlock < 1}">
                     <c:set var="prevBlock" value="1"/>
@@ -272,7 +253,6 @@
                   </c:url>
                   <a href="${prevBlockUrl}" class="btn-view ${blockStart == 1 ? 'disabled' : ''}">«</a>
 
-                  <!-- 번호 -->
                   <c:forEach var="i" begin="${blockStart}" end="${blockEnd}">
                     <c:url var="numUrl" value="/mypage">
                       <c:param name="myPostsPage" value="${i}"/>
@@ -280,7 +260,6 @@
                     <a href="${numUrl}" class="btn-view ${i == current ? 'active' : ''}">${i}</a>
                   </c:forEach>
 
-                  <!-- » 다음 블록 -->
                   <c:set var="nextBlock" value="${blockStart + blockSize}"/>
                   <c:if test="${nextBlock > totalPages}">
                     <c:set var="nextBlock" value="${totalPages}"/>
@@ -296,7 +275,6 @@
           </div>
 
 
-          <!-- 내 댓글 탭 -->
           <div class="tab-content" id="tab-comments">
             <h2 class="tab-title">작성한 댓글 (156개)</h2>
             <div class="comment-list">
@@ -315,12 +293,10 @@
           </div>
 
 
-          <!-- 좋아요 탭 (관리자/사용자 분리) -->
           <div class="tab-content" id="tab-liked">
             <div class="mypage-like-head">
               <h2 class="tab-title">좋아요한 레시피</h2>
 
-              <!-- 탭 버튼 -->
               <div class="mypage-like-tabs" role="tablist">
                 <button type="button"
                         class="mypage-like-tabbtn is-active"
@@ -341,7 +317,6 @@
               </div>
             </div>
 
-            <!-- 레시피 좋아요 탭 -->
             <div id="mypage-like-pane-admin" class="mypage-like-pane is-active" role="tabpanel">
               <div class="mypage-like-list">
 
@@ -350,7 +325,6 @@
                 </c:if>
 
                 <c:forEach var="r" items="${likedRecipes}">
-                  <!-- 카드 전체 클릭: js 분리( /js/mypage-like.js ) -->
                   <div class="mypage-like-item link-card"
                        data-href="/recipe/view?recipeId=${r.recipeId}">
 
@@ -364,22 +338,19 @@
                         <div class="mypage-like-title"><c:out value="${r.titleKr}"/></div>
 
                         <div class="mypage-like-meta">
-                        <span class="category-badge" data-category="${r.categoryKr}"><c:out value="${r.categoryKr}"/></span>
-                       <%-- <span class="meta-date"><c:out value="${r.likeDateText}"/></span>--%>
+                          <span class="category-badge" data-category="${r.categoryKr}"><c:out value="${r.categoryKr}"/></span>
+                            <%-- <span class="meta-date"><c:out value="${r.likeDateText}"/></span>--%>
                         </div>
                       </div>
                     </div>
 
-                    <!-- (반복문 안) 액션 영역 바로 위에서 조회 URL 준비 -->
                     <c:url var="recipeViewUrl" value="/recipe/view">
                       <c:param name="recipeId" value="${r.recipeId}"/>
                     </c:url>
 
                     <div class="mypage-like-actions">
-                      <!-- 조회: 레시피 상세 이동. 카드 전체 클릭과 충돌 방지 -->
                       <a href="${recipeViewUrl}" class="btn-view" onclick="event.stopPropagation();">조회</a>
 
-                      <!-- 삭제: 지금은 동작 비활성 (JS 핸들러가 붙지 않도록 클래스 변경) -->
                       <button type="button"
                               class="btn-delete disabled"
                               aria-disabled="true"
@@ -393,7 +364,6 @@
 
               </div>
 
-              <!-- ===== 페이지네이션: 좋아요한 레시피 하단 (1페이지여도 노출) ===== -->
               <c:if test="${not empty likedRecipesPaginationInfo and likedRecipesPaginationInfo.totalPages >= 1}">
                 <c:set var="page" value="${likedRecipesPaginationInfo}"/>
                 <c:set var="current" value="${page.number + 1}"/>   <%-- 1-based --%>
@@ -406,7 +376,6 @@
                 </c:if>
 
                 <nav class="pagination" aria-label="likedRecipes pagination">
-                  <!-- « 이전 블록 -->
                   <c:set var="prevBlock" value="${blockStart - blockSize}"/>
                   <c:if test="${prevBlock < 1}">
                     <c:set var="prevBlock" value="1"/>
@@ -418,7 +387,6 @@
                   </c:url>
                   <a href="${prevBlockUrl}" class="btn-view ${blockStart == 1 ? 'disabled' : ''}">«</a>
 
-                  <!-- 번호 -->
                   <c:forEach var="i" begin="${blockStart}" end="${blockEnd}">
                     <c:url var="numUrl" value="/mypage">
                       <c:param name="tab" value="${activeTab}"/>
@@ -428,7 +396,6 @@
                     <a href="${numUrl}" class="btn-view ${i == current ? 'active' : ''}">${i}</a>
                   </c:forEach>
 
-                  <!-- » 다음 블록 -->
                   <c:set var="nextBlock" value="${blockStart + blockSize}"/>
                   <c:if test="${nextBlock > totalPages}">
                     <c:set var="nextBlock" value="${totalPages}"/>
@@ -446,7 +413,6 @@
 
 
 
-            <!-- 사용자 레시피 좋아요 목록 -->
             <div id="mypage-like-pane-user" class="mypage-like-pane" role="tabpanel">
               <div class="mypage-like-list">
 
@@ -455,33 +421,28 @@
                 </c:if>
 
                 <c:forEach var="p" items="${likedPosts}">
-                  <!-- 카드 전체 클릭 이동 -->
                   <div class="mypage-like-item link-card"
                        data-href="/board/view?boardId=${p.boardId}">
 
                     <div class="mypage-like-left">
-                      <!-- 썸네일 -->
                       <img class="mypage-like-thumb"
                            src="${empty p.thumbnail ? '/images/default_thumbnail.png' : p.thumbnail}"
                            alt="<c:out value='${p.title}'/>"
                            onerror="this.src='/images/default_thumbnail.png'"/>
 
-                      <!-- 본문 -->
                       <div class="mypage-like-info">
                         <div class="mypage-like-title"><c:out value="${p.title}"/></div>
 
-                        <!-- 메타: 작성자 / 카테고리 / 좋아요일 -->
                         <div class="mypage-like-meta">
                           <span class="meta-author">by <c:out value="${p.writerName}"/></span>
                           <span class="category-badge" data-category="${p.category}"><c:out value="${p.category}"/></span>
                           <span class="meta-date">
-<%--                <fmt:formatDate value="${p.likeDate}" pattern="yyyy.MM.dd"/>--%>
-              </span>
+                              <%--                <fmt:formatDate value="${p.likeDate}" pattern="yyyy.MM.dd"/>--%>
+                          </span>
                         </div>
                       </div>
                     </div>
 
-                    <!-- 우측 버튼: 조회 (카드 전체 클릭과 충돌 방지) -->
                     <c:url var="postViewUrl" value="/board/view">
                       <c:param name="boardId" value="${p.boardId}"/>
                     </c:url>
@@ -491,7 +452,6 @@
                          href="${postViewUrl}"
                          onclick="event.stopPropagation();">조회</a>
 
-                      <!-- 삭제는 추후 구현: 지금은 안내만 -->
                       <button type="button" class="btn-delete"
                               onclick="event.stopPropagation(); alert('삭제(좋아요 해제)는 곧 제공됩니다.');">
                         삭제
@@ -502,7 +462,6 @@
 
               </div>
 
-              <!-- ===== 페이지네이션 (관리자 레시피와 동일 규칙) ===== -->
               <c:if test="${not empty likedPostsPaginationInfo and likedPostsPaginationInfo.totalPages >= 1}">
                 <c:set var="page" value="${likedPostsPaginationInfo}"/>
                 <c:set var="current" value="${page.number + 1}"/>  <%-- 1-based --%>
@@ -515,7 +474,6 @@
                 </c:if>
 
                 <nav class="pagination" aria-label="likedPosts pagination">
-                  <!-- « 이전 블록 -->
                   <c:set var="prevBlock" value="${blockStart - blockSize}"/>
                   <c:if test="${prevBlock < 1}">
                     <c:set var="prevBlock" value="1"/>
@@ -527,7 +485,6 @@
                   </c:url>
                   <a href="${prevBlockUrl}" class="btn-view ${blockStart == 1 ? 'disabled' : ''}">«</a>
 
-                  <!-- 번호 -->
                   <c:forEach var="i" begin="${blockStart}" end="${blockEnd}">
                     <c:url var="numUrl" value="/mypage">
                       <c:param name="tab" value="${activeTab}"/>
@@ -537,7 +494,6 @@
                     <a href="${numUrl}" class="btn-view ${i == current ? 'active' : ''}">${i}</a>
                   </c:forEach>
 
-                  <!-- » 다음 블록 -->
                   <c:set var="nextBlock" value="${blockStart + blockSize}"/>
                   <c:if test="${nextBlock > totalPages}">
                     <c:set var="nextBlock" value="${totalPages}"/>
@@ -555,10 +511,89 @@
           </div>
 
 
-          <!-- 설정 탭 -->
+
+
+
+
+
+
+
+
+
+          <%--문의 내역 관련--%>
+          <div class="tab-content active" id="tab-inquiries">
+            <div class="tab-header">
+              <h2>문의 내역 (3개)</h2>
+              <button class="btn btn-primary" onclick="goToInquiry()">새 문의하기</button>
+            </div>
+
+            <div class="inquiries-list">
+              <div class="inquiry-card">
+                <div class="inquiry-header">
+                  <div class="inquiry-title">레시피 등록 오류 문의</div>
+                  <span class="status-badge completed">답변완료</span>
+                </div>
+                <div class="inquiry-meta">
+                  <span class="inquiry-date">2024-09-15</span>
+                </div>
+                <div class="inquiry-content">
+                  레시피를 등록하려고 하는데 이미지 업로드가 안 됩니다.
+                  파일 크기는 2MB 이하인데 계속 오류가 발생해요.
+                </div>
+                <div class="inquiry-actions">
+                  <button class="btn btn-outline">답변 보기</button>
+                </div>
+              </div>
+
+              <div class="inquiry-card">
+                <div class="inquiry-header">
+                  <div class="inquiry-title">등급 상승 기준 문의</div>
+                  <span class="status-badge in-progress">답변대기</span>
+                </div>
+                <div class="inquiry-meta">
+                  <span class="inquiry-date">2024-09-18</span>
+                </div>
+                <div class="inquiry-content">
+                  레시피를 많이 작성했는데 등급이 올라가지 않네요.
+                  정확한 등급 상승 기준이 궁금합니다.
+                </div>
+                <div class="inquiry-actions">
+                  <button class="btn btn-outline">수정하기</button>
+                  <button class="btn btn-outline delete">삭제하기</button>
+                </div>
+              </div>
+
+              <div class="inquiry-card">
+                <div class="inquiry-header">
+                  <div class="inquiry-title">댓글 신고 처리 관련</div>
+                  <span class="status-badge completed">답변완료</span>
+                </div>
+                <div class="inquiry-meta">
+                  <span class="inquiry-date">2024-09-10</span>
+                </div>
+                <div class="inquiry-content">
+                  부적절한 댓글을 신고했는데 아직 처리가 안 된 것 같아요.
+                  신고 처리는 보통 얼마나 걸리나요?
+                </div>
+                <div class="inquiry-actions">
+                  <button class="btn btn-outline">답변 보기</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <%--문의 내역 관련 끝--%>
+
+
+
+
+
+
+
+
+
+
           <div class="tab-content" id="tab-settings">
             <div class="settings-grid">
-              <!-- 계정 정보 카드 -->
               <div class="settings-card">
                 <div class="card-header">
                   <h3 class="card-title"><span class="title-icon">👤</span>계정 정보</h3>
@@ -578,7 +613,6 @@
                 </div>
               </div>
 
-              <!-- 비밀번호 변경 카드 -->
               <div class="settings-card">
                 <div class="card-header">
                   <h3 class="card-title"><span class="title-icon">🔒</span>비밀번호 변경</h3>
@@ -600,7 +634,6 @@
                 </div>
               </div>
 
-              <!-- 계정 관리 카드 -->
               <div class="settings-card danger-card">
                 <div class="card-header">
                   <h3 class="card-title"><span class="title-icon">🛡️</span>계정 관리</h3>
@@ -616,14 +649,7 @@
             </div>
           </div>
 
-        </section> <!-- /.main-content -->
-      </div> <!-- /.content-layout -->
-    </div> <!-- /.container -->
-  </section> <!-- /.content-section -->
-</main> <!-- /.mypage-main -->
-
-<!-- 푸터는 제외 -->
-<jsp:include page="/common/footer.jsp"/>
+        </section> </div> </div> </section> </main> <jsp:include page="/common/footer.jsp"/>
 
 <script src="/js/common.js"></script>
 <script src="/js/mypages.js"></script>

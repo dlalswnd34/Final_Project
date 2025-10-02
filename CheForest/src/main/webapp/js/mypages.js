@@ -381,3 +381,9 @@ function calculateLevelProgress(currentPosts, currentLevel) {
         });
     });
 })();
+
+function goToInquiry() {
+    // 버튼을 누르면 이 함수가 실행되고, 지정된 URL로 이동합니다.
+    window.location.href = 'http://localhost:8080/qna';
+    // 또는 /inquiries/new 등 서버에 정의된 문의 작성 페이지 URL을 넣습니다.
+}

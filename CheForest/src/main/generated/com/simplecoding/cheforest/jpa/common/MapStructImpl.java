@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-10-01T11:37:30+0900",
+    date = "2025-10-02T15:27:19+0900",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.16 (Azul Systems, Inc.)"
 )
 @Component
@@ -99,11 +99,11 @@ public class MapStructImpl implements MapStruct {
 
         boardListDto.nickname( boardWriterNickname( board ) );
         boardListDto.writerIdx( boardWriterMemberIdx( board ) );
+        boardListDto.likeCount( board.getLikeCount() );
         boardListDto.boardId( board.getBoardId() );
         boardListDto.category( board.getCategory() );
         boardListDto.title( board.getTitle() );
         boardListDto.viewCount( board.getViewCount() );
-        boardListDto.likeCount( board.getLikeCount() );
         boardListDto.thumbnail( board.getThumbnail() );
         boardListDto.insertTime( board.getInsertTime() );
         boardListDto.difficulty( board.getDifficulty() );
@@ -174,15 +174,6 @@ public class MapStructImpl implements MapStruct {
         }
         if ( dto.getTitle() != null ) {
             entity.setTitle( dto.getTitle() );
-        }
-        if ( dto.getContent() != null ) {
-            entity.setContent( dto.getContent() );
-        }
-        if ( dto.getThumbnail() != null ) {
-            entity.setThumbnail( dto.getThumbnail() );
-        }
-        if ( dto.getPrepare() != null ) {
-            entity.setPrepare( dto.getPrepare() );
         }
         if ( dto.getCookTime() != null ) {
             entity.setCookTime( dto.getCookTime() );
