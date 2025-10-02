@@ -136,11 +136,23 @@ public class MemberController {
 
     @PostMapping("/auth/send-email-code")
     @ResponseBody
-    public String sendEmailCode(@RequestParam String email,
-                                HttpSession session) {
-        String newCode = emailService.sendAuthCode(email);
-        session.setAttribute("emailAuthCode", newCode);
-        return "OK";
+    public ResponseEntity<String> sendEmailCode(@RequestParam String email,
+                                                HttpSession session) {
+        try {
+            // ✅ [수정] MemberService의 중복 확인 기능이 포함된 메소드 호출
+            String newCode = memberService.sendSignupVerificationCode(email);
+            session.setAttribute("emailAuthCode", newCode);
+            return ResponseEntity.ok("OK");
+
+        } catch (IllegalArgumentException e) {
+            // ✅ [수정] MemberService에서 중복 이메일 예외 발생 시, 409 Conflict 상태와 에러 메시지 반환
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+
+        } catch (Exception e) {
+            // ✅ [수정] 그 외 이메일 발송 자체에 문제가 생긴 경우, 500 Internal Server Error 반환
+            log.error("회원가입 이메일 인증 발송 실패: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("인증번호 발송 중 오류가 발생했습니다.");
+        }
     }
 
     @PostMapping("/auth/verify-email-code")

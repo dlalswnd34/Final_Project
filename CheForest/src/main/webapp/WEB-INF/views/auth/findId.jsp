@@ -10,6 +10,9 @@
   <title>아이디 찾기 - CheForest</title>
   <link rel="stylesheet" href="/css/common/common.css">
   <link rel="stylesheet" href="/css/auth/findId.css">
+  <%-- CSRF 토큰 정보를 meta 태그에 추가 --%>
+  <meta name="_csrf" content="${_csrf.token}">
+  <meta name="_csrf_header" content="${_csrf.headerName}">
 </head>
 <body>
 
