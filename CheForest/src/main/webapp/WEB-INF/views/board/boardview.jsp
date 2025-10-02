@@ -56,8 +56,9 @@
 
       <div class="nav-actions">
         <!-- 작성자 본인에게만 수정 버튼 노출 -->
-        <sec:authorize access="isAuthenticated()">
-          <button class="edit-btn" id="editBtn"
+        <sec:authentication property="principal.member.memberIdx" var="currentMemberIdx" scope="request" />
+        <c:if test="${not empty currentMemberIdx and currentMemberIdx == board.writerIdx}">
+        <button class="edit-btn" id="editBtn"
                   onclick="location.href='/board/edition?boardId=${board.boardId}'">
             <svg class="edit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -79,7 +80,7 @@
               삭제
             </button>
           </form>
-        </sec:authorize>
+        </c:if>
       </div>
     </div>
   </div>

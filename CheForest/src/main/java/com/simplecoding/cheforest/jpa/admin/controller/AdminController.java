@@ -208,13 +208,26 @@ public String qna(Model model) {
     @ResponseBody
     @PostMapping("/admin/member/applySuspension")
     public ResponseEntity<String> applySuspensionMember(@RequestBody Map<String, Object> payload) {
+//        try {
+//            Long memberIdx = Long.valueOf(payload.get("memberIdx").toString());
+//            log.info("회원 제재 요청 수신: {}", memberIdx);
+//
+//           memberService.applySuspension(memberIdx);
+//
+//            String resultMessage = "해당 회원에 대한 제재가 완료되었습니다.";
+//            return ResponseEntity.ok(resultMessage);
+//
+//        } catch (Exception e) {
+//            log.error("회원제재 중 오류 발생", e);
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
+//        }
         try {
             Long memberIdx = Long.valueOf(payload.get("memberIdx").toString());
-            log.info("회원 제재 요청 수신: {}", memberIdx);
+            log.info("회원 제재/해제 요청 수신: {}", memberIdx);
 
-           memberService.applySuspension(memberIdx);
+            memberService.applySuspension(memberIdx);
 
-            String resultMessage = "해당 회원에 대한 제재가 완료되었습니다.";
+            String resultMessage = "회원 상태가 성공적으로 변경되었습니다.";
             return ResponseEntity.ok(resultMessage);
 
         } catch (Exception e) {

@@ -772,6 +772,7 @@ const MemberManager = {
         lucide.createIcons();
         this.bindMemberMenuEvents();
     },
+    // [수정됨] renderSuspendedMember 함수 내부의 버튼이 변경되었습니다.
     renderSuspendedMember: function (MemberList) {
         const container = document.getElementById("table-container");
         if (!container) return;
@@ -874,7 +875,7 @@ const MemberManager = {
                       
                           <div class="inquiry-actions-menu" id="inquiry-actions-${memberIdx}" style="display: none;">
                               <div class="menu-title">회원 관리</div>
-                              <div class="menu-item" onclick="MemberManager.applySuspendedSuspension(${memberIdx})">제재하기</div>
+                              <div class="menu-item" onclick="MemberManager.liftSuspension(${memberIdx})">제재 해제</div>
                               <div class="menu-item delete" onclick="MemberManager.deleteSuspendedUser(${memberIdx})">삭제</div>
                           </div>
                       </div>
@@ -1007,16 +1008,17 @@ const MemberManager = {
         }
 
     },
-    applySuspendedSuspension: async function (memberIdx){
+    // [삭제됨] applySuspendedSuspension 함수는 이제 필요 없으므로 삭제했습니다.
+    // [추가됨] '제재 해제'를 위한 새로운 함수입니다.
+    liftSuspension: async function (memberIdx){
         if (!memberIdx) {
-            this.showNotification('해당 관리번호의 회원을 찾을 수 없습니다. 다시 시도해주세요.', 'error');
+            AdminAllTabs.showNotification('해당 관리번호의 회원을 찾을 수 없습니다. 다시 시도해주세요.', 'error');
             return;
         }
         const button = document.querySelector(`button.toggle-menu-btn[data-member-id="${memberIdx}"]`);
         const originalHTML = button.innerHTML;
 
         try {
-            // 👉 로딩 상태 표시
             button.disabled = true;
             button.innerHTML = `<span class="loading-spinner" style="width:14px; height:14px;"></span>`;
 
@@ -1035,19 +1037,16 @@ const MemberManager = {
                 const message = await response.text();
                 AdminAllTabs.showNotification(message, 'success');
             } else {
-                AdminAllTabs.showNotification('회원제재에 실패했습니다.', 'error');
+                AdminAllTabs.showNotification('회원 제재 해제에 실패했습니다.', 'error');
             }
         } catch (error) {
             console.error("에러 발생:", error);
             this.showNotification('서버 오류가 발생했습니다. 관리자에게 문의하세요', 'error');
         }  finally {
-            // 👉 로딩 끝 - 버튼 원상복구
             button.disabled = false;
             button.innerHTML = originalHTML;
             MemberManager.loadSuspendedMember(MemberManager.currentPage);
-
         }
-
     },
     // 회원 삭제
     deleteUser: async function (memberIdx){
@@ -1197,8 +1196,6 @@ const MemberManager = {
             });
         });
     }
-
-
 };
 const RecipeManager = {
     currentPage: 1,
@@ -1534,17 +1531,17 @@ const PostManager = {
     },
 
     // 수정하기
-    viewDetails: async function (recipeId){
-        if (!recipeId) {
+    viewDetails: async function (boardId){
+        if (!boardId) {
             this.showNotification('일치하는 레시피ID를 찾을 수 없습니다. 다시 시도해주세요.', 'error');
             return;
         }
-        const button = document.querySelector(`.viewDetailsBt[data-board-id="${recipeId}"]`);
+        const button = document.querySelector(`.viewDetailsBt[data-board-id="${boardId}"]`);
         const originalHTML = button.innerHTML;
 
         button.disabled = true;
         button.innerHTML = `<span class="loading-spinner" style="width:14px; height:14px;"></span>`;
-        const url = `/board/edition?recipeId=${encodeURIComponent(recipeId)}`;
+        const url = `/board/edition?boardId=${encodeURIComponent(boardId)}`;
         window.open(url, '_blank');  // 새 탭(또는 새 창)으로 열기
 
 
