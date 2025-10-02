@@ -4,6 +4,7 @@ import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageLikedBoardDto;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageLikedRecipeDto;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageMyPostDto;
+import com.simplecoding.cheforest.jpa.mypage.dto.MypageReviewDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
@@ -118,6 +119,30 @@ WHERE l.member.memberIdx = :memberIdx
     long countLikedRecipes(@Param("memberIdx") Long memberIdx,
                            @Param("keyword") String keyword);
 
+    // 내가 작성한 댓글
+    @Query(value = """
+  SELECT r.review_id      AS reviewId,
+         b.board_id       AS boardId,
+         b.title          AS boardTitle,
+         r.content        AS content,
+         r.insert_time    AS insertTime,
+         r.update_time    AS updateTime
+  FROM   BOARD_REVIEW r
+  JOIN   BOARD b ON b.board_id = r.board_id
+  WHERE  r.writer_idx = :memberIdx
+  ORDER  BY r.insert_time DESC
+""",
+            countQuery = """
+  SELECT COUNT(*)
+  FROM BOARD_REVIEW r
+  WHERE r.writer_idx = :memberIdx
+""",
+            nativeQuery = true)
+    Page<MypageReviewDto> findMyReviews(@Param("memberIdx") Long memberIdx, Pageable pageable);
+
+
+
+
     // ===== 내가 작성한 댓글 수 =====
     @Query("""
            SELECT COUNT(r)
@@ -127,6 +152,8 @@ WHERE l.member.memberIdx = :memberIdx
            """)
     long countMyComments(@Param("memberIdx") Long memberIdx,
                          @Param("keyword") String keyword);
+
+
 
     // ===== 합계 =====
     @Query("""

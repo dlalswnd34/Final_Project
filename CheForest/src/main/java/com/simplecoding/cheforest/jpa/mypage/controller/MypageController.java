@@ -5,6 +5,7 @@ import com.simplecoding.cheforest.jpa.board.repository.BoardRepository;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageLikedBoardDto;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageLikedRecipeDto;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageMyPostDto;
+import com.simplecoding.cheforest.jpa.mypage.dto.MypageReviewDto;
 import com.simplecoding.cheforest.jpa.mypage.service.MypageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,8 +33,9 @@ public class MypageController {
 
     @GetMapping("")
     public String mypageMain(@RequestParam(defaultValue = "myboard") String tab,
-                             @RequestParam(value = "myPostsPage",    defaultValue = "1") int myPostsPage,
-                             @RequestParam(value = "likedPostsPage", defaultValue = "1") int likedPostsPage,
+                             @RequestParam(value = "myPostsPage",     defaultValue = "1") int myPostsPage,
+                             @RequestParam(value = "likedPostsPage",  defaultValue = "1") int likedPostsPage,
+                             @RequestParam(value = "myCommentsPage",  defaultValue = "1") int myCommentsPage,
                              @RequestParam(value = "searchKeyword", required = false) String searchKeyword,
                              @AuthenticationPrincipal CustomUserDetails loginUser,
                              Model model) {
@@ -45,9 +47,9 @@ public class MypageController {
         model.addAttribute("activeTab", tab);
 
         // ===== 상단 통계 =====
-        long receivedLikesTotal   = mypageService.getReceivedBoardLikes(memberIdx);
-        long myPostsTotalViewCount= mypageService.getMyPostsTotalViewCount(memberIdx);
-        long myCommentsTotalCount = mypageService.getMyCommentsTotalCount(memberIdx);
+        long receivedLikesTotal    = mypageService.getReceivedBoardLikes(memberIdx);
+        long myPostsTotalViewCount = mypageService.getMyPostsTotalViewCount(memberIdx);
+        long myCommentsTotalCount  = mypageService.getMyCommentsTotalCount(memberIdx);
 
         model.addAttribute("receivedLikesTotalCount", receivedLikesTotal);
         model.addAttribute("myPostsTotalViewCount",   myPostsTotalViewCount);
@@ -74,13 +76,21 @@ public class MypageController {
         model.addAttribute("likedPostsTotalCount", likedBoards.getTotalElements());
         model.addAttribute("likedPostsPaginationInfo", likedBoards);
 
+        // ===== 내가 쓴 댓글 =====
+        Pageable myCommentsPageable = PageRequest.of(myCommentsPage - 1, 10, Sort.by("insertTime").descending());
+        Page<MypageReviewDto> myReviews = mypageService.getMyReviews(memberIdx, myCommentsPageable);
+        model.addAttribute("myReviews", myReviews.getContent());
+        model.addAttribute("myReviewsTotalCount", myReviews.getTotalElements());
+        model.addAttribute("myReviewsPaginationInfo", myReviews);
+
+
         // ===== 카테고리, 썸네일 매핑 =====
         List<Long> ids = myPosts.getContent().stream()
                 .map(MypageMyPostDto::getBoardId)
                 .toList();
 
-        Map<Long,String> categoryById = new HashMap<>();
-        Map<Long,String> thumbnailById = new HashMap<>();
+        Map<Long, String> categoryById  = new HashMap<>();
+        Map<Long, String> thumbnailById = new HashMap<>();
         if (!ids.isEmpty()) {
             for (Object[] r : boardRepository.findMetaByIds(ids)) {
                 Long id = (Long) r[0];
@@ -93,6 +103,7 @@ public class MypageController {
 
         // ===== 가입일 =====
         model.addAttribute("joinDate", mypageService.getMemberJoinDateText(memberIdx));
+
 
         return "mypage/mypage";
     }
