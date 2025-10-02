@@ -7,6 +7,7 @@ import com.simplecoding.cheforest.jpa.auth.repository.MemberRepository;
 import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
 import com.simplecoding.cheforest.jpa.board.dto.*;
 import com.simplecoding.cheforest.jpa.board.service.BoardService;
+import com.simplecoding.cheforest.jpa.common.util.JsonUtil;
 import com.simplecoding.cheforest.jpa.file.dto.FileDto;
 import com.simplecoding.cheforest.jpa.file.service.FileService;
 import com.simplecoding.cheforest.jpa.auth.dto.MemberDetailDto;
@@ -152,24 +153,65 @@ public class BoardController {
     // 4. 수정 페이지
     @GetMapping("/board/edition")
     public String editForm(@RequestParam("boardId") Long boardId, Model model) {
+
+        // 1) 게시글 상세 조회
         BoardDetailDto board = boardService.getBoardDetail(boardId);
+
+        // ✅ [수정] board가 null일 경우의 방어 코드 추가!
+        if (board == null) {
+            // مثلاً, 게시글이 없다는 알림과 함께 목록 페이지로 리다이렉트
+            // RedirectAttributes를 사용하여 메시지를 전달할 수도 있습니다.
+            return "redirect:/board/list";
+        }
+
         model.addAttribute("board", board);
 
+        // 2) 첨부파일 목록
         List<FileDto> fileList = fileService.getFilesByBoardId(boardId);
         model.addAttribute("fileList", fileList);
 
+        // 3) 재료 (이제 board가 null이 아니므로 안전하게 실행됨)
+        List<Map<String, String>> ingredients = new ArrayList<>();
+        if (board.getPrepare() != null && !board.getPrepare().isBlank() && board.getPrepareAmount() != null) {
+            String[] names = board.getPrepare().split(",");
+            String[] amounts = board.getPrepareAmount().split(",");
+            for (int i = 0; i < names.length; i++) {
+                Map<String,String> ing = new HashMap<>();
+                ing.put("name", names[i].trim());
+                ing.put("amount", (i < amounts.length ? amounts[i].trim() : ""));
+                ingredients.add(ing);
+            }
+        }
+        model.addAttribute("ingredients", ingredients);
+
+        // 4) 조리법
+        List<StepDto> instructions = new ArrayList<>();
+        if (board.getContent() != null && !board.getContent().isBlank()) {
+            try {
+                // 👇 이 부분에서 문제가 발생했을 가능성이 높습니다.
+                instructions = JsonUtil.fromJsonList(board.getContent(), StepDto.class);
+            } catch (Exception e) {
+                // 변환에 실패하면 catch 블록으로 빠지고, instructions는 결국 빈 리스트가 됩니다.
+                log.warn("조리법 JSON 파싱 실패: {}", e.getMessage());
+            }
+        }
+        model.addAttribute("instructions", instructions);
+
+        // JSP 파일 이름이 boardedit.jsp가 맞는지 확인
         return "board/boardedit";
     }
 
     // 5. 글 수정
     @PostMapping("/board/edit")
-    public String update(@ModelAttribute BoardUpdateReq dto,
-                         @RequestParam(value = "images", required = false) List<MultipartFile> images,
+    public String update(@ModelAttribute BoardSaveReq dto,
+                         @RequestParam("boardId") Long boardId,
                          @RequestParam(value = "deleteImageIds", required = false) List<Long> deleteImageIds,
                          @AuthenticationPrincipal MemberDetailDto loginUser) throws IOException {
 
-        boardService.update(dto, loginUser.getEmail(), images, deleteImageIds);
+        // 서비스 호출
+        boardService.update(boardId, dto, loginUser.getEmail(), deleteImageIds);
 
+        // 카테고리별로 다시 리다이렉트
         String encodedCategory = URLEncoder.encode(dto.getCategory(), StandardCharsets.UTF_8);
         return "redirect:/board/list?category=" + encodedCategory;
     }

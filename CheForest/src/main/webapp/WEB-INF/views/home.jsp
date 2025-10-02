@@ -145,7 +145,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <c:forEach var="recipe" items="${popularRecipes}">
                         <div class="recipe-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer"
-                             onclick="location.href='/recipe/detail?rid=${recipe.id}'">
+                             onclick="location.href='/recipe/view?recipeId=${recipe.id}'">
                             <div class="relative">
                                 <img src="<c:out value='${recipe.thumbnail}'/>"
                                      alt="<c:out value='${recipe.title}'/>"
