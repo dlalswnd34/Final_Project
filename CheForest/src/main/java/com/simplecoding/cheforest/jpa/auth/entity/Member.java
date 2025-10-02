@@ -55,7 +55,6 @@ public class Member extends BaseTimeEntity implements Serializable {
     private List<Message> messages = new ArrayList<>();
 
 
-
     // 포인트 증가 + 등급 변경 로직
     public void addPoint(long value) {
         this.point += value;
@@ -67,7 +66,20 @@ public class Member extends BaseTimeEntity implements Serializable {
         else this.grade = "씨앗";
     }
 
-
-
+    /**
+     * 현재 회원의 등급에 따라 허용되는 최대 이모티콘 개수를 반환합니다.
+     * 이 값은 ChatStompController (서버 검증)와 UserApiController (프론트엔드 UI 검증)에 사용됩니다.
+     */
+    @Transient
+    public int getMaxEmoteCount() {
+        return switch (this.grade) {
+            case "숲" -> 20;
+            case "나무" -> 16;
+            case "새싹" -> 12;
+            case "뿌리" -> 8;
+            case "씨앗" -> 4;
+            default -> 4; // 기본값
+        };
+    }
 
 }

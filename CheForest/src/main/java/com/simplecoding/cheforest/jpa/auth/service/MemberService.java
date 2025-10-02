@@ -85,6 +85,21 @@ public class MemberService {
         return mapStruct.toDetailDto(member);
     }
 
+    // 🌟🌟🌟 STOMP 채팅 검증을 위해 추가된 메서드 🌟🌟🌟
+    /**
+     * 로그인 ID(Principal.getName()에서 가져온)를 사용하여 Member 엔티티를 조회합니다.
+     * @param loginId 사용자 ID
+     * @return Member 엔티티
+     * @throws IllegalArgumentException 해당 ID의 사용자가 없을 경우
+     */
+    @Transactional(readOnly = true)
+    public Member findByLoginId(String loginId) {
+        return memberRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다: " + loginId));
+    }
+    // 🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟
+
+
     // ================= 중복검사 =================
     @Transactional(readOnly = true)
     public boolean existsByLoginId(String loginId) {
@@ -200,6 +215,5 @@ public class MemberService {
         member.setSuspension("정지");
         memberRepository.save(member);
     }
-
 
 }

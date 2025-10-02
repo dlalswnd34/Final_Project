@@ -221,7 +221,7 @@
 
 /* 3. emoji-panel: Fixed로 고정하고 채팅창 옆에 위치 */
 .emoji-panel {
-    width: 250px;
+    width: 300px;
     height: 500px;
     background: #f7f7f7;
     border: 1px solid #bfbfbf;
@@ -264,4 +264,14 @@
 .emoji-panel button img {
     width: 50px; /* 패널 안의 이모티콘 크기 조정 */
     height: 50px;
+}
+
+.emoji-tier-header {
+    width: 100%; /* 너비를 100%로 설정하여 한 줄 전체를 차지하게 함 */
+    text-align: center;
+    color: #444;
+    font-size: 1rem;
+    padding: 8px 0 4px 0; /* 제목 위아래 여백 */
+    margin-top: 10px; /* 이전 등급과의 구분 여백 */
+    border-bottom: 1px dashed #ddd; /* 구분선 */
 }

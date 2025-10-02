@@ -24,13 +24,13 @@ public class QPointHistory extends EntityPathBase<PointHistory> {
 
     public final StringPath actionType = createString("actionType");
 
-    public final NumberPath<Long> id = createNumber("id", Long.class);
-
     public final DateTimePath<java.time.LocalDateTime> insertTime = createDateTime("insertTime", java.time.LocalDateTime.class);
 
     public final com.simplecoding.cheforest.jpa.auth.entity.QMember member;
 
     public final NumberPath<Long> point = createNumber("point", Long.class);
+
+    public final NumberPath<Long> pointId = createNumber("pointId", Long.class);
 
     public QPointHistory(String variable) {
         this(PointHistory.class, forVariable(variable), INITS);
