@@ -59,6 +59,7 @@ public class LikeService {
                     .likeType("BOARD")
                     .boardId(board.getBoardId())
                     .likeCount(latestCount)
+                    .likeDate(like.getLikeDate())   // ✅ 등록일 반영 추가
                     .build();
 
         } else {
@@ -71,7 +72,7 @@ public class LikeService {
                     .build();
             likeRepository.save(like);
             likeRepository.increaseRecipeLikeCount(recipe.getRecipeId());
-            // 최신 카운트 조회
+
             Long latestCount = recipeRepository.findById(recipe.getRecipeId())
                     .orElseThrow().getLikeCount();
 
@@ -80,10 +81,10 @@ public class LikeService {
                     .likeType("RECIPE")
                     .recipeId(recipe.getRecipeId())
                     .likeCount(latestCount)
+                    .likeDate(like.getLikeDate())   // ✅ 등록일 반영
                     .build();
         }
     }
-
 
     // 좋아요 취소
     public LikeRes removeLike(LikeSaveReq req) {

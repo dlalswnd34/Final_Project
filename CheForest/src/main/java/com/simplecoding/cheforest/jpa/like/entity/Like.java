@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Table(name = "BOARD_LIKE",
         uniqueConstraints = {
                 @UniqueConstraint(name="UQ_BOARD_LIKE",
-                                  columnNames = {"member_idx", "board_id", "recipe_id"})
+                        columnNames = {"member_idx", "board_id", "recipe_id"})
         })
 @SequenceGenerator(
         name = "SEQ_BOARD_LIKE_JPA",
@@ -39,5 +39,14 @@ public class Like {
 
     private String likeType;   // BOARD / RECIPE
 
+    @Column(name = "LIKE_DATE", nullable = false, updatable = false)
     private LocalDateTime likeDate; // 등록일 (SYSDATE)
+
+
+    @PrePersist
+    public void prePersist() {
+        if (this.likeDate == null) {
+            this.likeDate = LocalDateTime.now();
+        }
+    }
 }

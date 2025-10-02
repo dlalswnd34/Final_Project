@@ -1,8 +1,8 @@
 // === 전역 변수 ===
 let chatbotBtn, chatbotWindow, closeBtn, msgBox, userInput, sendBtn, toggleBtn, quickBtns;
 
-// ✅ JSP에서 contextPath 전달받기 (jsp 상단에 <script>로 const contextPath 정의 필요)
-if (typeof contextPath === "undefined") {
+// JSP에서 contextPath 주입 안됐을 경우 대비
+if (typeof contextPath === "undefined" || !contextPath) {
     var contextPath = "";
 }
 
@@ -14,7 +14,6 @@ function appendUserMessage(text) {
     msgBox.appendChild(userMsg);
     msgBox.scrollTop = msgBox.scrollHeight;
 }
-
 function appendBotMessage(html) {
     const botMsg = document.createElement("div");
     botMsg.className = "message bot-msg";
@@ -26,72 +25,52 @@ function appendBotMessage(html) {
     msgBox.scrollTop = msgBox.scrollHeight;
 }
 
-// === 카드 UI 출력 ===
+// === 캐러셀 카드 출력 ===
 function renderCards(data, type) {
-    let reply = `<div class="card-container">`;
+    if (!data || data.length === 0) {
+        appendBotMessage("❌ 결과가 없습니다.");
+        return;
+    }
 
-    data.forEach(item => {
+    let index = 0;
+    const wrapperId = "carousel-" + Date.now();
+
+    function getCard(item) {
         if (type === "recipe") {
-            reply += `
-<div class="recipe-card"
-     onclick="window.open('${contextPath}/recipe/view?recipeId=${item.recipeId}', '_blank')"
-     style="cursor:pointer; text-align:center;">
-  <img src="${item.thumbnail ? item.thumbnail : contextPath + '/images/default-recipe.png'}"
-       alt="${item.titleKr}"
-       style="width:100%; height:160px; object-fit:cover; border-radius:8px;"/>
-  <h3 style="margin:8px 0 0 0;">${item.titleKr}</h3>
-</div>`;
+            return `
+                <div class="carousel-card"
+                     onclick="window.open('${contextPath}/recipe/view?recipeId=${item.recipeId}', '_blank')">
+                  <img class="carousel-img" src="${item.thumbnail ? item.thumbnail : contextPath + '/images/default-recipe.png'}" alt="레시피 이미지"/>
+                  <h3>${item.titleKr}</h3>
+                </div>`;
         }
         if (type === "board") {
-            reply += `
-<div class="board-card"
-     onclick="window.open('${contextPath}/board/view?boardId=${item.boardId}', '_blank')"
-     style="cursor:pointer; text-align:center;">
-  <img src="${item.thumbnail ? item.thumbnail : contextPath + '/images/default-board.png'}"
-       alt="${item.title}"
-       style="width:100%; height:160px; object-fit:cover; border-radius:8px;"/>
-  <h3 style="margin:8px 0 0 0;">${item.title}</h3>
-</div>`;
+            return `
+                <div class="carousel-card"
+                     onclick="window.open('${contextPath}/board/view?boardId=${item.boardId}', '_blank')">
+                  <img class="carousel-img" src="${item.thumbnail ? item.thumbnail : contextPath + '/images/default-board.png'}" alt="게시글 이미지"/>
+                  <h3>${item.title}</h3>
+                </div>`;
         }
-    });
+    }
 
-    reply += `</div>`;
-    appendBotMessage(reply);
+    const html = `<div class="carousel-wrapper" id="${wrapperId}">${getCard(data[index])}</div>`;
+    const wrapperDiv = document.createElement("div");
+    wrapperDiv.innerHTML = html;
+    msgBox.appendChild(wrapperDiv);
+    msgBox.scrollTop = msgBox.scrollHeight;
+
+    const wrapper = document.getElementById(wrapperId);
+
+    // ✅ 자동 슬라이드 (3초마다 교체)
+    setInterval(() => {
+        index = (index + 1) % data.length;
+        wrapper.innerHTML = getCard(data[index]);
+    }, 3000);
 }
 
-// === 랜덤 레시피 불러오기 (단일) ===
-function getRandomRecipe(category) {
-    $.ajax({
-        url: contextPath + "/recipe/recommendRecipe.do",
-        type: "GET",
-        data: { category: category },
-        dataType: "json",
-        success: function(data) {
-            if (!data) {
-                appendBotMessage(`❌ "${category}" 추천 레시피를 찾을 수 없습니다.`);
-                return;
-            }
-
-            let card = `
-<div class="recipe-card"
-     onclick="window.open('${contextPath}/recipe/view?recipeId=${data.recipeId}', '_blank')"
-     style="cursor:pointer; text-align:center;">
-  <img src="${data.thumbnail ?? contextPath + '/images/default-recipe.png'}"
-       alt="${data.titleKr}"
-       style="width:100%; height:160px; object-fit:cover; border-radius:8px;">
-  <h3 style="margin:8px 0 0 0;">${data.titleKr}</h3>
-</div>`;
-            appendBotMessage(card);
-        },
-        error: function(xhr, status, err) {
-            console.error(err);
-            appendBotMessage("❌ 추천 레시피를 불러오는 중 오류가 발생했습니다.");
-        }
-    });
-}
-
-// === 카테고리 버튼 출력 ===
-function showCategoryButtons(categories, actionType) {
+// === 카테고리 버튼 ===
+function showCategoryButtons(categories, type) {
     const botMsg = document.createElement("div");
     botMsg.className = "message bot-msg";
     const bubble = document.createElement("div");
@@ -113,7 +92,14 @@ function showCategoryButtons(categories, actionType) {
 
         catBtn.onclick = () => {
             appendUserMessage(cat);
-            getRandomRecipe(cat);
+            $.ajax({
+                url: contextPath + (type === "recipe" ? "/api/recipes/random" : "/api/boards/random"),
+                type: "GET",
+                data: { category: cat },
+                dataType: "json",
+                success: data => data ? renderCards([data], type) : appendBotMessage(`❌ "${cat}" ${type === "recipe" ? "레시피" : "유저레시피"} 없음`),
+                error: () => appendBotMessage(`❌ ${type === "recipe" ? "추천 레시피" : "유저 레시피"} 불러오기 오류`)
+            });
         };
 
         catDiv.appendChild(catBtn);
@@ -128,53 +114,55 @@ function showCategoryButtons(categories, actionType) {
 // === 액션 매핑 ===
 const actionHandlers = {
     "추천레시피": () => {
-        appendBotMessage("추천 레시피를 선택하셨군요! 🍴<br>카테고리를 골라주세요:");
-        showCategoryButtons(["한식", "중식", "양식", "일식","디저트"], "추천레시피");
+        appendBotMessage("🍴 사이트 레시피 카테고리를 골라주세요:");
+        showCategoryButtons(["한식", "중식", "양식", "일식","디저트"], "recipe");
     },
     "추천메뉴": () => {
-        appendBotMessage("오늘의 추천 메뉴를 불러올 카테고리를 선택해주세요:");
-        showCategoryButtons(["한식", "중식", "양식", "일식","디저트"], "추천메뉴");
+        appendBotMessage("👩‍🍳 유저 레시피 카테고리를 골라주세요:");
+        showCategoryButtons(["한식", "중식", "양식", "일식","디저트"], "board");
     },
-    "인기레시피": () => {
+    "사이트레시피 랜덤추천": () => {
+        appendBotMessage("🍴 카테고리를 골라주세요:");
+        showCategoryButtons(["한식", "중식", "양식", "일식","디저트"], "recipe");
+    },
+    "유저레시피 랜덤추천": () => {
+        appendBotMessage("👩‍🍳 카테고리를 골라주세요:");
+        showCategoryButtons(["한식", "중식", "양식", "일식","디저트"], "board");
+    },
+    "사이트TOP5레시피": () => {
         $.ajax({
-            url: contextPath + "/recipe/api/recipes/popular",
+            url: contextPath + "/api/recipes/popular",
             type: "GET",
             dataType: "json",
-            success: function(data) {
-                if (!data || data.length === 0) {
-                    appendBotMessage("❌ 인기 레시피가 없습니다.");
-                } else {
-                    renderCards(data.slice(0, 3), "recipe");
-                }
-            },
-            error: function() {
-                appendBotMessage("❌ 인기 레시피를 불러오는 중 오류가 발생했습니다.");
-            }
+            success: data => data.length ? renderCards(data, "recipe") : appendBotMessage("❌ 인기 레시피 없음"),
+            error: () => appendBotMessage("❌ 인기 레시피 불러오기 오류")
         });
     },
-    "인기게시글": () => {
+    "유저TOP5레시피": () => {
         $.ajax({
             url: contextPath + "/api/boards/popular",
             type: "GET",
             dataType: "json",
-            success: function(data) {
-                if (!data || data.length === 0) {
-                    appendBotMessage("❌ 인기 게시글이 없습니다.");
-                } else {
-                    renderCards(data, "board");
-                }
-            },
-            error: function() {
-                appendBotMessage("🔒 인기 게시글은 로그인 후 이용 가능합니다.");
-            }
+            success: data => data.length ? renderCards(data, "board") : appendBotMessage("❌ 인기 게시글 없음"),
+            error: () => appendBotMessage("❌ 인기 게시글 불러오기 오류")
         });
     },
     "문의하기": () => {
-        appendBotMessage("문의하기 메뉴를 선택하셨습니다. 내용을 입력해주세요 ✍️");
+        const confirmed = confirm("QnA 페이지로 이동하시겠습니까?");
+        if (confirmed) {
+            window.location.href = contextPath + "/qna";
+        } else {
+            appendBotMessage("❌ QnA 페이지 이동이 취소되었습니다.");
+        }
     },
-    "기타": () => {
-        appendBotMessage("기타 메뉴를 선택하셨습니다.");
-    }
+    "사이트 이용가이드": () => {
+        const confirmed = confirm("사이트 이용가이드 페이지로 이동하시겠습니까?");
+        if (confirmed) {
+            window.location.href = contextPath + "/guide.jsp";
+        } else {
+            appendBotMessage("❌ 이용가이드 페이지 이동이 취소되었습니다.");
+        }
+    },
 };
 
 // === 메시지 전송 ===
@@ -182,83 +170,48 @@ function sendMessage(text) {
     if (!text) return;
     appendUserMessage(text);
 
-    // 레시피 검색
-    if (text.includes("레시피") && !text.includes("인기")) {
-        const keyword = text.replace("레시피", "").replace("알려줘", "").trim();
-        $.ajax({
-            url: contextPath + "/recipe/api/recipes/search",
-            type: "GET",
-            data: { keyword: keyword, page: 0, size: 3 },
-            dataType: "json",
-            success: function(data) {
-                if (!data.content || data.content.length === 0) {
-                    appendBotMessage(`❌ "${keyword}" 레시피를 찾을 수 없습니다.`);
-                } else {
-                    renderCards(data.content, "recipe");
-                }
-            },
-            error: function() {
-                appendBotMessage("❌ 레시피 검색 중 오류가 발생했습니다.");
-            }
-        });
+    if (actionHandlers[text]) {
+        actionHandlers[text]();
         return;
     }
 
-    // 인기 레시피
-    if (text.includes("인기") && text.includes("레시피")) {
-        actionHandlers["인기레시피"]();
-        return;
-    }
+    // ✅ CSRF 토큰 읽기
+    const csrfToken  = document.querySelector("meta[name='_csrf']").getAttribute("content");
+    const csrfHeader = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
 
-    // 게시글 검색
-    if (text.includes("게시글") && !text.includes("인기")) {
-        const keyword = text.replace("게시글", "").replace("알려줘", "").trim();
-        $.ajax({
-            url: contextPath + "/api/boards/search",
-            type: "GET",
-            data: { keyword: keyword, page: 0, size: 3 },
-            dataType: "json",
-            success: function(data) {
-                if (!data.content || data.content.length === 0) {
-                    appendBotMessage(`❌ "${keyword}" 관련 게시글이 없습니다.`);
-                } else {
-                    renderCards(data.content, "board");
-                }
-            },
-            error: function() {
-                appendBotMessage("❌ 게시글 검색 중 오류가 발생했습니다.");
-            }
-        });
-        return;
-    }
-
-    // 인기 게시글
-    if (text.includes("인기") && text.includes("게시글")) {
-        actionHandlers["인기게시글"]();
-        return;
-    }
-
-    // === GPT API (Flask 서버) 호출 ===
+    // === GPT API 호출 (Spring Boot) ===
     $.ajax({
-        url: "http://localhost:5000/chat",
+        url: contextPath + "/api/chatbot/ask",
         type: "POST",
         contentType: "application/json",
-        data: JSON.stringify({ message: text }),
+        data: JSON.stringify({ question: text }),
+        beforeSend: function(xhr) {
+            // ✅ CSRF 헤더 추가
+            xhr.setRequestHeader(csrfHeader, csrfToken);
+        },
         success: function(res) {
-            if (res.reply) {
-                appendBotMessage(res.reply);
+            let answer = null;
+            if (res) {
+                if (res.answer) answer = res.answer;
+                else if (res.message) answer = res.message;
+                else if (res.content) answer = res.content;
+                else if (res.data && res.data.answer) answer = res.data.answer;
+            }
+
+            if (answer) {
+                appendBotMessage(answer);
             } else {
-                appendBotMessage("❌ GPT로부터 응답이 오지 않았습니다.");
+                appendBotMessage("❌ 챗봇 응답이 없습니다.");
             }
         },
         error: function(xhr, status, err) {
-            console.error(err);
-            appendBotMessage("❌ GPT 서버 호출 중 오류가 발생했습니다.");
+            console.error("GPT 호출 오류:", err);
+            appendBotMessage("❌ 챗봇 서버 호출 중 오류가 발생했습니다.");
         }
     });
 }
 
-// === DOM 준비되면 실행 ===
+// === DOM 준비 ===
 document.addEventListener("DOMContentLoaded", () => {
     chatbotBtn = document.getElementById("chatbot-btn");
     chatbotWindow = document.getElementById("chatbot-window");
@@ -272,8 +225,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (chatbotBtn) {
         chatbotBtn.addEventListener("click", () => {
-            chatbotWindow.style.display =
-                chatbotWindow.style.display === "flex" ? "none" : "flex";
+            chatbotWindow.style.display = chatbotWindow.style.display === "flex" ? "none" : "flex";
             chatbotWindow.style.flexDirection = "column";
         });
     }
@@ -291,7 +243,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // 빠른 버튼 바인딩
     document.querySelectorAll(".quick-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             const action = btn.getAttribute("data-action");
@@ -299,20 +250,19 @@ document.addEventListener("DOMContentLoaded", () => {
             if (actionHandlers[action]) {
                 actionHandlers[action]();
             } else {
-                appendBotMessage(`"${action}"을(를) 선택하셨군요!`);
+                appendBotMessage(`"${action}"을 선택하셨습니다.`);
             }
         });
     });
 
-    // ✅ 빠른 버튼 접기/펼치기
     if (toggleBtn && quickBtns) {
         toggleBtn.addEventListener("click", () => {
             if (quickBtns.classList.contains("hidden")) {
                 quickBtns.classList.remove("hidden");
-                toggleBtn.textContent = "▼";
+                toggleBtn.textContent = "▼숨기기";
             } else {
                 quickBtns.classList.add("hidden");
-                toggleBtn.textContent = "▲";
+                toggleBtn.textContent = "▲올리기";
             }
         });
     }

@@ -21,6 +21,23 @@
     /* 비어있을 때 안내 박스 */
     .empty-box { padding:16px; border:1px dashed #e5e7eb; border-radius:8px; color:#6b7280; background:#fafafa; }
   </style>
+
+  <!-- ✅ 로그인 상태에 따라 memberIdx 내려주기 -->
+  <sec:authorize access="isAuthenticated()">
+    <sec:authentication property="principal" var="loginUser"/>
+    <script>
+      const memberIdx = "${loginUser.memberIdx}";
+      console.log("로그인 사용자 memberIdx:", memberIdx);
+    </script>
+  </sec:authorize>
+  <sec:authorize access="!isAuthenticated()">
+    <script>
+      const memberIdx = null;
+      console.log("비로그인 상태");
+    </script>
+  </sec:authorize>
+
+
 </head>
 <body>
 <jsp:include page="/common/header.jsp"/>
@@ -122,7 +139,7 @@
             <svg class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M19.5 12.5 12 20l-7.5-7.5a5 5 0 0 1 7.5-7 5 5 0 0 1 7.5 7Z"/>
             </svg>
-            <span class="count"><c:out value="${board.likeCount}" default="0"/></span>
+            <span class="count" id="likeCountText"><c:out value="${board.likeCount}" default="0"/></span>
           </button>
 
           <div class="action-btn view-btn" title="조회수">
@@ -289,6 +306,49 @@
           </div>
         </sec:authorize>
 
+
+        <!-- ===== JS ===== -->
+        <script>
+          document.addEventListener('DOMContentLoaded', function () {
+            const triggers = document.querySelectorAll('.tab-trigger');
+            const contents = document.querySelectorAll('.tab-content');
+            triggers.forEach(btn => {
+              btn.addEventListener('click', () => {
+                const key = btn.getAttribute('data-tab');
+                triggers.forEach(b => b.classList.remove('active'));
+                contents.forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(key + 'Content').classList.add('active');
+              });
+            });
+            initLikeButton({ likeType: "BOARD", boardId: "${board.boardId}", recipeId: null, memberIdx: memberIdx });
+          });
+          lucide.createIcons();
+        </script>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="/js/like.js"></script>
+
+        <script>
+          document.addEventListener('DOMContentLoaded', function () {
+            lucide.createIcons();
+          });
+        </script>
+
+
+        <!-- 로그인 사용자 정보 (JS에서 사용) -->
+        <sec:authorize access="isAuthenticated()">
+          <script>
+            window.boardId = <c:out value="${board.boardId}" default="0"/>;
+            window.loginUser = {
+              memberIdx: "<sec:authentication property='principal.memberIdx' />",
+              nickname: "<sec:authentication property='principal.nickname' />",
+              grade: "<sec:authentication property='principal.grade' />",
+              profile: "<sec:authentication property='principal.profile' />"
+            };
+          </script>
+        </sec:authorize>
+
         <!-- 비로그인 상태 -->
         <sec:authorize access="!isAuthenticated()">
           <div class="empty-box">✋ 댓글 작성은 로그인 후 이용해주세요</div>
@@ -329,6 +389,8 @@
     </c:otherwise>
     </c:choose>
   </div>
+
+
 
   <!-- ✅ 댓글 API용 전역변수 -->
   <sec:authorize access="isAuthenticated()">

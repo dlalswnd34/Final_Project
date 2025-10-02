@@ -44,6 +44,7 @@ public interface MapStruct {
     // 목록 조회 DTO 변환
     @Mapping(target = "nickname", source = "writer.nickname")
     @Mapping(target = "writerIdx", source = "writer.memberIdx")
+    @Mapping(target = "likeCount", source = "likeCount")   // ✅ 좋아요 수 매핑
     BoardListDto toListDto(Board board);
 
     // 상세 조회 DTO 변환

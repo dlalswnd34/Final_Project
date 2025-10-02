@@ -1,122 +1,36 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
-<head>
-  <title>좋아요 테스트</title>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
-  <h2>좋아요 테스트</h2>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-  <%-- 로그인 여부 체크 --%>
-  <%
-    Object sessionUser = session.getAttribute("memberIdx");
-    int memberIdx = (sessionUser == null) ? -1 : Integer.parseInt(sessionUser.toString());
-  %>
+<%
+  int boardId   = request.getParameter("boardId") != null ? Integer.parseInt(request.getParameter("boardId")) : 0;
+  int memberIdx = session.getAttribute("memberIdx") == null ? -1 : (int) session.getAttribute("memberIdx");
+%>
 
-  <%-- 게시글 예시 --%>
-  <div class="post" data-board-id="123">
-    <p>게시글 123</p>
-    <div class="like-wrap">
-      <button id="likeButton" class="likeButton" data-board-id="123" data-member-idx="<%= memberIdx %>">♡</button>
-      <div class="likeCount" id="likeCount">좋아요 수: </div>
-    </div>
-  </div>
 
-  <script>
-    const contextPath = "<%= request.getContextPath() %>";
-    const boardId = 123;
-    const memberIdx = <%= memberIdx %>;
+<!-- ✅ CSRF 토큰 (Spring Security에서 자동 주입) -->
+<meta name="_csrf" content="${_csrf.token}"/>
+<meta name="_csrf_header" content="${_csrf.headerName}"/>
 
-    $(document).ready(function () {
-      if (memberIdx === -1) {
-        alert("로그인 후 이용 가능한 기능입니다.");
-        $("#likeButton").prop("disabled", true);
-        return;
-      }
+<!-- 좋아요 박스 -->
+<div class="like-wrap">
+  <button id="likeBtn">♡</button>
+  <div id="likeCountText">좋아요 0개</div>
+</div>
 
-      checkInitialStatus();
-      getLikeCount();
+<!-- CSS -->
+<link rel="stylesheet" href="/css/like.css"/>
 
-      $("#likeButton").on("click", function () {
-        $.ajax({
-          url: contextPath + "/checkLike",
-          type: "GET",
-          data: { boardId, memberIdx },
-          success: function (exists) {
-            if (exists === true || exists === "true") {
-              removeLike();
-            } else {
-              addLike();
-            }
-          },
-          error: function (xhr) {
-            console.error("상태 확인 실패:", xhr.responseText);
-          }
-        });
-      });
-    });
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- 좋아요 기능 JS -->
+<script src="/js/like.js"></script>
 
-    function addLike() {
-      $.ajax({
-        url: contextPath + "/addLike",
-        type: "POST",
-        contentType: "application/json",
-        data: JSON.stringify({ boardId, memberIdx }),
-        success: function () {
-          getLikeCount();
-          updateButton(true);
-        },
-        error: function (xhr) {
-          console.error("좋아요 등록 실패:", xhr.responseText);
-        }
-      });
-    }
-
-    function removeLike() {
-      $.ajax({
-        url: contextPath + "/cancelLike",
-        type: "POST",
-        contentType: "application/json",
-        data: JSON.stringify({ boardId, memberIdx }),
-        success: function () {
-          getLikeCount();
-          updateButton(false);
-        },
-        error: function (xhr) {
-          console.error("좋아요 취소 실패:", xhr.responseText);
-        }
-      });
-    }
-
-    function getLikeCount() {
-      $.ajax({
-        url: contextPath + "/countLike",
-        type: "GET",
-        data: { boardId },
-        success: function (count) {
-          $("#likeCount").text("좋아요 수: " + count);
-        },
-        error: function (xhr) {
-          console.error("좋아요 수 가져오기 실패:", xhr.responseText);
-        }
-      });
-    }
-
-    function updateButton(isLiked) {
-      $("#likeButton").html(isLiked ? "♥" : "♡");
-      $("#likeButton").toggleClass("liked", isLiked);
-    }
-
-    function checkInitialStatus() {
-      $.ajax({
-        url: contextPath + "/checkLike",
-        type: "GET",
-        data: { boardId, memberIdx },
-        success: function (exists) {
-          updateButton(exists === true || exists === "true");
-        }
-      });
-    }
-  </script>
-</body>
-</html>
+<script>
+  // 🚀 JS 초기화
+  initLikeButton({
+    likeType: "BOARD",          // 레시피면 "RECIPE"
+    boardId: <%= boardId %>,    // 게시글 ID
+    recipeId: null,             // 레시피 페이지일 경우 값 세팅
+    memberIdx: <%= memberIdx %> // 로그인 안 했으면 -1
+  });
+</script>
