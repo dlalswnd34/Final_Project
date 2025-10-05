@@ -23,7 +23,7 @@ public class BoardDetailDto {  // 상세조회 dto
     private String insertTimeStr;     // 날짜 포맷을 위해 추가함
     private LocalDateTime updateTime;
     private Long writerIdx;
-    private Integer cookTime;
+    private String cookTime;
     private String difficulty;
     private String grade;
     private String prepareAmount;

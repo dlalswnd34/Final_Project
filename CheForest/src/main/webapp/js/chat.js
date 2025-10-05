@@ -336,26 +336,42 @@ window.addEventListener("DOMContentLoaded", async () => {
         });
 
     } else {
-        // [로그아웃 상태]: 클릭 시 경고창만 띄우고 토글하지 않습니다.
-        emojiToggleBtn.addEventListener("click", () => {
-            alert("로그인 하세요.");
-        });
-
-        // 7️⃣ 기존에 추가했던 로그인 여부 체크 및 기능 제한 코드를 이 아래로 이동
-        chatInput.placeholder = "로그인 하세요.";
-        chatInput.disabled = true;
-
-        chatSendBtn.onclick = (e) => {
-            e.preventDefault();
-            alert("로그인 하세요.");
+        // [로그아웃 상태]: 클릭 시 로그인 페이지로 이동 유도
+        const redirectLogin = () => {
+            if (confirm("로그인 후 채팅을 이용할 수 있습니다.\n지금 로그인하시겠습니까?")) {
+                window.location.href = "/auth/login?redirect=" + encodeURIComponent(window.location.pathname);
+            }
         };
 
-        // 이모티콘 패널 내부 버튼의 기능은 이제 토글 버튼이 막혔으므로 중요도가 낮아지지만,
-        // 혹시 모를 상황에 대비해 경고창 기능으로 유지합니다.
+        // 1️⃣ 이모티콘 토글 버튼
+        emojiToggleBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            redirectLogin();
+        });
+
+        // 2️⃣ 입력창
+        chatInput.placeholder = "로그인 하세요.";
+        chatInput.readOnly = true;
+        chatInput.addEventListener("click", (e) => {
+            e.preventDefault();
+            redirectLogin();
+        });
+
+        // 3️⃣ 전송 버튼
+        // ✅ 기존 HTML onClick 제거 → handleClick(event) 차단
+        chatSendBtn.removeAttribute("onClick");
+
+        // ✅ 전송 버튼 클릭 시 로그인 이동만 수행
+        chatSendBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            redirectLogin();
+        });
+
+        // 4️⃣ 이모티콘 패널 버튼
         document.querySelectorAll("#emojiBox button").forEach(btn => {
             btn.onclick = (e) => {
                 e.preventDefault();
-                alert("로그인 하세요.");
+                redirectLogin();
             };
         });
     }

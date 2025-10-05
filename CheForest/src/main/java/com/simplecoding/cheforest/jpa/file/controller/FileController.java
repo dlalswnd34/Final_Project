@@ -36,17 +36,17 @@ public class FileController {
     // 프로필 업로드
     @PostMapping("/profile-upload")
     public ResponseEntity<FileDto> uploadProfileImage(
-            @RequestParam("memberId") Long memberId,
+            @RequestParam("memberIdx") Long memberIdx,
             @RequestParam("profileImage") MultipartFile file
     ) throws IOException {
         // 기존 프로필 삭제
-        FileDto oldProfile = fileService.getProfileFileByMemberId(memberId);
+        FileDto oldProfile = fileService.getProfileFileByMemberId(memberIdx);
         if (oldProfile != null) {
             fileService.deleteFile(oldProfile.getFileId());
         }
 
         // 새 프로필 저장
-        FileDto newFile = fileService.saveFile(file, "MEMBER", memberId, "PROFILE", memberId);
+        FileDto newFile = fileService.saveFile(file, "MEMBER", memberIdx, "PROFILE", memberIdx);
 
         // MemberService 에서 profile 컬럼 업데이트 필요
         return ResponseEntity.ok(newFile);

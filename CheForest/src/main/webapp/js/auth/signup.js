@@ -1,3 +1,7 @@
+// 이메일 인증 타이머용 전역
+let emailTimer;
+let timeLeft = 300; // 5분 (초 단위)
+
 // ==============================
 // 전역 함수 (JSP inline 이벤트에서도 호출 가능)
 // ==============================
@@ -192,6 +196,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     verificationState.emailSent = true;
                     showElement(emailVerificationSection);
                     showElement(emailSentMessage);
+                    startEmailTimer();
                     showToast("인증번호가 발송되었습니다.", "success");
                 } else {
                     showErrorModal("이메일 발송 실패", result);
@@ -205,12 +210,13 @@ document.addEventListener("DOMContentLoaded", function () {
     if (verifyEmailBtn) {
         verifyEmailBtn.addEventListener("click", async () => {
             const code = emailCodeInput.value.trim();
+            const email = emailInput.value.trim();
             if (!code) return showErrorModal("인증번호를 입력해주세요.");
+            if (!email) return showErrorModal("이메일을 입력해주세요.");
 
             try {
-                // 인증번호 확인도 x-www-form-urlencoded 방식 유지
-                const result = await ajaxRequest("/auth/verify-email-code", "POST", { code });
-                if (String(result) === 'true') {
+                const result = await ajaxRequest("/auth/verify-email-code", "POST", { email, code });
+                if (String(result).trim().toUpperCase() === "OK") {
                     verificationState.emailVerified = true;
                     hideElement(emailCodeInput);
                     hideElement(verifyEmailBtn);
@@ -218,6 +224,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     showElement(emailSuccess);
                     emailInput.disabled = true;
                     sendEmailBtn.disabled = true;
+
+                    // ✅ 타이머 중단 및 숨김 처리 추가
+                    clearInterval(emailTimer);
+                    const emailCodeError = document.getElementById("emailCodeError");
+                    if (emailCodeError) emailCodeError.style.display = "none";
+
                     showToast("이메일 인증이 완료되었습니다.", "success");
                 } else {
                     showErrorModal("인증 실패", "인증번호가 일치하지 않습니다.");
@@ -226,6 +238,33 @@ document.addEventListener("DOMContentLoaded", function () {
                 showErrorModal("인증 실패", err.message);
             }
         });
+    }
+
+    // ==============================
+// 이메일 인증 타이머 (5분)
+// ==============================
+    function startEmailTimer() {
+        clearInterval(emailTimer);
+        timeLeft = 300;
+
+        const emailCodeError = document.getElementById("emailCodeError");
+        const span = emailCodeError.querySelector("span");
+
+        emailTimer = setInterval(() => {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            if (span) {
+                span.textContent = `남은 시간: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                emailCodeError.style.display = "block";
+            }
+            if (timeLeft <= 0) {
+                clearInterval(emailTimer);
+                showErrorModal("인증시간 만료", "인증번호가 만료되었습니다. 다시 요청해주세요.");
+                hideElement(emailVerificationSection);
+                verificationState.emailSent = false;
+            }
+            timeLeft--;
+        }, 1000);
     }
 
     // ✅ 회원가입 최종 제출
@@ -343,4 +382,3 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(() => (toast.style.display = "none"), 3000);
     }
 });
-

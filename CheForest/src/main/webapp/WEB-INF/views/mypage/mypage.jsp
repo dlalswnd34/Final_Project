@@ -18,19 +18,32 @@
 <body data-social="${me.member.provider != null}">
 <jsp:include page="/common/header.jsp"/>
 <main class="mypage-main" data-member-idx="${currentMemberIdx}">
+    <sec:authentication var="me" property="principal"/>
 
-
-  <%-- JSTL: URL 파라미터를 확인하여 현재 활성화할 탭을 결정합니다. 기본값은 'profile'입니다. --%>
+<%-- JSTL: URL 파라미터를 확인하여 현재 활성화할 탭을 결정합니다. 기본값은 'profile'입니다. --%>
   <c:set var="activeTab" value="${empty param.tab ? 'profile' : param.tab}" />
 
-  <section class="mypage-header">
-    <div class="container">
-      <div class="profile-info">
-        <div class="profile-avatar">
-          <img src="사용자프로필이미지URL" alt="프로필 이미지" id="profile-image">
-        </div>
+    <%-- ✅ 프로필 경로 지정 (사이드바 방식 동일) --%>
+    <c:set var="profileUrl"
+           value="${(not empty me.member and not empty me.member.profile) ? me.member.profile : '/images/default_profile.png'}"/>
+    <section class="mypage-header">
+        <div class="container">
+            <div class="profile-info">
+                <div class="profile-avatar" style="position: relative; display: inline-block;">
+                    <img
+                            id="profile-image"
+                            src="<c:out value='${profileUrl}'/>"
+                            alt="프로필 이미지"
+                            class="profile-image"
+                            onerror="this.src='/images/default_profile.png'"
+                    />
+              <!-- 수정 버튼 -->
+              <label for="profile-upload-input" class="btn-profile-edit">
+                  프로필 수정
+              </label>
+              <input type="file" id="profile-upload-input" accept="image/*" style="display:none;">
+          </div>
         <div class="profile-details">
-          <sec:authentication var="me" property="principal"/>
             <input type="hidden" id="provider" value="${me.member.provider}" />
           <h1 class="profile-title"><c:out value="${me.member.nickname}"/>님의 마이페이지</h1>
           <div class="profile-meta">
@@ -778,8 +791,10 @@
     </div>
 </div>
 <jsp:include page="/common/footer.jsp"/>
-
-<script src="/js/common.js"></script>
+<script>
+    const currentMemberIdx = '<c:out value="${me.member.memberIdx}"/>';
+</script>
+<script src="/js/common/common.js"></script>
 <script src="/js/mypages.js"></script>
 </body>
 </html>

@@ -21,6 +21,26 @@ public class CustomOAuth2User implements OAuth2User, AuthUser {
         this.attributes = attributes;
     }
 
+    // JSP에서 principal.memberIdx 사용 가능
+    public Long getMemberIdx() {
+        return member != null ? member.getMemberIdx() : null;
+    }
+
+    // JSP에서 principal.nickname 사용 가능
+    public String getNickname() {
+        return member != null ? member.getNickname() : null;
+    }
+
+    // JSP에서 principal.grade 사용 가능
+    public String getGrade() {
+        return member != null ? member.getGrade() : null;
+    }
+
+    // JSP에서 principal.profile 사용 가능
+    public String getProfile() {
+        return member != null ? member.getProfile() : null;
+    }
+
     @Override
     public Map<String, Object> getAttributes() {
         return attributes;

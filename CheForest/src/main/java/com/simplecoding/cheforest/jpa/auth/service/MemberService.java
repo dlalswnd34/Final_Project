@@ -58,8 +58,8 @@ public class MemberService {
 
 
     // ================= 회원가입 =================
-    public void register(MemberSignupDto dto, String serverAuthCode) {
-        // 1. 중복검사
+    public void register(MemberSignupDto dto, String verifiedEmail) {
+        // 1️⃣ 중복검사
         if (memberRepository.existsByLoginId(dto.getLoginId())) {
             throw new IllegalArgumentException("이미 사용중인 아이디입니다.");
         }
@@ -70,15 +70,15 @@ public class MemberService {
             throw new IllegalArgumentException("이미 사용중인 닉네임입니다.");
         }
 
-        // 2. 이메일 인증 확인
-        if (serverAuthCode == null || !serverAuthCode.equals(dto.getEmailAuthCode())) {
-            throw new IllegalArgumentException("이메일 인증번호가 일치하지 않습니다.");
+        // 2️⃣ 이메일 인증 확인
+        if (verifiedEmail == null || !verifiedEmail.equals(dto.getEmail())) {
+            throw new IllegalArgumentException("이메일 인증이 완료되지 않았습니다.");
         }
 
-        // 3. 비밀번호 암호화
+        // 3️⃣ 비밀번호 암호화
         String encodedPw = passwordEncoder.encode(dto.getPassword());
 
-        // 4. 엔티티 변환 및 저장
+        // 4️⃣ 엔티티 변환 및 저장
         Member member = mapStruct.toEntity(dto);
         member.setPassword(encodedPw);
         member.setRole(Member.Role.USER); // 기본 권한 USER
@@ -250,49 +250,169 @@ public class MemberService {
 
 
     // ================= 회원가입: 이메일 인증번호 발송 =================
-    public String sendSignupVerificationCode(String email) {
+    public void sendSignupVerificationCode(String email, HttpSession session) {
+        // 1️⃣ 중복 이메일 방지
         if (memberRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("이미 가입된 이메일입니다.");
         }
-        // ✅ emailService가 반환하는 인증 코드를 다시 return
-        return emailService.sendAuthCode(email);
+
+        // 2️⃣ 인증번호 발송
+        String code = emailService.sendAuthCode(email);
+        long expireAt = System.currentTimeMillis() + (5 * 60 * 1000); // 5분 후 만료
+
+        // 3️⃣ 세션에 저장
+        session.setAttribute("signupAuthCode", code);
+        session.setAttribute("signupAuthEmail", email);
+        session.setAttribute("signupAuthExpireAt", expireAt);
+
+        log.info("✅ 이메일 인증번호 발송 완료: {}, 만료 시각 = {}", email, expireAt);
+    }
+
+    // ================= 회원가입: 인증번호 검증 =================
+    public void verifySignupAuthCode(String email, String inputCode, HttpSession session) {
+        String savedCode = (String) session.getAttribute("signupAuthCode");
+        String savedEmail = (String) session.getAttribute("signupAuthEmail");
+        Long expireAt = (Long) session.getAttribute("signupAuthExpireAt");
+
+        if (savedCode == null || savedEmail == null || expireAt == null) {
+            throw new IllegalArgumentException("인증번호를 먼저 요청해주세요.");
+        }
+
+        if (!savedEmail.equals(email)) {
+            throw new IllegalArgumentException("인증 요청한 이메일이 다릅니다.");
+        }
+
+        if (System.currentTimeMillis() > expireAt) {
+            throw new IllegalArgumentException("인증번호가 만료되었습니다. 다시 요청해주세요.");
+        }
+
+        if (!savedCode.equals(inputCode)) {
+            throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
+        }
+
+        // ✅ 인증 성공 → 이메일을 ‘검증 완료’ 상태로 표시
+        session.setAttribute("verifiedSignupEmail", email);
+
+        // ✅ 임시 세션값 정리
+        session.removeAttribute("signupAuthCode");
+        session.removeAttribute("signupAuthEmail");
+        session.removeAttribute("signupAuthExpireAt");
+
+        log.info("✅ 이메일 인증 성공: {}", email);
+    }
+
+    // ================= 아이디 찾기: 인증번호 발송 =================
+    public void sendFindIdCode(String email, HttpSession session) {
+        // 1️⃣ 이메일 존재 여부 확인
+        if (!memberRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException("❌ 가입된 계정을 찾을 수 없습니다.");
+        }
+
+        // 2️⃣ 인증번호 발송
+        String code = emailService.sendAuthCode(email);
+        long expireAt = System.currentTimeMillis() + (5 * 60 * 1000); // 5분 후 만료
+
+        // 3️⃣ 세션 저장
+        session.setAttribute("findIdAuthCode", code);
+        session.setAttribute("findIdEmail", email);
+        session.setAttribute("findIdAuthExpireAt", expireAt);
+
+        log.info("✅ 아이디 찾기 인증번호 발송 완료: {}, 만료시각={}", email, expireAt);
+    }
+
+    // ================= 아이디 찾기: 인증번호 검증 =================
+    public String verifyFindIdCode(String email, String inputCode, HttpSession session) {
+        String savedCode = (String) session.getAttribute("findIdAuthCode");
+        String savedEmail = (String) session.getAttribute("findIdEmail");
+        Long expireAt = (Long) session.getAttribute("findIdAuthExpireAt");
+
+        if (savedCode == null || savedEmail == null || expireAt == null) {
+            throw new IllegalArgumentException("인증번호를 먼저 요청해주세요.");
+        }
+
+        if (!savedEmail.equals(email)) {
+            throw new IllegalArgumentException("인증 요청한 이메일이 다릅니다.");
+        }
+
+        if (System.currentTimeMillis() > expireAt) {
+            // 만료 시 세션 초기화
+            session.removeAttribute("findIdAuthCode");
+            session.removeAttribute("findIdEmail");
+            session.removeAttribute("findIdAuthExpireAt");
+            throw new IllegalArgumentException("인증번호가 만료되었습니다. 다시 요청해주세요.");
+        }
+
+        if (!savedCode.equals(inputCode)) {
+            throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
+        }
+
+        // ✅ 인증 성공 시 아이디 조회
+        String loginId = memberRepository.findIdByEmail(email);
+        if (loginId == null) {
+            throw new IllegalArgumentException("해당 이메일로 가입된 아이디가 없습니다.");
+        }
+
+        // ✅ 세션 정리
+        session.removeAttribute("findIdAuthCode");
+        session.removeAttribute("findIdEmail");
+        session.removeAttribute("findIdAuthExpireAt");
+
+        log.info("✅ 아이디 찾기 인증 성공: {}", email);
+        return loginId;
     }
 
     // ================= 비밀번호 찾기: 인증번호 발송 =================
     public void sendPasswordResetCode(String loginId, String email, HttpSession session) {
-        // 1. 회원 존재 여부 확인
+        // 1️⃣ 회원 존재 여부 확인
         Member member = memberRepository.findByLoginIdAndEmail(loginId, email)
                 .orElseThrow(() -> new IllegalArgumentException("아이디 또는 이메일이 일치하지 않습니다."));
 
-        // 2. 인증번호 6자리 생성
+        // 2️⃣ 인증번호 발송
         String code = emailService.sendAuthCode(email);
-        long expireAt = System.currentTimeMillis() + (5 * 60 * 1000); // 5분
+        long expireAt = System.currentTimeMillis() + (5 * 60 * 1000); // 5분 후 만료
 
-        // 3. 세션에 저장
+        // 3️⃣ 세션에 저장
         session.setAttribute("pwResetCode", code);
-        session.setAttribute("pwResetExpireAt", expireAt);
+        session.setAttribute("pwResetEmail", email);
         session.setAttribute("pwResetMemberId", member.getMemberIdx());
+        session.setAttribute("pwResetExpireAt", expireAt);
+
+        log.info("✅ 비밀번호 찾기 인증번호 발송 완료: {}, 만료시각={}", email, expireAt);
     }
 
     // ================= 비밀번호 찾기: 인증번호 검증 =================
     public void verifyPasswordResetCode(String inputCode, HttpSession session) {
         String savedCode = (String) session.getAttribute("pwResetCode");
+        String email = (String) session.getAttribute("pwResetEmail");
         Long expireAt = (Long) session.getAttribute("pwResetExpireAt");
 
-        if (savedCode == null || expireAt == null) {
-            throw new IllegalArgumentException("인증번호를 먼저 발급해주세요.");
+        // 1️⃣ 세션 값 유효성 검사
+        if (savedCode == null || email == null || expireAt == null) {
+            throw new IllegalArgumentException("인증번호를 먼저 요청해주세요.");
         }
+
+        // 2️⃣ 만료 확인
         if (System.currentTimeMillis() > expireAt) {
-            throw new IllegalArgumentException("인증번호가 만료되었습니다.");
+            // 세션 값 제거
+            session.removeAttribute("pwResetCode");
+            session.removeAttribute("pwResetEmail");
+            session.removeAttribute("pwResetExpireAt");
+            throw new IllegalArgumentException("인증번호가 만료되었습니다. 다시 요청해주세요.");
         }
-        if (!inputCode.equals(savedCode)) {
+
+        // 3️⃣ 인증번호 비교
+        if (!savedCode.equals(inputCode)) {
             throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
 
-        // 성공 → 세션 값 제거
+        // ✅ 성공 시: 인증 완료 상태로 표시
+        session.setAttribute("verifiedPwResetEmail", email);
+
+        // ✅ 임시 세션값 정리
         session.removeAttribute("pwResetCode");
         session.removeAttribute("pwResetExpireAt");
-        // pwResetMemberId 는 이후 비밀번호 재설정 단계에서 사용 가능
+
+        log.info("✅ 비밀번호 찾기 이메일 인증 성공: {}", email);
     }
 
     // ================= 비밀번호 찾기: 비밀번호 재설정 =================
@@ -342,30 +462,30 @@ public class MemberService {
     }
 
 //    마이페이지 비밀번호 변경
-@Transactional
-public void changePassword(Long memberIdx, String currentPassword, String newPassword) {
-    // 1. 회원 조회
-    Member member = memberRepository.findById(memberIdx)
-            .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
+    @Transactional
+    public void changePassword(Long memberIdx, String currentPassword, String newPassword) {
+        // 1. 회원 조회
+        Member member = memberRepository.findById(memberIdx)
+                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
 
-    // 2. 현재 비밀번호 확인
-    if (!passwordEncoder.matches(currentPassword, member.getPassword())) {
-        throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+        // 2. 현재 비밀번호 확인
+        if (!passwordEncoder.matches(currentPassword, member.getPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        // 3. 새 비밀번호 검증 (공백, 길이, 패턴 체크는 프론트에서 하지만 백엔드에서도 최소 보장)
+        if (newPassword == null || newPassword.length() < 8) {
+            throw new IllegalArgumentException("새 비밀번호는 최소 8자 이상이어야 합니다.");
+        }
+
+        // 4. 비밀번호 변경
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        member.setPassword(encodedPassword);
+
+        // 5. update_time 갱신 (BaseTimeEntity가 있다면 자동 갱신됨)
+        memberRepository.save(member);
+
+        log.info("✅ 비밀번호 변경 완료 - memberIdx={}, loginId={}", member.getMemberIdx(), member.getLoginId());
     }
-
-    // 3. 새 비밀번호 검증 (공백, 길이, 패턴 체크는 프론트에서 하지만 백엔드에서도 최소 보장)
-    if (newPassword == null || newPassword.length() < 8) {
-        throw new IllegalArgumentException("새 비밀번호는 최소 8자 이상이어야 합니다.");
-    }
-
-    // 4. 비밀번호 변경
-    String encodedPassword = passwordEncoder.encode(newPassword);
-    member.setPassword(encodedPassword);
-
-    // 5. update_time 갱신 (BaseTimeEntity가 있다면 자동 갱신됨)
-    memberRepository.save(member);
-
-    log.info("✅ 비밀번호 변경 완료 - memberIdx={}, loginId={}", member.getMemberIdx(), member.getLoginId());
-}
 }
 

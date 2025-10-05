@@ -9,7 +9,7 @@ public class BoardUpdateReq {
     private Long boardId;
     private String category;
     private String title;
-    private Integer cookTime;
+    private String cookTime;
     private String difficulty;
 
     // 대표 이미지

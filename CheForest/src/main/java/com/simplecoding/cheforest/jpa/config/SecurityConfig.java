@@ -33,6 +33,7 @@ public class SecurityConfig {
                         .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.INCLUDE).permitAll()
                         // 🌟🌟🌟 핵심 수정: /ws/** 경로에 대한 접근을 무조건 허용 🌟🌟🌟
                         .requestMatchers("/ws/**").permitAll() // 👈 이 줄을 추가해야 합니다.
+                        .requestMatchers("/chat", "/chat/history").permitAll() // 채팅 페이지/미리보기 공개
                         // 현재 로그인 사용자 정보 확인용 (소셜+일반 공통)
                         .requestMatchers("/auth/me").authenticated()
                         //  [1] 관리자 전용 페이지

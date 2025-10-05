@@ -23,6 +23,14 @@ public class AdminRepository {
         Object result = em.createNativeQuery(sql).getSingleResult();
         return ((Number) result).longValue(); 
     }
+
+//    전체 레시피 수 (게시판 + API_RECIPE 합산)
+public long getTotalRecipeCount() {
+    String sql = "SELECT (SELECT COUNT(*) FROM BOARD) + (SELECT COUNT(*) FROM API_RECIPE) FROM DUAL";
+    Object result = em.createNativeQuery(sql).getSingleResult();
+    return ((Number) result).longValue();
+}
+
     // 오늘 가입한 회원 수
     public long getTodayMemberCount() {
         String sql = "SELECT COUNT(*) FROM MEMBER WHERE TRUNC(INSERT_TIME) = TRUNC(SYSDATE)";

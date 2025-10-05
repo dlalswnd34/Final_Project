@@ -2,6 +2,56 @@
 const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
 const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
+// ==============================
+// ✅ 이메일 인증 타이머 (5분 카운트다운)
+// ==============================
+let emailTimer; // 전역 타이머
+let timeLeft = 300; // 5분 (초 단위)
+
+function startEmailTimer() {
+    clearInterval(emailTimer);
+    timeLeft = 300;
+
+    const codeGroup = document.getElementById("code-group");
+
+    // 남은 시간 표시용 span 없으면 생성
+    let timerEl = document.getElementById("email-timer");
+    if (!timerEl) {
+        timerEl = document.createElement("div");
+        timerEl.id = "email-timer";
+        timerEl.style.marginTop = "6px";
+        timerEl.style.fontSize = "0.85rem";
+        timerEl.style.color = "#d32f2f";
+        codeGroup.appendChild(timerEl);
+    }
+
+    emailTimer = setInterval(() => {
+        const min = Math.floor(timeLeft / 60);
+        const sec = timeLeft % 60;
+        timerEl.textContent = `⏳ 남은 시간: ${min}:${sec < 10 ? "0" : ""}${sec}`;
+
+        if (timeLeft <= 0) {
+            clearInterval(emailTimer);
+            timerEl.textContent = "❌ 인증번호가 만료되었습니다. 다시 요청해주세요.";
+            showModal("인증번호가 만료되었습니다. 다시 요청해주세요.");
+            disableVerifyStep();
+        }
+
+        timeLeft--;
+    }, 1000);
+}
+
+// 만료 시 입력창 비활성화
+function disableVerifyStep() {
+    const codeInput = document.getElementById("email-code");
+    const verifyBtn = document.getElementById("btn-verify-code");
+    if (codeInput) codeInput.disabled = true;
+    if (verifyBtn) verifyBtn.disabled = true;
+}
+
+// ==============================
+// 초기화
+// ==============================
 document.addEventListener('DOMContentLoaded', function() {
     initializeFindPasswordPage();
 });
@@ -16,54 +66,20 @@ function initializeFindPasswordPage() {
     const btnFooterFindId = document.getElementById('btn-footer-find-id');
     const btnFooterLogin = document.getElementById('btn-footer-login');
 
-    // 뒤로가기
-    if (btnBack) {
-        btnBack.addEventListener('click', () => goToLogin());
-    }
-
-    // 아이디 찾기 버튼 클릭 시 페이지 이동
-    if (btnFooterFindId) {
-        btnFooterFindId.addEventListener('click', () => {
-            window.location.href = '/auth/find-id';
-        });
-    }
-
-    // 로그인하기 버튼 클릭 시 페이지 이동
-    if (btnFooterLogin) {
-        btnFooterLogin.addEventListener('click', () => {
-            window.location.href = '/auth/login';
-        });
-    }
-
-    // 인증번호 발송
-    if (btnSendCode) {
-        btnSendCode.addEventListener('click', sendEmailCode);
-    }
-
-    // 인증번호 확인
-    if (btnVerifyCode) {
-        btnVerifyCode.addEventListener('click', verifyEmailCode);
-    }
-
-    // 인증번호 엔터 입력
-    if (emailCodeInput) {
-        emailCodeInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') verifyEmailCode();
-        });
-    }
-
-    // 새 비밀번호 제출
-    if (resetForm) {
-        resetForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            submitNewPassword();
-        });
-    }
+    if (btnBack) btnBack.addEventListener('click', () => goToLogin());
+    if (btnFooterFindId) btnFooterFindId.addEventListener('click', () => window.location.href = '/auth/find-id');
+    if (btnFooterLogin) btnFooterLogin.addEventListener('click', () => window.location.href = '/auth/login');
+    if (btnSendCode) btnSendCode.addEventListener('click', sendEmailCode);
+    if (btnVerifyCode) btnVerifyCode.addEventListener('click', verifyEmailCode);
+    if (emailCodeInput) emailCodeInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') verifyEmailCode(); });
+    if (resetForm) resetForm.addEventListener('submit', (e) => { e.preventDefault(); submitNewPassword(); });
 
     console.log("비밀번호 찾기 페이지 초기화 완료");
 }
 
-// ---------------- 인증 관련 ----------------
+// ==============================
+// 인증 관련
+// ==============================
 
 // 이메일 인증번호 발송
 function sendEmailCode() {
@@ -86,6 +102,7 @@ function sendEmailCode() {
                 showCodeInput();
                 updateSendCodeButtonText('발송완료');
                 showModal("인증번호가 발송되었습니다. 이메일을 확인해주세요.");
+                startEmailTimer(); // ✅ 타이머 시작
             } else {
                 showModal(result);
             }
@@ -113,6 +130,10 @@ function verifyEmailCode() {
         .then(result => {
             hideLoadingState('btn-verify-code');
             if (result.trim().toUpperCase() === "OK") {
+                clearInterval(emailTimer); // ✅ 타이머 중단
+                const timerEl = document.getElementById("email-timer");
+                if (timerEl) timerEl.remove(); // ✅ 타이머 표시 제거
+
                 showModal("이메일 인증이 완료되었습니다. 새 비밀번호를 설정해주세요.");
                 showResetStep();
             } else {
@@ -126,9 +147,10 @@ function verifyEmailCode() {
         });
 }
 
-// ---------------- 비밀번호 재설정 ----------------
+// ==============================
+// 비밀번호 재설정
+// ==============================
 
-// 새 비밀번호 입력 단계로 전환
 function showResetStep() {
     const verificationStep = document.getElementById('verification-step');
     const resetStep = document.getElementById('reset-step');
@@ -136,11 +158,9 @@ function showResetStep() {
 
     if (verificationStep) verificationStep.style.display = 'none';
     if (cardFooter) cardFooter.style.display = 'none';
-
     if (resetStep) resetStep.style.display = 'block';
 }
 
-// 새 비밀번호 제출
 function submitNewPassword() {
     const newPw = document.getElementById('new-password').value.trim();
     const confirmPw = document.getElementById('confirm-password').value.trim();
@@ -174,15 +194,15 @@ function submitNewPassword() {
         });
 }
 
-// ---------------- 유틸 ----------------
+// ==============================
+// 유틸
+// ==============================
 
-// 인증번호 입력란 표시
 function showCodeInput() {
     const codeGroup = document.getElementById('code-group');
     if (codeGroup) codeGroup.style.display = 'flex';
 }
 
-// 입력값 검증
 function validateUserId(userId) {
     if (!userId) { showModal("아이디를 입력해주세요."); return false; }
     if (userId.length < 4) { showModal("아이디는 4자 이상이어야 합니다."); return false; }
@@ -200,7 +220,6 @@ function validateCode(code) {
     return true;
 }
 
-// 모달 표시
 function showModal(message) {
     const modal = document.getElementById("alertModal");
     const msg = document.getElementById("alertModalMessage");
@@ -218,7 +237,6 @@ function showModal(message) {
     };
 }
 
-// 로딩 상태 토글
 function showLoadingState(buttonId) {
     const btn = document.getElementById(buttonId);
     if (btn) { btn.classList.add("loading"); btn.disabled = true; }
@@ -227,15 +245,11 @@ function hideLoadingState(buttonId) {
     const btn = document.getElementById(buttonId);
     if (btn) { btn.classList.remove("loading"); btn.disabled = false; }
 }
-
-// 버튼 텍스트 변경
 function updateSendCodeButtonText(text) {
     const btn = document.getElementById('btn-send-code');
     const span = btn.querySelector('.btn-text');
     if (span) span.textContent = text;
 }
-
-// 로그인 페이지 이동
 function goToLogin() {
     window.location.href = "/auth/login";
 }

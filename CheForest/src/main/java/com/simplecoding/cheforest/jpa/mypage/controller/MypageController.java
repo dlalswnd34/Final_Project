@@ -1,9 +1,11 @@
 package com.simplecoding.cheforest.jpa.mypage.controller;
 
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
+import com.simplecoding.cheforest.jpa.auth.repository.MemberRepository;
 import com.simplecoding.cheforest.jpa.auth.security.CustomOAuth2User;
 import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
 import com.simplecoding.cheforest.jpa.board.repository.BoardRepository;
+import com.simplecoding.cheforest.jpa.file.repository.FileRepository;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageLikedBoardDto;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageLikedRecipeDto;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageMyPostDto;
@@ -11,6 +13,7 @@ import com.simplecoding.cheforest.jpa.mypage.dto.MypageReviewDto;
 import com.simplecoding.cheforest.jpa.mypage.service.MypageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +25,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -38,6 +45,10 @@ public class MypageController {
     private final MypageService mypageService;
     private final BoardRepository boardRepository;
     private final PasswordEncoder passwordEncoder;
+    private final MemberRepository memberRepository;
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 
     @GetMapping("")
     public String mypageMain(@RequestParam(defaultValue = "myboard") String tab,
@@ -208,5 +219,33 @@ public class MypageController {
 
         // 4️⃣ 기타 예외
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+    }
+
+    /* =========================
+     * 🧩 프로필 경로(Member.profile) 업데이트
+     * ========================= */
+    @PostMapping("/profile/update")
+    @ResponseBody
+    public ResponseEntity<String> updateProfilePath(
+            @AuthenticationPrincipal Object principal,
+            @RequestParam("filePath") String filePath
+    ) {
+        Member member = null;
+        if (principal instanceof CustomUserDetails user) {
+            member = user.getMember();
+        } else if (principal instanceof CustomOAuth2User oauthUser) {
+            member = oauthUser.getMember();
+        }
+
+        if (member == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
+
+        // DB 업데이트
+        member.setProfile(filePath);
+        memberRepository.save(member);
+
+        log.info("✅ 프로필 이미지 경로 업데이트 완료: memberIdx={} -> {}", member.getMemberIdx(), filePath);
+        return ResponseEntity.ok("프로필 이미지가 변경되었습니다.");
     }
 }

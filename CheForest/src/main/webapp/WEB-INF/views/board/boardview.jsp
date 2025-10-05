@@ -56,7 +56,9 @@
 
       <div class="nav-actions">
         <!-- 작성자 본인에게만 수정 버튼 노출 -->
-        <sec:authentication property="principal.member.memberIdx" var="currentMemberIdx" scope="request" />
+          <sec:authorize access="isAuthenticated()">
+              <sec:authentication property="principal.memberIdx" var="currentMemberIdx" scope="request" />
+          </sec:authorize>
         <c:if test="${not empty currentMemberIdx and currentMemberIdx == board.writerIdx}">
         <button class="edit-btn" id="editBtn"
                   onclick="location.href='/board/edition?boardId=${board.boardId}'">
@@ -161,7 +163,7 @@
           <i data-lucide="clock" class="h-6 w-6 text-orange-500 mb-2"></i>
           <p class="info-label">조리시간</p>
           <p class="info-value">
-            <c:out value="${board.cookTime}" default="-" />분
+            <c:out value="${board.cookTime}" default="-" />
           </p>
         </div>
 
@@ -286,7 +288,7 @@
                 <div class="writer-info">
                   <div class="writer-name-line">
               <span class="writer-name">
-                <sec:authentication property="principal.member.nickname"/>
+                <sec:authentication property="principal.nickname"/>
               </span>
                     <span class="user-grade grade-${board.grade}">
                 <c:out value="${board.grade}" />
@@ -398,8 +400,8 @@
   <script>
     window.boardId = <c:out value="${board.boardId}" default="0"/>;
     window.loginUser = {
-      memberIdx: <sec:authentication property="principal.member.memberIdx" />,
-      nickname: "<sec:authentication property="principal.member.nickname" />"
+      memberIdx: <sec:authentication property="principal.memberIdx" />,
+      nickname: "<sec:authentication property="principal.nickname" />"
     };
   </script>
   </sec:authorize>

@@ -57,7 +57,7 @@ public class FileService {
 
     /** OS 경로 → 웹 경로(/upload/**)로 변환하여 DB에 저장 */
     private String toWebPath(String savedName) {
-        return "/upload/" + savedName;
+        return "/uploads/" + savedName;
     }
 
     // ====== 단일 파일 저장 ======

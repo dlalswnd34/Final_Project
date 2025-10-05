@@ -1103,3 +1103,26 @@ input[disabled]:focus {
 .filter-select:hover {
     border-color: #f59e0b;
 }
+
+.btn-profile-edit {
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #f97316;
+    color: white;
+    padding: 4px 10px;        /* 🔸가로 여백 늘림 */
+    font-size: 0.78rem;       /* 🔸글자 크기 약간 줄임 */
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    line-height: 1.2;         /* 🔸텍스트 세로 간격 조정 */
+    white-space: nowrap;      /* 🔸줄바꿈 방지 */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.btn-profile-edit:hover {
+    background: #ea580c;
+    transform: translateX(-50%) scale(1.05);
+}

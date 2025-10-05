@@ -9,6 +9,10 @@
     <title>CheForest - 커뮤니티 레시피 게시판</title>
     <link rel="stylesheet" href="/css/common/common.css">
     <link rel="stylesheet" href="/css/board/board.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
 <body>
 <jsp:include page="/common/header.jsp"/>
@@ -112,23 +116,23 @@
                                             <div class="flex items-center justify-center space-x-1">
                                                 <c:choose>
                                                     <c:when test="${p.member.grade eq '씨앗'}">
-                                                        <img src="<c:url value='/images/grades/seed.png'/>" class="w-4 h-4" alt="씨앗"/>
+                                                        <div class="grade-icon seed-grade">⚡</div>
                                                         <span class="text-xs text-orange-600">씨앗 등급</span>
                                                     </c:when>
                                                     <c:when test="${p.member.grade eq '뿌리'}">
-                                                        <img src="<c:url value='/images/grades/root.png'/>" class="w-4 h-4" alt="뿌리"/>
+                                                        <div class="grade-icon root-grade">⚓</div>
                                                         <span class="text-xs text-orange-600">뿌리 등급</span>
                                                     </c:when>
                                                     <c:when test="${p.member.grade eq '새싹'}">
-                                                        <img src="<c:url value='/images/grades/sprout.png'/>" class="w-4 h-4" alt="새싹"/>
+                                                        <div class="grade-icon sprout-grade">🌱</div>
                                                         <span class="text-xs text-orange-600">새싹 등급</span>
                                                     </c:when>
                                                     <c:when test="${p.member.grade eq '나무'}">
-                                                        <img src="<c:url value='/images/grades/tree.png'/>" class="w-4 h-4" alt="나무"/>
+                                                        <div class="grade-icon tree-grade">🌲</div>
                                                         <span class="text-xs text-orange-600">나무 등급</span>
                                                     </c:when>
                                                     <c:when test="${p.member.grade eq '숲'}">
-                                                        <img src="<c:url value='/images/grades/flower.png'/>" class="w-4 h-4" alt="숲"/>
+                                                        <div class="grade-icon forest-grade">🌳</div>
                                                         <span class="text-xs text-orange-600">숲 등급</span>
                                                     </c:when>
                                                 </c:choose>
@@ -508,9 +512,8 @@
     </section>
 </div>
 
-<!-- Tailwind / Lucide / 공통 스크립트 -->
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<!-- 공통 스크립트 -->
+
 <script src="/js/common/common.js"></script>
 <script src="/js/board/board.js"></script>
 

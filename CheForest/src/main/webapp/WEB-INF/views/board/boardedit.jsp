@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html; charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
@@ -8,7 +8,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>게시글 수정 - CheForest</title>
-  <link rel="stylesheet" href="/css/common/common.css">
   <link rel="stylesheet" href="/css/board/boardwrite.css"><!-- 작성/수정 공용 -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400&display=swap" rel="stylesheet">
@@ -89,7 +88,7 @@
           <input type="text" class="form-input" id="cookTime" name="cookTime"
                  value="<c:out value='${board.cookTime}'/>"
                  placeholder="예: 30분" required>
-          <div class="form-help">예: 30분, 60분</div>
+          <div class="form-help">예: 30분, 1시간 30분 등</div>
         </div>
       </div>
 
@@ -243,7 +242,7 @@
                   <div class="instruction-content">
                     <div class="form-group">
                       <label class="form-label">조리 방법</label>
-                      <textarea class="form-textarea" name="instructionContent[]" rows="4" required><c:out value='${ins.content}'/></textarea>
+                      <textarea class="form-textarea" name="instructionContent[]" rows="4" required><c:out value='${ins.text}'/></textarea>
                     </div>
 
                     <div class="form-group">

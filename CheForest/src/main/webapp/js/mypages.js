@@ -1039,3 +1039,52 @@ function formatFileSize(bytes) {
         });
     });
 })();
+
+//  프로필 업르도
+document.addEventListener('DOMContentLoaded', function () {
+    const profileInput = document.getElementById('profile-upload-input');
+    const profileImage = document.getElementById('profile-image');
+    const csrfToken  = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    if (profileInput) {
+        profileInput.addEventListener('change', function () {
+            const file = this.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append("memberIdx", currentMemberIdx);
+            formData.append('profileImage', file);
+
+            fetch('/file/profile-upload', {
+                method: 'POST',
+                headers: { [csrfHeader]: csrfToken },
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.filePath) {
+                        // DB에 경로 업데이트
+                        fetch('/mypage/profile/update', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                [csrfHeader]: csrfToken
+                            },
+                            body: new URLSearchParams({ filePath: data.filePath })
+                        }).then(() => {
+                            // 새 프로필 이미지 반영
+                            profileImage.src = data.filePath + '?v=' + new Date().getTime();
+                            alert('✅ 프로필 이미지가 변경되었습니다.');
+                        });
+                    } else {
+                        alert('❌ 업로드 실패: ' + (data.message || '서버 오류'));
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('❌ 업로드 중 오류가 발생했습니다.');
+                });
+        });
+    }
+});

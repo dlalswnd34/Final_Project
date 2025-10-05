@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.auth.repository.MemberRepository;
+import com.simplecoding.cheforest.jpa.auth.security.CustomOAuth2User;
 import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
 import com.simplecoding.cheforest.jpa.board.dto.*;
 import com.simplecoding.cheforest.jpa.board.service.BoardService;
@@ -21,7 +22,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -109,46 +112,54 @@ public class BoardController {
     public String add(
             @ModelAttribute BoardSaveReq dto,
             @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
-            @RequestParam(value = "instructionImage", required = false) List<MultipartFile> steps, // [KEEP]
-            @AuthenticationPrincipal CustomUserDetails loginUser
+            @RequestParam(value = "instructionImage", required = false) List<MultipartFile> steps
     ) throws IOException {
 
+        // ✅ 로그인 사용자 확인 (일반 + 소셜 모두 처리)
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = auth.getPrincipal();
 
-        // 로그인
-        Long memberIdx = loginUser.getMember().getMemberIdx();
-        String email   = loginUser.getMember().getEmail();
+        Long memberIdx = null;
+        String email = null;
+        Member member = null;
 
-        // ✅ 로그인한 회원 엔티티 조회
-        Member member = memberRepository.findById(loginUser.getMember().getMemberIdx())
-                .orElseThrow(() -> new RuntimeException("회원 정보를 찾을 수 없습니다."));
+        if (principal instanceof CustomUserDetails user) {
+            member = user.getMember();
+            memberIdx = member.getMemberIdx();
+            email = member.getEmail();
+        } else if (principal instanceof CustomOAuth2User social) {
+            member = social.getMember();
+            memberIdx = member.getMemberIdx();
+            email = member.getEmail();
+        } else {
+            throw new RuntimeException("로그인이 필요합니다.");
+        }
 
-        // 1) 게시글 저장 → ID 확보
+        // 1️⃣ 게시글 저장
         Long boardId = boardService.create(dto, email);
 
-        // 2) 대표(썸네일) 저장
+        // 2️⃣ 썸네일 저장
         if (thumbnail != null && !thumbnail.isEmpty()) {
             FileDto thumb = fileService.saveFile(thumbnail, "BOARD", boardId, "THUMBNAIL", memberIdx);
             if (thumb != null) {
-                // ★ 썸네일을 브라우저 공개 URL로 저장해두면 이후 조회도 간편
                 String publicThumbUrl = toPublicUrl(thumb);
                 boardService.updateThumbnail(boardId, publicThumbUrl);
             }
         }
 
-        // 3) 단계(조리법) 이미지 저장 (내부에서 STEP_1, STEP_2 ...로 저장되도록 구현되어 있어야 함)
+        // 3️⃣ 단계 이미지 저장
         if (steps != null && !steps.isEmpty()) {
             fileService.saveBoardFiles(boardId, memberIdx, steps);
         }
 
-        // 4) 목록으로 리다이렉트
+        // 4️⃣ 포인트 적립
+        pointService.addPointWithLimit(member, "POST");
+
+        // 5️⃣ 목록으로 리다이렉트
         String encodedCategory = URLEncoder.encode(
                 dto.getCategory() == null ? "" : dto.getCategory(),
                 StandardCharsets.UTF_8
         );
-
-        // 3) 포인트 적립 (글 작성 기준)
-        pointService.addPointWithLimit(member, "POST");
-
         return "redirect:/board/list?category=" + encodedCategory;
     }
 
@@ -156,29 +167,24 @@ public class BoardController {
     @GetMapping("/board/edition")
     public String editForm(@RequestParam("boardId") Long boardId, Model model) {
 
-        // 1) 게시글 상세 조회
+        // 1️⃣ 게시글 상세 조회
         BoardDetailDto board = boardService.getBoardDetail(boardId);
-
-        // ✅ [수정] board가 null일 경우의 방어 코드 추가!
         if (board == null) {
-            // مثلاً, 게시글이 없다는 알림과 함께 목록 페이지로 리다이렉트
-            // RedirectAttributes를 사용하여 메시지를 전달할 수도 있습니다.
             return "redirect:/board/list";
         }
-
         model.addAttribute("board", board);
 
-        // 2) 첨부파일 목록
+        // 2️⃣ 첨부파일 목록
         List<FileDto> fileList = fileService.getFilesByBoardId(boardId);
         model.addAttribute("fileList", fileList);
 
-        // 3) 재료 (이제 board가 null이 아니므로 안전하게 실행됨)
+        // 3️⃣ 재료 세팅
         List<Map<String, String>> ingredients = new ArrayList<>();
         if (board.getPrepare() != null && !board.getPrepare().isBlank() && board.getPrepareAmount() != null) {
             String[] names = board.getPrepare().split(",");
             String[] amounts = board.getPrepareAmount().split(",");
             for (int i = 0; i < names.length; i++) {
-                Map<String,String> ing = new HashMap<>();
+                Map<String, String> ing = new HashMap<>();
                 ing.put("name", names[i].trim());
                 ing.put("amount", (i < amounts.length ? amounts[i].trim() : ""));
                 ingredients.add(ing);
@@ -186,36 +192,72 @@ public class BoardController {
         }
         model.addAttribute("ingredients", ingredients);
 
-        // 4) 조리법
+        // 4️⃣ 조리법(JSON) 파싱
         List<StepDto> instructions = new ArrayList<>();
         if (board.getContent() != null && !board.getContent().isBlank()) {
             try {
-                // 👇 이 부분에서 문제가 발생했을 가능성이 높습니다.
-                instructions = JsonUtil.fromJsonList(board.getContent(), StepDto.class);
+                ObjectMapper mapper = new ObjectMapper();
+
+                // ✅ LinkedHashMap으로 먼저 읽고 안전하게 StepDto로 변환
+                List<Map<String, Object>> rawList =
+                        mapper.readValue(board.getContent(), new TypeReference<List<Map<String, Object>>>() {});
+
+                for (Map<String, Object> raw : rawList) {
+                    StepDto step = new StepDto();
+                    step.setText((String) raw.getOrDefault("text", ""));   // ✅ text 필드 유지
+                    step.setImage((String) raw.getOrDefault("image", null));
+                    instructions.add(step);
+                }
+
             } catch (Exception e) {
-                // 변환에 실패하면 catch 블록으로 빠지고, instructions는 결국 빈 리스트가 됩니다.
-                log.warn("조리법 JSON 파싱 실패: {}", e.getMessage());
+                log.error("❌ 조리법 JSON 파싱 실패 (수정페이지): {}", e.getMessage());
             }
         }
-        model.addAttribute("instructions", instructions);
 
-        // JSP 파일 이름이 boardedit.jsp가 맞는지 확인
+        // 5️⃣ 단계별 이미지 URL 매핑
+        List<FileDto> files = fileService.getFilesByBoardId(boardId);
+        for (int i = 0; i < instructions.size(); i++) {
+            int stepNo = i + 1;
+            String stepImageUrl = files.stream()
+                    .filter(f -> ("STEP_" + stepNo).equalsIgnoreCase(f.getUsePosition()))
+                    .findFirst()
+                    .map(this::toPublicUrl)
+                    .orElse(instructions.get(i).getImage()); // 기존 JSON 이미지 유지
+            instructions.get(i).setImage(stepImageUrl);
+        }
+
+        model.addAttribute("instructions", instructions);
         return "board/boardedit";
     }
 
     // 5. 글 수정
     @PostMapping("/board/edit")
-    public String update(@ModelAttribute BoardSaveReq dto,
-                         @RequestParam("boardId") Long boardId,
-                         @RequestParam(value = "deleteImageIds", required = false) List<Long> deleteImageIds,
-                         @AuthenticationPrincipal MemberDetailDto loginUser) throws IOException {
+    public String update(
+            @ModelAttribute BoardSaveReq dto,
+            @RequestParam("boardId") Long boardId,
+            @RequestParam(value = "deleteImageIds", required = false) List<Long> deleteImageIds
+    ) throws IOException {
 
-        // 서비스 호출
-        boardService.update(boardId, dto, loginUser.getEmail(), deleteImageIds);
+        // ✅ 로그인 사용자 확인
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = auth.getPrincipal();
 
-        // 카테고리별로 다시 리다이렉트
+        String email = null;
+
+        if (principal instanceof CustomUserDetails user) {
+            email = user.getMember().getEmail();
+        } else if (principal instanceof CustomOAuth2User social) {
+            email = social.getMember().getEmail();
+        } else {
+            throw new RuntimeException("로그인이 필요합니다.");
+        }
+
+        // ✅ 수정 수행
+        boardService.update(boardId, dto, email, deleteImageIds);
+
+        // ✅ 카테고리별 리다이렉트
         String encodedCategory = URLEncoder.encode(dto.getCategory(), StandardCharsets.UTF_8);
-        return "redirect:/board/list?category=" + encodedCategory;
+        return "redirect:/board/view?boardId=" + boardId;
     }
 
     // 6. 글 삭제
@@ -262,12 +304,11 @@ public class BoardController {
         // 조리법 JSON 파싱
         ObjectMapper mapper = new ObjectMapper();
         List<StepDto> instructions = new ArrayList<>();
+
         if (board.getContent() != null && !board.getContent().isBlank()) {
             try {
-                instructions = mapper.readValue(
-                        board.getContent(),
-                        new TypeReference<List<StepDto>>() {}
-                );
+                Object raw = mapper.readValue(board.getContent(), Object.class);
+                instructions = mapper.convertValue(raw, new TypeReference<List<StepDto>>() {});
             } catch (Exception e) {
                 log.warn("조리법 JSON 파싱 실패: {}", e.getMessage());
             }
