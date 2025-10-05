@@ -3,7 +3,6 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -12,11 +11,14 @@
   <title>마이페이지 - CheForest</title>
   <link rel="stylesheet" href="/css/common/common.css">
   <link rel="stylesheet" href="/css/mypage.css">
+    <%-- CSRF 토큰 정보를 meta 태그에 추가 --%>
+    <meta name="_csrf" content="${_csrf.token}">
+    <meta name="_csrf_header" content="${_csrf.headerName}">
 </head>
-<body>
+<body data-social="${me.member.provider != null}">
 <jsp:include page="/common/header.jsp"/>
-<main class="mypage-main">
-  
+<main class="mypage-main" data-member-idx="${currentMemberIdx}">
+
 
   <%-- JSTL: URL 파라미터를 확인하여 현재 활성화할 탭을 결정합니다. 기본값은 'profile'입니다. --%>
   <c:set var="activeTab" value="${empty param.tab ? 'profile' : param.tab}" />
@@ -26,24 +28,26 @@
       <div class="profile-info">
         <div class="profile-avatar">
           <img src="사용자프로필이미지URL" alt="프로필 이미지" id="profile-image">
-          <div class="avatar-fallback" id="avatar-fallback">사</div>
         </div>
         <div class="profile-details">
           <sec:authentication var="me" property="principal"/>
+            <input type="hidden" id="provider" value="${me.member.provider}" />
           <h1 class="profile-title"><c:out value="${me.member.nickname}"/>님의 마이페이지</h1>
           <div class="profile-meta">
             <span class="level-badge">
-              <span class="level-icon">🌳</span>
-              <span class="level-text">나무</span>
+              <span class="user-grade grade-${currentLevel}"><c:out value="${currentLevel}"/></span>
             </span>
-            <span class="join-date">가입일:<c:out value="${joinDate}" default="-" /></span>
+            <span class="join-date">가입일 : <c:out value="${joinDate}" default="-" /></span>
           </div>
           <div class="level-progress">
-            <span class="progress-label">다음 등급까지</span>
+            <span class="progress-label">
+              <c:if test="${nextLevel != null}">다음 등급까지</c:if>
+              <c:if test="${nextLevel == null}">최고 등급 달성!</c:if>
+            </span>
             <div class="progress-bar">
-              <div class="progress-fill" style="width: 75%"></div>
+                <div class="progress-fill" style="width: ${progressPercentage}%"></div>
             </div>
-            <span class="progress-text">75%</span>
+              <span class="progress-text">${progressPercentage}%</span>
           </div>
         </div>
       </div>
@@ -55,7 +59,7 @@
   <section class="stats-section">
     <div class="container">
       <div class="stats-grid">
-        <%-- 작성한 레시피    --%>
+        <%-- 작성한 레시피 --%>
         <div class="stat-card stat-recipes">
           <div class="stat-icon">👨‍🍳</div>
           <div class="stat-number">
@@ -63,7 +67,7 @@
           </div>
           <div class="stat-label">작성한 레시피</div>
         </div>
-        <%--  작성한 댓글     --%>
+        <%-- 작성한 댓글 --%>
         <div class="stat-card stat-comments">
           <div class="stat-icon">💬</div>
           <div class="stat-number">
@@ -72,7 +76,7 @@
           <div class="stat-label">작성한 댓글</div>
         </div>
 
-        <%--  받은 좋아요     --%>
+        <%-- 받은 좋아요 --%>
         <div class="stat-card stat-likes">
           <div class="stat-icon">❤️</div>
           <div class="stat-number">
@@ -120,21 +124,42 @@
                   <div class="level-status">
                     <div class="current-level">
                       <h4>현재 등급</h4>
-                      <div class="level-display level-tree">
-                        <div class="level-emoji">🌳</div>
-                        <div class="level-name">나무</div>
-                        <div class="level-desc">레시피 24개 작성</div>
-                      </div>
+                        <div class="level-display">
+                          <div class="level-emoji">
+                            <c:choose>
+                              <c:when test="${currentLevel == '씨앗'}">🌱</c:when>
+                              <c:when test="${currentLevel == '뿌리'}">🌿</c:when>
+                              <c:when test="${currentLevel == '새싹'}">🌾</c:when>
+                              <c:when test="${currentLevel == '나무'}">🌳</c:when>
+                              <c:when test="${currentLevel == '숲'}">🌲</c:when>
+                              <c:otherwise>⭐</c:otherwise>
+                            </c:choose>
+                          </div>
+                            <div class="level-name"><c:out value="${currentLevel}"/></div>
+                            <div class="level-desc">현재 <fmt:formatNumber value="${userPoints}" /> 포인트</div>
+                        </div>
                     </div>
-                    <div class="next-level">
-                      <h4>다음 등급</h4>
-                      <div class="level-display level-forest">
-                        <div class="level-emoji">🌲</div>
-                        <div class="level-name">숲</div>
-                        <div class="level-desc">레시피 26개 더 필요</div>
-                      </div>
+
+                        <%-- 최고 등급이 아닐 경우에만 '다음 등급' 섹션을 표시 --%>
+                        <c:if test="${nextLevel != null}">
+                            <div class="next-level">
+                                <h4>다음 등급</h4>
+                                <div class="level-display">
+                                    <div class="level-emoji">
+                                        <c:choose>
+                                            <c:when test="${nextLevel == '뿌리'}">🌿</c:when>
+                                            <c:when test="${nextLevel == '새싹'}">🌾</c:when>
+                                            <c:when test="${nextLevel == '나무'}">🌳</c:when>
+                                            <c:when test="${nextLevel == '숲'}">🌲</c:when>
+                                            <c:otherwise>🚀</c:otherwise>
+                                        </c:choose>
+                                    </div>
+                                    <div class="level-name"><c:out value="${nextLevel}"/></div>
+                                    <div class="level-desc"><fmt:formatNumber value="${pointsNeeded}" /> 포인트 더 필요</div>
+                                </div>
+                            </div>
+                        </c:if>
                     </div>
-                  </div>
                 </div>
               </div>
 
@@ -146,8 +171,8 @@
                   <div class="activity-list">
                     <div class="activity-item"><span class="activity-label">이번 달 레시피 작성</span><span class="activity-badge">3개</span></div>
                     <div class="activity-item"><span class="activity-label">이번 달 댓글 작성</span><span class="activity-badge">15개</span></div>
-                    <div class="activity-item"><span class="activity-label">평균 레시피 조회수</span><span class="activity-badge">518회</span></div>
-                    <div class="activity-item"><span class="activity-label">평균 좋아요 수</span><span class="activity-badge">77개</span></div>
+                    <div class="activity-item"><span class="activity-label">전체 레시피 조회수</span><span class="activity-badge">518회</span></div>
+                    <div class="activity-item"><span class="activity-label">전체 좋아요 수</span><span class="activity-badge">77개</span></div>
                   </div>
                 </div>
               </div>
@@ -215,8 +240,8 @@
                         </c:choose>
 
                         <span class="recipe-stat">
-                                <fmt:formatDate value="${dt}" pattern="yyyy년 MM월 dd일 a hh시 mm분"/>
-                                </span>
+                            <fmt:formatDate value="${dt}" pattern="yyyy년 MM월 dd일"/>
+                            </span>
                       </div>
                     </div>
 
@@ -284,8 +309,10 @@
 
           <%-- JSTL: activeTab에 따라 active 클래스 적용 --%>
           <div class="tab-content ${activeTab == 'comments' ? 'active' : ''}" id="tab-comments">
-            <h2 class="tab-title">작성한 댓글 (156개)</h2>
-            <div class="comment-list">
+              <h2 class="tab-title">
+                  작성한 댓글 (<fmt:formatNumber value="${empty myCommentsTotalCount ? 0 : myCommentsTotalCount}" />개)
+              </h2>
+              <div class="comment-list">
 
               <!-- 비어있을 때 -->
               <c:if test="${empty myReviews}">
@@ -300,13 +327,13 @@
                   <div class="comment-header">
                     <h3 class="comment-recipe-title"><c:out value="${rv.boardTitle}"/></h3>
                     <span class="comment-date">
-            <c:choose>
-              <c:when test="${not empty rv.insertTime}">
-                <fmt:formatDate value="${rv.insertTime}" pattern="yyyy-MM-dd"/>
-              </c:when>
-              <c:otherwise>-</c:otherwise>
-            </c:choose>
-          </span>
+                    <c:choose>
+                      <c:when test="${not empty rv.insertTime}">
+                        <fmt:formatDate value="${rv.insertTime}" pattern="yyyy-MM-dd"/>
+                      </c:when>
+                      <c:otherwise>-</c:otherwise>
+                    </c:choose>
+                  </span>
                   </div>
 
                   <p class="comment-content"><c:out value="${rv.content}"/></p>
@@ -317,7 +344,7 @@
                   </c:url>
                   <div class="comment-actions">
                     <a class="btn-view" href="${boardViewUrl}" onclick="event.stopPropagation();">레시피 보기</a>
-                    <button type="button" class="btn-delete" data-id="${rv.reviewId}" onclick="event.stopPropagation();">삭제</button>
+                    <button type="button" class="btn-delete" data-id="${rv.reviewId}">삭제</button>
                   </div>
                 </div>
               </c:forEach>
@@ -429,11 +456,10 @@
                     <div class="mypage-like-actions">
                       <a href="${recipeViewUrl}" class="btn-view" onclick="event.stopPropagation();">조회</a>
 
-                      <button type="button"
-                              class="btn-delete disabled"
-                              aria-disabled="true"
-                              title="현재 비활성화된 기능입니다"
-                              onclick="event.stopPropagation();">
+                        <button type="button"
+                                class="btn-delete btn-unlike"
+                                data-like-type="RECIPE"
+                                data-id="${r.recipeId}">
                         삭제
                       </button>
                     </div>
@@ -486,7 +512,6 @@
                   <a href="${nextBlockUrl}" class="btn-view ${blockEnd == totalPages ? 'disabled' : ''}">»</a>
                 </nav>
               </c:if>
-
             </div>
 
 
@@ -525,14 +550,16 @@
                     </c:url>
 
                     <div class="mypage-like-actions">
-                      <a class="mypage-like-viewbtn"
+                      <a class="btn-view"
                          href="${postViewUrl}"
                          onclick="event.stopPropagation();">조회</a>
 
                         <%-- alert()를 console.log()로 대체하여 사용자에게 블로킹 팝업이 뜨는 것을 방지 --%>
-                      <button type="button" class="btn-delete"
-                              onclick="event.stopPropagation(); console.log('삭제(좋아요 해제)는 곧 제공됩니다.');">
-                        삭제
+                        <button type="button"
+                                class="btn-delete btn-unlike"
+                                data-like-type="BOARD"
+                                data-id="${p.boardId}">
+                            삭제
                       </button>
                     </div>
                   </div>
@@ -597,10 +624,27 @@
           <%-- 문의 내역 관련 --%>
           <%-- JSTL: activeTab에 따라 active 클래스 적용 --%>
           <div class="tab-content ${activeTab == 'inquiries' ? 'active' : ''}" id="tab-inquiries"> <div class="tab-header">
-            <h2>문의 내역 (<span id="inquiry-count">...</span>개)</h2>
+            <h2 class="text-xl font-bold">문의 내역 (<span id="inquiry-count">...</span>개)</h2>
             <button class="btn btn-primary" onclick="goToInquiry()">새 문의하기</button>
           </div>
 
+              <div id="inquiry-filters" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                  <div>
+                      <label for="inquiry-status" style="margin-right:5px;">상태:</label>
+                      <select id="inquiry-status" class="filter-select">
+                          <option value="all" selected>전체</option>
+                          <option value="대기중">답변대기</option>
+                          <option value="답변완료">답변완료</option>
+                      </select>
+                  </div>
+                  <div>
+                      <label for="inquiry-sort" style="margin-right:5px;">정렬:</label>
+                      <select id="inquiry-sort" class="filter-select">
+                          <option value="desc" selected>최신순</option>
+                          <option value="asc">오래된순</option>
+                      </select>
+                  </div>
+              </div>
             <div class="inquiries-list" id="inquiries-list-container">
               <p class="loading-message">문의 내역을 불러오는 중...</p>
             </div>
@@ -621,45 +665,71 @@
           <%-- JSTL: activeTab에 따라 active 클래스 적용 --%>
           <div class="tab-content ${activeTab == 'settings' ? 'active' : ''}" id="tab-settings">
             <div class="settings-grid">
-              <div class="settings-card">
-                <div class="card-header">
-                  <h3 class="card-title"><span class="title-icon">👤</span>계정 정보</h3>
-                </div>
-                <div class="card-content">
-                  <div class="form-grid">
-                    <div class="form-group">
-                      <label for="nickname">닉네임</label>
-                      <input type="text" id="nickname" value="사용자닉네임">
-                    </div>
-                    <div class="form-group">
-                      <label for="email">이메일</label>
-                      <input type="email" id="email" value="user@example.com">
-                    </div>
-                  </div>
-                  <button class="btn-primary">프로필 업데이트</button>
-                </div>
-              </div>
+                <div class="settings-card">
+                    <form id="profile-update-form" action="/auth/update" method="post">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 
-              <div class="settings-card">
-                <div class="card-header">
-                  <h3 class="card-title"><span class="title-icon">🔒</span>비밀번호 변경</h3>
+                        <div class="card-header">
+                            <h3 class="card-title"><span class="title-icon">👤</span>계정 정보</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="form-grid">
+                                <!-- 닉네임 -->
+                                <div class="form-group">
+                                    <label for="nickname">닉네임</label>
+                                    <input type="text" id="nickname" name="nickname"
+                                           value="<c:out value='${me.member.nickname}'/>">
+                                </div>
+                                <!-- 이메일 (읽기 전용) -->
+                                <div class="form-group">
+                                    <label for="email">이메일</label>
+                                    <input type="email"
+                                           value="<c:out value='${me.member.email}'/>" disabled>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-primary">프로필 업데이트</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="card-content">
-                  <div class="form-group">
-                    <label for="current-password">현재 비밀번호</label>
-                    <input type="password" id="current-password">
-                  </div>
-                  <div class="form-group">
-                    <label for="new-password">새 비밀번호</label>
-                    <input type="password" id="new-password">
-                  </div>
-                  <div class="form-group">
-                    <label for="confirm-password">새 비밀번호 확인</label>
-                    <input type="password" id="confirm-password">
-                  </div>
-                  <button class="btn-primary">비밀번호 변경</button>
+
+                <c:choose>
+                    <c:when test="${not empty me.member.provider}">
+                        <!-- 소셜 로그인 사용자 -->
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <h3 class="card-title"><span class="title-icon">🔒</span>비밀번호 변경</h3>
+                            </div>
+                            <div class="card-content">
+                                <p style="color: #888;">소셜 로그인 계정은 비밀번호 변경이 불가능합니다.</p>
+                            </div>
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                <div class="settings-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><span class="title-icon">🔒</span>비밀번호 변경</h3>
+                    </div>
+                    <div class="card-content">
+                        <form id="password-change-form">
+                            <div class="form-group">
+                                <label for="current-password">현재 비밀번호</label>
+                                <input type="password" id="current-password" name="current-password" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="new-password">새 비밀번호</label>
+                                <input type="password" id="new-password" name="new-password" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirm-password">새 비밀번호 확인</label>
+                                <input type="password" id="confirm-password" name="confirm-password" required>
+                            </div>
+                            <div id="password-message-area" class="form-group" style="min-height: 24px;"></div>
+                            <button type="submit" class="btn-primary">비밀번호 변경</button>
+                        </form>
+                    </div>
                 </div>
-              </div>
+                    </c:otherwise>
+                </c:choose>
 
               <div class="settings-card danger-card">
                 <div class="card-header">
@@ -669,14 +739,45 @@
                   <div class="danger-zone">
                     <h4 class="danger-title">계정 삭제</h4>
                     <p class="danger-text">계정을 삭제하면 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다.</p>
-                    <button class="btn-danger">계정 삭제하기</button>
+                      <form action="/member/withdraw" method="post" onsubmit="return confirm('정말 계정을 삭제하시겠습니까? 모든 데이터는 복구할 수 없습니다.');">
+                          <%-- Spring Security의 CSRF 토큰을 포함해야 합니다. --%>
+                          <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                          <button type="submit" class="btn-danger">계정 삭제하기</button>
+                      </form>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-        </section> </div> </div> </section> </main> <jsp:include page="/common/footer.jsp"/>
+        </section>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 문의 수정 모달 -->
+<div id="edit-inquiry-modal" class="modal hidden">
+    <div class="modal-content">
+        <h3>문의 수정</h3>
+        <form id="edit-inquiry-form">
+            <input type="hidden" id="edit-inquiry-id" />
+            <div class="form-group">
+                <label for="edit-inquiry-title">제목</label>
+                <input type="text" id="edit-inquiry-title" required />
+            </div>
+            <div class="form-group">
+                <label for="edit-inquiry-content">내용</label>
+                <textarea id="edit-inquiry-content" rows="5" required></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="cancel-edit" class="btn-outline">취소</button>
+                <button type="submit" class="btn-primary">수정하기</button>
+            </div>
+        </form>
+    </div>
+</div>
+<jsp:include page="/common/footer.jsp"/>
 
 <script src="/js/common.js"></script>
 <script src="/js/mypages.js"></script>

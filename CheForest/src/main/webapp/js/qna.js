@@ -1,4 +1,6 @@
 // Q&A 페이지 JavaScript
+const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
+const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
 
 document.addEventListener('DOMContentLoaded', function() {
     // 전역 변수
@@ -204,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // 로그인 여부 확인
             let memberIdx;
             try {
-                const res = await fetch('/api/member/me'); // 로그인 사용자 정보 요청
+                const res = await fetch('/auth/me'); // 로그인 사용자 정보 요청
                 if (!res.ok) throw new Error('인증되지 않음');
 
                 const userInfo = await res.json();
@@ -231,7 +233,8 @@ document.addEventListener('DOMContentLoaded', function() {
             fetch('/inquiries/ask', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
                 },
                 body: JSON.stringify({
                     subject: subject,

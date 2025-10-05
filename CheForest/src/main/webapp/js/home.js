@@ -221,6 +221,37 @@ function initializeButtons() {
             location.href = 'events.jsp';
         });
     }
+
+    const categoryMap = {
+        korean: "한식",
+        western: "양식",
+        chinese: "중식",
+        japanese: "일식",
+        dessert: "디저트"
+    };
+
+    // 전체보기 버튼 클릭 이벤트
+    document.querySelectorAll('.view-all-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const type = this.dataset.type;          // cheforest or user
+            const categoryEng = activeCategory;      // 현재 선택된 카테고리(영문)
+            const categoryKor = categoryMap[categoryEng]; // 한글 변환
+            let url = '';
+
+            // 카테고리별 페이지로 이동
+            switch (type) {
+                case 'cheforest':
+                    // ✅ page, size 등은 넣지 않고 categoryKr만 깔끔히 전달
+                    url = `/recipe/list?categoryKr=${encodeURIComponent(categoryKor)}`;
+                    break;
+                case 'user':
+                    url = `/board/list?category=${encodeURIComponent(categoryKor)}`;
+                    break;
+            }
+
+            location.href = url;
+        });
+    });
 }
 
 // === 홈페이지 초기화 ===

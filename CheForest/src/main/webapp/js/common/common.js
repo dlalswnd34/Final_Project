@@ -36,7 +36,7 @@ function showPage(page,id) {
             window.location.href = '/event/test';
             break;
         case 'mypage':
-            window.location.href = '/mypage/mypage';
+            window.location.href = '/mypage';
             break;
         case 'login':
             window.location.href = '/auth/login';
@@ -571,17 +571,6 @@ function animateStatNumbers() {
             animateNumber(element, 0, target, 1500);
         }
     });
-}
-
-// 진행률 바 애니메이션
-function animateProgressBar(progressBar, targetWidth) {
-    if (!progressBar) return;
-
-    progressBar.style.width = '0%';
-    setTimeout(() => {
-        progressBar.style.transition = 'width 1s ease-out';
-        progressBar.style.width = targetWidth + '%';
-    }, 500);
 }
 
 // 마이페이지 알림 메시지

@@ -10,11 +10,16 @@ import com.simplecoding.cheforest.jpa.common.MapStruct;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -31,6 +36,26 @@ public class MemberService {
     private final MapStruct mapStruct;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    @Value("${NAVER_CLIENT_ID}")
+    private String naverClientId;
+
+    @Value("${NAVER_CLIENT_SECRET}")
+    private String naverClientSecret;
+
+    @Value("${KAKAO_CLIENT_ID}")
+    private String kakaoClientId;
+
+    @Value("${KAKAO_CLIENT_SECRET}")
+    private String kakaoClientSecret;
+
+    @Value("${GOOGLE_CLIENT_ID}")
+    private String googleClientId;
+
+    @Value("${GOOGLE_CLIENT_SECRET}")
+    private String googleClientSecret;
+
 
     // ================= 회원가입 =================
     public void register(MemberSignupDto dto, String serverAuthCode) {
@@ -65,18 +90,30 @@ public class MemberService {
     }
 
     // ================= 회원정보 수정 =================
-    public void update(MemberUpdateDto dto) {
-        Member member = memberRepository.findById(dto.getMemberIdx())
-                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+    @Transactional
+    public Member update(MemberUpdateDto dto, Long memberIdx) {
 
-        // 닉네임 중복검사 (자기자신 제외)
-        if (memberRepository.existsByNicknameAndMemberIdxNot(dto.getNickname(), dto.getMemberIdx())) {
-            throw new IllegalArgumentException("이미 사용중인 닉네임입니다.");
+        // 1. 현재 사용자를 ID로 조회합니다. 없으면 예외를 발생시킵니다.
+        Member member = memberRepository.findById(memberIdx)
+                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
+
+        // ✅✅✅ 2. [가장 중요] 닉네임 중복 검사 로직 추가 ✅✅✅
+        //    변경하려는 닉네임이 현재 내 닉네임과 다를 경우에만 중복 검사를 수행합니다.
+        if (!member.getNickname().equals(dto.getNickname())) {
+            if (memberRepository.existsByNickname(dto.getNickname())) {
+                throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+            }
         }
 
-        mapStruct.updateEntity(dto, member);
+        // 3. DTO의 값으로 회원 정보(Entity)를 업데이트합니다.
+        member.setNickname(dto.getNickname());
 
-        memberRepository.save(member);
+        if (dto.getProfile() != null) {
+            member.setProfile(dto.getProfile());
+        }
+
+        // 4. @Transactional에 의해 메서드가 종료될 때 변경된 내용이 DB에 자동으로 반영됩니다.
+        return member;
     }
 
     // ================= 회원 상세 조회 =================
@@ -134,20 +171,83 @@ public class MemberService {
 
     //    회원 탈퇴
     @Transactional
-    public void withdraw(Long memberIdx) {
+    public void withdraw(Long memberIdx, String accessToken) {
         Member member = memberRepository.findById(memberIdx)
                 .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
 
-        // ✅ 회원정보 마스킹 처리
+        // 2. DB 마스킹 처리
         member.setLoginId("deleted_" + member.getMemberIdx());
-        member.setPassword("deleted");
         member.setNickname("탈퇴한 회원_" + member.getMemberIdx());
         member.setEmail("deleted");
-
-        // ✅ Role을 LEFT로 변경
         member.setRole(Member.Role.LEFT);
+
+        if (member.getProvider() != null
+                && !"deleted".equalsIgnoreCase(member.getProvider())) {
+            // ✅ 진짜 소셜 회원일 때만 처리
+            member.setProvider("deleted");
+            member.setSocialId("deleted");
+            member.setPassword("SOCIAL_ACCOUNT"); // 🔸 null 금지
+        } else {
+            // ✅ 일반 회원
+            member.setPassword("deleted");
+        }
+
         memberRepository.save(member);
+
+        // ✅ 관리자 강제 삭제면 소셜 unlink 건너뜀
+        if (accessToken == null) {
+            log.info("관리자 강제 삭제 요청 → 소셜 unlink 건너뜀 (memberIdx={})", memberIdx);
+            return;
+        }
+
+        // 3. 소셜 unlink 호출
+        if ("KAKAO".equalsIgnoreCase(member.getProvider())) {
+            unlinkKakao(accessToken);
+        } else if ("GOOGLE".equalsIgnoreCase(member.getProvider())) {
+            unlinkGoogle(accessToken);
+        } else if ("NAVER".equalsIgnoreCase(member.getProvider())) {
+            unlinkNaver(accessToken);
+        }
     }
+
+    private void unlinkKakao(String accessToken) {
+        String url = "https://kapi.kakao.com/v1/user/unlink";
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<String> res = restTemplate.postForEntity(url, entity, String.class);
+            log.info("카카오 unlink 응답: {}", res.getBody());
+        } catch (Exception e) {
+            log.error("카카오 unlink 실패", e);
+        }
+    }
+
+    private void unlinkGoogle(String accessToken) {
+        String url = "https://accounts.google.com/o/oauth2/revoke?token=" + accessToken;
+        try {
+            ResponseEntity<String> res = restTemplate.getForEntity(url, String.class);
+            log.info("구글 unlink 응답: {}", res.getBody());
+        } catch (Exception e) {
+            log.error("구글 unlink 실패", e);
+        }
+    }
+
+    private void unlinkNaver(String accessToken) {
+        String url = "https://nid.naver.com/oauth2.0/token?grant_type=delete" +
+                "&client_id=" + naverClientId +
+                "&client_secret=" + naverClientSecret +
+                "&access_token=" + accessToken +
+                "&service_provider=NAVER";
+        try {
+            ResponseEntity<String> res = restTemplate.getForEntity(url, String.class);
+            log.info("네이버 unlink 응답: {}", res.getBody());
+        } catch (Exception e) {
+            log.error("네이버 unlink 실패", e);
+        }
+    }
+
 
     // ================= 회원가입: 이메일 인증번호 발송 =================
     public String sendSignupVerificationCode(String email) {
@@ -240,5 +340,32 @@ public class MemberService {
 
         memberRepository.save(member);
     }
+
+//    마이페이지 비밀번호 변경
+@Transactional
+public void changePassword(Long memberIdx, String currentPassword, String newPassword) {
+    // 1. 회원 조회
+    Member member = memberRepository.findById(memberIdx)
+            .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
+
+    // 2. 현재 비밀번호 확인
+    if (!passwordEncoder.matches(currentPassword, member.getPassword())) {
+        throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+    }
+
+    // 3. 새 비밀번호 검증 (공백, 길이, 패턴 체크는 프론트에서 하지만 백엔드에서도 최소 보장)
+    if (newPassword == null || newPassword.length() < 8) {
+        throw new IllegalArgumentException("새 비밀번호는 최소 8자 이상이어야 합니다.");
+    }
+
+    // 4. 비밀번호 변경
+    String encodedPassword = passwordEncoder.encode(newPassword);
+    member.setPassword(encodedPassword);
+
+    // 5. update_time 갱신 (BaseTimeEntity가 있다면 자동 갱신됨)
+    memberRepository.save(member);
+
+    log.info("✅ 비밀번호 변경 완료 - memberIdx={}, loginId={}", member.getMemberIdx(), member.getLoginId());
+}
 }
 

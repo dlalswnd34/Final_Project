@@ -6,11 +6,12 @@ import com.simplecoding.cheforest.jpa.auth.dto.MemberUpdateDto;
 import com.simplecoding.cheforest.jpa.auth.dto.UserInfoDto;
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.auth.repository.MemberRepository;
+import com.simplecoding.cheforest.jpa.auth.security.AuthUser;
 import com.simplecoding.cheforest.jpa.auth.security.CustomOAuth2User;
 import com.simplecoding.cheforest.jpa.auth.service.MemberService;
 import com.simplecoding.cheforest.jpa.auth.service.EmailService;
 import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -70,49 +72,69 @@ public class MemberController {
         }
     }
 
-    // ================= 회원정보 수정 페이지 =================
-    @GetMapping("/auth/update")
-    public String updateView(@AuthenticationPrincipal CustomUserDetails user, Model model) {
-        if (user == null) {
-            return "redirect:/auth/login";
-        }
-        model.addAttribute("memberUpdateDto", new MemberUpdateDto());
-        return "mypage/edit";
-    }
-
     // ================= 회원정보 수정 처리 =================
     @PostMapping("/auth/update")
-    public String update(@Valid @ModelAttribute MemberUpdateDto dto,
-                         BindingResult bindingResult,
-                         @AuthenticationPrincipal CustomUserDetails user,
-                         Model model) {
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> update(@Valid @ModelAttribute MemberUpdateDto dto,
+                                                      BindingResult bindingResult,
+                                                      @AuthenticationPrincipal AuthUser user) {
+        Map<String, Object> response = new HashMap<>();
+
         if (bindingResult.hasErrors()) {
-            return "mypage/edit";
+            response.put("success", false);
+            response.put("message", "❌ 닉네임은 필수입니다.");
+            return ResponseEntity.badRequest().body(response);
         }
+
         try {
-            memberService.update(dto);
-            model.addAttribute("msg", "회원정보가 수정되었습니다.");
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("msg", "❌ " + e.getMessage());
-            return "mypage/edit";
+            Member updatedMember = memberService.update(dto, user.getMember().getMemberIdx());
+
+            // SecurityContext 갱신
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Object principal = authentication.getPrincipal();
+
+            Authentication newAuth;
+            if (principal instanceof CustomUserDetails) {
+                CustomUserDetails newPrincipal = new CustomUserDetails(updatedMember);
+                newAuth = new UsernamePasswordAuthenticationToken(newPrincipal, authentication.getCredentials(), newPrincipal.getAuthorities());
+            } else if (principal instanceof CustomOAuth2User oauth2User) {
+                CustomOAuth2User newPrincipal = new CustomOAuth2User(updatedMember, oauth2User.getAttributes());
+                newAuth = new UsernamePasswordAuthenticationToken(newPrincipal, null, newPrincipal.getAuthorities());
+            } else {
+                throw new IllegalStateException("지원되지 않는 인증 타입입니다.");
+            }
+
+            SecurityContextHolder.getContext().setAuthentication(newAuth);
+
+            response.put("success", true);
+            response.put("message", "✅ 회원정보가 수정되었습니다.");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "❌ " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
-        return "mypage/edit";
     }
 
 //    회원탈퇴
-    @PostMapping("/member/withdraw")
-    public String withdraw(@AuthenticationPrincipal CustomUserDetails user,
-                           RedirectAttributes ra) {
+@PostMapping("/member/withdraw")
+public String withdraw(@AuthenticationPrincipal AuthUser user,
+                       HttpServletRequest request,
+                       RedirectAttributes ra) {
 
-        Long memberIdx = user.getMember().getMemberIdx();
-        memberService.withdraw(memberIdx);
+    Member member = user.getMember();
+    Long memberIdx = member.getMemberIdx();
+    String accessToken = (String) request.getSession().getAttribute("accessToken");
 
-        // ✅ Spring Security 인증정보 삭제 (로그아웃 처리)
-        SecurityContextHolder.clearContext();
+    memberService.withdraw(memberIdx, accessToken);
 
-        ra.addFlashAttribute("msg", "회원 탈퇴가 완료되었습니다.");
-        return "redirect:/";
-    }
+    SecurityContextHolder.clearContext();
+    request.getSession().invalidate();
+
+    ra.addFlashAttribute("msg", "회원 탈퇴가 완료되었습니다.");
+    return "redirect:/";
+}
 
     // ================= 회원 상세 조회 =================
     @GetMapping("/auth/detail/{id}")
@@ -259,6 +281,41 @@ public class MemberController {
         }
     }
 
+//    마이페이지 비밀번호 변경
+@PostMapping("/auth/change-password")
+@ResponseBody
+public ResponseEntity<String> changePassword(
+        @RequestBody Map<String, String> request,
+        @AuthenticationPrincipal CustomUserDetails user) {
+
+    // 1) 로그인 체크
+    if (user == null) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("❌ 로그인 후 이용 가능합니다.");
+    }
+
+    // 2) 소셜 로그인 계정 차단
+    Member member = user.getMember();
+    if (member.getProvider() != null && !member.getProvider().isBlank()) {
+        return ResponseEntity.badRequest()
+                .body("❌ 소셜 로그인 계정은 비밀번호 변경이 불가능합니다.");
+    }
+
+    String currentPassword = request.get("currentPassword");
+    String newPassword     = request.get("newPassword");
+
+    try {
+        memberService.changePassword(member.getMemberIdx(), currentPassword, newPassword);
+        return ResponseEntity.ok("✅ 비밀번호가 성공적으로 변경되었습니다.");
+    } catch (IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body("❌ " + e.getMessage());
+    } catch (Exception e) {
+        log.error("비밀번호 변경 중 오류 발생: {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("❌ 서버 오류가 발생했습니다.");
+    }
+}
+
     // ✅ 소셜 로그인 시 중복 닉네임 수정
     @PostMapping("/auth/nickname/update")
     public String updateSocialNickname(@RequestParam String nickname,
@@ -338,6 +395,21 @@ public class MemberController {
         UserInfoDto userInfoDto = UserInfoDto.from(member);
         return ResponseEntity.ok(userInfoDto);
     }
+//    로그인된 사용자 정보를 반환 목적(소셜+기존회원)
+    @GetMapping("/auth/me")
+    public ResponseEntity<?> me(@AuthenticationPrincipal(expression = "member") Member member) {
+        if (member == null) {
+            return ResponseEntity.status(401).body(Map.of("authenticated", false));
+        }
 
-
+        return ResponseEntity.ok(Map.of(
+                "authenticated", true,
+                "memberIdx", member.getMemberIdx(),
+                "nickname", member.getNickname(),
+                "email", member.getEmail(),
+                "grade", member.getGrade(),
+                "profile", member.getProfile(),
+                "role", member.getRole().name()
+        ));
+    }
 }

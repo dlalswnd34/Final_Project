@@ -3,6 +3,7 @@ package com.simplecoding.cheforest.jpa.config;
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.auth.repository.MemberRepository;
 import com.simplecoding.cheforest.jpa.auth.service.MemberService;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -10,9 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -20,21 +19,19 @@ import java.io.IOException;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
+public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler { // 수정된 코드
 
     private final MemberRepository memberRepository;
     private final MemberService memberService;
 
-
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
-                                        Authentication authentication) throws IOException {
+                                        Authentication authentication) throws IOException, ServletException { // ServletException 추가
 
         Object principal = authentication.getPrincipal();
         Member member = null;
         String loginId = null;
-
 
         // ✅ 일반 로그인
         if (principal instanceof UserDetails userDetails) {
@@ -44,17 +41,13 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
         }
         // ✅ 소셜 로그인
         else if (principal instanceof OAuth2User oAuth2User) {
-            Object socialIdObj = oAuth2User.getAttributes().get("id");   // Kakao → Long
+            Object socialIdObj = oAuth2User.getAttributes().get("id");
             String socialId = (socialIdObj != null) ? String.valueOf(socialIdObj) : null;
-
             Object providerObj = oAuth2User.getAttributes().get("provider");
             String provider = (providerObj instanceof String) ? (String) providerObj : null;
 
             if (socialId != null && provider != null) {
-                member = memberRepository
-                        .findBySocialIdAndProvider(socialId, provider.toUpperCase())
-                        .orElse(null);
-
+                member = memberRepository.findBySocialIdAndProvider(socialId, provider.toUpperCase()).orElse(null);
                 request.getSession().setAttribute("provider", provider.toUpperCase());
             }
         }
@@ -69,30 +62,16 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
         if (member != null && member.getNickname() != null && member.getNickname().contains("_")) {
             String originalNickname = member.getNickname().split("_")[0];
             request.getSession().setAttribute("originalNickname", originalNickname);
-
             log.info("자동 생성된 닉네임 감지 → 모달 표시 준비 (원래 닉네임: {}, 현재 닉네임: {})",
                     originalNickname, member.getNickname());
-
-            // 홈으로 이동 → JSP에서 모달 표시
-            response.sendRedirect("/");
-            return;
         }
 
-        // ✅ SavedRequest 확인 (원래 요청 페이지로 복귀)
-        SavedRequest savedRequest = new HttpSessionRequestCache().getRequest(request, response);
+        // 2. 리다이렉트 URL 설정 (기본값: 홈)
+        // SavedRequest가 있으면 부모 클래스가 알아서 원래 가려던 페이지로 보내줍니다.
+        setDefaultTargetUrl("/");
 
-        if (savedRequest != null) {
-            String targetUrl = savedRequest.getRedirectUrl();
-            if (targetUrl != null && !targetUrl.contains("/error")) {
-                log.info("로그인 성공 → 원래 요청한 페이지로 이동: {}", targetUrl);
-                response.sendRedirect(targetUrl);
-            } else {
-                log.info("로그인 성공 → 잘못된 redirectUrl 감지, 홈으로 이동");
-                response.sendRedirect("/");
-            }
-        } else {
-            log.info("로그인 성공 → 기본 홈으로 이동");
-            response.sendRedirect("/");
-        }
+        // 3. 부모 클래스의 onAuthenticationSuccess를 호출하여 세션 저장 및 리다이렉트 처리
+        // 직접 response.sendRedirect()를 호출하지 않습니다.
+        super.onAuthenticationSuccess(request, response, authentication);
     }
 }

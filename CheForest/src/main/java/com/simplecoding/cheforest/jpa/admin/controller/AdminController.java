@@ -243,7 +243,7 @@ public String qna(Model model) {
             Long memberIdx = Long.valueOf(payload.get("memberIdx").toString());
             log.info("회원 삭제 요청 수신: {}", memberIdx);
 
-            memberService.withdraw(memberIdx);
+            memberService.withdraw(memberIdx, null);  // 소셜로그인 회원탈퇴때문에 null추가
 
             String resultMessage = "해당 회원이 삭제되었습니다.";
             return ResponseEntity.ok(resultMessage);

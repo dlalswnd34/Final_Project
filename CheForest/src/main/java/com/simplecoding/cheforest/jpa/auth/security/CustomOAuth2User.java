@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.Map;
 
 @Getter
-public class CustomOAuth2User implements OAuth2User {
+public class CustomOAuth2User implements OAuth2User, AuthUser {
 
     private final Member member;
     private final Map<String, Object> attributes;
@@ -34,5 +34,10 @@ public class CustomOAuth2User implements OAuth2User {
     @Override
     public String getName() {
         return member.getNickname(); // 화면에 기본 표시될 이름
+    }
+
+    @Override
+    public Member getMember() {
+        return member;
     }
 }

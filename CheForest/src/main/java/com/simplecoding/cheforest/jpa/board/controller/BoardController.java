@@ -19,6 +19,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -221,6 +223,23 @@ public class BoardController {
     public String delete(@RequestParam("boardId") Long boardId) {
         boardService.delete(boardId);
         return "redirect:/board/list";
+    }
+
+//    6-1 마이페이지용 글 삭제
+    @DeleteMapping("/api/boards/{boardId}")
+    public ResponseEntity<?> deleteBoardApi(@PathVariable Long boardId) {
+        try {
+            // 핵심: 기존에 사용하던 삭제 서비스를 그대로 재사용합니다.
+            boardService.delete(boardId);
+
+            // 성공 시, 자바스크립트에게 성공했다는 의미로 JSON 메시지를 보냅니다.
+            return ResponseEntity.ok().body(Map.of("message", "게시글이 성공적으로 삭제되었습니다."));
+
+        } catch (Exception e) {
+            // 삭제 중 문제가 발생하면, 자바스크립트에게 실패했다는 의미로 에러 메시지를 보냅니다.
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "삭제 처리 중 오류가 발생했습니다."));
+        }
     }
 
     // 7. 관리자 삭제

@@ -70,16 +70,17 @@ public interface InquiriesRepository extends JpaRepository<Inquiries, Long> {
      * @param pageable 페이징 정보 (페이지 번호, 크기, 정렬)
      * @return 해당 회원의 문의 내역 DTO 리스트 (Pageable 적용)
      */
-    @Query(value = "SELECT new com.simplecoding.cheforest.jpa.inquiries.dto.InquiryWithNicknameDto(" +
+    @Query("SELECT new com.simplecoding.cheforest.jpa.inquiries.dto.InquiryWithNicknameDto(" +
             "i.inquiryId, i.memberIdx, i.title, i.questionContent, i.answerContent, " +
             "i.answerStatus, i.isFaq, i.createdAt, i.answerAt, m.nickname) " +
             "FROM Inquiries i " +
             "JOIN Member m ON i.memberIdx = m.memberIdx " +
             "WHERE i.memberIdx = :memberIdx " +
-            "ORDER BY i.createdAt DESC",
-            countQuery = "SELECT COUNT(i) FROM Inquiries i JOIN Member m ON i.memberIdx = m.memberIdx WHERE i.memberIdx = :memberIdx")
-    Page<InquiryWithNicknameDto> findMyInquiriesWithNickname(
+            "AND (:status = 'all' OR i.answerStatus = :status) " +   // ✅ 상태 필터
+            "ORDER BY i.createdAt DESC")
+    Page<InquiryWithNicknameDto> findMyInquiriesWithNicknameAndStatus(
             @Param("memberIdx") Long memberIdx,
+            @Param("status") String status,
             Pageable pageable
     );
 

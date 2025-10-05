@@ -62,11 +62,10 @@ public class InquiriesService {
      * @param pageable 페이징 및 정렬 정보
      * @return 해당 회원의 문의 내역 DTO 페이지
      */
-    public Page<InquiryWithNicknameDto> getMyInquiries(Long memberIdx, Pageable pageable) {
-        // Repository에서 memberIdx를 조건으로 포함하여 쿼리 실행
-        // 🚨 Repository 메서드 명칭을 실제 구현체에 맞춰 조정해야 합니다.
-        // 현재는 Mocking된 Service의 findMyInquiries가 이 DTO를 반환한다고 가정합니다.
-        return inquiriesRepository.findMyInquiriesWithNickname(memberIdx, pageable);
+    public Page<InquiryWithNicknameDto> getMyInquiries(Long memberIdx, String status, Pageable pageable) {
+        // status 기본값 보정
+        if (status == null || status.isBlank()) status = "all";
+        return inquiriesRepository.findMyInquiriesWithNicknameAndStatus(memberIdx, status, pageable);
     }
 
     /**

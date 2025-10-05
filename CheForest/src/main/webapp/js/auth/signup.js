@@ -289,8 +289,22 @@ document.addEventListener("DOMContentLoaded", function () {
             showErrorModal("이메일 인증을 완료해주세요.");
             return false;
         }
-        if (passwordInput.value.trim() === "" || passwordInput.value !== confirmPasswordInput.value) {
-            showErrorModal("비밀번호를 확인해주세요.");
+        const pw = passwordInput.value.trim();
+        const cpw = confirmPasswordInput.value.trim();
+
+        // ✅ 비밀번호 정규식 (10~20자, 영문/숫자/특수문자 포함, 공백 불가)
+        const pwPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9])(?!.*\s).{10,20}$/;
+
+        if (!pwPattern.test(pw)) {
+            showErrorModal(
+                "비밀번호 조건 불일치",
+                "비밀번호는 공백 없이 10~20자, 영문/숫자/특수문자를 모두 포함해야 합니다."
+            );
+            return false;
+        }
+
+        if (pw !== cpw) {
+            showErrorModal("비밀번호가 서로 일치하지 않습니다.");
             return false;
         }
         return true;

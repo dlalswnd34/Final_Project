@@ -202,94 +202,76 @@ public class InquiriesController {
      * 마이페이지: 로그인된 사용자의 문의 내역을 페이징하여 조회하는 API
      */
     @GetMapping("/api/mypage/inquiries")
-    public Map<String, Object> getMyInquiries(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC)
-            Pageable pageable
+    public ResponseEntity<Map<String, Object>> getMyInquiries(
+            @AuthenticationPrincipal(expression = "member.memberIdx") Long memberIdx,
+            @RequestParam(defaultValue = "all") String status,   // ✅ 추가됨
+            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        if (userDetails == null) {
-            log.warn("인증되지 않은 사용자가 마이페이지 문의 내역 접근 시도.");
-            // 인증이 필요한 API이므로, 이 경우 보통 401을 반환하거나 빈 맵 반환
-            // 여기서는 빈 맵을 반환하고 JS에서 처리하도록 합니다.
-            return Collections.emptyMap();
+        if (memberIdx == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Long currentMemberIdx;
-        try {
-            // UserDetails를 CustomUserDetails로 캐스팅하고 getMemberIdx()를 호출
-            CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
-            currentMemberIdx = customUserDetails.getMemberIdx();
+        Page<InquiryWithNicknameDto> pageResult = inquiriesService.getMyInquiries(memberIdx, status, pageable);
 
-        } catch (ClassCastException e) {
-            log.error("UserDetails를 CustomUserDetails로 캐스팅 실패: {}", userDetails.getClass().getName());
-            return Collections.emptyMap();
-        } catch (Exception e) {
-            log.error("사용자 ID를 가져오는 중 예상치 못한 오류 발생", e);
-            return Collections.emptyMap();
-        }
+        Map<String, Object> body = new HashMap<>();
+        body.put("data", pageResult.getContent());
+        body.put("total", pageResult.getTotalElements());
+        body.put("totalPages", pageResult.getTotalPages());
+        body.put("page", pageResult.getNumber() + 1); // 1-based
+        body.put("size", pageable.getPageSize());
+        body.put("status", status);
 
-
-        // Service 호출
-        Page<InquiryWithNicknameDto> pageResult = inquiriesService.getMyInquiries(currentMemberIdx, pageable);
-        long totalCount = pageResult.getTotalElements(); // Service에서 totalCount를 이미 계산하므로 pageResult.getTotalElements() 사용
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("data", pageResult.getContent());
-        response.put("total", totalCount);
-        response.put("totalPages", pageResult.getTotalPages());
-        response.put("page", pageResult.getNumber() + 1); // 1-based
-        response.put("size", pageable.getPageSize());
-
-        log.info("마이페이지 문의 내역 조회 (memberIdx: {}): {}개", currentMemberIdx, totalCount);
-
-        return response;
+        return ResponseEntity.ok(body);
     }
 
     /**
      * 마이페이지: 사용자가 자신의 문의를 삭제하는 API
      */
-    @PostMapping("/inquiries/my/delete") // 마이페이지용 별도 API
+    @PostMapping("/inquiries/my/delete")
     public ResponseEntity<String> deleteMyInquiry(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal(expression = "member.memberIdx") Long memberIdx,
             @RequestBody Map<String, Object> payload
     ) {
+        if (memberIdx == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
+
+        Long inquiryId = Long.valueOf(String.valueOf(payload.get("inquiryId")));
         try {
-            if (userDetails == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
-            }
-
-            Long inquiryId = Long.valueOf(payload.get("inquiryId").toString());
-
-            Long currentMemberIdx;
-            try {
-                CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
-                currentMemberIdx = customUserDetails.getMemberIdx();
-
-            } catch (ClassCastException e) {
-                log.error("UserDetails를 CustomUserDetails로 캐스팅 실패: {}", userDetails.getClass().getName());
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증 객체 형식이 올바르지 않습니다.");
-            } catch (Exception e) {
-                log.error("인증된 사용자 ID 변환 실패", e);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증된 사용자 정보를 가져올 수 없습니다.");
-            }
-
-            // InquiriesService에 구현된 비즈니스 로직(소유권 및 상태 검증)을 사용합니다.
-            inquiriesService.deleteInquiry(inquiryId, currentMemberIdx);
-
+            inquiriesService.deleteInquiry(inquiryId, memberIdx);
             return ResponseEntity.ok("성공적으로 문의사항이 삭제되었습니다.");
-
-
         } catch (SecurityException e) {
-            // 소유권이나 답변 완료 상태로 인한 오류 처리
-            log.warn("문의 삭제 권한/상태 오류: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         } catch (IllegalArgumentException e) {
-            // 문의 ID를 찾을 수 없는 오류 처리
-            log.warn("문의 삭제 요청 시 ID를 찾을 수 없음: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            log.error("문의사항 삭제 중 오류 발생", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
+        }
+    }
+
+//    마이페이지에서 회원이 작성한 문의내용 수정
+    @PostMapping("/inquiries/my/update")
+    public ResponseEntity<String> updateMyInquiry(
+            @AuthenticationPrincipal(expression = "member.memberIdx") Long memberIdx,
+            @RequestBody Map<String, Object> payload
+    ) {
+        if (memberIdx == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
+
+        Long inquiryId = Long.valueOf(String.valueOf(payload.get("inquiryId")));
+        String newTitle   = String.valueOf(payload.get("title"));
+        String newContent = String.valueOf(payload.get("content"));
+
+        try {
+            inquiriesService.updateInquiry(inquiryId, memberIdx, newTitle, newContent);
+            return ResponseEntity.ok("문의가 수정되었습니다.");
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("❌ 권한이 없습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("❌ 문의를 찾을 수 없습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("❌ 서버 오류: " + e.getMessage());
         }
     }
 }

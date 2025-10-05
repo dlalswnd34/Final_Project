@@ -42,7 +42,7 @@
 
 <%-- 🌟 sec:authorize를 사용하여 로그인 상태에 따라 안전하게 변수 선언 🌟 --%>
 <sec:authorize access="isAuthenticated()">
-  <sec:authentication property="principal.memberIdx" var="currentMemberIdx" />
+  <sec:authentication property="principal.member.memberIdx" var="currentMemberIdx" />
   <script>
     const IS_LOGGED_IN = true;
     const MY_ID = Number("${currentMemberIdx}");

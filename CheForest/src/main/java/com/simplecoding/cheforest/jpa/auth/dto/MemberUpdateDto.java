@@ -5,8 +5,6 @@ import lombok.Data;
 
 @Data
 public class MemberUpdateDto {
-    private Long memberIdx;
-
     @NotBlank
     private String nickname;
 

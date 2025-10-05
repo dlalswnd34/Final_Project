@@ -45,11 +45,18 @@ public class ChatController {
     // ("/pub/message")
     @MessageMapping("/message")
     public void message(@Payload ChatMessage message,
-                        @AuthenticationPrincipal CustomUserDetails userDetails) {
+//                        @AuthenticationPrincipal CustomUserDetails userDetails
+                        @AuthenticationPrincipal(expression = "member") Member sender) {
 
-        // 1️⃣ 전달된 ID로 Member 조회
-        Long memberId = userDetails.getMemberIdx();
-        Member sender = chatService.getMemberById(memberId);
+//        // 1️⃣ 전달된 ID로 Member 조회
+//        Long memberId = userDetails.getMemberIdx();
+//        Member sender = chatService.getMemberById(memberId);
+
+        if (sender == null) {
+            // 소셜/일반 불문하고 Principal → member 추출 실패 시 보호
+            return;
+        }
+
 
         // 2️⃣ DTO → Entity
         Message entity = new Message();

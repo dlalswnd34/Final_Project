@@ -21,7 +21,11 @@ public class WebSocketConfig extends AbstractSecurityWebSocketMessageBrokerConfi
         // 클라이언트가 WebSocket 연결을 시작할 EndPoint를 설정합니다.
         // Handshake 과정에서 HTTP 세션 정보를 WebSocket 세션으로 안전하게 복사합니다.
         // 이 부분이 JSP의 new SockJS("/ws")와 일치해야 합니다.
-        registry.addEndpoint("/ws").withSockJS();
+        // 소셜 로그인 사용자도 세션 공유하도록 HttpSessionHandshakeInterceptor 추가
+        registry.addEndpoint("/ws")
+                .addInterceptors(new org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor())
+                .setAllowedOriginPatterns("*")
+                .withSockJS();
     }
 
     @Override

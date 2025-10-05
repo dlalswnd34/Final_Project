@@ -7,6 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class LikeSaveReq {   // 좋아요 요청 (클릭/취소 컨트롤러용)
     private Long memberIdx;
     private Long boardId;    // BOARD일 때만 사용
