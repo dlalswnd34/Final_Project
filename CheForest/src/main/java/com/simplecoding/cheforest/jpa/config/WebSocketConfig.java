@@ -2,6 +2,7 @@ package com.simplecoding.cheforest.jpa.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
@@ -21,7 +22,11 @@ public class WebSocketConfig extends AbstractSecurityWebSocketMessageBrokerConfi
         // 클라이언트가 WebSocket 연결을 시작할 EndPoint를 설정합니다.
         // Handshake 과정에서 HTTP 세션 정보를 WebSocket 세션으로 안전하게 복사합니다.
         // 이 부분이 JSP의 new SockJS("/ws")와 일치해야 합니다.
-        registry.addEndpoint("/ws").withSockJS();
+        // 소셜 로그인 사용자도 세션 공유하도록 HttpSessionHandshakeInterceptor 추가
+        registry.addEndpoint("/ws")
+                .addInterceptors(new org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor())
+                .setAllowedOriginPatterns("*")
+                .withSockJS();
     }
 
     @Override
@@ -53,6 +58,10 @@ public class WebSocketConfig extends AbstractSecurityWebSocketMessageBrokerConfi
         messages
                 // "/pub/message" 경로로 들어오는 메시지는 인증된 사용자만 허용합니다.
                 .simpDestMatchers("/pub/message").authenticated()
+                // ✅ 구독은 누구나 허용 (읽기 공개)
+                .simpSubscribeDestMatchers("/sub/**").permitAll()
+                // ✅ 연결/심장박동/종료 프레임은 허용
+                .simpTypeMatchers(SimpMessageType.CONNECT, SimpMessageType.HEARTBEAT, SimpMessageType.DISCONNECT).permitAll()
                 // 그 외 다른 모든 메시지(CONNECT, SUBSCRIBE 등)는 인증된 사용자라면 모두 허용합니다.
                 .anyMessage().authenticated();
     }

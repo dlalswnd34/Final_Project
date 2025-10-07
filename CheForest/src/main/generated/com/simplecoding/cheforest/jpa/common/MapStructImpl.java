@@ -9,7 +9,6 @@ import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.board.dto.BoardDetailDto;
 import com.simplecoding.cheforest.jpa.board.dto.BoardListDto;
 import com.simplecoding.cheforest.jpa.board.dto.BoardSaveReq;
-import com.simplecoding.cheforest.jpa.board.dto.BoardUpdateReq;
 import com.simplecoding.cheforest.jpa.board.entity.Board;
 import com.simplecoding.cheforest.jpa.chatbot.dto.ChatbotFaqDto;
 import com.simplecoding.cheforest.jpa.chatbot.entity.ChatbotFaq;

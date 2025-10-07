@@ -100,15 +100,19 @@
     margin-bottom: 8px;
 }
 
-.level-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 14px;
+.user-grade {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.75rem;
+    font-weight: 500;
+    color: white;
 }
+
+.grade-씨앗 { background: linear-gradient(to right, #84cc16, #22c55e); }
+.grade-뿌리 { background: linear-gradient(to right, #eab308, #f97316); }
+.grade-새싹 { background: linear-gradient(to right, #22c55e, #10b981); }
+.grade-나무 { background: linear-gradient(to right, #f97316, #dc2626); }
+.grade-숲   { background: linear-gradient(to right, #8b5cf6, #ec4899); }
 
 .level-icon {
     font-size: 16px;
@@ -459,6 +463,7 @@
     font-size: 20px;
     font-weight: 600;
     color: var(--color-text-dark);
+    margin-bottom: 16px;
 }
 
 /* --------------------------------------------------
@@ -712,13 +717,28 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
-    margin-bottom: 20px;
+}
+
+/* readonly 속성을 가진 input에 대한 스타일 */
+input[disabled] {
+    background-color: #f3f4f6; /* 연한 회색 배경 */
+    color: #6b7280;           /* 약간 흐린 텍스트 색상 */
+    cursor: not-allowed;       /* 마우스 커서를 '금지' 모양으로 변경 */
+    border-color: #e5e7eb;   /* 테두리 색상도 약간 연하게 (선택 사항) */
+}
+
+/* 포커스 되었을 때 파란색 테두리 효과 제거 (선택 사항) */
+input[disabled]:focus {
+    outline: none;
+    box-shadow: none;
+    border-color: #e5e7eb;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    margin-bottom: 12px;
 }
 
 .form-group label {
@@ -1040,3 +1060,74 @@
 .category-badge[data-category="중식"]   { background:#fefce8; color:#ca8a04; }
 .category-badge[data-category="일식"]   { background:#eff6ff; color:#2563eb; }
 .category-badge[data-category="디저트"] { background:#faf5ff; color:#9333ea; }
+
+/* 모달 기본 */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+.modal.hidden {
+    display: none;
+}
+.modal-content {
+    background: #fff;
+    padding: 20px;
+    width: 400px;
+    max-width: 90%;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.modal-content h3 {
+    margin-bottom: 15px;
+}
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.filter-select {
+    padding: 5px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
+    color: #374151;
+    font-size: 0.9rem;
+}
+.filter-select:hover {
+    border-color: #f59e0b;
+}
+
+.btn-profile-edit {
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #f97316;
+    color: white;
+    padding: 4px 10px;        /* 🔸가로 여백 늘림 */
+    font-size: 0.78rem;       /* 🔸글자 크기 약간 줄임 */
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    line-height: 1.2;         /* 🔸텍스트 세로 간격 조정 */
+    white-space: nowrap;      /* 🔸줄바꿈 방지 */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.btn-profile-edit:hover {
+    background: #ea580c;
+    transform: translateX(-50%) scale(1.05);
+}
+
+.pagination{display:flex;gap:6px;align-items:center;margin-top:12px}
+.page-link{display:inline-flex;min-width:32px;height:32px;justify-content:center;align-items:center;border:1px solid #e5e7eb;border-radius:8px;text-decoration:none}
+.page-link.active{font-weight:700;border-color:#f97316}
+.page-link.disabled{opacity:.4;pointer-events:none}

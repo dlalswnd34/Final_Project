@@ -11,12 +11,18 @@ import java.util.Collection;
 import java.util.List;
 
 @Getter
-public class CustomUserDetails implements UserDetails, Serializable {
+public class CustomUserDetails implements UserDetails, AuthUser, Serializable {
 
     private final Member member;
 
     public CustomUserDetails(Member member) {
         this.member = member;
+    }
+
+    // ✅ AuthUser 인터페이스 구현
+    @Override
+    public Member getMember() {
+        return member;
     }
 
     // PK 꺼내는 메서드 추가

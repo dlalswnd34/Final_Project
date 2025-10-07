@@ -7,10 +7,12 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
 @ServletComponentScan
 @EnableJpaAuditing
+@EnableTransactionManagement
 // TODO : JPA 사용 폴더 지정
 @EnableJpaRepositories(basePackages = "com.simplecoding.cheforest.jpa")
 // TODO : es(엘라스틱서치) 사용 폴더 지정

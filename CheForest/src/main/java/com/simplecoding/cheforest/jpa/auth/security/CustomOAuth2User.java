@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.Map;
 
 @Getter
-public class CustomOAuth2User implements OAuth2User {
+public class CustomOAuth2User implements OAuth2User, AuthUser {
 
     private final Member member;
     private final Map<String, Object> attributes;
@@ -19,6 +19,26 @@ public class CustomOAuth2User implements OAuth2User {
     public CustomOAuth2User(Member member, Map<String, Object> attributes) {
         this.member = member;
         this.attributes = attributes;
+    }
+
+    // JSP에서 principal.memberIdx 사용 가능
+    public Long getMemberIdx() {
+        return member != null ? member.getMemberIdx() : null;
+    }
+
+    // JSP에서 principal.nickname 사용 가능
+    public String getNickname() {
+        return member != null ? member.getNickname() : null;
+    }
+
+    // JSP에서 principal.grade 사용 가능
+    public String getGrade() {
+        return member != null ? member.getGrade() : null;
+    }
+
+    // JSP에서 principal.profile 사용 가능
+    public String getProfile() {
+        return member != null ? member.getProfile() : null;
     }
 
     @Override
@@ -34,5 +54,10 @@ public class CustomOAuth2User implements OAuth2User {
     @Override
     public String getName() {
         return member.getNickname(); // 화면에 기본 표시될 이름
+    }
+
+    @Override
+    public Member getMember() {
+        return member;
     }
 }

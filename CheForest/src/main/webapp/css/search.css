@@ -1,248 +1,118 @@
-/* 검색 페이지 전체 스타일 */
-.main-content {
-    min-height: 100vh;
+/* ===================================================
+   CheForest 통합 검색 페이지 스타일 (최적화 버전)
+   author: Minjoong
+   =================================================== */
+
+/* ===== 기본 설정 ===== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Gowun Dodum', sans-serif;
+    line-height: 1.6;
+    color: #1f2937;
     background-color: #ffffff;
 }
 
-/* 검색 히어로 섹션 */
-.search-hero {
-    background: linear-gradient(to right, #ec4899, #f97316);
-    color: white;
-    padding: 64px 0;
+.min-h-screen {
+    min-height: 100vh;
 }
 
-.hero-container {
-    max-width: 1280px;
+.container {
+    max-width: 1216px;
     margin: 0 auto;
-    padding: 0 16px;
+    padding: 0 1rem;
 }
 
-.hero-content {
+@media (min-width: 640px) {
+    .container { padding: 0 1.5rem; }
+}
+@media (min-width: 1024px) {
+    .container { padding: 0 2rem; }
+}
+
+/* ===== 헤더 영역 ===== */
+.search-header {
+    background: linear-gradient(to right, #ec4899, #f97316);
+    color: #fff;
+    padding: 4rem 0;
     text-align: center;
-    margin-bottom: 32px;
 }
 
-.hero-header {
+.header-title {
     display: flex;
-    align-items: center;
     justify-content: center;
-    margin-bottom: 16px;
+    align-items: center;
+    margin-bottom: 1rem;
 }
 
-.hero-icon {
-    margin-right: 12px;
+.header-icon {
+    width: 2rem;
+    height: 2rem;
+    margin-right: 0.75rem;
 }
 
-.hero-header h1 {
+.header-title h1 {
     font-size: 2.25rem;
     font-weight: 700;
-    margin: 0;
 }
 
-.hero-description {
+.header-subtitle {
     font-size: 1.25rem;
     opacity: 0.9;
-    margin: 0;
 }
 
-/* 메인 검색바 */
-.main-search-container {
-    max-width: 600px;
-    margin: 0 auto 32px auto;
-}
-
-.search-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    background: white;
-    border-radius: 12px;
-    padding: 12px 16px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.search-icon {
-    color: #6b7280;
-    margin-right: 12px;
-    flex-shrink: 0;
-}
-
-.main-search-input {
-    flex: 1;
-    border: none;
-    outline: none;
-    font-size: 16px;
-    color: #111827;
-    background: transparent;
-}
-
-.main-search-input::placeholder {
-    color: #9ca3af;
-}
-
-.clear-search {
-    background: none;
-    border: none;
-    padding: 4px;
-    cursor: pointer;
-    color: #6b7280;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-}
-
-.clear-search:hover {
-    background-color: #f3f4f6;
-}
-
-/* 검색 제안 섹션 */
-.search-suggestions {
-    max-width: 800px;
-    margin: 0 auto;
-    display: none; /* 검색 결과가 있을 때는 숨김 */
-}
-
-.suggestions-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 24px;
-}
-
-@media (min-width: 768px) {
-    .suggestions-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-.suggestion-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(4px);
-    border-radius: 12px;
-    padding: 24px;
-}
-
-.suggestion-title {
-    display: flex;
-    align-items: center;
-    font-weight: 600;
-    margin-bottom: 16px;
-    font-size: 16px;
-}
-
-.suggestion-title svg {
-    margin-right: 8px;
-}
-
-.suggestion-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.suggestion-tag {
-    display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    padding: 6px 12px;
-    border-radius: 20px;
-    color: white;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    text-decoration: none;
-}
-
-.suggestion-tag:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.tag-rank {
-    background: rgba(255, 178, 102, 0.8);
-    color: white;
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 10px;
-    font-size: 12px;
-    margin-right: 8px;
-    min-width: 18px;
-    text-align: center;
-}
-
-.recent-tag {
-    display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    padding: 6px 12px;
-    border-radius: 20px;
-    color: white;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    text-decoration: none;
-}
-
-.recent-tag:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.recent-tag svg {
-    margin-right: 8px;
-}
-
-/* 검색 결과 섹션 */
+/* ===== 필터 및 정렬 ===== */
 .search-results {
-    padding: 32px 0;
+    padding: 2.5rem 0;
 }
 
-.results-container {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 16px;
-}
-
-/* 필터 및 정렬 */
-.filters-section {
+.filters-container {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    align-items: flex-start;
+    gap: 1rem;
+    align-items: center;
     justify-content: space-between;
-    margin-bottom: 32px;
+    margin-bottom: 2rem;
 }
 
 @media (min-width: 768px) {
-    .filters-section {
+    .filters-container {
         flex-direction: row;
-        align-items: center;
     }
 }
 
-.filter-controls {
+.filters-left {
     display: flex;
-    align-items: center;
-    gap: 16px;
+    gap: 1rem;
 }
 
+.select-wrapper { position: relative; }
+
 .filter-select {
-    padding: 8px 12px;
+    appearance: none;
+    background: #fff;
     border: 1px solid #d1d5db;
-    border-radius: 8px;
-    background: white;
+    border-radius: 0.5rem;
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    font-size: 0.875rem;
     color: #374151;
-    font-size: 14px;
     cursor: pointer;
-    min-width: 120px;
+    font-family: 'Gowun Dodum', sans-serif;
+    min-width: 8rem;
 }
 
 .filter-select:focus {
     outline: none;
     border-color: #f97316;
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+    box-shadow: 0 0 0 1px #f97316;
 }
 
-.search-info {
-    font-size: 14px;
+.search-count {
+    font-size: 0.9rem;
     color: #6b7280;
 }
 
@@ -251,224 +121,179 @@
     color: #f97316;
 }
 
-/* 결과 탭 */
-.result-tabs {
-    display: flex;
-    border-bottom: 1px solid #e5e7eb;
-    margin-bottom: 32px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+/* ===== 탭 영역 ===== */
+.tabs-container { width: 100%; }
+
+.tabs-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 기존 4 → 3으로 변경 */
+    max-width: 20rem;                      /* 폭을 줄여서 자연스럽게 */
+    margin: 0 0 2rem 0;                 /* 왼쪽 여백 맞춰 카드 시작선 정렬 */
+    background: #f3f4f6;
+    border-radius: 0.5rem;
+    padding: 0.25rem;
+    justify-content: start;                /* 가운데 정렬 제거 */
 }
 
-.tab-button {
-    padding: 12px 16px;
+.tab {
     border: none;
     background: none;
-    color: #6b7280;
-    font-size: 14px;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
     font-weight: 500;
+    color: #6b7280;
     cursor: pointer;
-    border-bottom: 2px solid transparent;
     transition: all 0.2s;
-    white-space: nowrap;
-    flex-shrink: 0;
+    font-family: 'Gowun Dodum', sans-serif;
 }
 
-.tab-button:hover {
-    color: #f97316;
+.tab.active {
+    background: #fff;
+    color: #374151;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.tab-button.active {
-    color: #f97316;
-    border-bottom-color: #f97316;
-}
+.tab:hover:not(.active) { color: #374151; }
 
-/* 로딩 상태 */
+/* ===== 로딩 상태 ===== */
 .loading-state {
     text-align: center;
-    padding: 48px 0;
-    display: none; /* 정적 페이지에서는 숨김 */
+    padding: 3rem 0;
 }
-
 .loading-spinner {
-    width: 48px;
-    height: 48px;
+    width: 3rem;
+    height: 3rem;
     border: 3px solid #f3f4f6;
     border-top: 3px solid #f97316;
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin: 0 auto 16px auto;
+    margin: 0 auto 1rem;
 }
-
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    to { transform: rotate(360deg); }
 }
+.loading-state p { color: #6b7280; }
 
-.loading-state p {
-    color: #6b7280;
-    font-size: 16px;
-}
-
-/* 검색 결과 없음 */
+/* ===== 검색 결과 없음 ===== */
 .no-results {
     text-align: center;
-    padding: 48px 0;
-    display: none; /* 정적 페이지에서는 숨김 */
+    padding: 3rem 0;
 }
-
 .no-results-icon {
+    width: 4rem;
+    height: 4rem;
     color: #9ca3af;
-    margin: 0 auto 16px auto;
+    margin: 0 auto 1rem;
 }
-
 .no-results h3 {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #111827;
-    margin: 0 0 8px 0;
+    margin-bottom: 0.5rem;
 }
-
 .no-results p {
     color: #6b7280;
-    margin: 0 0 24px 0;
+    margin-bottom: 1.5rem;
 }
 
-.clear-search-button {
+/* ===== 버튼 ===== */
+.btn-primary {
     background: #f97316;
-    color: white;
+    color: #fff;
     border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
+    padding: 0.75rem 2rem;
+    border-radius: 0.5rem;
     font-weight: 500;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.2s;
+    font-family: 'Gowun Dodum', sans-serif;
+    font-size: 1rem;
 }
-
-.clear-search-button:hover {
+.btn-primary:hover {
     background: linear-gradient(to right, #ec4899, #f97316);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* 검색 결과 그리드 */
+/* ===== 결과 그리드 ===== */
 .results-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 24px;
+    grid-template-columns: repeat(4, 1fr); /* 카드 3개 × 384px = 1152px */
+    justify-content: center; /* 가운데 정렬 */
+    gap: 1.5rem; /* 24px × 2 = 48px → 총합 1200px 근사치 */
+    max-width: 1216px; /* 전체 폭 제한 */
+    margin: 0 auto;
 }
-
-@media (min-width: 768px) {
+@media (max-width: 1023px) {
     .results-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
     }
 }
-
-@media (min-width: 1280px) {
+@media (max-width: 767px) {
     .results-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: 1fr;
+        gap: 1rem;
     }
 }
 
-/* 검색 결과 카드 */
+/* ===== 결과 카드 ===== */
 .result-card {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
+    background: #fff;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid transparent;
 }
-
 .result-card:hover {
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    border-color: rgba(249, 115, 22, 0.2);
-    transform: translateY(-2px);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border-color: rgba(249, 115, 22, 0.1);
 }
 
-.card-image {
+.card-image-container {
     position: relative;
-    width: 100%;
-    height: 192px;
+    height: 12rem;
     overflow: hidden;
 }
-
-.card-image img {
+.card-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: transform 0.3s;
 }
+.result-card:hover .card-image { transform: scale(1.05); }
 
-.result-card:hover .card-image img {
-    transform: scale(1.05);
-}
-
-.card-badge {
+.card-badges {
     position: absolute;
-    top: 12px;
-    left: 12px;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
-    color: white;
-}
-
-.badge-recipe {
-    background: #10b981;
-}
-
-.badge-board {
-    background: #3b82f6;
-}
-
-.badge-qna {
-    background: #8b5cf6;
-}
-
-.card-category {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: rgba(255, 255, 255, 0.9);
-    color: #374151;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
-}
-
-.card-content {
-    padding: 16px;
-}
-
-.qna-header {
+    top: 0.75rem;
+    left: 0.75rem;
+    right: 0.75rem;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
 }
+
+.card-content { padding: 1rem; }
 
 .card-title {
     font-weight: 600;
-    color: #111827;
-    margin: 0 0 8px 0;
+    margin-bottom: 0.5rem;
+    color: #1f2937;
     transition: color 0.2s;
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
-
-.result-card:hover .card-title {
-    color: #f97316;
-}
+.result-card:hover .card-title { color: #f97316; }
 
 .card-description {
+    font-size: 0.875rem;
     color: #6b7280;
-    font-size: 14px;
-    line-height: 1.5;
-    margin: 0 0 12px 0;
+    margin-bottom: 0.75rem;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -478,172 +303,101 @@
 .card-author {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-    font-size: 14px;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
 }
-
 .author-icon {
-    color: #9ca3af;
-    width: 16px;
-    height: 16px;
-}
-
-.author-name {
+    width: 1rem;
+    height: 1rem;
     color: #6b7280;
 }
-
-.author-level {
-    padding: 2px 6px;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 500;
-    border: 1px solid;
-}
-
-.level-seed {
-    background: #fef3c7;
-    color: #b45309;
-    border-color: #fbbf24;
-}
-
-.level-root {
-    background: #fed7aa;
-    color: #c2410c;
-    border-color: #fb923c;
-}
-
-.level-sprout {
-    background: #dcfce7;
-    color: #166534;
-    border-color: #4ade80;
-}
-
-.level-tree {
-    background: #d1fae5;
-    color: #065f46;
-    border-color: #10b981;
-}
-
-.level-forest {
-    background: #e9d5ff;
-    color: #581c87;
-    border-color: #a855f7;
-}
-
-.card-meta {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-bottom: 12px;
-    font-size: 14px;
-    color: #6b7280;
-}
-
-.meta-icon {
-    width: 16px;
-    height: 16px;
-}
+.card-author span:first-of-type { color: #6b7280; }
 
 .card-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
 }
-
 .tag-button {
-    background: #fff7ed;
+    background: #fed7aa;
     color: #c2410c;
     border: none;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
     cursor: pointer;
     transition: background-color 0.2s;
+    font-family: 'Gowun Dodum', sans-serif;
 }
+.tag-button:hover { background: #fdba74; }
 
-.tag-button:hover {
-    background: #fed7aa;
-}
-
-/* 더보기 버튼 */
-.load-more-section {
-    text-align: center;
-    margin-top: 48px;
-}
-
-.load-more-button {
-    background: #f97316;
-    color: white;
-    border: none;
-    padding: 12px 32px;
-    border-radius: 8px;
+/* ===== 배지 색상 ===== */
+.badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
     font-weight: 500;
-    cursor: pointer;
-    transition: background 0.3s;
+    white-space: nowrap;
 }
 
-.load-more-button:hover {
-    background: linear-gradient(to right, #ec4899, #f97316);
-}
+.badge-recipe { background: #10b981; color: #fff; }
+.badge-board  { background: #3b82f6; color: #fff; }
+.badge-qna    { background: #8b5cf6; color: #fff; }
+.badge-category { background: rgba(255,255,255,0.9); color: #374151; }
 
-/* 반응형 디자인 */
+/* 등급 배지 */
+.badge-level { border: 1px solid transparent; }
+.level-seed    { background: #fef3c7; color: #92400e; }
+.level-root    { background: #fed7aa; color: #c2410c; }
+.level-sprout  { background: #dcfce7; color: #166534; }
+.level-tree    { background: #d1fae5; color: #065f46; }
+.level-forest  { background: #e9d5ff; color: #7c2d12; }
+.level-default { background: #f3f4f6; color: #374151; }
+
+/* ===== 반응형 조정 ===== */
 @media (max-width: 767px) {
-    .hero-header h1 {
-        font-size: 1.875rem;
+    .header-title h1 { font-size: 1.875rem; }
+    .header-subtitle { font-size: 1.125rem; }
+    .tabs-list {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: none;
     }
-
-    .hero-description {
-        font-size: 1.125rem;
-    }
-
-    .search-wrapper {
-        padding: 10px 14px;
-    }
-
-    .main-search-input {
-        font-size: 14px;
-    }
-
-    .suggestion-card {
-        padding: 16px;
-    }
-
-    .result-tabs {
-        gap: 0;
-    }
-
-    .tab-button {
-        padding: 8px 12px;
-        font-size: 13px;
-    }
+    .tab { font-size: 0.75rem; padding: 0.375rem 0.5rem; }
 }
 
-/* 스크롤바 숨기기 */
-.result-tabs::-webkit-scrollbar {
-    display: none;
+/* ✅ 검색결과 요약문 왼쪽 정렬 */
+.search-summary {
+    max-width: 1216px;       /* 카드 그리드와 폭 통일 */
+    margin: 0 auto 1.5rem;   /* container 중앙 배치 */
+    text-align: left;        /* 중앙 → 왼쪽 정렬 */
+    font-size: 1rem;
+    color: #374151;
 }
 
-.result-tabs {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+/* === 탭/요약 ↔ 카드 그리드 좌측선 완전 정렬용 오버라이드 === */
+.search-summary{
+    max-width:1216px;      /* 카드 그리드와 동일 폭 */
+    margin:0 auto 1rem;    /* 가운데 배치 + 아래 간격만 */
+    padding:0;
+    text-align:left;
 }
 
-/* 검색 상태별 표시 제어 */
-/* 검색어가 있을 때 결과 표시 */
-.main-search-input:not(:placeholder-shown) ~ * .search-suggestions {
-    display: none;
+/* 탭 바깥 래퍼를 그리드와 동일 폭으로(안쪽 탭은 왼쪽 정렬 유지) */
+.tabs-container{
+    max-width:1216px;      /* 카드 그리드와 동일 폭 */
+    margin:0 auto 1.25rem; /* 가운데 배치 + 아래 간격 */
+    padding:0;             /* 컨테이너 패딩 영향 제거 */
 }
 
-.main-search-input:not(:placeholder-shown) ~ * .search-results {
-    display: block;
+/* 탭 자체 여백/높이 미세 튜닝 (위아래 리듬 맞춤) */
+.tabs-list{
+    margin:.25rem 0 1.25rem 0; /* 요약과 카드 사이 간격 균형 */
+    justify-content:flex-start; /* 혹시 중앙 정렬로 바뀌는 걸 방지 */
 }
 
-/* 검색어가 비어있을 때 제안 표시 */
-.main-search-input:placeholder-shown ~ * .search-suggestions {
-    display: block;
-}
-
-.main-search-input:placeholder-shown ~ * .search-results {
-    display: none;
+.tab{
+    padding:.5rem 1rem;
+    line-height:1.25;      /* pill 높이 안정화 */
 }

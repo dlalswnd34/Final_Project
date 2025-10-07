@@ -1,13 +1,16 @@
 package com.simplecoding.cheforest.jpa.chat.controller;
 
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
-import com.simplecoding.cheforest.jpa.auth.service.MemberService; // MemberService 필요
-import com.simplecoding.cheforest.jpa.chat.dto.ChatMessage; // ChatMessage DTO 필요
+import com.simplecoding.cheforest.jpa.auth.security.CustomOAuth2User;
+import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
+import com.simplecoding.cheforest.jpa.auth.service.MemberService;
+import com.simplecoding.cheforest.jpa.chat.dto.ChatMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
@@ -39,9 +42,34 @@ public class ChatStompController {
      */
     @MessageMapping("/chat/message")
     public void sendMessage(@Payload ChatMessage message, Principal principal) {
-        // 1. 현재 사용자(Member) 정보 조회
-        // Principal 객체에서 로그인 ID를 가져와 DB에서 Member 객체를 조회해야 합니다.
-        Member sender = memberService.findByLoginId(principal.getName());
+//        // 1. 현재 사용자(Member) 정보 조회
+//        // Principal 객체에서 로그인 ID를 가져와 DB에서 Member 객체를 조회해야 합니다.
+//        Member sender = memberService.findByLoginId(principal.getName());
+        if (principal == null) {
+            log.warn("❌ Principal is null - WebSocket session not authenticated");
+            return;
+        }
+
+        Member sender = null;
+
+        // Principal의 실제 타입에 따라 분기
+        if (principal instanceof Authentication authentication) {
+            Object p = authentication.getPrincipal();
+
+            if (p instanceof CustomUserDetails userDetails) {
+                sender = userDetails.getMember();
+            } else if (p instanceof CustomOAuth2User oAuthUser) {
+                sender = oAuthUser.getMember();
+            } else {
+                log.warn("⚠️ Unknown principal type: {}", p.getClass().getName());
+                return;
+            }
+        }
+
+        if (sender == null) {
+            log.warn("❌ Sender is null - 인증되지 않은 사용자입니다.");
+            return;
+        }
 
         if (message.getType() == ChatMessage.MessageType.IMAGE) {
             String emoteUrl = message.getMessage();
@@ -61,5 +89,9 @@ public class ChatStompController {
 
         // 검증을 통과한 경우에만 메시지 발행 (구독자에게 전송)
         messagingTemplate.convertAndSend("/sub/message", message);
+
+
+        log.info("💬 채팅 메시지 발송 성공 - From: {} ({}) / Type: {}",
+                sender.getNickname(), sender.getMemberIdx(), message.getType());
     }
 }

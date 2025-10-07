@@ -1,4 +1,6 @@
 // Q&A 페이지 JavaScript
+const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
+const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
 
 document.addEventListener('DOMContentLoaded', function() {
     // 전역 변수
@@ -204,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // 로그인 여부 확인
             let memberIdx;
             try {
-                const res = await fetch('/api/member/me'); // 로그인 사용자 정보 요청
+                const res = await fetch('/auth/me'); // 로그인 사용자 정보 요청
                 if (!res.ok) throw new Error('인증되지 않음');
 
                 const userInfo = await res.json();
@@ -231,7 +233,8 @@ document.addEventListener('DOMContentLoaded', function() {
             fetch('/inquiries/ask', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
                 },
                 body: JSON.stringify({
                     subject: subject,
@@ -248,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     console.log('서버 응답:', data);
 
-                    showToastMessage('문의가 성공적으로 접수되었습니다! 업무시간 내에 답변드리겠습니다.', 'success');
+                    showToastMessage('문의가 성공적으로 접수되었습니다! 마이페이지에서 확인하세요.', 'success');
 
                     // 폼 초기화
                     contactForm.reset();

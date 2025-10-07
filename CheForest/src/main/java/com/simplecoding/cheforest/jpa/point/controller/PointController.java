@@ -1,7 +1,7 @@
 package com.simplecoding.cheforest.jpa.point.controller;
 
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
-import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
+import com.simplecoding.cheforest.jpa.auth.security.AuthUser;
 import com.simplecoding.cheforest.jpa.point.service.PointService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,21 +18,29 @@ public class PointController {
     private final PointService pointService;
 
     @GetMapping("/grade")
-    public String gradePage(@AuthenticationPrincipal CustomUserDetails loginUser, Model model) {
+    public String gradePage(@AuthenticationPrincipal Object principal, Model model) {
 
-        if (loginUser != null) {
-            // 로그인 상태일 때만 포인트 계산 로직 수행
-            Member member = loginUser.getMember();
-            Long todayPoints = pointService.getTodayPoints(member.getMemberIdx());
-            Long nextGradePoint = pointService.getNextGradePoint(member.getPoint());
+        if (principal instanceof AuthUser authUser) { // ✅ 통합 처리 (일반+소셜)
+            Member member = authUser.getMember();
 
-            // member는 JSP에서 직접 가져오므로 모델에 추가할 필요 없음
-            model.addAttribute("todayPoints", todayPoints);
-            model.addAttribute("nextGradePoint", nextGradePoint);
+            if (member != null) {
+                // ✅ 오늘 포인트/남은 포인트 계산
+                Long todayPoints = pointService.getTodayPoints(member.getMemberIdx());
+                Long nextGradePoint = pointService.getNextGradePoint(member.getPoint());
 
-            if (member.getInsertTime() != null) {
-                String joinDate = member.getInsertTime().format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
-                model.addAttribute("joinDate", joinDate);
+                // ✅ JSP 전달용
+                model.addAttribute("m", member);
+                model.addAttribute("todayPoints", todayPoints);
+                model.addAttribute("nextGradePoint", nextGradePoint);
+
+                // ✅ 가입일 표시
+                if (member.getInsertTime() != null) {
+                    String joinDate = member.getInsertTime()
+                            .format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+                    model.addAttribute("joinDate", joinDate);
+                } else {
+                    model.addAttribute("joinDate", "-");
+                }
             }
         }
 

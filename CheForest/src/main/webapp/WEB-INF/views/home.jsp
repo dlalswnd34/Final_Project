@@ -261,7 +261,8 @@
                                         <h3 class="text-xl" id="categoryTitle">
                                             카테고리명 자리 CheForest 레시피
                                         </h3>
-                                        <button class="text-orange-500 hover:text-transparent hover:bg-gradient-to-r hover:from-pink-500 hover:to-orange-500 hover:bg-clip-text flex items-center space-x-1 transition-all duration-200">
+                                        <button class="view-all-btn text-orange-500 flex items-center space-x-1 transition-all duration-200"
+                                                data-type="cheforest" data-category="${activeCategory}">
                                             <span>전체보기</span>
                                             <i data-lucide="arrow-right" class="w-4 h-4"></i>
                                         </button>
@@ -381,7 +382,8 @@
                                         <h3 class="text-xl" id="communityTitle">
                                             카테고리명 자리 사용자 레시피
                                         </h3>
-                                        <button class="text-orange-500 hover:text-transparent hover:bg-gradient-to-r hover:from-pink-500 hover:to-orange-500 hover:bg-clip-text flex items-center space-x-1 transition-all duration-200">
+                                        <button class="view-all-btn text-orange-500 flex items-center space-x-1 transition-all duration-200"
+                                                data-type="user" data-category="${activeCategory}">
                                             <span>전체보기</span>
                                             <i data-lucide="arrow-right" class="w-4 h-4"></i>
                                         </button>

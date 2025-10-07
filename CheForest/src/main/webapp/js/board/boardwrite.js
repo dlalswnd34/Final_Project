@@ -66,17 +66,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupEventListeners() {
         // 뒤로가기 버튼
         if (backBtn) {
-            backBtn.addEventListener('click', function() {
-                if (hasUnsavedChanges()) {
-                    if (confirm('작성 중인 내용이 있습니다. 정말 나가시겠습니까?')) {
-                        // TODO: JSP에서 페이지 이동 구현
-                        console.log('레시피 목록으로 이동');
-                        // window.location.href = '/recipes.jsp';
-                    }
-                } else {
-                    // TODO: JSP에서 페이지 이동 구현
-                    console.log('레시피 목록으로 이동');
-                    // window.location.href = '/recipes.jsp';
+            backBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (!hasUnsavedChanges() || confirm('작성 중인 내용이 있습니다. 정말 나가시겠습니까?')) {
+                    goToListSafely();
                 }
             });
         }
@@ -101,17 +94,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 취소 버튼
         if (cancelBtn) {
-            cancelBtn.addEventListener('click', function() {
-                if (hasUnsavedChanges()) {
-                    if (confirm('작성 중인 내용이 사라집니다. 정말 취소하시겠습니까?')) {
-                        // TODO: JSP에서 페이지 이동 구현
-                        console.log('취소 - 레시피 목록으로 이동');
-                        // window.location.href = '/recipes.jsp';
-                    }
-                } else {
-                    // TODO: JSP에서 페이지 이동 구현
-                    console.log('취소 - 레시피 목록으로 이동');
-                    // window.location.href = '/recipes.jsp';
+            cancelBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (!hasUnsavedChanges() || confirm('작성 중인 내용이 사라집니다. 정말 취소하시겠습니까?')) {
+                    goToListSafely();
                 }
             });
         }
@@ -594,6 +580,24 @@ document.addEventListener('DOMContentLoaded', function() {
             e.returnValue = '';
             return '';
         }
+    }
+
+    function goToListSafely() {
+        // 이탈 경고 해제
+        window.removeEventListener('beforeunload', beforeUnloadHandler);
+
+        // 같은 도메인에서 왔으면 뒤로가기, 아니면 목록으로
+        try {
+            if (document.referrer) {
+                const ref = new URL(document.referrer, location.origin);
+                if (ref.origin === location.origin) {
+                    history.back();
+                    return;
+                }
+            }
+        } catch (e) { /* ignore */ }
+
+        location.href = '/board/list';
     }
 
 // 이벤트 등록

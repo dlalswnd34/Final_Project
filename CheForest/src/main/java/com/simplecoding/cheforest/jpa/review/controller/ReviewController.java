@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/reviews")
@@ -62,7 +63,7 @@ public class ReviewController {
     public ResponseEntity<?> deleteReview(@PathVariable Long reviewId) {
         try {
             reviewService.delete(reviewId);
-            return ResponseEntity.ok("댓글 삭제 완료");
+            return ResponseEntity.ok(Map.of("message", "댓글 삭제 완료"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }

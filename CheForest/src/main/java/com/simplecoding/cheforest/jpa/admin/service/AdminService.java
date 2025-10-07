@@ -18,6 +18,10 @@ public class AdminService {
     public long getMemberCount() {
         return adminRepository.getMemberCount();
     }
+//    총 게시글 수
+    public long getTotalRecipeCount() {
+        return adminRepository.getTotalRecipeCount();
+    }
 //    오늘 가입자수
     public long getTodayMemberCount() {
         return adminRepository.getTodayMemberCount();

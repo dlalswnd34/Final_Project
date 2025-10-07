@@ -24,4 +24,6 @@ public class IntegratedSearch {
     private String thumbnail;
     private String ingredients;
     private String category;
+    private String cooktime;
+    private String difficulty;
 }

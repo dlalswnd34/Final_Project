@@ -73,7 +73,12 @@ public class PointService {
     // ✅ 오늘 포인트 합산
     @Transactional(readOnly = true)
     public Long getTodayPoints(Long memberId) {
-        return pointHistoryRepository.sumTodayPoints(memberId);
+        Long todayPoints = pointHistoryRepository.sumTodayPoints(memberId);
+        if (todayPoints == null) {
+            todayPoints = 0L;
+        }
+        System.out.println("🔥 오늘 포인트 합계: " + todayPoints); // 디버깅용
+        return todayPoints;
     }
 
     // ✅ 이번 주 포인트 합산

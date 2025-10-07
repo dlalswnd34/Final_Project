@@ -6,11 +6,12 @@ import com.simplecoding.cheforest.jpa.auth.dto.MemberUpdateDto;
 import com.simplecoding.cheforest.jpa.auth.dto.UserInfoDto;
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.auth.repository.MemberRepository;
+import com.simplecoding.cheforest.jpa.auth.security.AuthUser;
 import com.simplecoding.cheforest.jpa.auth.security.CustomOAuth2User;
 import com.simplecoding.cheforest.jpa.auth.service.MemberService;
 import com.simplecoding.cheforest.jpa.auth.service.EmailService;
 import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -55,64 +57,104 @@ public class MemberController {
     // ================= 회원가입 처리 =================
     @PostMapping("/auth/register/addition")
     @ResponseBody
-    public String register(@Valid @ModelAttribute MemberSignupDto dto,
-                           BindingResult bindingResult,
-                           @SessionAttribute(name = "emailAuthCode", required = false) String serverAuthCode,
-                           Model model) {
-        if (bindingResult.hasErrors()) {
-            return "❌ 입력값을 확인해주세요.";
-        }
-        try {
-            memberService.register(dto, serverAuthCode);
-            return "OK"; // ✅ 가입 성공 시 문자열만 반환
-        } catch (IllegalArgumentException e) {
-            return "❌ " + e.getMessage();
-        }
-    }
+    public ResponseEntity<String> register(
+            @Valid @ModelAttribute MemberSignupDto dto,
+            BindingResult bindingResult,
+            HttpSession session) {
 
-    // ================= 회원정보 수정 페이지 =================
-    @GetMapping("/auth/update")
-    public String updateView(@AuthenticationPrincipal CustomUserDetails user, Model model) {
-        if (user == null) {
-            return "redirect:/auth/login";
+        // 1️⃣ 입력값 검증
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body("❌ 입력값을 확인해주세요.");
         }
-        model.addAttribute("memberUpdateDto", new MemberUpdateDto());
-        return "mypage/edit";
+
+        try {
+            // 2️⃣ 세션에서 인증 완료된 이메일 가져오기
+            String verifiedEmail = (String) session.getAttribute("verifiedSignupEmail");
+
+            if (verifiedEmail == null || !verifiedEmail.equals(dto.getEmail())) {
+                return ResponseEntity.badRequest().body("❌ 이메일 인증이 완료되지 않았습니다.");
+            }
+
+            // 3️⃣ 회원 등록
+            memberService.register(dto, verifiedEmail);
+
+            // 4️⃣ 세션 정리
+            session.removeAttribute("verifiedSignupEmail");
+
+            return ResponseEntity.ok("OK");
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("❌ " + e.getMessage());
+        } catch (Exception e) {
+            log.error("회원가입 처리 중 오류 발생: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("❌ 회원가입 처리 중 오류가 발생했습니다.");
+        }
     }
 
     // ================= 회원정보 수정 처리 =================
     @PostMapping("/auth/update")
-    public String update(@Valid @ModelAttribute MemberUpdateDto dto,
-                         BindingResult bindingResult,
-                         @AuthenticationPrincipal CustomUserDetails user,
-                         Model model) {
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> update(@Valid @ModelAttribute MemberUpdateDto dto,
+                                                      BindingResult bindingResult,
+                                                      @AuthenticationPrincipal AuthUser user) {
+        Map<String, Object> response = new HashMap<>();
+
         if (bindingResult.hasErrors()) {
-            return "mypage/edit";
+            response.put("success", false);
+            response.put("message", "❌ 닉네임은 필수입니다.");
+            return ResponseEntity.badRequest().body(response);
         }
+
         try {
-            memberService.update(dto);
-            model.addAttribute("msg", "회원정보가 수정되었습니다.");
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("msg", "❌ " + e.getMessage());
-            return "mypage/edit";
+            Member updatedMember = memberService.update(dto, user.getMember().getMemberIdx());
+
+            // SecurityContext 갱신
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Object principal = authentication.getPrincipal();
+
+            Authentication newAuth;
+            if (principal instanceof CustomUserDetails) {
+                CustomUserDetails newPrincipal = new CustomUserDetails(updatedMember);
+                newAuth = new UsernamePasswordAuthenticationToken(newPrincipal, authentication.getCredentials(), newPrincipal.getAuthorities());
+            } else if (principal instanceof CustomOAuth2User oauth2User) {
+                CustomOAuth2User newPrincipal = new CustomOAuth2User(updatedMember, oauth2User.getAttributes());
+                newAuth = new UsernamePasswordAuthenticationToken(newPrincipal, null, newPrincipal.getAuthorities());
+            } else {
+                throw new IllegalStateException("지원되지 않는 인증 타입입니다.");
+            }
+
+            SecurityContextHolder.getContext().setAuthentication(newAuth);
+
+            response.put("success", true);
+            response.put("message", "✅ 회원정보가 수정되었습니다.");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "❌ " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
-        return "mypage/edit";
     }
 
 //    회원탈퇴
-    @PostMapping("/member/withdraw")
-    public String withdraw(@AuthenticationPrincipal CustomUserDetails user,
-                           RedirectAttributes ra) {
+@PostMapping("/member/withdraw")
+public String withdraw(@AuthenticationPrincipal AuthUser user,
+                       HttpServletRequest request,
+                       RedirectAttributes ra) {
 
-        Long memberIdx = user.getMember().getMemberIdx();
-        memberService.withdraw(memberIdx);
+    Member member = user.getMember();
+    Long memberIdx = member.getMemberIdx();
+    String accessToken = (String) request.getSession().getAttribute("accessToken");
 
-        // ✅ Spring Security 인증정보 삭제 (로그아웃 처리)
-        SecurityContextHolder.clearContext();
+    memberService.withdraw(memberIdx, accessToken);
 
-        ra.addFlashAttribute("msg", "회원 탈퇴가 완료되었습니다.");
-        return "redirect:/";
-    }
+    SecurityContextHolder.clearContext();
+    request.getSession().invalidate();
+
+    ra.addFlashAttribute("msg", "회원 탈퇴가 완료되었습니다.");
+    return "redirect:/";
+}
 
     // ================= 회원 상세 조회 =================
     @GetMapping("/auth/detail/{id}")
@@ -135,32 +177,35 @@ public class MemberController {
         return !memberService.existsByNickname(nickname);
     }
 
+    // ================= 회원가입: 이메일 인증번호 발송 =================
     @PostMapping("/auth/send-email-code")
     @ResponseBody
-    public ResponseEntity<String> sendEmailCode(@RequestParam String email,
-                                                HttpSession session) {
+    public ResponseEntity<String> sendEmailCode(@RequestParam String email, HttpSession session) {
         try {
-            // ✅ [수정] MemberService의 중복 확인 기능이 포함된 메소드 호출
-            String newCode = memberService.sendSignupVerificationCode(email);
-            session.setAttribute("emailAuthCode", newCode);
+            memberService.sendSignupVerificationCode(email, session);
             return ResponseEntity.ok("OK");
-
         } catch (IllegalArgumentException e) {
-            // ✅ [수정] MemberService에서 중복 이메일 예외 발생 시, 409 Conflict 상태와 에러 메시지 반환
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("❌ " + e.getMessage());
         } catch (Exception e) {
-            // ✅ [수정] 그 외 이메일 발송 자체에 문제가 생긴 경우, 500 Internal Server Error 반환
             log.error("회원가입 이메일 인증 발송 실패: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("인증번호 발송 중 오류가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("❌ 인증번호 발송 중 오류가 발생했습니다.");
         }
     }
 
+    // ================= 회원가입: 인증번호 확인 =================
     @PostMapping("/auth/verify-email-code")
     @ResponseBody
-    public boolean verifyEmailCode(@RequestParam String code,
-                                   @SessionAttribute(name = "emailAuthCode", required = false) String serverCode) {
-        return serverCode != null && serverCode.equals(code);
+    public ResponseEntity<String> verifyEmailCode(
+            @RequestParam String email,
+            @RequestParam String code,
+            HttpSession session) {
+        try {
+            memberService.verifySignupAuthCode(email, code, session);
+            return ResponseEntity.ok("OK");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("❌ " + e.getMessage());
+        }
     }
 
     // ================= 아이디 찾기 페이지 =================
@@ -173,44 +218,32 @@ public class MemberController {
     @PostMapping("/auth/find-id/send-code")
     @ResponseBody
     public String sendFindIdCode(@RequestParam String email, HttpSession session) {
-        // 1) 이메일 존재 여부 확인
-        if (!memberService.existsByEmail(email)) {
-            return "❌ 가입된 계정을 찾을 수 없습니다.";
+        try {
+            memberService.sendFindIdCode(email, session);
+            return "OK";
+        } catch (IllegalArgumentException e) {
+            return e.getMessage();
+        } catch (Exception e) {
+            log.error("아이디 찾기 이메일 발송 오류: {}", e.getMessage());
+            return "❌ 이메일 전송 중 오류가 발생했습니다.";
         }
-
-        // 2) 인증번호 발송
-        String newCode = emailService.sendAuthCode(email);
-
-        // 3) 세션에 인증번호 저장
-        session.setAttribute("findIdAuthCode", newCode);
-        session.setAttribute("findIdEmail", email);
-
-        return "OK";
     }
 
     // ================= 아이디 찾기: 인증번호 확인 =================
     @PostMapping("/auth/find-id/verify-code")
     @ResponseBody
-    public String verifyFindIdCode(@RequestParam String code,
-                                   @SessionAttribute(name = "findIdAuthCode", required = false) String serverCode,
-                                   @SessionAttribute(name = "findIdEmail", required = false) String email,
+    public String verifyFindIdCode(@RequestParam String email,
+                                   @RequestParam String code,
                                    HttpSession session) {
-
-        if (serverCode == null || email == null) {
-            return "FAIL";
+        try {
+            String loginId = memberService.verifyFindIdCode(email, code, session);
+            return loginId; // ✅ 정상 시 아이디 반환
+        } catch (IllegalArgumentException e) {
+            return "❌ " + e.getMessage();
+        } catch (Exception e) {
+            log.error("아이디 찾기 인증 오류: {}", e.getMessage());
+            return "❌ 서버 오류가 발생했습니다.";
         }
-
-        if (!serverCode.equals(code)) {
-            return "FAIL";
-        }
-
-        String loginId = memberService.findLoginIdByEmail(email);
-
-        // ✅ 인증번호 세션만 정리
-        session.removeAttribute("findIdAuthCode");
-        session.removeAttribute("findIdEmail");
-
-        return (loginId != null) ? loginId : "FAIL";
     }
 
     // ================= 비밀번호 찾기 페이지 =================
@@ -258,6 +291,41 @@ public class MemberController {
             return "❌ " + e.getMessage();
         }
     }
+
+//    마이페이지 비밀번호 변경
+@PostMapping("/auth/change-password")
+@ResponseBody
+public ResponseEntity<String> changePassword(
+        @RequestBody Map<String, String> request,
+        @AuthenticationPrincipal CustomUserDetails user) {
+
+    // 1) 로그인 체크
+    if (user == null) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("❌ 로그인 후 이용 가능합니다.");
+    }
+
+    // 2) 소셜 로그인 계정 차단
+    Member member = user.getMember();
+    if (member.getProvider() != null && !member.getProvider().isBlank()) {
+        return ResponseEntity.badRequest()
+                .body("❌ 소셜 로그인 계정은 비밀번호 변경이 불가능합니다.");
+    }
+
+    String currentPassword = request.get("currentPassword");
+    String newPassword     = request.get("newPassword");
+
+    try {
+        memberService.changePassword(member.getMemberIdx(), currentPassword, newPassword);
+        return ResponseEntity.ok("✅ 비밀번호가 성공적으로 변경되었습니다.");
+    } catch (IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body("❌ " + e.getMessage());
+    } catch (Exception e) {
+        log.error("비밀번호 변경 중 오류 발생: {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("❌ 서버 오류가 발생했습니다.");
+    }
+}
 
     // ✅ 소셜 로그인 시 중복 닉네임 수정
     @PostMapping("/auth/nickname/update")
@@ -338,6 +406,21 @@ public class MemberController {
         UserInfoDto userInfoDto = UserInfoDto.from(member);
         return ResponseEntity.ok(userInfoDto);
     }
+//    로그인된 사용자 정보를 반환 목적(소셜+기존회원)
+    @GetMapping("/auth/me")
+    public ResponseEntity<?> me(@AuthenticationPrincipal(expression = "member") Member member) {
+        if (member == null) {
+            return ResponseEntity.status(401).body(Map.of("authenticated", false));
+        }
 
-
+        return ResponseEntity.ok(Map.of(
+                "authenticated", true,
+                "memberIdx", member.getMemberIdx(),
+                "nickname", member.getNickname(),
+                "email", member.getEmail(),
+                "grade", member.getGrade(),
+                "profile", member.getProfile(),
+                "role", member.getRole().name()
+        ));
+    }
 }

@@ -192,18 +192,20 @@ public class AdminController {
 public String qna(Model model) {
     //        총 가입자 수
     long allMemberCount = ytAdminService.getMemberCount();
-   //    자주 묻는 문의로 등록한 문의들
+//    총 게시글 수
+    long totalRecipeCount = ytAdminService.getTotalRecipeCount();
+    //    자주 묻는 문의로 등록한 문의들
     List<InquiriesIsFaqDto> inquiriesIsFaq = ytAdminService.getInquiriesIsFaqDto();
    //    자주 묻는 문의로 등록한 문의수
     long inquiriesIsFaqCount = ytAdminService.getInquiriesIsFaqCount();
 
-
-
     model.addAttribute("allMemberCount", allMemberCount);
+    model.addAttribute("totalRecipeCount", totalRecipeCount);
     model.addAttribute("inquiriesIsFaq", inquiriesIsFaq);
     model.addAttribute("inquiriesIsFaqCount", inquiriesIsFaqCount);
         return "support/qna";
 }
+
     // 관리자페이지 회원 제재하기
     @ResponseBody
     @PostMapping("/admin/member/applySuspension")
@@ -243,7 +245,7 @@ public String qna(Model model) {
             Long memberIdx = Long.valueOf(payload.get("memberIdx").toString());
             log.info("회원 삭제 요청 수신: {}", memberIdx);
 
-            memberService.withdraw(memberIdx);
+            memberService.withdraw(memberIdx, null);  // 소셜로그인 회원탈퇴때문에 null추가
 
             String resultMessage = "해당 회원이 삭제되었습니다.";
             return ResponseEntity.ok(resultMessage);

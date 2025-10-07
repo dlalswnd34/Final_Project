@@ -13,5 +13,7 @@ public class IntegratedSearchDto {
     private String title;        //  요리명
     private String thumbnail;    // 요리사진URL
     private String ingredients;  // 재료
-    private String category;     //한식,중식, 양식
+    private String category;     // 카테고리
+    private String cooktime;     // 조리시간
+    private String difficulty;   // 난이도
 }

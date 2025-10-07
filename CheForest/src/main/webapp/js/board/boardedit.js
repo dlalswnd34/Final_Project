@@ -378,6 +378,93 @@ document.addEventListener('DOMContentLoaded', function() {
         n.className = `notification ${type}`;
         n.textContent = message;
         document.body.appendChild(n);
-        setTimeout(() => n.remove(), 3000);
+
+        // 기본 스타일 적용
+        n.style.opacity = '0';
+        n.style.transform = 'translateX(20px)';
+        n.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+
+        // DOM 렌더 후 애니메이션 시작
+        setTimeout(() => {
+            n.style.opacity = '1';
+            n.style.transform = 'translateX(0)';
+        }, 10); // 약간의 딜레이로 transition 정상 작동
+
+        // 3초 유지 후 서서히 사라짐
+        setTimeout(() => {
+            n.style.opacity = '0';
+            n.style.transform = 'translateX(20px)';
+            setTimeout(() => n.remove(), 400); // transition 종료 후 삭제
+        }, 3000);
     }
+});
+
+// ✅ [추가] 썸네일 & 조리법 이미지 삭제 시 deleteImageIds 추가
+document.addEventListener('DOMContentLoaded', function () {
+    const deleteBucket = document.getElementById('deleteBucket'); // ✅ 삭제 누적 영역
+
+    // --- 대표 이미지 삭제(X 버튼)
+    const removeImageBtn = document.getElementById('removeImage');
+    if (removeImageBtn) {
+        removeImageBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+
+            const preview = document.getElementById('imagePreview');
+            const img = preview?.querySelector('img');
+            const fileIdMatch = img?.src?.match(/\/(\d+)(?:\?.*)?$/);
+            const fileId = fileIdMatch ? fileIdMatch[1] : null;
+
+            if (fileId && confirm('대표 이미지를 삭제하시겠습니까?')) {
+                // ✅ 삭제 대상 hidden input 추가
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'deleteImageIds';
+                input.value = String(fileId);
+                deleteBucket.appendChild(input);
+
+                // ✅ 미리보기 완전 제거
+                if (img) img.remove();
+                preview.innerHTML = '';
+                preview.style.display = 'none';
+
+                // ✅ placeholder 복귀
+                const placeholder = document.getElementById('uploadPlaceholder');
+                if (placeholder) placeholder.style.display = 'flex';
+
+                showNotification('대표 이미지가 삭제 목록에 추가되었습니다.');
+            }
+        });
+    }
+
+    // --- 조리법 단계 이미지 삭제 버튼
+    document.querySelectorAll('.remove-instruction-image').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+
+            const preview = this.closest('.instruction-image-preview');
+            const img = preview?.querySelector('img');
+            const fileIdMatch = img?.src?.match(/\/(\d+)(?:\?.*)?$/);
+            const fileId = fileIdMatch ? fileIdMatch[1] : null;
+
+            if (fileId && confirm('이 조리법 이미지를 삭제하시겠습니까?')) {
+                // ✅ 히든 input 추가 (DB 삭제용)
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'deleteImageIds';
+                input.value = String(fileId);
+                deleteBucket.appendChild(input);
+
+                // ✅ 미리보기 완전 제거
+                if (img) img.remove();
+                preview.innerHTML = ''; // 내부 비움
+                preview.style.display = 'none';
+
+                // ✅ placeholder 복귀
+                const placeholder = preview.previousElementSibling;
+                if (placeholder) placeholder.style.display = 'flex';
+
+                showNotification('조리법 이미지가 삭제 목록에 추가되었습니다.');
+            }
+        });
+    });
 });

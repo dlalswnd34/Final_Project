@@ -10,6 +10,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
 import java.security.Principal;
 import java.util.Optional;
 
@@ -23,28 +24,25 @@ public class StompHandler implements ChannelInterceptor {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-            // accessor.getUser()는 HttpSessionHandshakeInterceptor를 통해 설정된 Principal 객체입니다.
-            // 이 객체가 존재한다면, Handshake 단계에서 인증 정보가 성공적으로 넘어온 것입니다.
+
             Optional<Principal> userOptional = Optional.ofNullable(accessor.getUser());
 
             if (userOptional.isPresent()) {
                 Authentication auth = (Authentication) userOptional.get();
-                // STOMP 세션에 사용자 정보를 설정합니다.
                 accessor.setUser(auth);
-                log.info("STOMP CONNECT - User authenticated and set in session: {}", auth.getName());
+                log.info("STOMP CONNECT ✅ 인증된 사용자 세션 연결: {}", auth.getName());
             } else {
-                // 만약 HandshakeInterceptor를 통해 넘어온 정보가 없다면,
-                // SecurityContextHolder에서 직접 가져오는 것을 시도합니다.
                 Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-                if (auth != null && auth.isAuthenticated()) {
+                if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
                     accessor.setUser(auth);
-                    log.info("STOMP CONNECT - User found in SecurityContextHolder and set in session: {}", auth.getName());
+                    log.info("STOMP CONNECT ✅ SecurityContext에서 인증정보 복원: {}", auth.getName());
                 } else {
-                    log.warn("STOMP CONNECT - User not authenticated.");
+                    // 🌟 로그인 안한 사용자도 읽기전용으로 입장 가능
+                    log.info("STOMP CONNECT 🟡 비로그인 사용자 (읽기전용)");
+                    // Principal을 세팅하지 않고 그대로 통과
                 }
             }
         }
         return message;
     }
 }
-

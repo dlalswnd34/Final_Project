@@ -18,7 +18,7 @@ public class BoardListDto {  // 목록조회 dto
     private Long likeCount;
     private String thumbnail;
     private LocalDateTime insertTime;
-    private Integer cooktime;
+    private String cooktime;
     private String difficulty;
     private String createdAgo;
 }

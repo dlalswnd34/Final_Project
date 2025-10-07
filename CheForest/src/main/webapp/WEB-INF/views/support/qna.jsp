@@ -87,13 +87,13 @@
                                 요리의 숲에서 함께 성장해요! 씨앗부터 숲까지, 여러분의 요리 여정을 응원합니다.
                             </p>
                             <div class="brand-features">
-                                <button class="brand-feature-btn" onclick="navigateToGrade()">
+                                <button class="brand-feature-btn" onclick="showPage('grade')">
                                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
                                     </svg>
                                     <span>등급 시스템</span>
                                 </button>
-                                <button class="brand-feature-btn" onclick="navigateToGrade()">
+                                <button class="brand-feature-btn" onclick="showPage('grade')">
                                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.582a.5.5 0 0 1 0 .962L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>
                                     </svg>
@@ -158,7 +158,7 @@
                                             <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                                         </svg>
                                     </div>
-                                    <div class="stat-number">${allMemberCount}</div>
+                                    <div class="stat-number"><c:out value="${allMemberCount}" /></div>
                                     <div class="stat-label">총 회원수</div>
                                 </div>
                                 <div class="stat-item">
@@ -167,7 +167,7 @@
                                             <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
                                         </svg>
                                     </div>
-                                    <div class="stat-number">3,245</div>
+                                    <div class="stat-number"><c:out value="${totalRecipeCount}" /></div>
                                     <div class="stat-label">레시피 수</div>
                                 </div>
                             </div>

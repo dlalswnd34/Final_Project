@@ -76,9 +76,10 @@
 
                 <!-- ✅ 로그인 상태: 환영문 + 로그아웃 버튼 -->
                 <sec:authorize access="isAuthenticated()">
-                    <span class="hidden md:inline text-sm text-gray-600 mr-1">
-                        <sec:authentication property="principal.member.nickname" />님 환영합니다!
+                    <span id="header-nickname" class="hidden md:inline text-sm text-gray-600">
+                        <sec:authentication property="principal.member.nickname" />
                     </span>
+                    <span class="hidden md:inline text-sm text-gray-600">님 환영합니다!</span>
                     <form action="<c:url value='/auth/logout'/>" method="post" class="hidden sm:inline-block">
                         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                         <button type="submit" class="login-btn text-white px-4 py-2 rounded-lg font-medium">
