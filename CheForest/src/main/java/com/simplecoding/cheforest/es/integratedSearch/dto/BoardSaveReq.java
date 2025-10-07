@@ -13,4 +13,6 @@ public class BoardSaveReq {
     private String prepare;    // 준비물
     private String content;    // 내용
     private String thumbnail;  // 썸네일 이미지 경로
+    private String cooktime;     // 조리시간
+    private String difficulty;   // 난이도
 }

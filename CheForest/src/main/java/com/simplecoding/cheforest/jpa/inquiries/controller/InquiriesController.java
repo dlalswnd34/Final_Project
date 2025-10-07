@@ -198,80 +198,80 @@ public class InquiriesController {
     }
 
 
-    /**
-     * 마이페이지: 로그인된 사용자의 문의 내역을 페이징하여 조회하는 API
-     */
-    @GetMapping("/api/mypage/inquiries")
-    public ResponseEntity<Map<String, Object>> getMyInquiries(
-            @AuthenticationPrincipal(expression = "member.memberIdx") Long memberIdx,
-            @RequestParam(defaultValue = "all") String status,   // ✅ 추가됨
-            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
-    ) {
-        if (memberIdx == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        Page<InquiryWithNicknameDto> pageResult = inquiriesService.getMyInquiries(memberIdx, status, pageable);
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("data", pageResult.getContent());
-        body.put("total", pageResult.getTotalElements());
-        body.put("totalPages", pageResult.getTotalPages());
-        body.put("page", pageResult.getNumber() + 1); // 1-based
-        body.put("size", pageable.getPageSize());
-        body.put("status", status);
-
-        return ResponseEntity.ok(body);
-    }
-
-    /**
-     * 마이페이지: 사용자가 자신의 문의를 삭제하는 API
-     */
-    @PostMapping("/inquiries/my/delete")
-    public ResponseEntity<String> deleteMyInquiry(
-            @AuthenticationPrincipal(expression = "member.memberIdx") Long memberIdx,
-            @RequestBody Map<String, Object> payload
-    ) {
-        if (memberIdx == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
-        }
-
-        Long inquiryId = Long.valueOf(String.valueOf(payload.get("inquiryId")));
-        try {
-            inquiriesService.deleteInquiry(inquiryId, memberIdx);
-            return ResponseEntity.ok("성공적으로 문의사항이 삭제되었습니다.");
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
-        }
-    }
-
-//    마이페이지에서 회원이 작성한 문의내용 수정
-    @PostMapping("/inquiries/my/update")
-    public ResponseEntity<String> updateMyInquiry(
-            @AuthenticationPrincipal(expression = "member.memberIdx") Long memberIdx,
-            @RequestBody Map<String, Object> payload
-    ) {
-        if (memberIdx == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
-        }
-
-        Long inquiryId = Long.valueOf(String.valueOf(payload.get("inquiryId")));
-        String newTitle   = String.valueOf(payload.get("title"));
-        String newContent = String.valueOf(payload.get("content"));
-
-        try {
-            inquiriesService.updateInquiry(inquiryId, memberIdx, newTitle, newContent);
-            return ResponseEntity.ok("문의가 수정되었습니다.");
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("❌ 권한이 없습니다.");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("❌ 문의를 찾을 수 없습니다.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("❌ 서버 오류: " + e.getMessage());
-        }
-    }
+//    /**
+//     * 마이페이지: 로그인된 사용자의 문의 내역을 페이징하여 조회하는 API
+//     */
+//    @GetMapping("/api/mypage/inquiries")
+//    public ResponseEntity<Map<String, Object>> getMyInquiries(
+//            @AuthenticationPrincipal(expression = "member.memberIdx") Long memberIdx,
+//            @RequestParam(defaultValue = "all") String status,   // ✅ 추가됨
+//            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+//    ) {
+//        if (memberIdx == null) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//        }
+//
+//        Page<InquiryWithNicknameDto> pageResult = inquiriesService.getMyInquiries(memberIdx, status, pageable);
+//
+//        Map<String, Object> body = new HashMap<>();
+//        body.put("data", pageResult.getContent());
+//        body.put("total", pageResult.getTotalElements());
+//        body.put("totalPages", pageResult.getTotalPages());
+//        body.put("page", pageResult.getNumber() + 1); // 1-based
+//        body.put("size", pageable.getPageSize());
+//        body.put("status", status);
+//
+//        return ResponseEntity.ok(body);
+//    }
+//
+//    /**
+//     * 마이페이지: 사용자가 자신의 문의를 삭제하는 API
+//     */
+//    @PostMapping("/inquiries/my/delete")
+//    public ResponseEntity<String> deleteMyInquiry(
+//            @AuthenticationPrincipal(expression = "member.memberIdx") Long memberIdx,
+//            @RequestBody Map<String, Object> payload
+//    ) {
+//        if (memberIdx == null) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+//        }
+//
+//        Long inquiryId = Long.valueOf(String.valueOf(payload.get("inquiryId")));
+//        try {
+//            inquiriesService.deleteInquiry(inquiryId, memberIdx);
+//            return ResponseEntity.ok("성공적으로 문의사항이 삭제되었습니다.");
+//        } catch (SecurityException e) {
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
+//        }
+//    }
+//
+////    마이페이지에서 회원이 작성한 문의내용 수정
+//    @PostMapping("/inquiries/my/update")
+//    public ResponseEntity<String> updateMyInquiry(
+//            @AuthenticationPrincipal(expression = "member.memberIdx") Long memberIdx,
+//            @RequestBody Map<String, Object> payload
+//    ) {
+//        if (memberIdx == null) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+//        }
+//
+//        Long inquiryId = Long.valueOf(String.valueOf(payload.get("inquiryId")));
+//        String newTitle   = String.valueOf(payload.get("title"));
+//        String newContent = String.valueOf(payload.get("content"));
+//
+//        try {
+//            inquiriesService.updateInquiry(inquiryId, memberIdx, newTitle, newContent);
+//            return ResponseEntity.ok("문의가 수정되었습니다.");
+//        } catch (SecurityException e) {
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("❌ 권한이 없습니다.");
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("❌ 문의를 찾을 수 없습니다.");
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("❌ 서버 오류: " + e.getMessage());
+//        }
+//    }
 }

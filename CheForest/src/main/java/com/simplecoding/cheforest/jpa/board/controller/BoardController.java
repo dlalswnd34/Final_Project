@@ -2,12 +2,15 @@ package com.simplecoding.cheforest.jpa.board.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.simplecoding.cheforest.es.integratedSearch.entity.IntegratedSearch;
+import com.simplecoding.cheforest.es.integratedSearch.service.IntegratedSearchService;
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.auth.repository.MemberRepository;
 import com.simplecoding.cheforest.jpa.auth.security.CustomOAuth2User;
 import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
 import com.simplecoding.cheforest.jpa.board.dto.*;
 import com.simplecoding.cheforest.jpa.board.service.BoardService;
+import com.simplecoding.cheforest.jpa.common.MapStruct;
 import com.simplecoding.cheforest.jpa.common.util.JsonUtil;
 import com.simplecoding.cheforest.jpa.file.dto.FileDto;
 import com.simplecoding.cheforest.jpa.file.service.FileService;
@@ -48,6 +51,8 @@ public class BoardController {
     private final MypageService mypageService;
     private final MemberRepository memberRepository;
     private final PointService pointService;
+    private final IntegratedSearchService integratedSearchService;
+    private final MapStruct mapStruct;
 
     /**
      * FileDto -> 브라우저에서 접근 가능한 공개 URL로 변환
@@ -152,6 +157,11 @@ public class BoardController {
             fileService.saveBoardFiles(boardId, memberIdx, steps);
         }
 
+        // E/S 넘기기
+        IntegratedSearch searchDoc = mapStruct.boardToEntity(dto);
+        searchDoc.setId(boardId.toString());
+        integratedSearchService.saveData(searchDoc);
+
         // 4️⃣ 포인트 적립
         pointService.addPointWithLimit(member, "POST");
 
@@ -254,6 +264,10 @@ public class BoardController {
 
         // ✅ 수정 수행
         boardService.update(boardId, dto, email, deleteImageIds);
+        // E/S 넘기기
+        IntegratedSearch searchDoc = mapStruct.boardToEntity(dto);
+        searchDoc.setId(boardId.toString());
+        integratedSearchService.saveData(searchDoc);
 
         // ✅ 카테고리별 리다이렉트
         String encodedCategory = URLEncoder.encode(dto.getCategory(), StandardCharsets.UTF_8);
@@ -264,10 +278,11 @@ public class BoardController {
     @PostMapping("/board/delete")
     public String delete(@RequestParam("boardId") Long boardId) {
         boardService.delete(boardId);
+        integratedSearchService.deleteData(boardId.toString());
         return "redirect:/board/list";
     }
 
-//    6-1 마이페이지용 글 삭제
+//    7. 마이페이지용 글 삭제
     @DeleteMapping("/api/boards/{boardId}")
     public ResponseEntity<?> deleteBoardApi(@PathVariable Long boardId) {
         try {
@@ -282,17 +297,6 @@ public class BoardController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "삭제 처리 중 오류가 발생했습니다."));
         }
-    }
-
-    // 7. 관리자 삭제
-    @PostMapping("/board/adminDelete")
-    public String adminDelete(@RequestParam("boardId") Long boardId,
-                              @AuthenticationPrincipal MemberDetailDto loginUser) {
-        if (loginUser == null || !"ADMIN".equals(loginUser.getRole())) {
-            return "redirect:/board/list?error=unauthorized";
-        }
-        boardService.adminDelete(boardId);
-        return "redirect:/board/list";
     }
 
     // 8. 상세 조회 (썸네일 + 조리법 이미지 URL 주입)

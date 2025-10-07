@@ -1126,3 +1126,8 @@ input[disabled]:focus {
     background: #ea580c;
     transform: translateX(-50%) scale(1.05);
 }
+
+.pagination{display:flex;gap:6px;align-items:center;margin-top:12px}
+.page-link{display:inline-flex;min-width:32px;height:32px;justify-content:center;align-items:center;border:1px solid #e5e7eb;border-radius:8px;text-decoration:none}
+.page-link.active{font-weight:700;border-color:#f97316}
+.page-link.disabled{opacity:.4;pointer-events:none}

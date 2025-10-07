@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     console.log('서버 응답:', data);
 
-                    showToastMessage('문의가 성공적으로 접수되었습니다! 업무시간 내에 답변드리겠습니다.', 'success');
+                    showToastMessage('문의가 성공적으로 접수되었습니다! 마이페이지에서 확인하세요.', 'success');
 
                     // 폼 초기화
                     contactForm.reset();
