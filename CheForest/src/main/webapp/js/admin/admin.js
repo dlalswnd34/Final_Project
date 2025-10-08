@@ -1956,28 +1956,105 @@ const AdminAllTabs = {
     },
 
     // DB 동기화 시작
-    startDbSync() {
+    // startDbSync() {
+    //     const progressBar = document.getElementById('db-sync-progress');
+    //     const progressFill = progressBar.querySelector('.progress-fill');
+    //     const progressText = progressBar.querySelector('.progress-text');
+    //
+    //     progressBar.style.display = 'block';
+    //     let progress = 0;
+    //
+    //     const interval = setInterval(() => {
+    //         progress += 10;
+    //         progressFill.style.width = progress + '%';
+    //         progressText.textContent = progress + '%';
+    //
+    //         if (progress >= 100) {
+    //             clearInterval(interval);
+    //             setTimeout(() => {
+    //                 progressBar.style.display = 'none';
+    //                 this.showNotification('데이터베이스 동기화가 완료되었습니다!', 'success');
+    //             }, 1000);
+    //         }
+    //     }, 300);
+    // },
+    startDbSync: async function () {
         const progressBar = document.getElementById('db-sync-progress');
+        if (!progressBar) return;
+
         const progressFill = progressBar.querySelector('.progress-fill');
         const progressText = progressBar.querySelector('.progress-text');
-        
+
+        // 이 카드 안의 버튼만 비활성화/복구
+        const card = progressBar.closest('.db-action-card');
+        const btn = card ? card.querySelector('.action-btn.gradient-btn') : null;
+        const originalHTML = btn ? btn.innerHTML : null;
+
+        // 진행바 초기화 + 버튼 잠금
         progressBar.style.display = 'block';
-        let progress = 0;
-        
-        const interval = setInterval(() => {
-            progress += 10;
-            progressFill.style.width = progress + '%';
-            progressText.textContent = progress + '%';
-            
-            if (progress >= 100) {
-                clearInterval(interval);
-                setTimeout(() => {
-                    progressBar.style.display = 'none';
-                    this.showNotification('데이터베이스 동기화가 완료되었습니다!', 'success');
-                }, 1000);
+        progressFill.style.width = '0%';
+        progressText.textContent = '0%';
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="btn-icon spin"></i> 동기화 중`;
+            if (window.lucide && lucide.createIcons) lucide.createIcons();
+        }
+
+        // 가짜 진행률(응답 올 때까지 90%까지만)
+        let fake = 0;
+        const tick = () => {
+            if (fake < 90) {
+                fake += 2;
+                progressFill.style.width = fake + '%';
+                progressText.textContent = fake + '%';
             }
-        }, 300);
+        };
+        const timer = setInterval(tick, 250);
+
+        try {
+            const res = await fetch('/api/logstash/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                }
+            });
+
+            // 응답 수신 → 진행률 마무리
+            clearInterval(timer);
+            const data = await res.json().catch(() => ({}));
+
+            if (res.status === 429) {
+                // 이미 실행 중
+                this.showNotification(data.message || 'Logstash 작업이 이미 실행 중입니다.', 'warning');
+                progressFill.style.width = '0%';
+                progressText.textContent = '0%';
+                return;
+            }
+            if (!res.ok) {
+                throw new Error(data.error || data.message || `HTTP ${res.status}`);
+            }
+
+            // 성공
+            progressFill.style.width = '100%';
+            progressText.textContent = '100%';
+            this.showNotification(data.message || '통합검색 동기화가 완료되었습니다.', 'success');
+        } catch (err) {
+            clearInterval(timer);
+            this.showNotification(`동기화 실패: ${err.message}`, 'error');
+            progressFill.style.width = '0%';
+            progressText.textContent = '0%';
+        } finally {
+            // 진행바 잠깐 보여주고 숨김 + 버튼 복구
+            setTimeout(() => { progressBar.style.display = 'none'; }, 800);
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+                if (window.lucide && lucide.createIcons) lucide.createIcons();
+            }
+        }
     },
+
 
     // API 동기화 시작
     startApiSync() {

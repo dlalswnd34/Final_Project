@@ -6,6 +6,7 @@ import com.simplecoding.cheforest.es.integratedSearch.entity.IntegratedSearch;
 import com.simplecoding.cheforest.es.integratedSearch.service.IntegratedSearchService;
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.auth.repository.MemberRepository;
+import com.simplecoding.cheforest.jpa.auth.security.AuthUser;
 import com.simplecoding.cheforest.jpa.auth.security.CustomOAuth2User;
 import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
 import com.simplecoding.cheforest.jpa.board.dto.*;
@@ -69,14 +70,14 @@ public class BoardController {
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String searchType,
-            @PageableDefault(size = 9, sort = "insertTime", direction = Sort.Direction.DESC) Pageable pageable,
-            @AuthenticationPrincipal CustomUserDetails loginUser,
+            @PageableDefault(size = 9, sort = "insertTime", direction = Sort.Direction.DESC)
+            Pageable pageable,
+            @AuthenticationPrincipal AuthUser authUser,
             Model model
     ) {
-        // 로그
         log.info("👉 category='{}', keyword='{}', searchType='{}'", category, keyword, searchType);
 
-        // 일반 게시글 목록
+        // 게시글 목록
         Page<BoardListDto> boards = boardService.searchBoards(keyword, category, searchType, pageable);
         model.addAttribute("boards", boards.getContent());
         model.addAttribute("pageInfo", boards);
@@ -87,19 +88,15 @@ public class BoardController {
                 : boardService.getBestPostsByCategory(category);
         model.addAttribute("bestPosts", bestPosts);
 
-        // 로그인 사용자 통계
-        if (loginUser != null) {
-            Long memberIdx = loginUser.getMember().getMemberIdx();
+        // ✅ 로그인 사용자 (일반 + 소셜 공통)
+        Member me = (authUser != null) ? authUser.getMember() : null;
+        if (me != null && me.getMemberIdx() != null) {
+            Long memberIdx = me.getMemberIdx();
 
-            long myPostsCount       = mypageService.getMyPostsCount(memberIdx, null);
-            long likedPostsCount    = mypageService.getLikedBoardsCount(memberIdx, null);
-            long receivedLikesCount = mypageService.getReceivedBoardLikes(memberIdx);
-            long myCommentsCount    = mypageService.getMyCommentsCount(memberIdx, null);
-
-            model.addAttribute("myPostsTotalCount", myPostsCount);
-            model.addAttribute("likedPostsTotalCount", likedPostsCount);
-            model.addAttribute("receivedLikesTotalCount", receivedLikesCount);
-            model.addAttribute("myCommentsTotalCount", myCommentsCount);
+            model.addAttribute("myPostsTotalCount",       mypageService.getMyPostsCount(memberIdx, null));
+            model.addAttribute("likedPostsTotalCount",    mypageService.getLikedBoardsCount(memberIdx, null));
+            model.addAttribute("receivedLikesTotalCount", mypageService.getReceivedBoardLikes(memberIdx));
+            model.addAttribute("myCommentsTotalCount",    mypageService.getMyCommentsCount(memberIdx, null));
         }
 
         return "board/boardlist";

@@ -3,11 +3,15 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>대한민국 미세먼지 & 레시피 추천 지도</title>
+    <title>대한민국 날씨 & 레시피 추천 지도</title>
     <link rel="stylesheet" href="/css/dust/dustmap.css">
 </head>
 <body>
-<h2>대한민국 지역별 미세먼지 & 레시피 추천</h2>
+<jsp:include page="/common/header.jsp"/>
+
+<h2 class="text-2xl font-bold text-center my-6 text-gray-900">
+    대한민국 지역별 날씨 & 레시피 추천
+</h2>
 
 <div class="map-container">
     <img src="/images/korea_map.png" alt="대한민국 지도">
@@ -42,6 +46,7 @@
         </div>
     </div>
 </div>
+<jsp:include page="/common/footer.jsp"/>
 
 <script src="/js/dustmap.js"></script>
 </body>

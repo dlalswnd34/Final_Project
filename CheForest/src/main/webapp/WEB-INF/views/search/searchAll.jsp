@@ -101,14 +101,28 @@
                 <c:if test="${not empty searches}">
                     <div id="resultsGrid" class="results-grid">
                         <c:forEach var="item" items="${searches}">
-                            <div class="result-card" data-type="${item.type}"
-                                 onclick="location.href='/${item.type}/detail?${item.type}Id=${item.id}'">
+                            <c:choose>
+                                <c:when test="${item.type eq 'board'}">
+                                    <c:url var="detailUrl" value="/board/view">
+                                        <c:param name="boardId" value="${fn:replace(item.id, 'board-', '')}"/>
+                                    </c:url>
+                                </c:when>
+                                <c:when test="${item.type eq 'recipe'}">
+                                    <c:url var="detailUrl" value="/recipe/view">
+                                        <c:param name="recipeId" value="${fn:replace(item.id, 'recipe-', '')}"/>
+                                    </c:url>
+                                </c:when>
+                                <c:otherwise>
+                                    <c:set var="detailUrl" value="#"/>
+                                </c:otherwise>
+                            </c:choose>
+                            <a class="result-card" href="${detailUrl}">
                                 <div class="card-image-container">
                                     <img src="${item.thumbnail}" alt="${fn:escapeXml(item.title)}" class="card-image">
                                     <div class="card-badges">
-                    <span class="badge ${item.type == 'recipe' ? 'badge-recipe' : 'badge-board'}">
-                            ${item.type == 'recipe' ? '레시피' : '게시글'}
-                    </span>
+                <span class="badge ${item.type == 'recipe' ? 'badge-recipe' : 'badge-board'}">
+                        ${item.type == 'recipe' ? '레시피' : '게시글'}
+                </span>
                                         <span class="badge badge-category"><c:out value="${item.category}"/></span>
                                     </div>
                                 </div>
@@ -123,15 +137,14 @@
                                             <span><c:out value="${item.cooktime}"/></span>
                                         </div>
                                         <span class="difficulty-badge
-                          ${item.difficulty == 'Easy' ? 'easy' :
-                            item.difficulty == 'Normal' ? 'normal' :
-                            item.difficulty == 'Hard' ? 'hard' : ''}">
-                      <c:out value="${item.difficulty}"/>
-                    </span>
+                    ${item.difficulty == 'Easy' ? 'easy' :
+                      item.difficulty == 'Normal' ? 'normal' :
+                      item.difficulty == 'Hard' ? 'hard' : ''}">
+                    <c:out value="${item.difficulty}"/>
+                </span>
                                     </div>
-
                                 </div>
-                            </div>
+                            </a>
                         </c:forEach>
                     </div>
 

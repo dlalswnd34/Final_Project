@@ -34,6 +34,7 @@
             <div class="card-content">
                 <!-- ✅ Spring Security 맞춘 form -->
                 <form id="loginForm" action="/auth/login" method="post">
+                    <input type="hidden" name="redirect" id="redirectField">
                     <sec:csrfInput/>
                     <div class="form-group">
                         <label class="form-label">아이디</label>
@@ -96,8 +97,8 @@
                 </div>
                 <div class="social-buttons">
                     <!-- 구글 -->
-                    <button class="social-btn google-btn"
-                            onclick="location.href='/oauth2/authorization/google'">
+                    <button class="social-btn google-btn">
+<%--                            onclick="location.href='/oauth2/authorization/google'">--%>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
                             <path fill="#EA4335" d="M24 9.5c3.9 0 6.6 1.7 8.1 3.1l6-5.9C34.6 3.6 29.7 1.5 24 1.5 14.9 1.5 7.1 7.3 4.1 15.2l7.1 5.5C12.9 15.1 18 9.5 24 9.5z"/>
                             <path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.2-.4-4.7H24v9.1h12.6c-.5 2.7-2 5-4.2 6.5l6.5 5.1c3.8-3.5 6.2-8.7 6.2-15z"/>
@@ -106,15 +107,15 @@
                         </svg>
                     </button>
                     <!-- 카카오 -->
-                    <button class="social-btn kakao-btn"
-                            onclick="location.href='/oauth2/authorization/kakao'">
+                    <button class="social-btn kakao-btn">
+<%--                            onclick="location.href='/oauth2/authorization/kakao'">--%>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
                             <path fill="#3C1E1E" d="M16 3C8.8 3 3 7.9 3 14c0 3.5 2.1 6.6 5.5 8.6-.2.7-.9 3.3-1 3.8 0 0-.1.5.3.3.4-.2 3.8-2.5 4.4-2.9.9.1 1.7.2 2.8.2 7.2 0 13-4.9 13-11S23.2 3 16 3z"/>
                         </svg>
                     </button>
                     <!-- 네이버 -->
-                    <button class="social-btn naver-btn"
-                            onclick="location.href='/oauth2/authorization/naver'">
+                    <button class="social-btn naver-btn">
+<%--                            onclick="location.href='/oauth2/authorization/naver'">--%>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
                             <path fill="#03C75A" d="M7 5h6.3l5.7 8.8V5H25v22h-6.3l-5.7-8.8V27H7z"/>
                         </svg>
@@ -131,21 +132,59 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    (function () {
+        // --- [1] 로그인 에러 모달 처리 (기존 코드 유지)
         const errorParam = new URLSearchParams(window.location.search).get("error");
         const errorModal = document.getElementById("errorModal");
         const closeModalBtn = document.getElementById("closeModalBtn");
 
-        if (errorParam && errorModal) {
-            errorModal.classList.add("active");
-        }
-
+        if (errorParam && errorModal) errorModal.classList.add("active");
         if (closeModalBtn) {
-            closeModalBtn.addEventListener("click", function() {
+            closeModalBtn.addEventListener("click", function () {
                 errorModal.classList.remove("active");
             });
         }
-    });
+
+        // --- [2] redirect 후보 계산 (현재 위치 보존용)
+        function sameOrigin(url) {
+            try { return new URL(url).origin === location.origin; } catch(e) { return false; }
+        }
+
+        var redirectParam = new URLSearchParams(location.search).get('redirect');
+        var redirect = redirectParam;
+        if (!redirect && document.referrer && sameOrigin(document.referrer)) {
+            var u = new URL(document.referrer);
+            redirect = u.pathname + u.search + u.hash;
+        }
+        if (!redirect) {
+            redirect = location.pathname + location.search + location.hash;
+        }
+
+        // --- [3] 폼 hidden 필드에 주입
+        var fld = document.getElementById('redirectField');
+        if (fld) fld.value = redirect;
+
+        // --- [4] 소셜 로그인 쿠키 + 이동 처리
+        function setCookie(name, value, seconds) {
+            var max = seconds ? '; Max-Age=' + seconds : '';
+            document.cookie = name + '=' + encodeURIComponent(value) + max + '; Path=/; SameSite=Lax';
+        }
+
+        function goOAuth(provider) {
+            setCookie('post_login_redirect', redirect, 600); // 10분 유효
+            location.href = '/oauth2/authorization/' + provider; // kakao | google | naver
+        }
+
+        document.querySelector('.google-btn')?.addEventListener('click', function (e) {
+            e.preventDefault(); goOAuth('google');
+        });
+        document.querySelector('.kakao-btn')?.addEventListener('click', function (e) {
+            e.preventDefault(); goOAuth('kakao');
+        });
+        document.querySelector('.naver-btn')?.addEventListener('click', function (e) {
+            e.preventDefault(); goOAuth('naver');
+        });
+    })();
 </script>
 
 </body>

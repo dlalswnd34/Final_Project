@@ -179,7 +179,7 @@
                                 onclick="showPage('dust')"
                                 class="w-full text-left px-6 py-3 text-base text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors font-medium"
                         >
-                            미세먼지
+                            전국 날씨별 레시피 추천
                         </button>
                     </div>
                 </div>
