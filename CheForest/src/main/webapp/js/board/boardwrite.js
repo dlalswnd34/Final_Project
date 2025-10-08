@@ -74,11 +74,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // 임시저장 버튼
-        if (saveDraftBtn) {
-            saveDraftBtn.addEventListener('click', saveDraft);
-        }
-
         // 상단 제출 버튼
         if (submitBtn) {
             submitBtn.addEventListener('click', showConfirmModal);
@@ -879,14 +874,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 알림 메시지 표시
     function showNotification(message, type = 'success') {
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.textContent = message;
+        const n = document.createElement('div');
+        n.className = `notification ${type}`;
+        n.textContent = message;
+        document.body.appendChild(n);
 
-        document.body.appendChild(notification);
+        // 인라인 트랜지션(외부 CSS 간섭 최소화)
+        n.style.opacity = '0';
+        n.style.transform = 'translateX(20px)';
+        n.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
 
+        // DOM 렌더 후 등장
         setTimeout(() => {
-            notification.remove();
+            n.style.opacity = '1';
+            n.style.transform = 'translateX(0)';
+        }, 10);
+
+        // 3초 유지 후 서서히 사라짐
+        setTimeout(() => {
+            n.style.opacity = '0';
+            n.style.transform = 'translateX(20px)';
+            setTimeout(() => n.remove(), 400);
         }, 3000);
     }
 
