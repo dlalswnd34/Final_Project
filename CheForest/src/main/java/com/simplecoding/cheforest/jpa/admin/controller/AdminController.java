@@ -103,8 +103,8 @@ public class AdminController {
 
         isRunning.set(true); // 실행 중으로 표시
 
-        String logstashPath = "logstash"; // logstash 실행파일 경로
-        String confPath = "/path/to/your-logstash.conf";        // conf 파일 경로
+        String logstashPath = "C:\\work\\db\\logstash-8.14.3\\bin\\logstash.bat";
+        String confPath = "C:\\work\\elasticSearch\\integratedSearchLogstash.conf";
 
         ProcessBuilder processBuilder = new ProcessBuilder(logstashPath, "-f", confPath);
         processBuilder.redirectErrorStream(true); // 에러 스트림을 출력 스트림에 통합

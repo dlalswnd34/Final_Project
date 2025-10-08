@@ -197,7 +197,7 @@
                         <div class="tab-header">
                             <h2 class="tab-title">작성한 레시피 (<c:out value="${myPostsTotalCount}" default="0"/>개)</h2>
 
-                            <a href="/board/write" class="btn-primary" id="btn-create-recipe">
+                            <a href="/board/add" class="btn-primary" id="btn-create-recipe">
                                 <span class="btn-icon">👨‍🍳</span> 새 레시피 작성
                             </a>
                         </div>

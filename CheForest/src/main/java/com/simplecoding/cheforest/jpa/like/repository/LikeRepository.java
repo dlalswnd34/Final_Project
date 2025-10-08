@@ -12,12 +12,6 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
 
     // ================== 조회 ==================
 
-    // 특정 게시판 좋아요 전체
-    List<Like> findByBoardId(Long boardId);
-
-    // 특정 레시피 좋아요 전체
-    List<Like> findByRecipeId(String recipeId);
-
     // 좋아요 여부 확인 (게시판)
     boolean existsByMemberAndBoardId(Member member, Long boardId);
 

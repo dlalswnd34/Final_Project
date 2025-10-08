@@ -332,10 +332,14 @@
 
                     if (act === "like") {
                         const $cnt = $btn.querySelector(".vote-count");
-                        if ($cnt) $cnt.textContent = String(Number($cnt.textContent || 0) + 1);
+                        const liked = $btn.classList.toggle("liked"); // 토글
+
+                        if ($cnt) {
+                            let num = Number($cnt.textContent || 0);
+                            $cnt.textContent = String(liked ? num + 1 : Math.max(0, num - 1));
+                        }
                         return;
                     }
-
                     if (act === "toggle-reply") {
                         const $p = $comment.querySelector(".reply-write");
                         if ($p) $p.style.display = ($p.style.display === "none" || !$p.style.display) ? "block" : "none";
@@ -403,7 +407,12 @@
 
                     if (act === "reply-like") {
                         const $cnt = $btn.querySelector(".vote-count");
-                        if ($cnt) $cnt.textContent = String(Number($cnt.textContent || 0) + 1);
+                        const liked = $btn.classList.toggle("liked"); // 토글
+
+                        if ($cnt) {
+                            let num = Number($cnt.textContent || 0);
+                            $cnt.textContent = String(liked ? num + 1 : Math.max(0, num - 1));
+                        }
                         return;
                     }
 
