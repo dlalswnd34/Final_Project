@@ -103,7 +103,7 @@ public class AdminController {
 
         isRunning.set(true); // 실행 중으로 표시
 
-        String logstashPath = "C:\\work\\db\\logstash-8.14.3\\bin\\logstash.bat";
+        String logstashPath = "C:\\Users\\user\\Desktop\\opt\\logstash-8.14.3\\bin\\logstash.bat";
         String confPath = "C:\\work\\elasticSearch\\integratedSearchLogstash.conf";
 
         ProcessBuilder processBuilder = new ProcessBuilder(logstashPath, "-f", confPath);
