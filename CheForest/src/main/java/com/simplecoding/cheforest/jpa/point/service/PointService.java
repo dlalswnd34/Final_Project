@@ -98,10 +98,4 @@ public class PointService {
         long remainder = currentPoint % 1000;
         return 1000 - remainder;
     }
-
-    // ✅ 최근 적립 내역 5개
-    @Transactional(readOnly = true)
-    public List<PointHistory> getRecentHistories(Long memberId) {
-        return pointHistoryRepository.findTop5ByMember_MemberIdxOrderByInsertTimeDesc(memberId);
-    }
 }

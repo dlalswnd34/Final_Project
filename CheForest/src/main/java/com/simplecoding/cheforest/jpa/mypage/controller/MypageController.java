@@ -5,12 +5,14 @@ import com.simplecoding.cheforest.jpa.auth.repository.MemberRepository;
 import com.simplecoding.cheforest.jpa.auth.security.CustomOAuth2User;
 import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
 import com.simplecoding.cheforest.jpa.board.repository.BoardRepository;
+import com.simplecoding.cheforest.jpa.board.service.BoardService;
 import com.simplecoding.cheforest.jpa.file.repository.FileRepository;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageLikedBoardDto;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageLikedRecipeDto;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageMyPostDto;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageReviewDto;
 import com.simplecoding.cheforest.jpa.mypage.service.MypageService;
+import com.simplecoding.cheforest.jpa.point.service.PointService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +48,9 @@ public class MypageController {
     private final BoardRepository boardRepository;
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
+    private final BoardService boardService;
+    private final PointService pointService;
+    private final com.simplecoding.cheforest.jpa.mypage.repository.MypageRepository mypageRepository;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
@@ -78,6 +83,14 @@ public class MypageController {
         Long memberIdx = member.getMemberIdx();
         model.addAttribute("activeTab", tab);
         model.addAttribute("currentMemberIdx", memberIdx);
+
+// ===== 금주 활동 통계 =====
+        var stats = mypageService.getWeeklyActivityStats(member, boardService, pointService, mypageRepository);
+
+        model.addAttribute("totalRecipes", stats.recipeCount());
+        model.addAttribute("totalComments", stats.commentCount());
+        model.addAttribute("totalLikes", stats.likeCount());
+        model.addAttribute("weeklyPoints", stats.weeklyPoints());
 
         // ===== 상단 통계 =====
         long receivedLikesTotal    = mypageService.getReceivedBoardLikes(memberIdx);

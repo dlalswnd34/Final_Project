@@ -11,6 +11,9 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Repository
 public interface MypageRepository extends JpaRepository<Member, Long> {
 
@@ -169,4 +172,27 @@ WHERE l.member.memberIdx = :memberIdx
            WHERE b.writer.memberIdx = :memberIdx
            """)
     long sumMyPostsViewCount(@Param("memberIdx") Long memberIdx);
+
+    // ===== 금주 활동 통계 (게시글 수, 댓글 수, 받은 좋아요 수) =====
+    @Query(value = """
+        SELECT 
+          NVL((SELECT COUNT(*) 
+               FROM BOARD b 
+               WHERE b.WRITER_IDX = :memberIdx 
+                 AND b.INSERT_TIME BETWEEN :start AND :end), 0) AS postCount,
+               
+          NVL((SELECT COUNT(*) 
+               FROM BOARD_REVIEW r 
+               WHERE r.WRITER_IDX = :memberIdx 
+                 AND r.INSERT_TIME BETWEEN :start AND :end), 0) AS commentCount,
+               
+          NVL((SELECT SUM(b.LIKE_COUNT)
+               FROM BOARD b
+               WHERE b.WRITER_IDX = :memberIdx 
+                 AND b.INSERT_TIME BETWEEN :start AND :end), 0) AS likeCount
+        FROM DUAL
+        """, nativeQuery = true)
+    List<Object[]> findWeeklyActivityStats(@Param("memberIdx") Long memberIdx,
+                                           @Param("start") LocalDateTime start,
+                                           @Param("end") LocalDateTime end);
 }

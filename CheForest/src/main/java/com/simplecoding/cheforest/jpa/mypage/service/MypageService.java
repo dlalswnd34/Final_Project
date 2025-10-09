@@ -1,11 +1,13 @@
 package com.simplecoding.cheforest.jpa.mypage.service;
 
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
+import com.simplecoding.cheforest.jpa.board.service.BoardService;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageLikedBoardDto;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageLikedRecipeDto;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageMyPostDto;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageReviewDto;
 import com.simplecoding.cheforest.jpa.mypage.repository.MypageRepository;
+import com.simplecoding.cheforest.jpa.point.service.PointService;
 import com.simplecoding.cheforest.jpa.review.entity.Review;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +17,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.simplecoding.cheforest.jpa.review.entity.Review;
 import com.simplecoding.cheforest.jpa.review.repository.ReviewRepository;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -32,7 +39,6 @@ public class MypageService {
         log.info("내가 작성한 글 조회 - memberIdx={}, keyword={}", memberIdx, keyword);
         return mypageRepository.findMyPosts(memberIdx, keyword, pageable);
     }
-
 
 
     public long getMyPostsCount(Long memberIdx, String keyword) {
@@ -105,6 +111,35 @@ public class MypageService {
         return (dt == null) ? null : dt.format(DateTimeFormatter.ofPattern("yyyy년 M월 d일"));
     }
 
+    // ===== 활동 현황 집계 =====
+    public record ActivityStats(
+            long recipeCount,
+            long commentCount,
+            long likeCount,
+            long weeklyPoints
+    ) {}
 
+    public ActivityStats getWeeklyActivityStats(Member member,
+                                                BoardService boardService,
+                                                PointService pointService,
+                                                MypageRepository mypageRepository) {
+
+        Long memberId = member.getMemberIdx();
+
+        // 이번 주 월요일 00:00 ~ 일요일 23:59:59
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfWeek = today.with(DayOfWeek.MONDAY).atStartOfDay();
+        LocalDateTime endOfWeek   = today.with(DayOfWeek.SUNDAY).atTime(LocalTime.MAX);
+
+        List<Object[]> result = mypageRepository.findWeeklyActivityStats(memberId, startOfWeek, endOfWeek);
+        Object[] row = (result != null && !result.isEmpty()) ? result.get(0) : new Object[]{0L, 0L, 0L};
+
+        long recipeCount  = row[0] == null ? 0L : ((Number) row[0]).longValue();
+        long commentCount = row[1] == null ? 0L : ((Number) row[1]).longValue();
+        long likeCount    = row[2] == null ? 0L : ((Number) row[2]).longValue();
+        long weeklyPoints = pointService.getWeekPoints(memberId);
+
+        return new ActivityStats(recipeCount, commentCount, likeCount, weeklyPoints);
+    }
 
 }
