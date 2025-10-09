@@ -49,7 +49,7 @@ public class Recipe {
     @Column(nullable = false)
     private Long viewCount = 0L;
 
-    private Integer cookTime;
+    private String cookTime;
     private String difficulty;
 
 
