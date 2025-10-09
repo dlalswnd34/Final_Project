@@ -36,7 +36,4 @@ public interface PointHistoryRepository extends JpaRepository<PointHistory, Long
             nativeQuery = true)
     Long countTodayActions(@Param("memberIdx") Long memberIdx,
                            @Param("actionType") String actionType);
-
-    // 3. 최근 포인트 이력 (N개)
-    List<PointHistory> findTop5ByMember_MemberIdxOrderByInsertTimeDesc(Long memberId);
 }

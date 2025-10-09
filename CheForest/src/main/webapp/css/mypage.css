@@ -1131,3 +1131,33 @@ input[disabled]:focus {
 .page-link{display:inline-flex;min-width:32px;height:32px;justify-content:center;align-items:center;border:1px solid #e5e7eb;border-radius:8px;text-decoration:none}
 .page-link.active{font-weight:700;border-color:#f97316}
 .page-link.disabled{opacity:.4;pointer-events:none}
+
+/* 마이페이지: 모든 페이징 중앙정렬 */
+.mypage-main .pagination-container{
+    display:flex;               /* 가로 배치 */
+    justify-content:center;     /* 중앙 정렬 */
+    align-items:center;
+    gap:8px;
+    width:100%;
+    margin:16px 0;
+}
+
+/* (선택) 버튼 스타일 보정 */
+.mypage-main .pagination-container .page-btn{
+    display:inline-flex;
+    justify-content:center;
+    align-items:center;
+    min-width:36px; height:36px;
+    padding:0 10px;
+    border:1px solid #e5e7eb;
+    color: #374151; /* 기본 글자색 (짙은 회색) */
+
+    border-radius:8px;
+    background:#fff;
+    cursor:pointer;
+}
+.mypage-main .pagination-container .page-btn.active{
+    border-color:#f59e0b;
+    background:#ffedd5;
+    font-weight:600;
+}

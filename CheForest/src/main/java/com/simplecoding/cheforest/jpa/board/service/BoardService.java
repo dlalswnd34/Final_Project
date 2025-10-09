@@ -217,16 +217,6 @@ public class BoardService {
         boardRepository.deleteById(boardId);
     }
 
-    // 6. 관리자 삭제
-    public void adminDelete(Long boardId) {
-        // ✅ 댓글 먼저 삭제
-        reviewService.deleteByBoardId(boardId);
-
-        likeService.deleteAllByBoardId(boardId);
-        fileService.deleteAllByTargetIdAndType(boardId, "BOARD");
-        boardRepository.deleteById(boardId);
-    }
-
     // 7. 인기글 조회
     @Transactional(readOnly = true)
     public List<BoardListDto> getBestPosts() {

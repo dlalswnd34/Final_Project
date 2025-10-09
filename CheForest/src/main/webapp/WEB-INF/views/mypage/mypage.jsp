@@ -1,4 +1,5 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page trimDirectiveWhitespaces="true" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
@@ -11,6 +12,10 @@
     <title>마이페이지 - CheForest</title>
     <link rel="stylesheet" href="/css/common/common.css">
     <link rel="stylesheet" href="/css/mypage.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <%-- CSRF 토큰 정보를 meta 태그에 추가 --%>
     <meta name="_csrf" content="${_csrf.token}">
     <meta name="_csrf_header" content="${_csrf.headerName}">
@@ -140,11 +145,11 @@
                                             <div class="level-display">
                                                 <div class="level-emoji">
                                                     <c:choose>
-                                                        <c:when test="${currentLevel == '씨앗'}">🌱</c:when>
-                                                        <c:when test="${currentLevel == '뿌리'}">🌿</c:when>
-                                                        <c:when test="${currentLevel == '새싹'}">🌾</c:when>
-                                                        <c:when test="${currentLevel == '나무'}">🌳</c:when>
-                                                        <c:when test="${currentLevel == '숲'}">🌲</c:when>
+                                                        <c:when test="${currentLevel == '씨앗'}">&#x26A1;</c:when>
+                                                        <c:when test="${currentLevel == '뿌리'}">&#x2693;</c:when>
+                                                        <c:when test="${currentLevel == '새싹'}">&#x1F331;</c:when>
+                                                        <c:when test="${currentLevel == '나무'}">&#x1F332;</c:when>
+                                                        <c:when test="${currentLevel == '숲'}">&#x1F333;</c:when>
                                                         <c:otherwise>⭐</c:otherwise>
                                                     </c:choose>
                                                 </div>
@@ -160,10 +165,10 @@
                                                 <div class="level-display">
                                                     <div class="level-emoji">
                                                         <c:choose>
-                                                            <c:when test="${nextLevel == '뿌리'}">🌿</c:when>
-                                                            <c:when test="${nextLevel == '새싹'}">🌾</c:when>
-                                                            <c:when test="${nextLevel == '나무'}">🌳</c:when>
-                                                            <c:when test="${nextLevel == '숲'}">🌲</c:when>
+                                                            <c:when test="${nextLevel == '뿌리'}">&#x2693;</c:when>
+                                                            <c:when test="${nextLevel == '새싹'}">&#x1F331;</c:when>
+                                                            <c:when test="${nextLevel == '나무'}">&#x1F332;</c:when>
+                                                            <c:when test="${nextLevel == '숲'}">&#x1F333;</c:when>
                                                             <c:otherwise>🚀</c:otherwise>
                                                         </c:choose>
                                                     </div>
@@ -182,10 +187,22 @@
                                 </div>
                                 <div class="card-content">
                                     <div class="activity-list">
-                                        <div class="activity-item"><span class="activity-label">이번 달 레시피 작성</span><span class="activity-badge">3개</span></div>
-                                        <div class="activity-item"><span class="activity-label">이번 달 댓글 작성</span><span class="activity-badge">15개</span></div>
-                                        <div class="activity-item"><span class="activity-label">전체 레시피 조회수</span><span class="activity-badge">518회</span></div>
-                                        <div class="activity-item"><span class="activity-label">전체 좋아요 수</span><span class="activity-badge">77개</span></div>
+                                        <div class="activity-item">
+                                            <span class="activity-label">금주 레시피 작성</span>
+                                            <span class="activity-badge"><c:out value="${totalRecipes != null ? totalRecipes : 0}"/>개</span>
+                                        </div>
+                                        <div class="activity-item">
+                                            <span class="activity-label">금주 댓글 작성</span>
+                                            <span class="activity-badge"><c:out value="${totalComments != null ? totalComments : 0}"/>개</span>
+                                        </div>
+                                        <div class="activity-item">
+                                            <span class="activity-label">금주 받은 좋아요 수</span>
+                                            <span class="activity-badge"><c:out value="${totalLikes != null ? totalLikes : 0}"/>회</span>
+                                        </div>
+                                        <div class="activity-item">
+                                            <span class="activity-label">금주 포인트 획득 량</span>
+                                            <span class="activity-badge"><c:out value="${weeklyPoints != null ? weeklyPoints : 0}"/>개</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
