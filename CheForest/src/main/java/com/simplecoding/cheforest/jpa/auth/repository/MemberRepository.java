@@ -49,11 +49,19 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("select m.loginId from Member m where m.email = :email")
     String findIdByEmail(String email);
 
-    // 포인트 상위 10명 (랭킹)
-    List<Member> findTop10ByOrderByPointDesc();
+    // 포인트 상위 5명 (랭킹)
+    List<Member> findTop5ByRoleOrderByPointDesc(Member.Role role);
 
     // 특정 회원의 랭킹 (내 순위 구하기)
-    @Query("SELECT COUNT(m) + 1 FROM Member m WHERE m.point > :point")
+    @Query(
+            value = """
+        SELECT COUNT(*) + 1
+        FROM MEMBER
+        WHERE POINT > NVL(:point, 0)
+          AND ROLE = 'USER'
+        """,
+            nativeQuery = true
+    )
     Long findMyRank(@Param("point") Long point);
 
     // made by yes_ung

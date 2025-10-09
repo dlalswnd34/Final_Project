@@ -1,5 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -8,6 +10,8 @@
     <title>Document</title>
     <link rel="stylesheet" href="/css/common/common.css">
     <link rel="stylesheet" href="/css/common/footer.css">
+    <meta name="_csrf" content="${_csrf.token}">
+    <meta name="_csrf_header" content="${_csrf.headerName}">
 </head>
 <body>
     <!-- CheForest 꼬리말 화면 -->
@@ -111,36 +115,18 @@
                         카테고리
                     </h4>
                     <ul class="space-y-3">
-                        <li>
-                            <a href="#" class="group flex items-center justify-between text-gray-600 hover:text-orange-500 transition-colors">
-                                <span class="group-hover:translate-x-1 transition-transform">한식</span>
-                                <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">15,234</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="group flex items-center justify-between text-gray-600 hover:text-orange-500 transition-colors">
-                                <span class="group-hover:translate-x-1 transition-transform">양식</span>
-                                <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">12,876</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="group flex items-center justify-between text-gray-600 hover:text-orange-500 transition-colors">
-                                <span class="group-hover:translate-x-1 transition-transform">중식</span>
-                                <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">8,945</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="group flex items-center justify-between text-gray-600 hover:text-orange-500 transition-colors">
-                                <span class="group-hover:translate-x-1 transition-transform">일식</span>
-                                <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">7,632</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="group flex items-center justify-between text-gray-600 hover:text-orange-500 transition-colors">
-                                <span class="group-hover:translate-x-1 transition-transform">디저트</span>
-                                <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">5,543</span>
-                            </a>
-                        </li>
+                        <c:forEach var="entry" items="${categoryTotals}">
+                            <li>
+                                <a href="#" class="group flex items-center justify-between text-gray-600 hover:text-orange-500 transition-colors">
+                    <span class="group-hover:translate-x-1 transition-transform">
+                        <c:out value="${entry.key}" />
+                    </span>
+                                    <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">
+                        <fmt:formatNumber value="${entry.value}" type="number" />
+                    </span>
+                                </a>
+                            </li>
+                        </c:forEach>
                     </ul>
                 </div>
 
@@ -330,6 +316,6 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script src="/js/common/common.js"></script>
-    <script src="/js/common/header.js"></script>
+    <script src="/js/common/footer.js"></script>
 </body>
 </html>

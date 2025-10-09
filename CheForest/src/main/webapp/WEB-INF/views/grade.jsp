@@ -110,6 +110,14 @@
                       <div class="point-value"><c:out value="${remain}"/></div>
                       <div class="point-label">남은 획득량</div>
                     </div>
+                      <c:choose>
+                          <c:when test="${myRank <= 3}">
+                              <div class="text-yellow-500 font-bold mt-4">🥇 상위 ${myRank}위 달성!</div>
+                          </c:when>
+                          <c:otherwise>
+                              <div class="text-gray-600 mt-4">나의 현재 순위: <span class="font-bold text-orange-600">${myRank}위</span></div>
+                          </c:otherwise>
+                      </c:choose>
                   </div>
                 </div>
 

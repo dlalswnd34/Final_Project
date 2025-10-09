@@ -22,6 +22,10 @@ public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecific
 //    카테고리별 게시글 수
     long countByCategory(String category);
 
+//    푸터용 카테고리
+    @Query("SELECT b.category, COUNT(b) FROM Board b GROUP BY b.category")
+    List<Object[]> countBoardsByCategory();
+
     // 특정 회원이 작성한 게시글
     List<Board> findByWriter_MemberIdx(Long memberIdx);
 

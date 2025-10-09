@@ -34,6 +34,7 @@ public class SecurityConfig {
                         // 🌟🌟🌟 핵심 수정: /ws/** 경로에 대한 접근을 무조건 허용 🌟🌟🌟
                         .requestMatchers("/ws/**").permitAll() // 👈 이 줄을 추가해야 합니다.
                         .requestMatchers("/chat", "/chat/history").permitAll() // 채팅 페이지/미리보기 공개
+                        .requestMatchers("/api/footer/**").permitAll()   // 구독 발송
                         // 현재 로그인 사용자 정보 확인용 (소셜+일반 공통)
                         .requestMatchers("/auth/me").authenticated()
                         //  [1] 관리자 전용 페이지
@@ -74,7 +75,7 @@ public class SecurityConfig {
                 // 보안토큰설정: `/inquiries/my/delete` 경로를 CSRF 검사 예외 목록에 추가
                 .csrf(csrf -> csrf
                         // ✅ 문의 삭제 POST 요청에 대한 CSRF 검사를 무시합니다. (403 Forbidden 해결)
-                        .ignoringRequestMatchers("/inquiries/my/delete", "/ping")
+                        .ignoringRequestMatchers("/inquiries/my/delete", "/ping", "/api/footer/**")
                 );
 
         return http.build();

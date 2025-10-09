@@ -296,3 +296,22 @@ window.CheForest.home = {
     updateCategoryContent,
     initializeHome
 };
+
+// 내 랭킹 보기 버튼 토글
+document.addEventListener("DOMContentLoaded", function() {
+    const showMyRankBtn = document.getElementById("showMyRankBtn");
+    const myRankBox = document.getElementById("myRankBox");
+
+    if (showMyRankBtn && myRankBox) {
+        showMyRankBtn.addEventListener("click", () => {
+            myRankBox.classList.toggle("hidden");
+
+            // 아이콘 회전 효과
+            const icon = showMyRankBtn.querySelector("i");
+            if (icon) {
+                icon.classList.toggle("rotate-180");
+                icon.classList.add("transition-transform", "duration-300");
+            }
+        });
+    }
+});
