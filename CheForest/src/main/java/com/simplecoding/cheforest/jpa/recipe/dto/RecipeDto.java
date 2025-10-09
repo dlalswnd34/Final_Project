@@ -37,7 +37,7 @@ public class RecipeDto {
     private Long likeCount;
     private Long viewCount;
     private String difficulty; // 난이도 (Easy / Normal / Hard)
-    private Integer cookTime;
+    private String cookTime;
     // === 편의 메서드 (재료+계량 표시) ===
     public List<String> getIngredientDisplayList() {
         if (ingredientKr == null || ingredientKr.trim().isEmpty()) {

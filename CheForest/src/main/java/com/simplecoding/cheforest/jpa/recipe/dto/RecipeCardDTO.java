@@ -15,7 +15,7 @@ public class RecipeCardDTO {
     private String thumbnail;     // THUMBNAIL
     private String categoryName;  // CATEGORY_KR
     private String writerNickname;// API 데이터는 없으니 "CheForest" 고정(표시용)
-    private Integer cookTime;     // COOK_TIME (분)
+    private String cookTime;     // COOK_TIME (분)
     private String difficulty;    // DIFFICULTY
     private Long viewCount;       // VIEW_COUNT
     private Long likeCount;       // LIKE_COUNT

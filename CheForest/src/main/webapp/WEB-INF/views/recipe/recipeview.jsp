@@ -119,7 +119,7 @@
               <i data-lucide="clock" class="h-6 w-6 text-orange-500 mb-2"></i>
               <p class="info-label">조리시간</p>
               <p class="info-value">
-                <c:out value="${recipe.cookTime}" default="-" />분
+                <c:out value="${recipe.cookTime}" default="-" />
               </p>
             </div>
 
