@@ -349,12 +349,4 @@ public String qna(Model model) {
     }
 
 
-
-
-
-
-
-
-
-
 }
