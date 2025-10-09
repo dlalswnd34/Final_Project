@@ -1,32 +1,52 @@
 /* CheForest Footer JavaScript */
 /* 푸터 컴포넌트 전용 JavaScript */
 
-// 뉴스레터 구독 처리
+// 뉴스레터 구독 처리 (실제 메일 발송용)
 function handleNewsletterSubscription() {
     const emailInput = document.querySelector('.newsletter-email');
     const subscribeBtn = document.querySelector('.newsletter-subscribe-btn');
-    
-    if (emailInput && subscribeBtn) {
-        const email = emailInput.value.trim();
-        
-        // 이메일 유효성 검사
-        if (!isValidEmail(email)) {
-            showNotification('올바른 이메일 주소를 입력해주세요.', 'error');
-            return;
-        }
-        
-        // 구독 처리 (실제로는 서버로 전송)
-        subscribeBtn.textContent = '구독 중...';
-        subscribeBtn.disabled = true;
-        
-        // 시뮬레이션: 2초 후 완료
-        setTimeout(() => {
-            showNotification('뉴스레터 구독이 완료되었습니다!', 'success');
+    const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+
+    if (!emailInput || !subscribeBtn) return;
+
+    const email = emailInput.value.trim();
+
+    // 이메일 유효성 검사
+    if (!isValidEmail(email)) {
+        showNotification('올바른 이메일 주소를 입력해주세요.', 'error');
+        return;
+    }
+
+    subscribeBtn.textContent = '구독 중...';
+    subscribeBtn.disabled = true;
+
+    // 요청 헤더 설정
+    const headers = { 'Content-Type': 'application/json' };
+    if (csrfHeader && csrfToken) headers[csrfHeader] = csrfToken;
+
+    // 실제 서버에 구독 요청 전송
+    fetch('/api/footer/newsletter', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ email })
+    })
+        .then(async res => {
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || !data.ok) {
+                throw new Error(data.msg || '메일 발송 중 오류가 발생했습니다.');
+            }
+            showNotification(data.msg || '뉴스레터 구독이 완료되었습니다!', 'success');
             emailInput.value = '';
+        })
+        .catch(err => {
+            console.error('뉴스레터 구독 실패:', err);
+            showNotification(err.message || '서버 오류가 발생했습니다.', 'error');
+        })
+        .finally(() => {
             subscribeBtn.textContent = '구독하기';
             subscribeBtn.disabled = false;
-        }, 2000);
-    }
+        });
 }
 
 // 이메일 유효성 검사
@@ -35,44 +55,63 @@ function isValidEmail(email) {
     return emailRegex.test(email);
 }
 
-// 알림 표시 함수
+// 알림 표시 함수 (시각적 개선)
+// 🔥 완전 확실한 버전 (Tailwind 없이 작동)
 function showNotification(message, type = 'info') {
-    // 기존 알림 제거
-    const existingNotification = document.querySelector('.notification');
-    if (existingNotification) {
-        existingNotification.remove();
-    }
-    
-    // 새 알림 생성
+    const existing = document.querySelector('.notification');
+    if (existing) existing.remove();
+
     const notification = document.createElement('div');
-    notification.className = `notification fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 ${getNotificationStyle(type)}`;
+    notification.className = 'notification';
     notification.textContent = message;
-    
+
+    // ✅ Tailwind 클래스 대신 inline style로 확실히 보이게 설정
+    Object.assign(notification.style, {
+        position: 'fixed',
+        top: '24px',
+        right: '24px',
+        padding: '14px 22px',
+        borderRadius: '10px',
+        color: '#fff',
+        fontSize: '15px',
+        zIndex: '9999',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        transition: 'all 0.4s ease',
+        opacity: '0',
+        transform: 'translateX(30px)',
+    });
+
+    // ✅ 타입별 색상
+    switch (type) {
+        case 'success': notification.style.backgroundColor = '#22c55e'; break; // green-500
+        case 'error': notification.style.backgroundColor = '#ef4444'; break;   // red-500
+        case 'warning': notification.style.backgroundColor = '#f59e0b'; break; // yellow-500
+        default: notification.style.backgroundColor = '#3b82f6';               // blue-500
+    }
+
     document.body.appendChild(notification);
-    
-    // 3초 후 자동 제거
+
+    // ✅ fade-in
+    setTimeout(() => {
+        notification.style.opacity = '1';
+        notification.style.transform = 'translateX(0)';
+    }, 10);
+
+    // ✅ fade-out & 제거
     setTimeout(() => {
         notification.style.opacity = '0';
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
+        notification.style.transform = 'translateX(30px)';
+        setTimeout(() => notification.remove(), 500);
     }, 3000);
 }
 
-// 알림 스타일 반환
+// 알림 스타일 반환 (색상 유지)
 function getNotificationStyle(type) {
     switch (type) {
-        case 'success':
-            return 'bg-green-500 text-white';
-        case 'error':
-            return 'bg-red-500 text-white';
-        case 'warning':
-            return 'bg-yellow-500 text-white';
-        default:
-            return 'bg-blue-500 text-white';
+        case 'success': return 'bg-green-500 text-white';
+        case 'error': return 'bg-red-500 text-white';
+        case 'warning': return 'bg-yellow-500 text-white';
+        default: return 'bg-blue-500 text-white';
     }
 }
 

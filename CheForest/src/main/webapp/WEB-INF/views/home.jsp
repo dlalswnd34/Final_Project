@@ -478,6 +478,90 @@
             </div>
         </section>
 
+        <!-- 포인트 랭킹 섹션 -->
+        <section id="ranking" class="py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <div class="flex items-center justify-center mb-4">
+                        <i data-lucide="award" class="h-8 w-8 text-orange-500 mr-3"></i>
+                        <h2 class="text-4xl font-black brand-gradient">포인트 랭킹 TOP 5</h2>
+                    </div>
+                    <p class="text-gray-600 max-w-2xl mx-auto">
+                        가장 활발한 셰프들을 만나보세요! CheForest에서 활동 포인트 상위 5명입니다.
+                    </p>
+                </div>
+
+                <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border border-gray-100">
+                    <table class="w-full text-left text-gray-700">
+                        <thead class="bg-gray-50 border-b">
+                        <tr>
+                            <th class="py-3 px-4 text-center w-16">순위</th>
+                            <th class="py-3 px-4">닉네임</th>
+                            <th class="py-3 px-4 text-center">등급</th>
+                            <th class="py-3 px-4 text-right">포인트</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <c:forEach var="m" items="${topMembers}" varStatus="loop">
+                            <tr class="border-b hover:bg-orange-50 transition">
+                                <td class="py-3 px-4 text-center font-bold text-gray-800">
+                                    <c:choose>
+                                        <c:when test="${loop.index == 0}">
+                                            🥇
+                                        </c:when>
+                                        <c:when test="${loop.index == 1}">
+                                            🥈
+                                        </c:when>
+                                        <c:when test="${loop.index == 2}">
+                                            🥉
+                                        </c:when>
+                                        <c:otherwise>
+                                            ${loop.index + 1}
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td class="py-3 px-4 font-medium text-gray-800">
+                                    <c:out value="${m.nickname}"/>
+                                </td>
+                                <td class="py-3 px-4 text-center">
+                                <span class="inline-block bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-sm font-semibold">
+                                    <c:out value="${m.grade}"/>
+                                </span>
+                                </td>
+                                <td class="py-3 px-4 text-right font-semibold text-orange-500">
+                                    <fmt:formatNumber value="${m.point}" />P
+                                </td>
+                            </tr>
+                        </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-8">
+                    <button id="showMyRankBtn"
+                            class="inline-flex items-center text-orange-500 hover:text-orange-600 font-semibold transition">
+                        내 랭킹 보기
+                        <i data-lucide="arrow-down" class="w-4 h-4 ml-1"></i>
+                    </button>
+                </div>
+
+                <!-- ✅ 내 순위 표시 영역 (초기 숨김) -->
+                <div id="myRankBox" class="hidden mt-6 text-center text-gray-600 transition-all duration-300">
+                    <c:choose>
+                        <c:when test="${not empty myRank}">
+                            나의 현재 순위는
+                            <span class="font-bold text-orange-600">${myRank}위</span>
+                            입니다!
+                        </c:when>
+                        <c:otherwise>
+                            로그인 후 내 랭킹을 확인할 수 있습니다.
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+
+            </div>
+        </section>
+
+
 
     </main>
 
@@ -506,6 +590,7 @@
         });
     });
 </script>
+
     <jsp:include page="/common/footer.jsp"/>
 </body>
 </html>

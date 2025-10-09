@@ -16,10 +16,9 @@ public class RankingService {
     private final MemberRepository memberRepository;
 
     // 상위 10명 랭킹
-    public List<Member> getTopRanking(int limit) {
-        return memberRepository.findTop10ByOrderByPointDesc();
+    public List<Member> getTopRanking() {
+        return memberRepository.findTop5ByRoleOrderByPointDesc(Member.Role.USER);
     }
-
     // 내 순위
     public Long getMyRank(Member member) {
         return memberRepository.findMyRank(member.getPoint());
