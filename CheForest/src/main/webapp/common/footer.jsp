@@ -280,7 +280,7 @@
                 <div class="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
                     <div class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4">
                         <p class="text-gray-600 text-sm">
-                            © 2024 CheForest. All rights reserved.
+                            © 2025 CheForest. All rights reserved.
                         </p>
                         <div class="flex items-center space-x-2 text-xs text-gray-500">
                             <span>Made with</span>
