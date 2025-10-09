@@ -903,8 +903,14 @@
                                     <div class="progress-fill blue"></div>
                                     <span class="progress-text">0%</span>
                                 </div>
+                                <div id="api-sub-buttons" style="display:none; margin-top:10px;">
+                                    <button class="sub-btn blue-btn" onclick="runApi('datako')">DataKO</button>
+                                    <button class="sub-btn blue-btn" onclick="runApi('spoonacular')">Spoonacular</button>
+                                    <button class="sub-btn blue-btn" onclick="runApi('wf')">TheMealDB</button>
+                                    <button class="sub-btn red-btn" onclick="stopAll()">중단</button>
+                                </div>
                             </div>
-                            <button class="action-btn blue-btn" onclick="AdminAllTabs.startApiSync()">
+                            <button class="action-btn blue-btn" id="main-api-btn" onclick="toggleApiButtons()">
                                 <i data-lucide="download" class="btn-icon"></i>
                                 데이터 불러오기
                             </button>

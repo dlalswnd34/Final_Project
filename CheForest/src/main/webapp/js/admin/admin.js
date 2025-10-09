@@ -1274,7 +1274,7 @@ const RecipeManager = {
                 </div>
             </div>
             <div class="post-management-actions">
-                <button class="event-action-btn viewDetailsBt" data-recipe-id="${recipe.recipeId}" onclick="RecipeManager.viewDetails(${recipe.recipeId})">
+                <button class="event-action-btn viewDetailsBt" data-recipe-id="${recipe.recipeId}" onclick="RecipeManager.viewDetails('${recipe.recipeId}')">
                     <i data-lucide="eye" style="width: 14px; height: 14px;"></i>
                     상세보기
                 </button>
@@ -2061,15 +2061,15 @@ const AdminAllTabs = {
         const progressBar = document.getElementById('api-sync-progress');
         const progressFill = progressBar.querySelector('.progress-fill');
         const progressText = progressBar.querySelector('.progress-text');
-        
+
         progressBar.style.display = 'block';
         let progress = 0;
-        
+
         const interval = setInterval(() => {
             progress += 15;
             progressFill.style.width = progress + '%';
             progressText.textContent = progress + '%';
-            
+
             if (progress >= 100) {
                 clearInterval(interval);
                 setTimeout(() => {
@@ -2391,3 +2391,174 @@ const AdminAllTabs = {
 // 전역 객체로 노출
 window.AdminAllTabs = AdminAllTabs;
 
+/* ========= 외부 레시피 수집 컨트롤(폴링 버전) ========= */
+(function(){
+    const ENDPOINTS = {
+        datako:      '/admin/import/datako/run',
+        spoonacular: '/admin/import/spoonacular/run',
+        wf:          '/admin/import/wf/run',
+        stop:        '/admin/import/stop',
+        status: (task) => `/admin/import/status/${task}`
+    };
+
+    let running = false;
+    let timer   = null;
+    let currentTask = null;
+
+    function qs(sel){ return document.querySelector(sel); }
+
+    function getProgressEls(){
+        const bar  = qs('#api-sync-progress');
+        if(!bar) return {};
+        return {
+            bar,
+            fill: bar.querySelector('.progress-fill'),
+            text: bar.querySelector('.progress-text')
+        };
+    }
+
+    function setProgress(p){
+        const {bar, fill, text} = getProgressEls();
+        if(!bar) return;
+        bar.style.display = 'block';
+        const pct = Math.max(0, Math.min(100, Math.round(p)));
+        fill.style.width  = `${pct}%`;
+        text.textContent  = `${pct}%`;
+    }
+
+    function resetProgress(hide=true){
+        const {bar} = getProgressEls();
+        setProgress(0);
+        if(bar && hide) bar.style.display = 'none';
+    }
+
+    function lockButtons(lock){
+        // 하위 실행 버튼 3개
+        document.querySelectorAll('#api-sub-buttons .sub-btn.blue-btn')
+            .forEach(b=>b.disabled = lock);
+        // 중단 버튼
+        const stopBtn = qs('#api-stop-btn');
+        if(stopBtn) stopBtn.disabled = !lock; // 실행 중일 때만 활성
+        // 메인 토글 버튼
+        const main = qs('#main-api-btn');
+        if(main){ main.disabled = lock; }
+    }
+
+    // 하위 버튼 보이기/숨기기
+    window.toggleApiButtons = function(){
+        const box = qs('#api-sub-buttons');
+        if(!box) return;
+        box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'flex' : 'none';
+    };
+
+    // 상태 폴링 시작
+    async function startPolling(task){
+        clearInterval(timer);
+        timer = setInterval(async ()=>{
+            try{
+                const res = await fetch(ENDPOINTS.status(task), {
+                    headers: { [csrfHeader]: csrfToken }
+                });
+                if(!res.ok) throw new Error(`HTTP ${res.status}`);
+                const s = await res.json();
+
+                // percent 반영
+                const pct = typeof s.percent === 'number' ? s.percent : 0;
+                setProgress(pct);
+
+                // 완료/정지/에러 처리
+                const finished = !s.running || pct >= 100;
+                if(finished){
+                    clearInterval(timer);
+                    running = false;
+                    lockButtons(false);
+
+                    if(s.error){
+                        AdminAllTabs.showNotification(`❌ 실패: ${s.error}`, 'error');
+                        setProgress(0);
+                    }else if(pct >= 100){
+                        AdminAllTabs.showNotification('✅ 데이터 불러오기 완료', 'success');
+                        setProgress(100);
+                    }else{
+                        AdminAllTabs.showNotification('⚠️ 작업이 중단되었습니다', 'warning');
+                        setProgress(0);
+                    }
+                    setTimeout(()=>resetProgress(true), 800);
+                }
+            }catch(e){
+                // 폴링 실패는 일시적일 수 있으니, UI만 유지
+                // 네트워크 계속 실패하면 사용자 중단/재실행으로 복구 가능
+            }
+        }, 700);
+    }
+
+    // 실행
+    window.runApi = async function(task){
+        if(running){ AdminAllTabs.showNotification('다른 작업이 진행 중입니다.', 'warning'); return; }
+        if(!ENDPOINTS[task]){ AdminAllTabs.showNotification('알 수 없는 작업입니다.', 'error'); return; }
+
+        currentTask = task;
+        running = true;
+        lockButtons(true);
+        setProgress(0);
+        AdminAllTabs.showNotification(`${task} 실행 시작...`, 'info');
+
+        try{
+            const res = await fetch(ENDPOINTS[task], {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                }
+            });
+
+            if(res.status === 429){
+                running = false;
+                lockButtons(false);
+                setProgress(0);
+                AdminAllTabs.showNotification('이미 실행 중입니다.', 'warning');
+                return;
+            }
+            if(!res.ok){
+                const t = await res.text().catch(()=> '');
+                throw new Error(t || `HTTP ${res.status}`);
+            }
+
+            // 서버에서 정상 시작되면 상태 폴링
+            startPolling(task);
+        }catch(err){
+            running = false;
+            lockButtons(false);
+            setProgress(0);
+            AdminAllTabs.showNotification(`❌ 시작 실패: ${err.message}`, 'error');
+        }finally{
+            if(window.lucide && lucide.createIcons) lucide.createIcons();
+        }
+    };
+
+    // 모두 중지
+    window.stopAll = async function(){
+        if(!running){
+            AdminAllTabs.showNotification('진행 중인 작업이 없습니다.', 'info');
+            return;
+        }
+        try{
+            clearInterval(timer);
+            const res = await fetch(ENDPOINTS.stop, {
+                method: 'POST',
+                headers: { [csrfHeader]: csrfToken }
+            });
+            if(!res.ok){
+                const t = await res.text().catch(()=> '');
+                throw new Error(t || `HTTP ${res.status}`);
+            }
+            AdminAllTabs.showNotification('⚠️ 작업이 중단되었습니다', 'warning');
+        }catch(err){
+            AdminAllTabs.showNotification(`중단 실패: ${err.message}`, 'error');
+        }finally{
+            running = false;
+            lockButtons(false);
+            resetProgress(true);
+        }
+    };
+})();
