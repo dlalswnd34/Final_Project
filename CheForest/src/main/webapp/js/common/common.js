@@ -53,6 +53,9 @@ function showPage(page,id) {
         case 'grade':
             window.location.href = '/grade';
             break;
+        case 'guide':
+            window.location.href = '/guide';
+            break;
         default:
             // 기본적으로 page.jsp로 이동
             window.location.href = '/' + page + '.jsp';

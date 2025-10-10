@@ -4,9 +4,7 @@ import com.simplecoding.cheforest.es.integratedSearch.dto.IntegratedSearchDto;
 import com.simplecoding.cheforest.es.integratedSearch.entity.IntegratedSearch;
 import com.simplecoding.cheforest.jpa.auth.dto.MemberDetailDto;
 import com.simplecoding.cheforest.jpa.auth.dto.MemberSignupDto;
-import com.simplecoding.cheforest.jpa.auth.dto.MemberUpdateDto;
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
-import com.simplecoding.cheforest.jpa.board.dto.BoardDetailDto;
 import com.simplecoding.cheforest.jpa.board.dto.BoardListDto;
 import com.simplecoding.cheforest.jpa.board.dto.BoardSaveReq;
 import com.simplecoding.cheforest.jpa.board.entity.Board;
@@ -14,22 +12,16 @@ import com.simplecoding.cheforest.jpa.chatbot.dto.ChatbotFaqDto;
 import com.simplecoding.cheforest.jpa.chatbot.entity.ChatbotFaq;
 import com.simplecoding.cheforest.jpa.file.dto.FileDto;
 import com.simplecoding.cheforest.jpa.file.entity.File;
-import com.simplecoding.cheforest.jpa.like.dto.LikeDto;
-import com.simplecoding.cheforest.jpa.like.dto.LikeRes;
-import com.simplecoding.cheforest.jpa.like.dto.LikeSaveReq;
-import com.simplecoding.cheforest.jpa.like.entity.Like;
 import com.simplecoding.cheforest.jpa.recipe.dto.RecipeDto;
 import com.simplecoding.cheforest.jpa.recipe.entity.Recipe;
 import com.simplecoding.cheforest.jpa.review.dto.ReviewDto;
 import com.simplecoding.cheforest.jpa.review.entity.Review;
-import java.util.ArrayList;
-import java.util.List;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-10-02T15:27:19+0900",
+    date = "2025-10-10T08:38:26+0900",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.16 (Azul Systems, Inc.)"
 )
 @Component
@@ -72,23 +64,6 @@ public class MapStructImpl implements MapStruct {
     }
 
     @Override
-    public void updateEntity(MemberUpdateDto dto, Member member) {
-        if ( dto == null ) {
-            return;
-        }
-
-        if ( dto.getMemberIdx() != null ) {
-            member.setMemberIdx( dto.getMemberIdx() );
-        }
-        if ( dto.getNickname() != null ) {
-            member.setNickname( dto.getNickname() );
-        }
-        if ( dto.getProfile() != null ) {
-            member.setProfile( dto.getProfile() );
-        }
-    }
-
-    @Override
     public BoardListDto toListDto(Board board) {
         if ( board == null ) {
             return null;
@@ -111,34 +86,6 @@ public class MapStructImpl implements MapStruct {
     }
 
     @Override
-    public BoardDetailDto toDetailDto(Board board) {
-        if ( board == null ) {
-            return null;
-        }
-
-        BoardDetailDto.BoardDetailDtoBuilder boardDetailDto = BoardDetailDto.builder();
-
-        boardDetailDto.boardId( board.getBoardId() );
-        boardDetailDto.nickname( boardWriterNickname( board ) );
-        boardDetailDto.profile( boardWriterProfile( board ) );
-        boardDetailDto.writerIdx( boardWriterMemberIdx( board ) );
-        boardDetailDto.category( board.getCategory() );
-        boardDetailDto.title( board.getTitle() );
-        boardDetailDto.prepare( board.getPrepare() );
-        boardDetailDto.content( board.getContent() );
-        boardDetailDto.thumbnail( board.getThumbnail() );
-        boardDetailDto.viewCount( board.getViewCount() );
-        boardDetailDto.likeCount( board.getLikeCount() );
-        boardDetailDto.insertTime( board.getInsertTime() );
-        boardDetailDto.updateTime( board.getUpdateTime() );
-        boardDetailDto.cookTime( board.getCookTime() );
-        boardDetailDto.difficulty( board.getDifficulty() );
-        boardDetailDto.prepareAmount( board.getPrepareAmount() );
-
-        return boardDetailDto.build();
-    }
-
-    @Override
     public Board toEntity(BoardSaveReq dto) {
         if ( dto == null ) {
             return null;
@@ -148,38 +95,13 @@ public class MapStructImpl implements MapStruct {
 
         board.category( dto.getCategory() );
         board.title( dto.getTitle() );
-        if ( dto.getCookTime() != null ) {
-            board.cookTime( Integer.parseInt( dto.getCookTime() ) );
-        }
+        board.cookTime( dto.getCookTime() );
         board.difficulty( dto.getDifficulty() );
 
         board.viewCount( (long) 0L );
         board.likeCount( (long) 0L );
 
         return board.build();
-    }
-
-    @Override
-    public void updateEntity(BoardUpdateReq dto, Board entity) {
-        if ( dto == null ) {
-            return;
-        }
-
-        if ( dto.getBoardId() != null ) {
-            entity.setBoardId( dto.getBoardId() );
-        }
-        if ( dto.getCategory() != null ) {
-            entity.setCategory( dto.getCategory() );
-        }
-        if ( dto.getTitle() != null ) {
-            entity.setTitle( dto.getTitle() );
-        }
-        if ( dto.getCookTime() != null ) {
-            entity.setCookTime( dto.getCookTime() );
-        }
-        if ( dto.getDifficulty() != null ) {
-            entity.setDifficulty( dto.getDifficulty() );
-        }
     }
 
     @Override
@@ -290,73 +212,6 @@ public class MapStructImpl implements MapStruct {
     }
 
     @Override
-    public LikeDto toDto(Like like) {
-        if ( like == null ) {
-            return null;
-        }
-
-        LikeDto.LikeDtoBuilder likeDto = LikeDto.builder();
-
-        likeDto.likeId( like.getLikeId() );
-        likeDto.boardId( like.getBoardId() );
-        likeDto.recipeId( like.getRecipeId() );
-        likeDto.likeType( like.getLikeType() );
-        likeDto.likeDate( like.getLikeDate() );
-
-        return likeDto.build();
-    }
-
-    @Override
-    public Like toEntity(LikeDto likeDto) {
-        if ( likeDto == null ) {
-            return null;
-        }
-
-        Like.LikeBuilder like = Like.builder();
-
-        like.likeId( likeDto.getLikeId() );
-        like.boardId( likeDto.getBoardId() );
-        like.recipeId( likeDto.getRecipeId() );
-        like.likeType( likeDto.getLikeType() );
-        like.likeDate( likeDto.getLikeDate() );
-
-        return like.build();
-    }
-
-    @Override
-    public Like toEntity(LikeSaveReq likeSaveReq) {
-        if ( likeSaveReq == null ) {
-            return null;
-        }
-
-        Like.LikeBuilder like = Like.builder();
-
-        like.boardId( likeSaveReq.getBoardId() );
-        like.recipeId( likeSaveReq.getRecipeId() );
-        like.likeType( likeSaveReq.getLikeType() );
-
-        return like.build();
-    }
-
-    @Override
-    public LikeRes toRes(LikeDto likeDto) {
-        if ( likeDto == null ) {
-            return null;
-        }
-
-        LikeRes.LikeResBuilder likeRes = LikeRes.builder();
-
-        likeRes.likeId( likeDto.getLikeId() );
-        likeRes.likeType( likeDto.getLikeType() );
-        likeRes.boardId( likeDto.getBoardId() );
-        likeRes.recipeId( likeDto.getRecipeId() );
-        likeRes.likeCount( likeDto.getLikeCount() );
-        likeRes.likeDate( likeDto.getLikeDate() );
-
-        return likeRes.build();
-    }
-
-    @Override
     public Recipe toEntity(RecipeDto dto) {
         if ( dto == null ) {
             return null;
@@ -415,93 +270,6 @@ public class MapStructImpl implements MapStruct {
     }
 
     @Override
-    public List<RecipeDto> toDtoList(List<Recipe> entities) {
-        if ( entities == null ) {
-            return null;
-        }
-
-        List<RecipeDto> list = new ArrayList<RecipeDto>( entities.size() );
-        for ( Recipe recipe : entities ) {
-            list.add( toDto( recipe ) );
-        }
-
-        return list;
-    }
-
-    @Override
-    public List<Recipe> toEntityList(List<RecipeDto> dtos) {
-        if ( dtos == null ) {
-            return null;
-        }
-
-        List<Recipe> list = new ArrayList<Recipe>( dtos.size() );
-        for ( RecipeDto recipeDto : dtos ) {
-            list.add( toEntity( recipeDto ) );
-        }
-
-        return list;
-    }
-
-    @Override
-    public void updateFromDto(RecipeDto dto, Recipe entity) {
-        if ( dto == null ) {
-            return;
-        }
-
-        if ( dto.getRecipeId() != null ) {
-            entity.setRecipeId( dto.getRecipeId() );
-        }
-        if ( dto.getTitleKr() != null ) {
-            entity.setTitleKr( dto.getTitleKr() );
-        }
-        if ( dto.getCategoryKr() != null ) {
-            entity.setCategoryKr( dto.getCategoryKr() );
-        }
-        if ( dto.getInstructionKr() != null ) {
-            entity.setInstructionKr( dto.getInstructionKr() );
-        }
-        if ( dto.getIngredientKr() != null ) {
-            entity.setIngredientKr( dto.getIngredientKr() );
-        }
-        if ( dto.getMeasureKr() != null ) {
-            entity.setMeasureKr( dto.getMeasureKr() );
-        }
-        if ( dto.getTitleEn() != null ) {
-            entity.setTitleEn( dto.getTitleEn() );
-        }
-        if ( dto.getCategoryEn() != null ) {
-            entity.setCategoryEn( dto.getCategoryEn() );
-        }
-        if ( dto.getInstructionEn() != null ) {
-            entity.setInstructionEn( dto.getInstructionEn() );
-        }
-        if ( dto.getIngredientEn() != null ) {
-            entity.setIngredientEn( dto.getIngredientEn() );
-        }
-        if ( dto.getMeasureEn() != null ) {
-            entity.setMeasureEn( dto.getMeasureEn() );
-        }
-        if ( dto.getThumbnail() != null ) {
-            entity.setThumbnail( dto.getThumbnail() );
-        }
-        if ( dto.getArea() != null ) {
-            entity.setArea( dto.getArea() );
-        }
-        if ( dto.getLikeCount() != null ) {
-            entity.setLikeCount( dto.getLikeCount() );
-        }
-        if ( dto.getViewCount() != null ) {
-            entity.setViewCount( dto.getViewCount() );
-        }
-        if ( dto.getCookTime() != null ) {
-            entity.setCookTime( dto.getCookTime() );
-        }
-        if ( dto.getDifficulty() != null ) {
-            entity.setDifficulty( dto.getDifficulty() );
-        }
-    }
-
-    @Override
     public IntegratedSearchDto toDto(IntegratedSearch integratedSearch) {
         if ( integratedSearch == null ) {
             return null;
@@ -515,6 +283,8 @@ public class MapStructImpl implements MapStruct {
         integratedSearchDto.setThumbnail( integratedSearch.getThumbnail() );
         integratedSearchDto.setIngredients( integratedSearch.getIngredients() );
         integratedSearchDto.setCategory( integratedSearch.getCategory() );
+        integratedSearchDto.setCooktime( integratedSearch.getCooktime() );
+        integratedSearchDto.setDifficulty( integratedSearch.getDifficulty() );
 
         return integratedSearchDto;
     }
@@ -533,6 +303,8 @@ public class MapStructImpl implements MapStruct {
         integratedSearch.setThumbnail( integratedSearchDto.getThumbnail() );
         integratedSearch.setIngredients( integratedSearchDto.getIngredients() );
         integratedSearch.setCategory( integratedSearchDto.getCategory() );
+        integratedSearch.setCooktime( integratedSearchDto.getCooktime() );
+        integratedSearch.setDifficulty( integratedSearchDto.getDifficulty() );
 
         return integratedSearch;
     }
@@ -547,6 +319,7 @@ public class MapStructImpl implements MapStruct {
 
         integratedSearch.setTitle( boardSaveReq.getTitle() );
         integratedSearch.setCategory( boardSaveReq.getCategory() );
+        integratedSearch.setDifficulty( boardSaveReq.getDifficulty() );
 
         integratedSearch.setIngredients( com.simplecoding.cheforest.jpa.common.util.StringUtil.joinList(boardSaveReq.getIngredientName()) );
 
@@ -613,21 +386,6 @@ public class MapStructImpl implements MapStruct {
             return null;
         }
         return memberIdx;
-    }
-
-    private String boardWriterProfile(Board board) {
-        if ( board == null ) {
-            return null;
-        }
-        Member writer = board.getWriter();
-        if ( writer == null ) {
-            return null;
-        }
-        String profile = writer.getProfile();
-        if ( profile == null ) {
-            return null;
-        }
-        return profile;
     }
 
     private Long entityBoardBoardId(Review review) {
