@@ -158,7 +158,7 @@ const actionHandlers = {
     "사이트 이용가이드": () => {
         const confirmed = confirm("사이트 이용가이드 페이지로 이동하시겠습니까?");
         if (confirmed) {
-            window.location.href = contextPath + "/guide.jsp";
+            window.location.href = contextPath + "/support/guide";
         } else {
             appendBotMessage("❌ 이용가이드 페이지 이동이 취소되었습니다.");
         }
