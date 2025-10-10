@@ -164,7 +164,7 @@
                 >
                     <div class="py-2">
                         <button
-                                onclick="showPage('guide')"
+                                onclick="window.location.href='/guide'"
                                 class="w-full text-left px-6 py-3 text-base text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors font-medium"
                         >
                             사이트 이용 가이드
