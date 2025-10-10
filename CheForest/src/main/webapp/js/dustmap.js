@@ -21,26 +21,43 @@ function showResult(region) {
               <p>초미세먼지(PM2.5): ${data.pm25 || "-"} (${data.pm25Grade || "정보없음"})</p>
               <p>측정시간: ${data.dataTime || "-"}</p>
 
-              <!-- ✅ 레시피 박스 -->
               <div id="recipe-box" class="recipe-box">
                   <h4 id="recipe-header">추천 레시피 ▼</h4>
                   <ul id="recipe-list"></ul>
               </div>
             `;
 
-            // ✅ 새로 그려진 DOM에서 다시 요소 선택
             const recipeListEl = document.getElementById("recipe-list");
             const recipeBoxEl = document.getElementById("recipe-box");
 
-            // ✅ 레시피 목록 처리
             const recipes = data.recipes || [];
+
             if (recipes.length > 0) {
+                // ✅ 클릭 가능한 리스트로 출력
                 recipeListEl.innerHTML = recipes
-                    .map(r => `<li>${r.titleKr || r.title || "레시피"}</li>`)
+                    .map(r => `
+                        <li class="recipe-item" 
+                            style="cursor:pointer; color:#2a72ff; text-decoration:underline;"
+                            data-id="${r.recipeId}">
+                            ${r.titleKr || r.title || "레시피"}
+                        </li>
+                    `)
                     .join("");
-                recipeBoxEl.style.display = "block"; // 표시
+
+                // ✅ 각 li 클릭 시 상세 페이지로 이동
+                recipeListEl.querySelectorAll(".recipe-item").forEach(item => {
+                    item.addEventListener("click", () => {
+                        const id = item.dataset.id;
+                        if (id) {
+                            // 🔗 우리 프로젝트 구조에 맞게 수정
+                            location.href = `/recipe/view?recipeId=${id}`;
+                        }
+                    });
+                });
+
+                recipeBoxEl.style.display = "block";
             } else {
-                recipeBoxEl.style.display = "none"; // 숨김
+                recipeBoxEl.style.display = "none";
             }
         })
         .catch(err => {

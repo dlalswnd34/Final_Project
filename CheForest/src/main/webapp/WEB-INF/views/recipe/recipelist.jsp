@@ -264,7 +264,7 @@
 
                                         <div class="flex items-center justify-between text-sm mb-2">
                                             <div class="flex items-center space-x-1 text-gray-500">
-                                                <i data-lucide="clock" class="h-4 w-4"></i><span>${recipe.cookTime}분</span>
+                                                <i data-lucide="clock" class="h-4 w-4"></i><span>${recipe.cookTime}</span>
                                             </div>
                                             <span class="difficulty-badge
                                                 ${recipe.difficulty == 'Easy' ? 'easy' :

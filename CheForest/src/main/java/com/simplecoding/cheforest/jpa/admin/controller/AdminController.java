@@ -129,9 +129,14 @@ public class AdminController {
             int exitCode = process.waitFor();
             System.out.println("Logstash 종료: " + exitCode);
 
+            // ✅ 완료 시각 생성
+            String lastSync = java.time.LocalDateTime.now()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("MM/dd HH:mm"));
+
             return ResponseEntity.ok(Map.of(
                     "message", "Logstash 작업이 완료되었습니다.",
-                    "exitCode", exitCode
+                    "exitCode", exitCode,
+                    "lastSync", lastSync        // ✅ 프런트가 이 값을 화면에 바로 반영
             ));
         } catch (IOException | InterruptedException e) {
             return ResponseEntity.status(500).body(Map.of(

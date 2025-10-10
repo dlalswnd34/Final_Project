@@ -1604,6 +1604,8 @@ const AdminAllTabs = {
         this.setupNavigation();
         this.setupTabEvents();
         this.renderCurrentTab();
+
+        setLastSync();
     },
 
     // 네비게이션 설정
@@ -2468,22 +2470,24 @@ window.AdminAllTabs = AdminAllTabs;
 
                 // 완료/정지/에러 처리
                 const finished = !s.running || pct >= 100;
-                if(finished){
+                if (finished) {
                     clearInterval(timer);
                     running = false;
                     lockButtons(false);
 
-                    if(s.error){
+                    if (s.error) {
                         AdminAllTabs.showNotification(`❌ 실패: ${s.error}`, 'error');
                         setProgress(0);
-                    }else if(pct >= 100){
+                    } else if (pct >= 100) {
                         AdminAllTabs.showNotification('✅ 데이터 불러오기 완료', 'success');
                         setProgress(100);
-                    }else{
+                        setLastSync(); // ✅ 이 줄이 “마지막 동기화” 갱신합니다
+                    } else {
                         AdminAllTabs.showNotification('⚠️ 작업이 중단되었습니다', 'warning');
                         setProgress(0);
                     }
-                    setTimeout(()=>resetProgress(true), 800);
+
+                    setTimeout(() => resetProgress(true), 800);
                 }
             }catch(e){
                 // 폴링 실패는 일시적일 수 있으니, UI만 유지
@@ -2562,3 +2566,25 @@ window.AdminAllTabs = AdminAllTabs;
         }
     };
 })();
+
+// ✅ ① 현재 시각을 "MM/DD HH:mm" 형식으로 반환
+function nowSyncString() {
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, '0'); // 1자리 숫자 → 2자리로
+    return `${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// ✅ ② 화면의 #last-sync-text 값을 바꿔주는 함수
+function setLastSync(text) {
+    const el = document.getElementById('last-sync-text');
+    if (el) el.textContent = text || nowSyncString();
+}
+
+// 페이지 DOM이 다 만들어지면 관리자 초기화 실행
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.AdminAllTabs && typeof AdminAllTabs.initialize === 'function') {
+        AdminAllTabs.initialize();   // 내부에서 setLastSync()도 호출됨
+    } else {
+        console.error('AdminAllTabs.initialize()를 찾을 수 없습니다.');
+    }
+});
