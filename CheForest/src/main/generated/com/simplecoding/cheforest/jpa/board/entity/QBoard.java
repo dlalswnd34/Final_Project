@@ -30,7 +30,7 @@ public class QBoard extends EntityPathBase<Board> {
 
     public final StringPath content = createString("content");
 
-    public final NumberPath<Integer> cookTime = createNumber("cookTime", Integer.class);
+    public final StringPath cookTime = createString("cookTime");
 
     public final StringPath difficulty = createString("difficulty");
 
