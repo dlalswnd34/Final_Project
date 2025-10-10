@@ -365,9 +365,4 @@ public class BoardController {
         return counts;
     }
 
-    // ===== 추가 페이지 이동 =====
-    @GetMapping("/guide")
-    public String guide() {
-        return "support/guide";
-    }
 }

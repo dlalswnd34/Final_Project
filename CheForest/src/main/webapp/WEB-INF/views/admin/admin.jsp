@@ -852,7 +852,7 @@
                             <div class="stat-content">
                                 <div class="stat-info">
                                     <p class="stat-label">마지막 동기화</p>
-                                    <h3 class="stat-number-small">12/18 14:30</h3>
+                                    <h3 class="stat-number-small"><span id="last-sync-text">-</span></h3>
                                 </div>
                                 <div class="stat-icon">
                                     <i data-lucide="clock" class="icon"></i>
@@ -863,7 +863,7 @@
                             <div class="stat-content">
                                 <div class="stat-info">
                                     <p class="stat-label">활성 연결</p>
-                                    <h3 class="stat-number-small">23개</h3>
+                                    <h3 class="stat-number-small">4개</h3>
                                 </div>
                                 <div class="stat-icon">
                                     <i data-lucide="activity" class="icon"></i>

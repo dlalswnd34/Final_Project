@@ -8,6 +8,8 @@ import com.simplecoding.cheforest.jpa.recipe.service.progress.ImportProgress;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -20,25 +22,63 @@ public class RecipeImportController {
     private final DataKoImportService datako;
     private final ImportMonitor monitor;
 
+    private String nowFormatted() {
+        return LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("MM/dd HH:mm"));
+    }
+
+    // ✅ Spoonacular
     @PostMapping("/admin/import/spoonacular/run")
-    public String runSpoonacular() { return spoonacular.run(); }
+    public Map<String, Object> runSpoonacular() {
+        String msg = spoonacular.run();
+        Map<String, Object> res = new LinkedHashMap<>();
+        res.put("status", "ok");
+        res.put("source", "Spoonacular");
+        res.put("message", msg);
+        res.put("lastSync", nowFormatted()); // ✅ 완료 시각 추가
+        return res;
+    }
 
+    // ✅ WF
     @PostMapping("/admin/import/wf/run")
-    public String runWf() { return wf.run(); }
+    public Map<String, Object> runWf() {
+        String msg = wf.run();
+        Map<String, Object> res = new LinkedHashMap<>();
+        res.put("status", "ok");
+        res.put("source", "TheMealDB");
+        res.put("message", msg);
+        res.put("lastSync", nowFormatted()); // ✅ 완료 시각 추가
+        return res;
+    }
 
+    // ✅ DataKo
     @PostMapping("/admin/import/datako/run")
-    public String runDataKo() { return datako.run(); }
+    public Map<String, Object> runDataKo() {
+        String msg = datako.run();
+        Map<String, Object> res = new LinkedHashMap<>();
+        res.put("status", "ok");
+        res.put("source", "DataKO");
+        res.put("message", msg);
+        res.put("lastSync", nowFormatted()); // ✅ 완료 시각 추가
+        return res;
+    }
 
+    // ✅ 중지 요청
     @PostMapping("/admin/import/stop")
-    public String stopAll() {
+    public Map<String, Object> stopAll() {
         spoonacular.stop();
         wf.stop();
         datako.stop();
-        monitor.stopAll(); // ✅ 상태 반영
+        monitor.stopAll();
 
-        return "중지 요청 완료";
+        Map<String, Object> res = new LinkedHashMap<>();
+        res.put("status", "stopped");
+        res.put("message", "중지 요청 완료");
+        res.put("lastSync", nowFormatted());
+        return res;
     }
 
+    // ✅ 상태 조회
     @GetMapping("/admin/import/status/{task}")
     public Map<String, Object> getStatus(@PathVariable String task) {
         ImportProgress p = monitor.get(task);
