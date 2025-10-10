@@ -8,6 +8,9 @@
     <meta charset="UTF-8">
     <title>CheForest 로그인</title>
     <link rel="stylesheet" href="/css/auth/login.css">
+    <%-- CSRF 토큰 정보를 meta 태그에 추가 --%>
+    <meta name="_csrf" content="${_csrf.token}">
+    <meta name="_csrf_header" content="${_csrf.headerName}">
 </head>
 <body>
 <div class="login-container">
@@ -145,22 +148,32 @@
             });
         }
 
-        // --- [2] redirect 후보 계산 (현재 위치 보존용)
+// --- [2] redirect 후보 계산 (현재 위치 보존용)
         function sameOrigin(url) {
             try { return new URL(url).origin === location.origin; } catch(e) { return false; }
         }
 
         var redirectParam = new URLSearchParams(location.search).get('redirect');
         var redirect = redirectParam;
+
+// 🔥 회원가입, 아이디찾기, 비번찾기 페이지에서는 redirect를 비움
+        const currentPath = location.pathname;
+        if (currentPath.includes("/auth/register") ||
+            currentPath.includes("/auth/find-id") ||
+            currentPath.includes("/auth/find-password")) {
+            redirect = ""; // redirect 사용 안 함
+        }
+
         if (!redirect && document.referrer && sameOrigin(document.referrer)) {
             var u = new URL(document.referrer);
             redirect = u.pathname + u.search + u.hash;
         }
-        if (!redirect) {
-            redirect = location.pathname + location.search + location.hash;
+
+        if (!redirect || redirect === location.pathname) {
+            redirect = "/"; // 기본 홈으로
         }
 
-        // --- [3] 폼 hidden 필드에 주입
+// --- [3] 폼 hidden 필드에 주입
         var fld = document.getElementById('redirectField');
         if (fld) fld.value = redirect;
 
