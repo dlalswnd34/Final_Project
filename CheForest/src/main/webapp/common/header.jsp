@@ -167,12 +167,12 @@
                transform -translate-y-2 transition-all duration-200 z-50"
                 >
                     <div class="py-2">
-<%--                        <button--%>
-<%--                                onclick="showPage('guide')"--%>
-<%--                                class="w-full text-left px-6 py-3 text-base text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors font-medium"--%>
-<%--                        >--%>
-<%--                            사이트 이용 가이드--%>
-<%--                        </button>--%>
+                        <button
+                                onclick="window.location.href='/support/guide'"
+                                class="w-full text-left px-6 py-3 text-base text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors font-medium"
+                        >
+                            사이트 이용 가이드
+                        </button>
                         <button
                                 onclick="showPage('test')"
                                 class="w-full text-left px-6 py-3 text-base text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors font-medium"

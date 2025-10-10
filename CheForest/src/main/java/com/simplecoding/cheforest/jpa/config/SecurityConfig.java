@@ -71,14 +71,20 @@ public class SecurityConfig {
                         .logoutSuccessHandler(customLogoutSuccessHandler)
                         .permitAll()
 
+
+
                 )
                 // 보안토큰설정: `/inquiries/my/delete` 경로를 CSRF 검사 예외 목록에 추가
                 .csrf(csrf -> csrf
                         // ✅ 문의 삭제 POST 요청에 대한 CSRF 검사를 무시합니다. (403 Forbidden 해결)
                         .ignoringRequestMatchers("/inquiries/my/delete", "/ping", "/api/footer/**")
-                );
 
+
+                );
+        // ✅ iframe 보안 정책 수정 (PDF 표시 허용)
+        http.headers().frameOptions().sameOrigin(); // ✅ 이 한 줄 추가
         return http.build();
+
     }
 
     // 중복으로 인해 애플리케이션 시작 오류를 발생시킨 @Bean public PasswordEncoder passwordEncoder() 메서드를 제거했습니다.
