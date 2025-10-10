@@ -21,11 +21,15 @@
             <!-- 로고 -->
             <div class="logo-container flex items-center space-x-4 cursor-pointer" onclick="showPage('home')">
                 <div class="relative">
-                    <i data-lucide="chef-hat" class="h-12 w-12 text-orange-500"></i>
+                    <img
+                            src="/images/cheforesticon.png"   <%-- static/images/cheforesticon.png --%>
+                            alt="CheForest 로고"
+                            class="logo-hat h-12 w-12"
+                            loading="eager"
+                            decoding="async"
+                    />
                 </div>
-                <h1 class="text-3xl font-black tracking-tight brand-gradient">
-                    CheForest
-                </h1>
+                <h1 class="text-3xl font-black tracking-tight brand-gradient">CheForest</h1>
             </div>
 
             <!-- 중앙 검색바 -->
