@@ -1347,8 +1347,8 @@ const RecipeManager = {
         window.open(url, '_blank');  // 새 탭(또는 새 창)으로 열기
 
 
-            button.disabled = false;
-            button.innerHTML = originalHTML;
+        button.disabled = false;
+        button.innerHTML = originalHTML;
     },
     // 레시피 삭제하기
     deleteRecipe: async function (recipeId){
@@ -1503,7 +1503,7 @@ const PostManager = {
 
         // 이전 화살표
         if (current > 1) {
-            buttons += `<button onclick="PostManager.loadRecipes(${current - 1})">&laquo;</button>`;
+            buttons += `<button onclick="PostManager.loadPosts(${current - 1})">&laquo;</button>`;
         } else {
             buttons += `<button disabled>&laquo;</button>`;
         }
@@ -1517,12 +1517,12 @@ const PostManager = {
         startPage = Math.max(1, endPage - 4);
 
         for (let i = startPage; i <= endPage; i++) {
-            buttons += `<button class="${i === current ? 'active' : ''}" onclick="PostManager.loadRecipes(${i})">${i}</button>`;
+            buttons += `<button class="${i === current ? 'active' : ''}" onclick="PostManager.loadPosts(${i})">${i}</button>`;
         }
 
         // 다음 화살표
         if (current < totalPages) {
-            buttons += `<button onclick="PostManager.loadRecipes(${current + 1})">&raquo;</button>`;
+            buttons += `<button onclick="PostManager.loadPosts(${current + 1})">&raquo;</button>`;
         } else {
             buttons += `<button disabled>&raquo;</button>`;
         }
@@ -1600,7 +1600,7 @@ const AdminAllTabs = {
     // 초기화
     initialize() {
 
-        
+
         this.setupNavigation();
         this.setupTabEvents();
         this.renderCurrentTab();
@@ -1655,18 +1655,18 @@ const AdminAllTabs = {
     // 메인 탭 전환
     switchTab(tabName) {
         currentTab = tabName;
-        
+
         // 모든 탭 콘텐츠 숨기기
         document.querySelectorAll('.tab-content').forEach(content => {
             content.classList.remove('active');
         });
-        
+
         // 선택된 탭 콘텐츠 보이기
         const targetTab = document.getElementById(`${tabName}-tab`);
         if (targetTab) {
             targetTab.classList.add('active');
         }
-        
+
         // 네비게이션 활성 상태 업데이트
         document.querySelectorAll('.nav-link').forEach(link => {
             link.classList.remove('active');
@@ -1674,10 +1674,10 @@ const AdminAllTabs = {
                 link.classList.add('active');
             }
         });
-        
+
         // 페이지 제목 업데이트
         this.updatePageTitle(tabName);
-        
+
         // 탭별 콘텐츠 렌더링
         this.renderCurrentTab();
     },
@@ -1694,7 +1694,7 @@ const AdminAllTabs = {
             'inquiries': '문의사항',
             'settings': '설정'
         };
-        
+
         if (pageTitle && titleMap[tabName]) {
             pageTitle.textContent = titleMap[tabName];
         }
@@ -1755,7 +1755,7 @@ const AdminAllTabs = {
     // 회원 탭 전환
     switchUserTab(tabName) {
         currentUserTab = tabName;
-        
+
         // 탭 버튼 활성화 상태 업데이트
         document.querySelectorAll('[data-user-tab]').forEach(btn => {
             btn.classList.remove('active');
@@ -1804,14 +1804,14 @@ const AdminAllTabs = {
     // 레시피 탭 전환
     switchRecipeTab(tabName) {
         currentRecipeTab = tabName;
-        
+
         document.querySelectorAll('[data-recipe-tab]').forEach(btn => {
             btn.classList.remove('active');
             if (btn.getAttribute('data-recipe-tab') === tabName) {
                 btn.classList.add('active');
             }
         });
-        
+
         this.renderRecipesManagement();
     },
 
@@ -1845,14 +1845,14 @@ const AdminAllTabs = {
     // 게시글 탭 전환
     switchPostTab(tabName) {
         currentPostTab = tabName;
-        
+
         document.querySelectorAll('[data-post-tab]').forEach(btn => {
             btn.classList.remove('active');
             if (btn.getAttribute('data-post-tab') === tabName) {
                 btn.classList.add('active');
             }
         });
-        
+
         this.renderPostsManagement();
     },
 
@@ -1939,18 +1939,18 @@ const AdminAllTabs = {
     // 설정 탭 전환
     switchSettingsTab(tabName) {
         currentSettingsTab = tabName;
-        
+
         document.querySelectorAll('[data-settings-tab]').forEach(btn => {
             btn.classList.remove('active');
             if (btn.getAttribute('data-settings-tab') === tabName) {
                 btn.classList.add('active');
             }
         });
-        
+
         document.querySelectorAll('.settings-tab-content').forEach(content => {
             content.classList.remove('active');
         });
-        
+
         const targetContent = document.getElementById(`${tabName}-settings`);
         if (targetContent) {
             targetContent.classList.add('active');
@@ -2104,7 +2104,7 @@ const AdminAllTabs = {
     saveEvent() {
         const form = document.getElementById('event-form');
         const formData = new FormData(form);
-        
+
         // 여기서 실제 저장 로직 구현
         this.showNotification('이벤트가 성공적으로 저장되었습니다!', 'success');
         this.closeEventForm();
@@ -2120,7 +2120,7 @@ const AdminAllTabs = {
                 <i data-lucide="trophy" class="title-icon"></i>
                 이벤트 수정
             `;
-            
+
             // 폼 필드에 값 설정
             const form = document.getElementById('event-form');
             form.title.value = event.title;
@@ -2162,10 +2162,10 @@ const AdminAllTabs = {
                 <span>👤 ${inquiry.nickname}</span>               
             </div>
         `;
-        
+
         // 기존 답변이 있으면 채우기
         answerContent.value = inquiry.answerContent || '';
-        
+
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
     },
@@ -2244,7 +2244,7 @@ const AdminAllTabs = {
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
         notification.textContent = message;
-        
+
         // 스타일 설정
         notification.style.cssText = `
             position: fixed;
@@ -2262,7 +2262,7 @@ const AdminAllTabs = {
             max-width: 300px;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         `;
-        
+
         // 타입별 배경색
         const colors = {
             info: 'linear-gradient(135deg, #f97316, #ec4899)',
@@ -2271,15 +2271,15 @@ const AdminAllTabs = {
             error: 'linear-gradient(135deg, #ef4444, #dc2626)'
         };
         notification.style.background = colors[type] || colors.info;
-        
+
         document.body.appendChild(notification);
-        
+
         // 애니메이션으로 표시
         setTimeout(() => {
             notification.style.opacity = '1';
             notification.style.transform = 'translateX(0)';
         }, 100);
-        
+
         // 3초 후 자동 제거
         setTimeout(() => {
             notification.style.opacity = '0';
@@ -2368,9 +2368,9 @@ const AdminAllTabs = {
     },
 
     formatTime(dateString) {
-        return new Date(dateString).toLocaleTimeString('ko-KR', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
+        return new Date(dateString).toLocaleTimeString('ko-KR', {
+            hour: '2-digit',
+            minute: '2-digit'
         });
     },
 

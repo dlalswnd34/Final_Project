@@ -83,10 +83,56 @@
                             카테고리
                         </h3>
 
-                        <!-- ✅ JS 렌더링 전용 -->
-                        <div class="space-y-2" id="recipeCategoryButtons">
-                            <!-- recipe.js에서 렌더링됨 -->
-                            <div class="text-gray-400 text-sm text-center py-2">로딩 중...</div>
+                        <!-- 서버사이드 링크 전용: JS가 건드리지 않게 ID 변경 -->
+                        <div class="space-y-2" id="categoryListServer">
+
+                            <!-- 전체 : 항상 전체 총합 표시 -->
+                            <c:url var="allUrl" value="/recipe/list">
+                                <c:param name="page" value="0"/>
+                                <c:param name="size" value="${empty param.size ? 9 : param.size}"/>
+                                <c:param name="categoryKr" value=""/>
+                                <%-- [수정] 카테고리 이동 시 검색 키워드 초기화 --%>
+                            </c:url>
+                            <a href="${allUrl}"
+                               class="category-button w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200
+                                        ${empty categoryKr ? 'active' : 'text-gray-700 hover:bg-gray-50'}">
+                                <span class="text-lg">🍽️</span>
+                                <span>전체</span>
+                                <span class="category-count ml-auto text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                                  <c:out value="${empty allTotalCount ? totalCount : allTotalCount}"/>
+                                </span>
+                            </a>
+
+                            <!-- 고정 순서로 출력 -->
+                            <c:forEach var="cat" items="${categoryList}">
+                                <c:set var="count" value="${recipeCountMap[cat]}"/>
+                                <c:url var="catUrl" value="/recipe/list">
+                                    <c:param name="page" value="0"/>
+                                    <c:param name="size" value="${empty param.size ? 9 : param.size}"/>
+                                    <c:param name="categoryKr" value="${cat}"/>
+                                    <%-- [수정] 카테고리 이동 시 검색 키워드 초기화 --%>
+                                </c:url>
+
+                                <a href="${catUrl}"
+                                   class="category-button w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200
+                                          ${categoryKr == cat ? 'active' : 'text-gray-700 hover:bg-gray-50'}">
+                                <span class="emoji-icon">
+                                    <c:choose>
+                                        <c:when test="${cat eq '한식'}">&#x1F962;</c:when>
+                                        <c:when test="${cat eq '양식'}">&#x1F35D;</c:when>
+                                        <c:when test="${cat eq '중식'}">&#x1F95F;</c:when>
+                                        <c:when test="${cat eq '일식'}">&#x1F363;</c:when>
+                                        <c:when test="${cat eq '디저트'}">&#x1F9C1;</c:when>
+                                        <c:otherwise>🍽️</c:otherwise>
+                                    </c:choose>
+                                  </span>
+                                    <span><c:out value="${cat}"/></span>
+                                    <span class="category-count ml-auto text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                                    <c:out value="${count != null ? count : 0}"/>
+                                  </span>
+                                </a>
+                            </c:forEach>
+
                         </div>
                     </div>
                 </aside>
@@ -177,6 +223,7 @@
                     </c:if>
 
                     <!-- 전체 레시피 -->
+                    <div id="recipeListSection">
                     <div>
                         <h3 class="text-xl flex items-center mb-6">
                             <i data-lucide="list" class="w-6 h-6 mr-3 text-orange-500"></i>
@@ -309,6 +356,7 @@
                                 </nav>
                             </c:if>
                         </div>
+                    </div>
                     </div>
                 </main>
             </div>

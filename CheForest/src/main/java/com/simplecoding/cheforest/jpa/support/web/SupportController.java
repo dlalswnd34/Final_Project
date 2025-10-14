@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class SupportController {
 
-	@GetMapping("/event/test")
+	@GetMapping("/support/test")
 	public String showEventTest() {
-		return "event/test";
+		return "support/test";
 	}
 
 	@GetMapping("/support/guide")

@@ -168,7 +168,7 @@
                 >
                     <div class="py-2">
                         <button
-                                onclick="window.location.href='/support/guide'"
+                                onclick="showPage('guide')"
                                 class="w-full text-left px-6 py-3 text-base text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors font-medium"
                         >
                             사이트 이용 가이드
@@ -211,7 +211,34 @@
                 </a>
                 <a href="<c:url value='/season'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">계절 식재료</a>
                 <a href="<c:url value='/grade'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">등급 안내</a>
-                <a href="<c:url value='/events'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">이벤트</a>
+                <!-- ✅ Support (모바일 아코디언) -->
+                <button type="button"
+                        class="w-full flex justify-between items-center text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors"
+                        onclick="toggleSubmenu('supportSubmenu')">
+                    Support
+                    <svg id="supportArrow" class="w-4 h-4 transition-transform duration-200"
+                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+
+                <!-- ✅ Support 하위 탭 -->
+                <div id="supportSubmenu" class="hidden pl-6">
+                    <a href="<c:url value='/support/guide'/>"
+                       class="block py-1 px-3 text-sm text-gray-600 hover:text-orange-500 transition-colors">
+                        📘 사이트 이용 가이드
+                    </a>
+                    <a href="<c:url value='/support/test'/>"
+                       class="block py-1 px-3 text-sm text-gray-600 hover:text-orange-500 transition-colors">
+                        🍳 나의 요리 취향 찾기
+                    </a>
+                    <a href="<c:url value='/dustmap'/>"
+                       class="block py-1 px-3 text-sm text-gray-600 hover:text-orange-500 transition-colors">
+                        🌦️ 전국 날씨별 레시피 추천
+                    </a>
+                </div>
                 <a href="<c:url value='/qna'/>" class="w-full text-left font-medium py-2 px-3 rounded hover:bg-gray-50 text-gray-700 hover:text-orange-500 transition-colors">Q&A</a>
 
                 <!-- 관리자 모드: 관리자만 -->
@@ -336,6 +363,22 @@
             alert("서버 오류가 발생했습니다.");
         }
     });
+</script>
+
+<script>
+    function toggleSubmenu(id) {
+        const submenu = document.getElementById(id);
+        const arrow = document.getElementById("supportArrow");
+
+        const isHidden = submenu.classList.contains("hidden");
+        submenu.classList.toggle("hidden");
+
+        if (isHidden) {
+            arrow.classList.add("rotate-180");
+        } else {
+            arrow.classList.remove("rotate-180");
+        }
+    }
 </script>
 
 </body>
