@@ -27,7 +27,7 @@ public class Translator {
     @Value("${deepl.api.key}")
     private String apiKey;
 
-    // ✅ 요청 생성 공통 함수
+    // 요청 생성 공통 함수
     private HttpEntity<MultiValueMap<String, String>> buildRequest(String text, String lang) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -40,7 +40,7 @@ public class Translator {
         return new HttpEntity<>(params, headers);
     }
 
-    // ✅ 안전한 단일 번역 (재시도 + 딜레이)
+    // 단일 번역 (재시도 + 딜레이)
     public String translate(String text, String lang) {
         if (text == null || text.isBlank()) return "";
 
@@ -76,50 +76,5 @@ public class Translator {
         // 3회 실패 시 원문 반환
         log.error("❌ 번역 완전 실패: 원문 그대로 반환 ({})", text);
         return text;
-    }
-
-    // ✅ 다중 번역 (안정화 + fallback)
-    public List<String> translateBulk(List<String> texts, String lang) {
-        if (texts == null || texts.isEmpty()) return List.of();
-
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            headers.set("Authorization", "DeepL-Auth-Key " + apiKey);
-
-            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-            for (String text : texts) params.add("text", text);
-            params.add("target_lang", lang);
-
-            HttpEntity<?> request = new HttpEntity<>(params, headers);
-            ResponseEntity<Map> response = restTemplate.postForEntity(apiUrl, request, Map.class);
-
-            List<Map<String, String>> translations =
-                    (List<Map<String, String>>) response.getBody().get("translations");
-
-            if (translations == null || translations.size() != texts.size()) {
-                log.warn("⚠ 일부 누락 감지: 요청 {}, 응답 {}",
-                        texts.size(), translations != null ? translations.size() : 0);
-                // 개별 번역 fallback
-                return texts.stream()
-                        .map(t -> translate(t, lang))
-                        .collect(Collectors.toList());
-            }
-
-            // ✅ 정상 응답
-            List<String> results = translations.stream()
-                    .map(map -> map.get("text"))
-                    .collect(Collectors.toList());
-
-            // 요청 후 딜레이 (API rate limit 회피)
-            TimeUnit.MILLISECONDS.sleep(800);
-            return results;
-
-        } catch (Exception e) {
-            log.error("❌ 다중 번역 실패, 개별 fallback 실행: {}", e.getMessage());
-            return texts.stream()
-                    .map(t -> translate(t, lang))
-                    .collect(Collectors.toList());
-        }
     }
 }

@@ -22,7 +22,7 @@ public class DataKoImportService {
     private final RestTemplate restTemplate;
     private final ObjectMapper om = new ObjectMapper();
     private final RecipeRepository repo;
-    private final ImportMonitor monitor;              // ✅ 진행률 모니터 추가
+    private final ImportMonitor monitor;
 
     @Value("${datako.api.key}")
     private String serviceKey;
@@ -31,7 +31,7 @@ public class DataKoImportService {
 
     @Transactional
     public String run() {
-        final String TASK = "datako";                 // ✅ 고유 태스크 이름
+        final String TASK = "datako";                 // 고유 태스크 이름
         if (!running.compareAndSet(false, true)) return "이미 실행 중입니다.";
 
         int saved = 0, skipped = 0;
@@ -49,14 +49,14 @@ public class DataKoImportService {
             if (!rows.isArray()) return "API 데이터가 올바르지 않습니다.";
 
             int total = rows.size();
-            monitor.start(TASK, total);              // ✅ 총 데이터 개수 설정
+            monitor.start(TASK, total);              // 총 데이터 개수 설정
 
             // 데이터 저장 루프
             for (JsonNode r : rows) {
                 if (!running.get()) break;
 
                 String recipeId = "KO-" + safe(r, "RCP_SEQ");
-                monitor.touch(TASK, "save", recipeId);   // ✅ 단계 갱신
+                monitor.touch(TASK, "save", recipeId);   // 단계 갱신
                 monitor.get(TASK).getProcessed().incrementAndGet();
 
                 if (repo.existsById(recipeId)) {
@@ -85,7 +85,7 @@ public class DataKoImportService {
 
             // 완료 처리
             monitor.finish(TASK, null);
-            log.info("✅ [{}] 완료: saved={}, skipped={}", TASK, saved, skipped);
+            log.info("[{}] 완료: saved={}, skipped={}", TASK, saved, skipped);
             return String.format("🥢 DataKO 완료: saved=%d, skipped=%d", saved, skipped);
 
         } catch (Exception e) {

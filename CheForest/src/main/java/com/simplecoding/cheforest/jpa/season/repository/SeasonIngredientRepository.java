@@ -9,6 +9,4 @@ public interface SeasonIngredientRepository extends JpaRepository<SeasonIngredie
     // 계절별 식재료 조회
     List<SeasonIngredient> findBySeasons(String seasons);
 
-    // 이름 검색
-    List<SeasonIngredient> findByNameContaining(String keyword);
 }

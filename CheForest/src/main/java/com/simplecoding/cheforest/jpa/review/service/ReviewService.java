@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final MemberRepository memberRepository;   // ✅ 추가
+    private final MemberRepository memberRepository;
     private final MapStruct mapStruct;
 
     /** 댓글 저장 */
@@ -38,12 +38,12 @@ public class ReviewService {
 
         Review saved = reviewRepository.save(review);
 
-        // ✅ DTO 변환
+        // DTO 변환
         ReviewDto result = mapStruct.toDto(saved);
         result.setBoardId(saved.getBoard().getBoardId());
         result.setWriterIdx(saved.getWriterIdx());
 
-        // ✅ Member 정보 채우기
+        // Member 정보 채우기
         Member writer = memberRepository.findById(saved.getWriterIdx())
                 .orElseThrow(() -> new IllegalArgumentException("작성자 없음"));
         result.setNickname(writer.getNickname());
@@ -66,7 +66,7 @@ public class ReviewService {
 
         ReviewDto result = mapStruct.toDto(updated);
 
-        // ✅ Member 정보 다시 세팅
+        // Member 정보 다시 세팅
         Member writer = memberRepository.findById(updated.getWriterIdx())
                 .orElseThrow(() -> new IllegalArgumentException("작성자 없음"));
         result.setNickname(writer.getNickname());
@@ -90,7 +90,7 @@ public class ReviewService {
             parentDto.setGrade(parentWriter.getGrade());
             parentDto.setProfile(parentWriter.getProfile());
 
-            // ✅ 대댓글 처리
+            // 대댓글 처리
             List<ReviewDto> replyDtos = reviewRepository.findByParentIdOrderByInsertTimeAsc(parent.getReviewId())
                     .stream()
                     .map(reply -> {

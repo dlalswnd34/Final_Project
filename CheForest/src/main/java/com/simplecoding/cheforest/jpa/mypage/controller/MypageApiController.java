@@ -28,16 +28,14 @@ public class MypageApiController {
     private final MypageService mypageService;
     private final InquiriesService inquiriesService;
 
-    /** ✅ 공통 멤버 추출 유틸 */
+    /** 공통 멤버 추출 유틸 */
     private Member getMember(Object principal) {
         if (principal instanceof CustomUserDetails user) return user.getMember();
         if (principal instanceof CustomOAuth2User oauthUser) return oauthUser.getMember();
         return null;
     }
 
-    /* =========================================================
-     * 🧩 [1] 내가 작성한 레시피 목록 (게시글)
-     * ========================================================= */
+    // 내가 작성한 레시피 목록 (게시글)
     @GetMapping("/api/mypage/my-posts")
     public ResponseEntity<?> getMyPosts(
             @AuthenticationPrincipal Object principal,
@@ -60,9 +58,7 @@ public class MypageApiController {
         ));
     }
 
-    /* =========================================================
-     * 🧩 [2] 내가 작성한 댓글
-     * ========================================================= */
+    // 내가 작성한 댓글
     @GetMapping("/api/mypage/my-comments")
     public ResponseEntity<?> getMyComments(
             @AuthenticationPrincipal Object principal,
@@ -84,9 +80,7 @@ public class MypageApiController {
         ));
     }
 
-    /* =========================================================
-     * 🧩 [3] 내가 좋아요한 CheForest 레시피
-     * ========================================================= */
+    // 내가 좋아요한 CheForest 레시피
     @GetMapping("/api/mypage/liked/recipes")
     public ResponseEntity<?> getLikedRecipes(
             @AuthenticationPrincipal Object principal,
@@ -108,9 +102,7 @@ public class MypageApiController {
         ));
     }
 
-    /* =========================================================
-     * 🧩 [4] 내가 좋아요한 사용자 레시피 (게시글)
-     * ========================================================= */
+    // 내가 좋아요한 사용자 레시피 (게시글)
     @GetMapping("/api/mypage/liked/posts")
     public ResponseEntity<?> getLikedBoards(
             @AuthenticationPrincipal Object principal,
@@ -132,9 +124,8 @@ public class MypageApiController {
         ));
     }
 
-    /**
-     * 마이페이지: 로그인된 사용자의 문의 내역을 페이징하여 조회하는 API
-     */
+
+    // 마이페이지: 로그인된 사용자의 문의 내역을 페이징하여 조회하는 API
     @GetMapping("/api/mypage/inquiries")
     public ResponseEntity<Map<String, Object>> getMyInquiries(
             @AuthenticationPrincipal(expression = "member.memberIdx") Long memberIdx,
@@ -158,9 +149,7 @@ public class MypageApiController {
         return ResponseEntity.ok(body);
     }
 
-    /**
-     * 마이페이지: 사용자가 자신의 문의를 삭제하는 API
-     */
+    // 마이페이지: 사용자가 자신의 문의를 삭제하는 API
     @PostMapping("/inquiries/my/delete")
     public ResponseEntity<String> deleteMyInquiry(
             @AuthenticationPrincipal(expression = "member.memberIdx") Long memberIdx,
@@ -183,7 +172,7 @@ public class MypageApiController {
         }
     }
 
-    //    마이페이지에서 회원이 작성한 문의내용 수정
+    // 마이페이지에서 회원이 작성한 문의내용 수정
     @PostMapping("/inquiries/my/update")
     public ResponseEntity<String> updateMyInquiry(
             @AuthenticationPrincipal(expression = "member.memberIdx") Long memberIdx,

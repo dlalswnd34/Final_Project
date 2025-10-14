@@ -25,7 +25,7 @@ public class PingController {
     private final ConcurrentHashMap<String, String> sessionIdToUserId = new ConcurrentHashMap<>();
     private final Set<String> loggedInUserIds = ConcurrentHashMap.newKeySet();
 
-    //  ✅ 추가: sessionId -> Member 정보 맵핑
+    // sessionId -> Member 정보 맵핑
     private final ConcurrentHashMap<String, Member> sessionIdToMember = new ConcurrentHashMap<>();
 
     //    최대 동접자수
@@ -72,7 +72,7 @@ public class PingController {
             // 유저ID -> 중복 제거된 로그인 유저 집합
             loggedInUserIds.add(userId);
 
-            // ✅ 세션에서 CustomUserDetails → Member 꺼내기
+            // 세션에서 CustomUserDetails → Member 꺼내기
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth != null && auth.getPrincipal() instanceof CustomUserDetails userDetails) {
                 Member member = userDetails.getMember();
@@ -88,7 +88,7 @@ public class PingController {
             }
 
         } else {
-            // ✅ 비로그인 사용자: visId 쿠키 체크
+            // 비로그인 사용자: visId 쿠키 체크
             String visId = null;
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
@@ -104,7 +104,7 @@ public class PingController {
             if (visId == null) {
                 visId = UUID.randomUUID().toString();
 
-                // ⏰ 오늘 자정까지 남은 시간 계산
+                // 오늘 자정까지 남은 시간 계산
                 LocalDateTime now = LocalDateTime.now();
                 LocalDateTime midnight = now.toLocalDate().plusDays(1).atStartOfDay();
                 long secondsUntilMidnight = Duration.between(now, midnight).getSeconds();
@@ -128,7 +128,7 @@ public class PingController {
             }
 
             sessionIdToUserId.remove(sessionId);
-            sessionIdToMember.remove(sessionId); // ✅ 비로그인 처리 시 제거
+            sessionIdToMember.remove(sessionId); // 비로그인 처리 시 제거
         }
         // 최대 동접 갱신
         int currentActive = activeUsers.size();

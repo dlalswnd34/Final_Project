@@ -26,27 +26,27 @@ public class SpoonacularImportService {
     private final RestTemplate restTemplate;
     private final ObjectMapper om = new ObjectMapper();
     private final RecipeRepository repo;
-    private final Translator translator;
-    private final ImportMonitor monitor; // ✅ 진행률 모니터 추가
+    private final Translator translator;   // 제목/조리법/재료 번역에만 사용
+    private final ImportMonitor monitor;
 
     @Value("${spoonacular.api.key}")
     private String apiKey;
 
+    // spoonacular는 cuisine 파라미터로 가져옵니다.
     private static final List<String> CUISINES = List.of("chinese", "japanese");
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     @Transactional
     public String run() {
-        final String TASK = "spoonacular"; // ✅ 고유 태스크 이름
+        final String TASK = "spoonacular";
         if (!running.compareAndSet(false, true)) return "이미 실행 중입니다.";
 
         int saved = 0, skipped = 0, total = 0;
         try {
-            // ① 초기화
             monitor.start(TASK, 0);
             monitor.touch(TASK, "fetch", null);
 
-            // 전체 예상 개수 계산
+            // 전체 예상 개수
             for (String cuisine : CUISINES) {
                 String url = "https://api.spoonacular.com/recipes/complexSearch"
                         + "?number=30&addRecipeInformation=true"
@@ -57,9 +57,9 @@ public class SpoonacularImportService {
                 JsonNode results = om.readTree(json).path("results");
                 if (results.isArray()) total += results.size();
             }
-            monitor.start(TASK, total); // ✅ 전체 개수 설정
+            monitor.start(TASK, total);
 
-            // ② 수집 및 저장
+            // 수집 및 저장
             for (String cuisine : CUISINES) {
                 String url = "https://api.spoonacular.com/recipes/complexSearch"
                         + "?number=30&addRecipeInformation=true"
@@ -83,18 +83,20 @@ public class SpoonacularImportService {
                         continue;
                     }
 
-                    String titleEn = n.path("title").asText("");
+                    String titleEn       = n.path("title").asText("");
                     String instructionEn = extractInstruction(n);
-                    String categoryEn = cuisine;
-                    String ingredientEn = extractIngredientsCsv(n);
-                    String thumbnail = n.path("image").asText("");
+                    String categoryEn    = cuisine; // spoonacular는 cuisine이 사실상 분류
+                    String ingredientEn  = extractIngredientsCsv(n);
+                    String thumbnail     = n.path("image").asText("");
 
-                    // ③ 번역 (딜레이 가능성 있으므로 실제 진행률 반영)
+                    // 번역(제목/조리법/재료만)
                     monitor.touch(TASK, "translate", recipeId);
-                    String titleKr = translator.translate(titleEn, "KO");
+                    String titleKr       = translator.translate(titleEn, "KO");
                     String instructionKr = translator.translate(instructionEn, "KO");
-                    String categoryKr = translator.translate(categoryEn, "KO");
-                    String ingredientKr = translator.translate(ingredientEn, "KO");
+                    String ingredientKr  = translator.translate(ingredientEn, "KO");
+
+                    // 카테고리는 규칙 매핑으로 고정 (번역 사용 X)
+                    String categoryKr    = mapCategoryToKorean(categoryEn);
 
                     Recipe recipe = Recipe.builder()
                             .recipeId(recipeId)
@@ -115,10 +117,9 @@ public class SpoonacularImportService {
                 }
             }
 
-            // ④ 완료 처리
             monitor.finish(TASK, null);
-            log.info("✅ [{}] 완료: saved={}, skipped={}", TASK, saved, skipped);
-            return String.format("🍜 Spoonacular 완료: saved=%d, skipped=%d", saved, skipped);
+            log.info("[{}] 완료: saved={}, skipped={}", TASK, saved, skipped);
+            return String.format("Spoonacular 완료: saved=%d, skipped=%d", saved, skipped);
 
         } catch (Exception e) {
             log.error("❌ [{}] import 실패", TASK, e);
@@ -147,5 +148,23 @@ public class SpoonacularImportService {
                 .map(x -> x.path("original").asText(""))
                 .filter(s -> s != null && !s.isBlank())
                 .collect(Collectors.joining(","));
+    }
+
+    /** CATEGORY_EN → CheForest 한글 카테고리 매핑 */
+    private String mapCategoryToKorean(String categoryEn) {
+        if (categoryEn == null) return "기타";
+        String s = categoryEn.trim().toLowerCase();
+
+        if (s.contains("korean"))   return "한식";
+        if (s.contains("japanese")) return "일식";
+        if (s.contains("chinese"))  return "중식";
+
+        // 디저트 계열 키워드
+        if (s.contains("dessert") || s.contains("sweet") || s.contains("bakery") ||
+                s.contains("cake") || s.contains("cookie") || s.contains("pie"))
+            return "디저트";
+
+        // 나머지는 일단 '양식'으로 귀속 (TheMealDB 보정도 Wf에서 동일 룰 적용)
+        return "양식";
     }
 }

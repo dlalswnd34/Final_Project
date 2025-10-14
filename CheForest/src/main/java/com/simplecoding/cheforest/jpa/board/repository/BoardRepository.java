@@ -6,15 +6,11 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Pageable;
 
-
 import java.util.List;
 
 public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecificationExecutor<Board> {
 
     // 카테고리별 검색 + 제목 검색은 JpaSpecificationExecutor/QueryDSL로 처리
-
-
-    Long countByWriter(Member writer);
 
 //    전체 게시글 수
     long count();
@@ -26,18 +22,10 @@ public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecific
     @Query("SELECT b.category, COUNT(b) FROM Board b GROUP BY b.category")
     List<Object[]> countBoardsByCategory();
 
-    // 특정 회원이 작성한 게시글
-    List<Board> findByWriter_MemberIdx(Long memberIdx);
-
     // 조회수 증가
     @Modifying
     @Query("update Board b set b.viewCount = b.viewCount + 1 where b.boardId = :boardId")
     void increaseViewCount(@Param("boardId") Long boardId);
-
-    // 썸네일 업데이트
-    @Modifying
-    @Query("update Board b set b.thumbnail = :thumbnail where b.boardId = :boardId")
-    void updateThumbnail(@Param("boardId") Long boardId, @Param("thumbnail") String thumbnail);
 
     // 인기글 조회 (조회수 기준, 중복 제거)
     @Query("SELECT DISTINCT b FROM Board b ORDER BY b.viewCount DESC")
@@ -46,10 +34,6 @@ public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecific
     // 제목 검색 (중복 제거)
     @Query("SELECT DISTINCT b FROM Board b WHERE b.title LIKE %:keyword%")
     List<Board> searchBoards(@Param("keyword") String keyword, Pageable pageable);
-
-
-
-    // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     // 검색 로직
     @Query("SELECT b FROM Board b WHERE " +

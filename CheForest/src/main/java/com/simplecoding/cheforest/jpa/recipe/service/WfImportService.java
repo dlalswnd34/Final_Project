@@ -22,14 +22,14 @@ public class WfImportService {
     private final RestTemplate restTemplate;
     private final ObjectMapper om = new ObjectMapper();
     private final RecipeRepository repo;
-    private final Translator translator;
-    private final ImportMonitor monitor;   // ✅ 진행률 모니터 추가
+    private final Translator translator;   // 제목/조리법/재료/계량 번역에만 사용
+    private final ImportMonitor monitor;
 
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     @Transactional
     public String run() {
-        final String TASK = "wf"; // ✅ 태스크 이름 (status URL = /admin/import/status/wf)
+        final String TASK = "wf";
         if (!running.compareAndSet(false, true)) return "이미 실행 중입니다.";
 
         int saved = 0, skipped = 0, total = 0;
@@ -37,13 +37,12 @@ public class WfImportService {
             monitor.start(TASK, 0);
             monitor.touch(TASK, "fetch", null);
 
-            // 1️⃣ 1차 필터링 요청
             String[] filters = {
                     "https://www.themealdb.com/api/json/v1/1/filter.php?a=Japanese",
                     "https://www.themealdb.com/api/json/v1/1/filter.php?a=Chinese"
             };
 
-            // 총 개수 계산
+            // 총 개수
             for (String filterUrl : filters) {
                 String fjson = restTemplate.getForObject(filterUrl, String.class);
                 JsonNode meals = om.readTree(fjson).path("meals");
@@ -51,7 +50,7 @@ public class WfImportService {
             }
             monitor.start(TASK, total);
 
-            // 2️⃣ 상세 정보 요청 + 번역 + DB 저장
+            // 상세 조회 + 저장
             for (String filterUrl : filters) {
                 String fjson = restTemplate.getForObject(filterUrl, String.class);
                 JsonNode meals = om.readTree(fjson).path("meals");
@@ -77,21 +76,23 @@ public class WfImportService {
                     JsonNode meal = om.readTree(djson).path("meals").get(0);
                     if (meal == null) continue;
 
-                    String titleEn = meal.path("strMeal").asText("");
+                    String titleEn       = meal.path("strMeal").asText("");
                     String instructionEn = meal.path("strInstructions").asText("");
-                    String categoryEn = meal.path("strCategory").asText("");
-                    String area = meal.path("strArea").asText("");
-                    String ingredientEn = joinRange(meal, "strIngredient", 1, 20);
-                    String measureEn = joinRange(meal, "strMeasure", 1, 20);
-                    String thumb = meal.path("strMealThumb").asText("");
+                    String categoryEn    = meal.path("strCategory").asText("");
+                    String area          = meal.path("strArea").asText("");
+                    String ingredientEn  = joinRange(meal, "strIngredient", 1, 20);
+                    String measureEn     = joinRange(meal, "strMeasure",    1, 20);
+                    String thumb         = meal.path("strMealThumb").asText("");
 
-                    // 번역 (진행 단계 반영)
+                    // 번역(제목/조리법/재료/계량만)
                     monitor.touch(TASK, "translate", recipeId);
-                    String titleKr = translator.translate(titleEn, "KO");
+                    String titleKr       = translator.translate(titleEn, "KO");
                     String instructionKr = translator.translate(instructionEn, "KO");
-                    String categoryKr = translator.translate(categoryEn, "KO");
-                    String ingredientKr = translator.translate(ingredientEn, "KO");
-                    String measureKr = translator.translate(measureEn, "KO");
+                    String ingredientKr  = translator.translate(ingredientEn, "KO");
+                    String measureKr     = translator.translate(measureEn, "KO");
+
+                    // 카테고리는 규칙 매핑으로 고정 (번역 사용 X)
+                    String categoryKr    = mapCategoryToKorean(categoryEn);
 
                     Recipe recipe = Recipe.builder()
                             .recipeId(recipeId)
@@ -113,7 +114,7 @@ public class WfImportService {
             }
 
             monitor.finish(TASK, null);
-            log.info("✅ [{}] 완료: saved={}, skipped={}", TASK, saved, skipped);
+            log.info("[{}] 완료: saved={}, skipped={}", TASK, saved, skipped);
             return String.format("🍱 WF(TheMealDB) 완료: saved=%d, skipped=%d", saved, skipped);
 
         } catch (Exception e) {
@@ -140,5 +141,23 @@ public class WfImportService {
             }
         }
         return sb.toString();
+    }
+
+    /** CATEGORY_EN → CheForest 한글 카테고리 매핑 */
+    private String mapCategoryToKorean(String categoryEn) {
+        if (categoryEn == null) return "기타";
+        String s = categoryEn.trim().toLowerCase();
+
+        if (s.contains("korean"))   return "한식";
+        if (s.contains("japanese")) return "일식";
+        if (s.contains("chinese"))  return "중식";
+
+        if (s.contains("dessert") || s.contains("sweet") || s.contains("bakery") ||
+                s.contains("cake") || s.contains("cookie") || s.contains("pie"))
+            return "디저트";
+
+        // TheMealDB에 자주 나오는 분류들: beef/chicken/seafood/vegetarian/vegan/side/miscellaneous …
+        // → 우리 사이트 분류 체계에서는 '양식'으로 귀속
+        return "양식";
     }
 }

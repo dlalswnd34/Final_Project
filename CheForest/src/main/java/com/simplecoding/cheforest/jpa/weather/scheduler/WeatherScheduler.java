@@ -7,6 +7,7 @@ import com.simplecoding.cheforest.jpa.weather.entity.WeatherCache;
 import com.simplecoding.cheforest.jpa.weather.repository.WeatherCacheRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -26,13 +27,13 @@ public class WeatherScheduler {
     private final WeatherCacheRepository weatherCacheRepository;
     private final ObjectMapper om = new ObjectMapper();
 
-    private static final String SERVICE_KEY =
-            "3WEYjbpIjKwt0F0YJNn1HsEtZUeiUTA%2BOTnqYz%2BHPB8X0o29U8OYJIEdTL5b4IMz0G16W1oMj6cVRNp4fnL1dA%3D%3D";
+    @Value("${api.air.service-key}")
+    private String serviceKey;
 
-    private static final String BASE_URL =
-            "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";
+    @Value("${api.weather.base-url}")
+    private String baseUrl;
 
-    // ✅ 전국 주요 지역 좌표
+    // 전국 주요 지역 좌표
     private static final Map<String, int[]> REGION_COORDS = Map.ofEntries(
             Map.entry("서울", new int[]{60, 127}),
             Map.entry("부산", new int[]{98, 76}),
@@ -53,7 +54,7 @@ public class WeatherScheduler {
             Map.entry("제주", new int[]{52, 38})
     );
 
-    // ✅ 매 시각 30분마다 실행
+    // 매 시각 30분마다 실행
     @Scheduled(cron = "0 10 * * * *")
     public void updateWeatherData() {
         for (Map.Entry<String, int[]> entry : REGION_COORDS.entrySet()) {
@@ -62,10 +63,10 @@ public class WeatherScheduler {
             try {
                 WeatherCache cache = callApi(region, coords[0], coords[1]);
 
-                // 🔹 PK(region) 기준으로 무조건 덮어쓰기
+                // PK(region) 기준으로 무조건 덮어쓰기
                 weatherCacheRepository.save(cache);
 
-                log.info("✅ 날씨 저장 완료: {} - {} {} {}",
+                log.info("날씨 저장 완료: {} - {} {} {}",
                         region, cache.getTemperature(), cache.getHumidity(), cache.getSky());
             } catch (Exception e) {
                 log.error("❌ {} 날씨 업데이트 실패: {}", region, e.getMessage());
@@ -73,7 +74,7 @@ public class WeatherScheduler {
         }
     }
 
-    // ✅ 기상청 API 호출
+    // 기상청 API 호출
     private WeatherCache callApi(String region, int nx, int ny) throws Exception {
         // ====== 날짜/시간 보정 ======
         Calendar cal = Calendar.getInstance();
@@ -94,8 +95,8 @@ public class WeatherScheduler {
         String baseTime = String.format("%02d00", selectedHour);
 
         URI uri = UriComponentsBuilder
-                .fromUriString(BASE_URL)
-                .queryParam("serviceKey", SERVICE_KEY)
+                .fromUriString(baseUrl)
+                .queryParam("serviceKey", serviceKey)
                 .queryParam("numOfRows", "1000")
                 .queryParam("pageNo", "1")
                 .queryParam("dataType", "JSON")

@@ -12,7 +12,6 @@ import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
 import com.simplecoding.cheforest.jpa.board.dto.*;
 import com.simplecoding.cheforest.jpa.board.service.BoardService;
 import com.simplecoding.cheforest.jpa.common.MapStruct;
-import com.simplecoding.cheforest.jpa.common.util.JsonUtil;
 import com.simplecoding.cheforest.jpa.file.dto.FileDto;
 import com.simplecoding.cheforest.jpa.file.service.FileService;
 import com.simplecoding.cheforest.jpa.auth.dto.MemberDetailDto;
@@ -237,7 +236,6 @@ public class BoardController {
         return "board/boardedit";
     }
 
-    // 5. 글 수정
     @PostMapping("/board/edit")
     public String update(
             @ModelAttribute BoardSaveReq dto,
@@ -245,29 +243,21 @@ public class BoardController {
             @RequestParam(value = "deleteImageIds", required = false) List<Long> deleteImageIds
     ) throws IOException {
 
-        // ✅ 로그인 사용자 확인
+        // 로그인 안 되어 있으면 예외 처리
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Object principal = auth.getPrincipal();
-
-        String email = null;
-
-        if (principal instanceof CustomUserDetails user) {
-            email = user.getMember().getEmail();
-        } else if (principal instanceof CustomOAuth2User social) {
-            email = social.getMember().getEmail();
-        } else {
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
             throw new RuntimeException("로그인이 필요합니다.");
         }
 
-        // ✅ 수정 수행
-        boardService.update(boardId, dto, email, deleteImageIds);
-        // E/S 넘기기
+        // 수정 수행 (Service 내부에서 작성자/관리자 판별)
+        boardService.update(boardId, dto, deleteImageIds);
+
+        // 통합검색(ES) 동기화
         IntegratedSearch searchDoc = mapStruct.boardToEntity(dto);
         searchDoc.setId(boardId.toString());
         integratedSearchService.saveData(searchDoc);
 
-        // ✅ 카테고리별 리다이렉트
-        String encodedCategory = URLEncoder.encode(dto.getCategory(), StandardCharsets.UTF_8);
+        // 리다이렉트
         return "redirect:/board/view?boardId=" + boardId;
     }
 

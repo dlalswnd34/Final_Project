@@ -86,9 +86,6 @@ WHERE l.member.memberIdx = :memberIdx
     long countLikedBoards(@Param("memberIdx") Long memberIdx,
                           @Param("keyword") String keyword);
 
-
-
-
     // 내가 좋아요한 레시피
     @Query("""
 SELECT new com.simplecoding.cheforest.jpa.mypage.dto.MypageLikedRecipeDto(
@@ -109,7 +106,6 @@ ORDER BY l.likeDate DESC
     Page<MypageLikedRecipeDto> findLikedRecipes(@Param("memberIdx") Long memberIdx,
                                                 @Param("keyword") String keyword,
                                                 Pageable pageable);
-
 
     @Query("""
 SELECT COUNT(l)
@@ -143,9 +139,6 @@ WHERE l.member.memberIdx = :memberIdx
             nativeQuery = true)
     Page<MypageReviewDto> findMyReviews(@Param("memberIdx") Long memberIdx, Pageable pageable);
 
-
-
-
     // ===== 내가 작성한 댓글 수 =====
     @Query("""
            SELECT COUNT(r)
@@ -156,8 +149,6 @@ WHERE l.member.memberIdx = :memberIdx
     long countMyComments(@Param("memberIdx") Long memberIdx,
                          @Param("keyword") String keyword);
 
-
-
     // ===== 합계 =====
     @Query("""
            SELECT COALESCE(SUM(b.likeCount + 0L), 0L)
@@ -166,6 +157,7 @@ WHERE l.member.memberIdx = :memberIdx
            """)
     long sumReceivedBoardLikes(@Param("memberIdx") Long memberIdx);
 
+    // ===== 특정 회원(memberIdx)이 작성한 게시글들의 총 조회수를 합산 =====
     @Query("""
            SELECT COALESCE(SUM(b.viewCount + 0L), 0L)
            FROM Board b

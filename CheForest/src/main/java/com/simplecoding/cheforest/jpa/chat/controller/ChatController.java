@@ -1,7 +1,6 @@
 package com.simplecoding.cheforest.jpa.chat.controller;
 
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
-import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
 import com.simplecoding.cheforest.jpa.chat.dto.ChatMessage;
 import com.simplecoding.cheforest.jpa.chat.entity.Message;
 import com.simplecoding.cheforest.jpa.chat.service.ChatService;

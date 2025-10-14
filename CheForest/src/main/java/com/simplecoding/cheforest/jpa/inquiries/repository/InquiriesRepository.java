@@ -1,6 +1,5 @@
 package com.simplecoding.cheforest.jpa.inquiries.repository;
 
-
 import com.simplecoding.cheforest.jpa.inquiries.dto.InquiryWithNicknameDto;
 import com.simplecoding.cheforest.jpa.inquiries.entity.Inquiries;
 import org.springframework.data.domain.Page;
@@ -34,6 +33,7 @@ public interface InquiriesRepository extends JpaRepository<Inquiries, Long> {
     // ANSWER_STATUS = '답변완료' 인 데이터 수 카운트
     @Query("SELECT COUNT(i) FROM Inquiries i WHERE i.answerStatus = '답변완료'")
     long countAnsweredInquiries();
+
     //  오늘 작성된 문의사항 수 카운트
     @Query(value = "SELECT COUNT(*) FROM INQUIRIES WHERE TRUNC(CREATED_AT) = TRUNC(SYSDATE)", nativeQuery = true)
     long countTodayInquiries();
@@ -76,33 +76,11 @@ public interface InquiriesRepository extends JpaRepository<Inquiries, Long> {
             "FROM Inquiries i " +
             "JOIN Member m ON i.memberIdx = m.memberIdx " +
             "WHERE i.memberIdx = :memberIdx " +
-            "AND (:status = 'all' OR i.answerStatus = :status) " +   // ✅ 상태 필터
+            "AND (:status = 'all' OR i.answerStatus = :status) " +   // 상태 필터
             "ORDER BY i.createdAt DESC")
     Page<InquiryWithNicknameDto> findMyInquiriesWithNicknameAndStatus(
             @Param("memberIdx") Long memberIdx,
             @Param("status") String status,
             Pageable pageable
     );
-
-    /**
-     * 특정 회원의 전체 문의사항 데이터 수 카운트 (마이페이지 카운트용)
-     * @param memberIdx 조회할 회원의 고유 ID
-     * @return 해당 회원이 작성한 문의 개수
-     */
-    @Query("SELECT COUNT(i) FROM Inquiries i WHERE i.memberIdx = :memberIdx")
-    long countMyInquiries(@Param("memberIdx") Long memberIdx);
-
-    /**
-     * 특정 문의 ID로 상세 내역을 조회합니다. (수정 페이지 로드 및 상세 보기용)
-     * InquiryService에서 getInquiryById() 메서드가 호출합니다.
-     * @param inquiryId 조회할 문의의 고유 ID
-     * @return 문의 상세 정보 DTO (Optional)
-     */
-    @Query("SELECT new com.simplecoding.cheforest.jpa.inquiries.dto.InquiryWithNicknameDto(" +
-            "i.inquiryId, i.memberIdx, i.title, i.questionContent, i.answerContent, " +
-            "i.answerStatus, i.isFaq, i.createdAt, i.answerAt, m.nickname) " +
-            "FROM Inquiries i " +
-            "JOIN Member m ON i.memberIdx = m.memberIdx " +
-            "WHERE i.inquiryId = :inquiryId")
-    Optional<InquiryWithNicknameDto> findInquiryDetailById(@Param("inquiryId") Long inquiryId);
 }

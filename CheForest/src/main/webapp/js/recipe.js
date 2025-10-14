@@ -1,19 +1,28 @@
 /* CheForest Recipe Page JavaScript */
-/* 레시피 페이지 전용 JavaScript (카드 필터링 + 검색만 담당) */
+/* 레시피 페이지 전용 JavaScript (카테고리 + 카드 필터링 + 검색) */
 
 // 전역 변수
 let selectedCategory = 'all';
 let searchQuery = '';
 let sortBy = 'popularity';
 
-// HTML에서 레시피 카드 요소들 가져오기
+// ✅ 카테고리 정의 (순서 고정)
+const recipeCategories = [
+    { id: 'all', name: '전체', icon: '🍽️', color: 'bg-gray-100 text-gray-800' },
+    { id: '한식', name: '한식', icon: '🥢', color: 'korean' },
+    { id: '양식', name: '양식', icon: '🍝', color: 'western' },
+    { id: '중식', name: '중식', icon: '🥟', color: 'chinese' },
+    { id: '일식', name: '일식', icon: '🍣', color: 'japanese' },
+    { id: '디저트', name: '디저트', icon: '🧁', color: 'dessert' }
+];
+
+// ====== 카드 필터링 관련 ======
 function getRecipeCards() {
     const popularCards = Array.from(document.querySelectorAll('#popularGrid .popular-recipe-card'));
     const regularCards = Array.from(document.querySelectorAll('#regularGrid .recipe-card'));
     return { popular: popularCards, regular: regularCards, all: [...popularCards, ...regularCards] };
 }
 
-// 카드 필터링
 function shouldShowRecipeCard(card) {
     const category = card.dataset.category;
     const title = card.dataset.title?.toLowerCase() || '';
@@ -24,7 +33,6 @@ function shouldShowRecipeCard(card) {
     return matchesCategory && matchesSearch;
 }
 
-// 카드 정렬
 function sortRecipeCards(cards) {
     return cards.sort((a, b) => {
         const aLikes = parseInt(a.dataset.likes) || 0;
@@ -42,7 +50,39 @@ function sortRecipeCards(cards) {
     });
 }
 
-// 인기 레시피 렌더링
+// ====== 카테고리 렌더링 ======
+function renderRecipeCategories(counts = {}) {
+    const container = document.getElementById('recipeCategoryButtons');
+    if (!container) return;
+
+    container.innerHTML = recipeCategories.map(cat => {
+        const isActive = selectedCategory === cat.id;
+        const count = counts[cat.id] ?? 0;
+
+        // 이동 URL
+        const url = cat.id === 'all'
+            ? '/recipe/list'
+            : `/recipe/list?categoryKr=${encodeURIComponent(cat.id)}`;
+
+        return `
+        <a href="${url}"
+            class="w-full flex items-center justify-between px-4 py-2 rounded-lg border transition-all
+                ${isActive
+            ? 'active bg-gradient-to-r from-pink-500 to-orange-500 text-white border-transparent shadow-lg'
+            : 'bg-white border-gray-200 hover:border-orange-300 hover:bg-orange-50 text-gray-700'}">
+            <span class="flex items-center space-x-2">
+                <span>${cat.icon}</span>
+                <span>${cat.name}</span>
+            </span>
+            <span class="text-xs px-2 py-0.5 rounded-full
+                ${isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-700'}">
+                ${count}
+            </span>
+        </a>`;
+    }).join('');
+}
+
+// ====== 카드 렌더링 ======
 function renderPopularRecipes() {
     const cards = getRecipeCards();
     const popularSection = document.getElementById('popularSection');
@@ -60,7 +100,6 @@ function renderPopularRecipes() {
     }
 }
 
-// 일반 레시피 렌더링
 function renderRegularRecipes() {
     const cards = getRecipeCards();
     const regularCount = document.getElementById('regularCount');
@@ -77,7 +116,7 @@ function renderRegularRecipes() {
     regularCount.textContent = `${visibleCards.length}개`;
 }
 
-// 결과 없음 처리
+// ====== 결과 없음 ======
 function toggleNoResultsSection() {
     const cards = getRecipeCards();
     const noResultsSection = document.getElementById('noResultsSection');
@@ -86,41 +125,40 @@ function toggleNoResultsSection() {
     const visibleRegular = cards.regular.filter(card => shouldShowRecipeCard(card)).length;
     if (visiblePopular === 0 && visibleRegular === 0) {
         noResultsSection.style.display = 'block';
-        loadMoreSection.style.display = 'none';
+        if (loadMoreSection) loadMoreSection.style.display = 'none';
     } else {
         noResultsSection.style.display = 'none';
-        loadMoreSection.style.display = 'block';
+        if (loadMoreSection) loadMoreSection.style.display = 'block';
     }
 }
 
-// 레시피 개수 업데이트
+// ====== 개수 갱신 ======
 function updateRecipeCount() {
-    const cards = getRecipeCards();
-    const recipeCount = document.getElementById('recipeCount');
-    const visiblePopular = cards.popular.filter(card => shouldShowRecipeCard(card)).length;
-    const visibleRegular = cards.regular.filter(card => shouldShowRecipeCard(card)).length;
-    const totalVisible = visiblePopular + visibleRegular;
-    if (recipeCount) {
-        recipeCount.textContent = `총 ${totalVisible}개의 레시피 • 인기 ${visiblePopular}개, 일반 ${visibleRegular}개`;
-    }
+    fetch('/recipe/counts')
+        .then(res => res.json())
+        .then(data => {
+            renderRecipeCategories(data);
+        })
+        .catch(err => {
+            console.error('레시피 카운트 로드 실패:', err);
+            renderRecipeCategories(); // 실패 시 0 표시
+        });
 }
 
-// 카테고리 전환
+// ====== 동작 제어 ======
 function switchRecipeCategory(categoryId) {
     selectedCategory = categoryId;
     updateRecipeContent();
 }
 
-// 검색 처리
 function handleRecipeSearch() {
-    const searchInput = document.getElementById('recipeSearchInput');
-    if (searchInput) {
-        searchQuery = searchInput.value.trim();
+    const input = document.getElementById('recipeSearchInput');
+    if (input) {
+        searchQuery = input.value.trim();
         updateRecipeContent();
     }
 }
 
-// 레시피 전체 갱신
 function updateRecipeContent() {
     updateRecipeCount();
     renderPopularRecipes();
@@ -128,29 +166,29 @@ function updateRecipeContent() {
     toggleNoResultsSection();
 }
 
-// 검색 이벤트 바인딩
-function setupRecipeSearchEvents() {
-    const searchInput = document.getElementById('recipeSearchInput');
-    if (searchInput) {
-        let searchTimeout;
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => { handleRecipeSearch(); }, 300);
-        });
-        searchInput.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                clearTimeout(searchTimeout);
-                handleRecipeSearch();
-            }
-        });
-    }
+// ====== 초기화 ======
+function initializeRecipePage() {
+    const c = new URLSearchParams(location.search).get('categoryKr');
+    if (c) selectedCategory = decodeURIComponent(c);
+
+    updateRecipeCount();
+    console.log('✅ 레시피 페이지 초기화 완료! (카테고리 + 카운트 + 링크)');
 }
 
-// 초기화
-function initializeRecipePage() {
-    updateRecipeContent();
-    setupRecipeSearchEvents();
-    console.log('✅ 레시피 페이지 초기화 완료!');
+function setupRecipeSearchEvents() {
+    const input = document.getElementById('recipeSearchInput');
+    if (!input) return;
+    let t;
+    input.addEventListener('input', e => {
+        clearTimeout(t);
+        t = setTimeout(handleRecipeSearch, 300);
+    });
+    input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+            clearTimeout(t);
+            handleRecipeSearch();
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', initializeRecipePage);

@@ -1,7 +1,5 @@
 package com.simplecoding.cheforest.jpa.chat.service;
 
-import com.simplecoding.cheforest.jpa.auth.entity.Member;
-import com.simplecoding.cheforest.jpa.auth.repository.MemberRepository;
 import com.simplecoding.cheforest.jpa.chat.dto.ChatMessage;
 import com.simplecoding.cheforest.jpa.chat.entity.Message;
 import com.simplecoding.cheforest.jpa.chat.repository.MessageRepository;
@@ -16,8 +14,6 @@ import java.util.stream.Collectors;
 public class ChatService {
 
     private final MessageRepository messageRepository;
-    private final MemberRepository memberRepository;
-
 
     // 메시지 DB 저장
     public Message saveMessage(Message message) {
@@ -40,11 +36,5 @@ public class ChatService {
         dto.setMessage(message.getContent());
         dto.setTime(message.getMessageDate());
         return dto;
-    }
-
-    // Member 조회
-    public Member getMemberById(Long id) {
-        return memberRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("회원 정보가 없습니다."));
     }
 }

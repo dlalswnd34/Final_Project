@@ -9,8 +9,8 @@ import lombok.Setter;
 import java.util.List;
 
 @Getter
-@Setter   // ✅ Setter 추가
-@NoArgsConstructor  // ✅ 기본 생성자
+@Setter
+@NoArgsConstructor
 public class DustDto {
     private String sido;
     private String pm10;
@@ -22,8 +22,6 @@ public class DustDto {
     private String resultMsg;
     private String url;
     private String raw;
-
-    // ✅ 날씨 + 레시피 확장
     private WeatherDto weather;
     private List<RecipeDto> recipes;
 }

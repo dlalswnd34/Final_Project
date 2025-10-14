@@ -6,13 +6,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Component
@@ -57,12 +54,6 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
     }
 
     // ----- Helper methods -----
-
-    private static Object safeGetSessionAttr(HttpServletRequest req, String key) {
-        var session = req.getSession(false);
-        return (session == null) ? null : session.getAttribute(key);
-    }
-
     private static String trimToNull(String s) {
         if (s == null) return null;
         s = s.trim();
@@ -75,17 +66,6 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
         if (url.startsWith("?") || url.startsWith("#")) return true;
         if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("//")) return false;
         return url.startsWith("/");
-    }
-
-    private static boolean notBlank(String s) {
-        return s != null && !s.isBlank();
-    }
-
-    private String toAbsoluteRedirect(String redirect) {
-        if (redirect == null) return appDomain + "/";
-        if (redirect.startsWith("http://") || redirect.startsWith("https://")) return redirect;
-        String base = appDomain.endsWith("/") ? appDomain.substring(0, appDomain.length() - 1) : appDomain;
-        return base + redirect;
     }
 
     private static void deleteCookie(String name, HttpServletRequest req, HttpServletResponse res) {

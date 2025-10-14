@@ -26,18 +26,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DustMapController {
 
-    private final DustCacheRepository dustCacheRepository;   // ✅ 미세먼지 캐시
-    private final WeatherCacheRepository weatherCacheRepository; // ✅ 날씨 캐시
-    private final RecipeService recipeService; // ✅ Java 서비스 (Fallback 용)
+    private final DustCacheRepository dustCacheRepository;   // 미세먼지 캐시
+    private final WeatherCacheRepository weatherCacheRepository; // 날씨 캐시
+    private final RecipeService recipeService; // Java 서비스 (Fallback 용)
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // ✅ JSP 맵 열기
+    // JSP 맵 열기
     @GetMapping("/dustmap")
     public String dustmap() {
         return "dust/dustmap";
     }
 
-    // ✅ 지역별 미세먼지 + 날씨 + 레시피 추천
+    // 지역별 미세먼지 + 날씨 + 레시피 추천
     @ResponseBody
     @GetMapping("/dust/with-recommend")
     public DustDto withRecommend(@RequestParam String sido) {
@@ -47,9 +47,9 @@ public class DustMapController {
         if (dCache != null) {
             dto.setSido(dCache.getSido());
             dto.setPm10(dCache.getPm10());
-            dto.setPm10Grade(dCache.getPm10Grade());
+            dto.setPm10Grade(dCache.getPm10G());
             dto.setPm25(dCache.getPm25());
-            dto.setPm25Grade(dCache.getPm25Grade());
+            dto.setPm25Grade(dCache.getPm25G());
             dto.setDataTime(dCache.getDataTime());
             dto.setResultCode(dCache.getResultCode());
             dto.setResultMsg("OK".equals(dCache.getResultCode()) ? "성공" : "캐시/실패");
@@ -87,17 +87,17 @@ public class DustMapController {
 
         try {
             if ("나쁨".equals(grade) || "매우나쁨".equals(grade)) {
-                // ✅ 나쁨 / 매우나쁨 → dust_good (자바에서 제공)
+                // 나쁨 / 매우나쁨 → dust_good (자바에서 제공)
                 recipes = recipeService.getRandomDustGood(5);
             } else {
-                // ✅ 좋음 / 보통 → Flask 서버에 위임
+                // 좋음 / 보통 → Flask 서버에 위임
                 String flaskUrl = "http://localhost:5000/recommend/ai?grade=" + grade;
                 RecipeDto[] arr = restTemplate.getForObject(flaskUrl, RecipeDto[].class);
                 recipes = (arr != null) ? Arrays.asList(arr) : Collections.emptyList();
             }
         } catch (Exception e) {
             log.error("레시피 추천 오류", e);
-            // ✅ Flask 실패 시 Fallback → 자바에서 랜덤 한식 5개
+            // Flask 실패 시 Fallback → 자바에서 랜덤 한식 5개
             recipes = recipeService.getRandomRecipesByCategory("한식", 5);
         }
 

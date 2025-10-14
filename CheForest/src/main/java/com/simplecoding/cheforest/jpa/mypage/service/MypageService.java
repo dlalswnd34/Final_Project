@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.simplecoding.cheforest.jpa.review.entity.Review;
 import com.simplecoding.cheforest.jpa.review.repository.ReviewRepository;
 
 import java.time.DayOfWeek;
@@ -30,6 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MypageService {
+
     private final ReviewRepository reviewRepository;
     private final MypageRepository mypageRepository;
 
@@ -40,11 +40,9 @@ public class MypageService {
         return mypageRepository.findMyPosts(memberIdx, keyword, pageable);
     }
 
-
     public long getMyPostsCount(Long memberIdx, String keyword) {
         return mypageRepository.countMyPosts(memberIdx, keyword);
     }
-
 
     public long getMyPostsTotalViewCount(Long memberIdx) {
         return mypageRepository.sumMyPostsViewCount(memberIdx);
@@ -62,10 +60,6 @@ public class MypageService {
     // ===== 내가 좋아요한 레시피 =====
     public Page<MypageLikedRecipeDto> getLikedRecipes(Long memberIdx, String keyword, Pageable pageable) {
         return mypageRepository.findLikedRecipes(memberIdx, keyword, pageable);
-    }
-
-    public long getLikedRecipesCount(Long memberIdx, String keyword) {
-        return mypageRepository.countLikedRecipes(memberIdx, keyword);
     }
 
     public Page<MypageReviewDto> getMyReviews(Long memberIdx, Pageable pageable) {
@@ -120,7 +114,6 @@ public class MypageService {
     ) {}
 
     public ActivityStats getWeeklyActivityStats(Member member,
-                                                BoardService boardService,
                                                 PointService pointService,
                                                 MypageRepository mypageRepository) {
 
@@ -141,5 +134,4 @@ public class MypageService {
 
         return new ActivityStats(recipeCount, commentCount, likeCount, weeklyPoints);
     }
-
 }

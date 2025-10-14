@@ -28,7 +28,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,23 +61,23 @@ public class MemberController {
             BindingResult bindingResult,
             HttpSession session) {
 
-        // 1️⃣ 입력값 검증
+        // 입력값 검증
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body("❌ 입력값을 확인해주세요.");
         }
 
         try {
-            // 2️⃣ 세션에서 인증 완료된 이메일 가져오기
+            // 세션에서 인증 완료된 이메일 가져오기
             String verifiedEmail = (String) session.getAttribute("verifiedSignupEmail");
 
             if (verifiedEmail == null || !verifiedEmail.equals(dto.getEmail())) {
                 return ResponseEntity.badRequest().body("❌ 이메일 인증이 완료되지 않았습니다.");
             }
 
-            // 3️⃣ 회원 등록
+            // 회원 등록
             memberService.register(dto, verifiedEmail);
 
-            // 4️⃣ 세션 정리
+            // 세션 정리
             session.removeAttribute("verifiedSignupEmail");
 
             return ResponseEntity.ok("OK");
@@ -127,7 +126,7 @@ public class MemberController {
             SecurityContextHolder.getContext().setAuthentication(newAuth);
 
             response.put("success", true);
-            response.put("message", "✅ 회원정보가 수정되었습니다.");
+            response.put("message", "회원정보가 수정되었습니다.");
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -152,7 +151,7 @@ public String withdraw(@AuthenticationPrincipal AuthUser user,
     SecurityContextHolder.clearContext();
     request.getSession().invalidate();
 
-    ra.addFlashAttribute("msg", "회원 탈퇴가 완료되었습니다.");
+    ra.addFlashAttribute("msg", "회원 탈퇴가 완료되었습니다. CheForest를 이용해주셔서 감사합니다.");
     return "redirect:/";
 }
 
@@ -211,7 +210,7 @@ public String withdraw(@AuthenticationPrincipal AuthUser user,
     // ================= 아이디 찾기 페이지 =================
     @GetMapping("/auth/find-id")
     public String findIdView() {
-        return "auth/findId"; // JSP 위치 (예: /WEB-INF/views/auth/findId.jsp)
+        return "auth/findId";
     }
 
     // ================= 아이디 찾기: 인증번호 발송 =================
@@ -237,7 +236,7 @@ public String withdraw(@AuthenticationPrincipal AuthUser user,
                                    HttpSession session) {
         try {
             String loginId = memberService.verifyFindIdCode(email, code, session);
-            return loginId; // ✅ 정상 시 아이디 반환
+            return loginId;
         } catch (IllegalArgumentException e) {
             return "❌ " + e.getMessage();
         } catch (Exception e) {
@@ -249,7 +248,7 @@ public String withdraw(@AuthenticationPrincipal AuthUser user,
     // ================= 비밀번호 찾기 페이지 =================
     @GetMapping("/auth/find-password")
     public String findPasswordView() {
-        return "auth/findPassword"; // JSP 위치
+        return "auth/findPassword";
     }
 
     // ================= 비밀번호 찾기: 인증번호 발송 =================
@@ -302,14 +301,14 @@ public ResponseEntity<String> changePassword(
     // 1) 로그인 체크
     if (user == null) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body("❌ 로그인 후 이용 가능합니다.");
+                .body("로그인 후 이용 가능합니다.");
     }
 
     // 2) 소셜 로그인 계정 차단
     Member member = user.getMember();
     if (member.getProvider() != null && !member.getProvider().isBlank()) {
         return ResponseEntity.badRequest()
-                .body("❌ 소셜 로그인 계정은 비밀번호 변경이 불가능합니다.");
+                .body("소셜 로그인 계정은 비밀번호 변경이 불가능합니다.");
     }
 
     String currentPassword = request.get("currentPassword");
@@ -317,7 +316,7 @@ public ResponseEntity<String> changePassword(
 
     try {
         memberService.changePassword(member.getMemberIdx(), currentPassword, newPassword);
-        return ResponseEntity.ok("✅ 비밀번호가 성공적으로 변경되었습니다.");
+        return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
     } catch (IllegalArgumentException e) {
         return ResponseEntity.badRequest().body("❌ " + e.getMessage());
     } catch (Exception e) {
@@ -327,7 +326,7 @@ public ResponseEntity<String> changePassword(
     }
 }
 
-    // ✅ 소셜 로그인 시 중복 닉네임 수정
+    // 소셜 로그인 시 중복 닉네임 수정
     @PostMapping("/auth/nickname/update")
     public String updateSocialNickname(@RequestParam String nickname,
                                        RedirectAttributes ra) {
@@ -339,7 +338,7 @@ public ResponseEntity<String> changePassword(
             return "redirect:/auth/login";
         }
 
-        // 👉 소셜 로그인 전용 처리
+        // 보안 및 로직 구분을 위한 방어 코드(일반회원이오면 막아주는 역활)
         if (!(auth.getPrincipal() instanceof CustomOAuth2User oauth2User)) {
             ra.addFlashAttribute("msg", "소셜 로그인 사용자만 변경 가능합니다.");
             return "redirect:/";
@@ -406,7 +405,8 @@ public ResponseEntity<String> changePassword(
         UserInfoDto userInfoDto = UserInfoDto.from(member);
         return ResponseEntity.ok(userInfoDto);
     }
-//    로그인된 사용자 정보를 반환 목적(소셜+기존회원)
+
+//    로그인된 사용자 정보를 반환 목적(소셜+기존회원) QNA
     @GetMapping("/auth/me")
     public ResponseEntity<?> me(@AuthenticationPrincipal(expression = "member") Member member) {
         if (member == null) {

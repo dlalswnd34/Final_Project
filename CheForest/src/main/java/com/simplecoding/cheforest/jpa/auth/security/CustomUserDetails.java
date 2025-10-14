@@ -19,7 +19,7 @@ public class CustomUserDetails implements UserDetails, AuthUser, Serializable {
         this.member = member;
     }
 
-    // ✅ AuthUser 인터페이스 구현
+    // 맴버값 가지고오기
     @Override
     public Member getMember() {
         return member;

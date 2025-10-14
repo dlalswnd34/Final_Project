@@ -1,12 +1,12 @@
 package com.simplecoding.cheforest.jpa.admin.service;
 
-
 import com.simplecoding.cheforest.jpa.admin.dto.*;
 import com.simplecoding.cheforest.jpa.admin.repository.AdminRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 // made by yes_ung
 @Service
 @RequiredArgsConstructor

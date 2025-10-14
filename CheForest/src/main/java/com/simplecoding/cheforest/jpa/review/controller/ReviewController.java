@@ -14,16 +14,15 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/reviews")
 @RequiredArgsConstructor
 public class ReviewController {
 
     private final ReviewService reviewService;
-    private final PointService pointService;   // ✅ 포인트 서비스 주입
+    private final PointService pointService;
     private final MemberRepository memberRepository;
 
     // 댓글/대댓글 등록
-    @PostMapping
+    @PostMapping("/reviews")
     public ResponseEntity<ReviewDto> addReview(@RequestBody ReviewDto dto) {
         if (dto.getBoardId() == null || dto.getWriterIdx() == null) {
             return ResponseEntity.badRequest().build();
@@ -41,7 +40,7 @@ public class ReviewController {
     }
 
     // 댓글 수정
-    @PutMapping("/{reviewId}")
+    @PutMapping("/reviews/{reviewId}")
     public ResponseEntity<?> updateReview(@PathVariable Long reviewId,
                                           @RequestBody ReviewDto dto) {
         try {
@@ -53,13 +52,13 @@ public class ReviewController {
     }
 
     // 게시글별 댓글 + 대댓글 조회
-    @GetMapping("/board/{boardId}")
+    @GetMapping("/reviews/board/{boardId}")
     public ResponseEntity<List<ReviewDto>> getReviews(@PathVariable Long boardId) {
         return ResponseEntity.ok(reviewService.getCommentsWithReplies(boardId));
     }
 
     // 댓글 삭제
-    @DeleteMapping("/{reviewId}")
+    @DeleteMapping("/reviews/{reviewId}")
     public ResponseEntity<?> deleteReview(@PathVariable Long reviewId) {
         try {
             reviewService.delete(reviewId);

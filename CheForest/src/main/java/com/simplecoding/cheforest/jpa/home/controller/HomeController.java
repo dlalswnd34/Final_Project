@@ -27,16 +27,16 @@ public class HomeController {
     @GetMapping("/")
     public String home(@AuthenticationPrincipal Object principal, Model model) {
 
-        // ✅ 홈 콘텐츠 (레시피/게시판)
+        // 홈 콘텐츠 (레시피/게시판)
         model.addAttribute("popularRecipes", homeService.getPopularRecipes());
         model.addAttribute("categoryRecipes", homeService.getCategoryTop3Recipes());
         model.addAttribute("categoryBoards", homeService.getCategoryLatestBoards());
 
-        // ✅ 포인트 상위 5명
+        // 포인트 상위 5명
         List<Member> topMembers = rankingService.getTopRanking();
         model.addAttribute("topMembers", topMembers);
 
-        // ✅ 로그인한 사용자 감지 (일반 + 소셜 모두)
+        // 로그인한 사용자 감지 (일반 + 소셜 모두)
         Member me = null;
 
         if (principal instanceof CustomUserDetails userDetails) {
@@ -45,14 +45,13 @@ public class HomeController {
             me = memberRepository.findById(oauthUser.getMemberIdx()).orElse(null);
         }
 
-        // ✅ 내 랭킹 계산
+        // 내 랭킹 계산
         if (me != null) {
             Long myRank = rankingService.getMyRank(me);
-            log.info("⭐ 내 랭킹 계산 결과: {}, 닉네임={}, 포인트={}, ROLE={}",
+            log.info("내 랭킹 계산 결과: {}, 닉네임={}, 포인트={}, ROLE={}",
                     myRank, me.getNickname(), me.getPoint(), me.getRole());
             model.addAttribute("myRank", myRank);
         }
-
-        return "home"; // home.jsp
+        return "home";
     }
 }

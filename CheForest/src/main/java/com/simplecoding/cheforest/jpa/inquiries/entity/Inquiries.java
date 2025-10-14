@@ -25,6 +25,10 @@ public class Inquiries {
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "member_idx", insertable = false, updatable = false)
 //    private Member member;  // 실제 오라클DB에 관계 안걸어나서 사용X 제약걸면 사용
+//    ① FK 제약으로 인한 삭제 제약 방지
+//    ② Lazy 로딩 성능 문제 회피
+//    ③ 탈퇴 회원 게시글 유지 정책
+//    ④ 개발/테스트 데이터 유연성 확보
     private Long memberIdx;
 
     private String title;
@@ -35,8 +39,4 @@ public class Inquiries {
     private Date createdAt;
     private Date answerAt;
     private Long likeCount;
-
-
-
-
 }

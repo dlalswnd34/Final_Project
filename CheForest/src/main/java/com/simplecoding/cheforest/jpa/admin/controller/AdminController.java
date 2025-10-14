@@ -7,15 +7,11 @@ import com.simplecoding.cheforest.jpa.admin.dto.InquiriesIsFaqDto;
 import com.simplecoding.cheforest.jpa.admin.dto.TodaySignUpUsersDto;
 import com.simplecoding.cheforest.jpa.admin.service.AdminService;
 import com.simplecoding.cheforest.jpa.auth.dto.MemberAdminDto;
-import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
 import com.simplecoding.cheforest.jpa.auth.service.MemberService;
 import com.simplecoding.cheforest.jpa.board.dto.BoardListDto;
 import com.simplecoding.cheforest.jpa.board.entity.Board;
 import com.simplecoding.cheforest.jpa.board.service.BoardService;
-import com.simplecoding.cheforest.jpa.inquiries.dto.InquiryWithNicknameDto;
-import com.simplecoding.cheforest.jpa.inquiries.entity.Inquiries;
-import com.simplecoding.cheforest.jpa.recipe.dto.RecipeCardDTO;
 import com.simplecoding.cheforest.jpa.recipe.dto.RecipeDto;
 import com.simplecoding.cheforest.jpa.recipe.entity.Recipe;
 import com.simplecoding.cheforest.jpa.recipe.repository.RecipeRepository;
@@ -37,7 +33,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -129,14 +124,14 @@ public class AdminController {
             int exitCode = process.waitFor();
             System.out.println("Logstash 종료: " + exitCode);
 
-            // ✅ 완료 시각 생성
+            // 완료 시각 생성
             String lastSync = java.time.LocalDateTime.now()
                     .format(java.time.format.DateTimeFormatter.ofPattern("MM/dd HH:mm"));
 
             return ResponseEntity.ok(Map.of(
                     "message", "Logstash 작업이 완료되었습니다.",
                     "exitCode", exitCode,
-                    "lastSync", lastSync        // ✅ 프런트가 이 값을 화면에 바로 반영
+                    "lastSync", lastSync        // 프런트가 이 값을 화면에 바로 반영
             ));
         } catch (IOException | InterruptedException e) {
             return ResponseEntity.status(500).body(Map.of(

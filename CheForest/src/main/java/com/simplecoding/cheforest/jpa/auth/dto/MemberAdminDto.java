@@ -1,6 +1,5 @@
 package com.simplecoding.cheforest.jpa.auth.dto;
 
-import java.sql.Struct;
 import java.util.Date;
 
 public interface MemberAdminDto {

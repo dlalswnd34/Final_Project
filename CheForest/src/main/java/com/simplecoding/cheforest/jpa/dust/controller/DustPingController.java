@@ -8,6 +8,7 @@ import com.simplecoding.cheforest.jpa.dust.repository.DustCacheRepository;
 import com.simplecoding.cheforest.jpa.weather.dto.WeatherDto;
 import com.simplecoding.cheforest.jpa.recipe.dto.RecipeDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,11 +27,11 @@ import java.util.*;
 @RequiredArgsConstructor
 public class DustPingController {
 
-    private static final String SERVICE_KEY_ENCODING =
-            "3WEYjbpIjKwt0F0YJNn1HsEtZUeiUTA%2BOTnqYz%2BHPB8X0o29U8OYJIEdTL5b4IMz0G16W1oMj6cVRNp4fnL1dA%3D%3D";
+    @Value("${api.air.service-key}")
+    private String serviceKey;
 
-    private static final String BASE_URL =
-            "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty";
+    @Value("${api.air.base-url}")
+    private String baseUrl;
 
     private static final String[] SIDO_NAMES = {
             "서울","부산","대구","인천","광주","대전","울산","세종","경기","강원",
@@ -40,7 +41,7 @@ public class DustPingController {
     private final ObjectMapper om = new ObjectMapper();
     private final DustCacheRepository dustCacheRepository;
 
-    // ✅ Flask 서버 호출 (AI 추천 레시피)
+    // Flask 서버 호출 (AI 추천 레시피)
     private List<RecipeDto> fetchAiRecipes(String grade) {
         try {
             String url = "http://localhost:5000/recommend/ai?grade="
@@ -56,7 +57,7 @@ public class DustPingController {
         }
     }
 
-    // ✅ 등급 변환
+    // 등급 변환
     private String grade(String val, boolean pm25) {
         if (val == null || val.isBlank() || "-".equals(val)) return "정보없음";
         try {
@@ -68,7 +69,7 @@ public class DustPingController {
         }
     }
 
-    // ✅ 평균 계산
+    // 평균 계산
     private String avg(List<String> vals) {
         int sum = 0, n = 0;
         for (String s : vals) {
@@ -82,7 +83,7 @@ public class DustPingController {
         return n == 0 ? "-" : String.valueOf(Math.round((double) sum / n));
     }
 
-    // ✅ 전국 시도별 미세먼지 현황
+    // 전국 시도별 미세먼지 현황
     @GetMapping("/dust/today-all")
     public List<DustDto> getTodayAll() {
         List<DustDto> out = new ArrayList<>();
@@ -92,12 +93,12 @@ public class DustPingController {
         return out;
     }
 
-    // ✅ 특정 지역 정보 (미세먼지 + 날씨 + 추천 레시피)
+    // 특정 지역 정보 (미세먼지 + 날씨 + 추천 레시피)
     @GetMapping("/dust/info")
     public DustDto getRegionInfo(@RequestParam String sido) {
         DustDto dust = fetchOnce(sido);
 
-        // 1. 날씨 (임시 값 or 별도 API 연동 가능)
+        // 1) 날씨 (임시 값 or 별도 API 연동 가능)
         WeatherDto weather = new WeatherDto();
         weather.setRegion(sido);
         weather.setTemperature("21");
@@ -107,21 +108,21 @@ public class DustPingController {
         weather.setBaseTime("09:00");
         dust.setWeather(weather);
 
-        // 2. Flask AI 추천 레시피
+        // 2) Flask AI 추천 레시피
         List<RecipeDto> recipes = fetchAiRecipes(dust.getPm10Grade());
         dust.setRecipes(recipes);
 
         return dust;
     }
 
-    // ✅ 실제 API 호출 (DB 캐시 연동)
+    // 실제 API 호출 (DB 캐시 연동)
     private DustDto fetchOnce(String sido) {
         String finalUrl = null;
         try {
             String encodedSido = URLEncoder.encode(sido, StandardCharsets.UTF_8);
 
-            finalUrl = BASE_URL
-                    + "?serviceKey=" + SERVICE_KEY_ENCODING
+            finalUrl = baseUrl
+                    + "?serviceKey=" + serviceKey
                     + "&returnType=json"
                     + "&numOfRows=1000"
                     + "&pageNo=1"
@@ -161,7 +162,7 @@ public class DustPingController {
                 return loadFromCacheOrDefault(sido, resultMsg);
             }
 
-            // ✅ 정상 응답 처리
+            // 정상 응답 처리
             JsonNode items = resp.path("body").path("items");
             List<String> p10 = new ArrayList<>(), p25 = new ArrayList<>();
             String dataTime = "-";
@@ -177,13 +178,13 @@ public class DustPingController {
             String pm10Grade = grade(pm10, false);
             String pm25Grade = grade(pm25, true);
 
-            // ✅ DB 캐시 저장
+            // DB 캐시 저장
             DustCache cache = new DustCache();
             cache.setSido(sido);
             cache.setPm10(pm10);
             cache.setPm25(pm25);
-            cache.setPm10Grade(pm10Grade);
-            cache.setPm25Grade(pm25Grade);
+            cache.setPm10G(pm10Grade);
+            cache.setPm25G(pm25Grade);
             cache.setDataTime(dataTime);
             cache.setResultCode("OK");
             dustCacheRepository.save(cache);
@@ -206,7 +207,7 @@ public class DustPingController {
         }
     }
 
-    // ✅ 실패 시 캐시에서 불러오기
+    // 실패 시 캐시에서 불러오기
     private DustDto loadFromCacheOrDefault(String sido, String errMsg) {
         return dustCacheRepository.findById(sido)
                 .map(cache -> {
@@ -214,8 +215,8 @@ public class DustPingController {
                     dto.setSido(cache.getSido());
                     dto.setPm10(cache.getPm10());
                     dto.setPm25(cache.getPm25());
-                    dto.setPm10Grade(cache.getPm10Grade());
-                    dto.setPm25Grade(cache.getPm25Grade());
+                    dto.setPm10Grade(cache.getPm10G());
+                    dto.setPm25Grade(cache.getPm25G());
                     dto.setDataTime(cache.getDataTime());
                     dto.setResultCode("EX");
                     dto.setResultMsg("API 오류, 이전값 반환: " + errMsg);

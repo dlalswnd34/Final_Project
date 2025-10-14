@@ -18,7 +18,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     // 게시글 삭제 시 댓글 전체 삭제
     void deleteByBoard_BoardId(Long boardId);
 
-//
+    // 특정 회원이 쓴 리뷰들을 최신순으로 페이지 단위로 조회
     Page<Review> findByWriterIdxOrderByInsertTimeDesc(Long writerIdx, Pageable pageable);
-
 }

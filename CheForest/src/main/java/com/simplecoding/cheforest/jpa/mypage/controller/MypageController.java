@@ -6,7 +6,6 @@ import com.simplecoding.cheforest.jpa.auth.security.CustomOAuth2User;
 import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails;
 import com.simplecoding.cheforest.jpa.board.repository.BoardRepository;
 import com.simplecoding.cheforest.jpa.board.service.BoardService;
-import com.simplecoding.cheforest.jpa.file.repository.FileRepository;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageLikedBoardDto;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageLikedRecipeDto;
 import com.simplecoding.cheforest.jpa.mypage.dto.MypageMyPostDto;
@@ -27,11 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -41,7 +36,6 @@ import java.util.Map;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/mypage")
 public class MypageController {
 
     private final MypageService mypageService;
@@ -55,7 +49,7 @@ public class MypageController {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    @GetMapping("")
+    @GetMapping("/mypage")
     public String mypageMain(@RequestParam(defaultValue = "myboard") String tab,
                              @RequestParam(value = "myPostsPage",     defaultValue = "1") int myPostsPage,
                              @RequestParam(value = "likedPostsPage",  defaultValue = "1") int likedPostsPage,
@@ -66,16 +60,16 @@ public class MypageController {
 
         Member member = null;
 
-        // ✅ 일반 로그인
+        // 일반 로그인
         if (principal instanceof CustomUserDetails user) {
             member = user.getMember();
         }
-        // ✅ 소셜 로그인 (카카오/네이버/구글)
+        // 소셜 로그인 (카카오/네이버/구글)
         else if (principal instanceof CustomOAuth2User oauthUser) {
             member = oauthUser.getMember();
         }
 
-        // ✅ 로그인 안 된 경우
+        // 로그인 안 된 경우
         if (member == null) {
             return "redirect:/auth/login?redirect=/mypage";
         }
@@ -85,7 +79,7 @@ public class MypageController {
         model.addAttribute("currentMemberIdx", memberIdx);
 
 // ===== 금주 활동 통계 =====
-        var stats = mypageService.getWeeklyActivityStats(member, boardService, pointService, mypageRepository);
+        var stats = mypageService.getWeeklyActivityStats(member, pointService, mypageRepository);
 
         model.addAttribute("totalRecipes", stats.recipeCount());
         model.addAttribute("totalComments", stats.commentCount());
@@ -139,17 +133,17 @@ public class MypageController {
         if (!ids.isEmpty()) {
             for (Object[] r : boardRepository.findMetaByIds(ids)) {
                 Long id = (Long) r[0];
-                categoryById.put(id,  (String) r[1]); // category
-                thumbnailById.put(id, (String) r[2]); // thumbnail
+                categoryById.put(id,  (String) r[1]);
+                thumbnailById.put(id, (String) r[2]);
             }
         }
         model.addAttribute("categoryById", categoryById);
         model.addAttribute("thumbnailById", thumbnailById);
 
-        // ===== 가입일 =====
+        // 가입일
         model.addAttribute("joinDate", mypageService.getMemberJoinDateText(memberIdx));
 
-        // ===== 등급 및 진행률 계산 =====
+        // 등급 및 진행률 계산
         final Map<String, Integer> levelMap = new LinkedHashMap<>();
         levelMap.put("씨앗", 0);
         levelMap.put("뿌리", 1000);
@@ -202,12 +196,12 @@ public class MypageController {
             @AuthenticationPrincipal Object principal,
             @RequestBody Map<String, String> payload
     ) {
-        // 1️⃣ 로그인 여부 확인
+        // 로그인 여부 확인
         if (principal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
 
-        // 2️⃣ 일반 로그인 (CustomUserDetails)
+        // 일반 로그인 (CustomUserDetails)
         if (principal instanceof CustomUserDetails user) {
             // provider가 null이면 일반 회원, 있으면 소셜 연동 회원
             if (user.getMember().getProvider() == null) {
@@ -220,23 +214,21 @@ public class MypageController {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("비밀번호가 올바르지 않습니다.");
                 }
             } else {
-                // ✅ 소셜 로그인은 통과
+                // 소셜 로그인은 통과
                 return ResponseEntity.ok("소셜 로그인은 비밀번호 확인 없이 접근 가능합니다.");
             }
         }
 
-        // 3️⃣ 소셜 로그인 (CustomOAuth2User)
+        // 소셜 로그인 (CustomOAuth2User)
         if (principal instanceof CustomOAuth2User) {
             return ResponseEntity.ok("소셜 로그인은 비밀번호 확인 없이 접근 가능합니다.");
         }
 
-        // 4️⃣ 기타 예외
+        // 기타 예외
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
     }
 
-    /* =========================
-     * 🧩 프로필 경로(Member.profile) 업데이트
-     * ========================= */
+    // 프로필 경로(Member.profile) 업데이트
     @PostMapping("/profile/update")
     @ResponseBody
     public ResponseEntity<String> updateProfilePath(
@@ -258,7 +250,7 @@ public class MypageController {
         member.setProfile(filePath);
         memberRepository.save(member);
 
-        log.info("✅ 프로필 이미지 경로 업데이트 완료: memberIdx={} -> {}", member.getMemberIdx(), filePath);
+        log.info("프로필 이미지 경로 업데이트 완료: memberIdx={} -> {}", member.getMemberIdx(), filePath);
         return ResponseEntity.ok("프로필 이미지가 변경되었습니다.");
     }
 }

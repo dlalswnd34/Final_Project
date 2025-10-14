@@ -35,7 +35,7 @@ public class FooterController {
         }
 
         try {
-            emailService.sendNewsletterMail(email); // ✅ EmailService의 새 메서드 재사용
+            emailService.sendNewsletterMail(email); // EmailService의 새 메서드 재사용
             return ResponseEntity.ok(Map.of("ok", true, "msg", "CheForest 뉴스레터 구독 완료!"));
         } catch (Exception e) {
             log.error("뉴스레터 발송 실패: {}", e.getMessage(), e);
