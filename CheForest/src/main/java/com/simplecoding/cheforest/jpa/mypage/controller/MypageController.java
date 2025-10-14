@@ -189,9 +189,8 @@ public class MypageController {
         return "mypage/mypage";
     }
 
-
 //    설정탭 비밀번호 잠금
-    @PostMapping("/verify-settings")
+    @PostMapping("/mypage/verify-settings")
     public ResponseEntity<?> verifySettingsPassword(
             @AuthenticationPrincipal Object principal,
             @RequestBody Map<String, String> payload
@@ -229,7 +228,7 @@ public class MypageController {
     }
 
     // 프로필 경로(Member.profile) 업데이트
-    @PostMapping("/profile/update")
+    @PostMapping("/mypage/profile/update")
     @ResponseBody
     public ResponseEntity<String> updateProfilePath(
             @AuthenticationPrincipal Object principal,

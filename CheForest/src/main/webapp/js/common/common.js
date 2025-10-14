@@ -29,11 +29,8 @@ function showPage(page,id) {
         case 'qna':
             window.location.href = '/qna';
             break;
-        case 'events':
-            window.location.href = '/event/events';
-            break;
         case 'test':
-            window.location.href = '/event/test';
+            window.location.href = '/support/test';
             break;
         case 'mypage':
             window.location.href = '/mypage';
@@ -54,7 +51,7 @@ function showPage(page,id) {
             window.location.href = '/grade';
             break;
         case 'guide':
-            window.location.href = '/guide';
+            window.location.href = '/support/guide';
             break;
         default:
             // 기본적으로 page.jsp로 이동

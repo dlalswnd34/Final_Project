@@ -113,4 +113,28 @@ public class RecipeController {
     ) {
         return recipeService.getRandomDustGood(count);
     }
+
+    // 기존 JSP를 그대로 사용하면서, 일부 영역만 반환하는 버전
+    @GetMapping("/recipe/ajax")
+    public String getRecipeListAjax(
+            @RequestParam(defaultValue = "") String categoryKr,
+            @RequestParam(defaultValue = "") String searchKeyword,
+            @RequestParam(defaultValue = "title") String searchType,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "9") int size,
+            Model model) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<RecipeDto> recipePage = recipeService.getRecipeList(categoryKr, searchKeyword, searchType, pageable);
+
+        model.addAttribute("recipeList", recipePage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", recipePage.getTotalPages());
+        model.addAttribute("categoryKr", categoryKr);
+        model.addAttribute("totalCount", recipePage.getTotalElements());
+
+        // ✅ 전체 JSP를 반환하지만, JS에서 #recipeListSection 부분만 교체하도록 함
+        return "recipe/recipelist";
+    }
 }

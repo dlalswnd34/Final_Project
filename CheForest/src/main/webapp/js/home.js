@@ -215,13 +215,6 @@ function initializeButtons() {
         });
     }
 
-    if (moreEventsBtn) {
-        moreEventsBtn.addEventListener('click', function() {
-            // JSP에서 이벤트 페이지로 이동 처리
-            location.href = 'events.jsp';
-        });
-    }
-
     const categoryMap = {
         korean: "한식",
         western: "양식",
