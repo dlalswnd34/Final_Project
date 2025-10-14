@@ -17,7 +17,7 @@ public class DustController {
     private final DustCacheRepository dustCacheRepository;
 
     /**
-     * ✅ 특정 지역 미세먼지 조회 (DB 캐시 조회 전용)
+     * 특정 지역 미세먼지 조회 (DB 캐시 조회 전용)
      */
     @GetMapping("/dust")
     public DustCache getDust(@RequestParam String sido) {
@@ -28,8 +28,8 @@ public class DustController {
                     empty.setSido(sido);
                     empty.setPm10("-");
                     empty.setPm25("-");
-                    empty.setPm10Grade("정보없음");
-                    empty.setPm25Grade("정보없음");
+                    empty.setPm10G("정보없음");
+                    empty.setPm25G("정보없음");
                     empty.setDataTime("-");
                     empty.setResultCode("EX");
                     return empty;

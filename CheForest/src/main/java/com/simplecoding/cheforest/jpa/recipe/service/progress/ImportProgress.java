@@ -22,7 +22,7 @@ public class ImportProgress {
         int t = total;
         int p = processed.get();
 
-        // ✅ total이 아직 0인 경우에도 processed 값 기준으로 점진 표시
+        // total이 아직 0인 경우에도 processed 값 기준으로 점진 표시
         if (t <= 0) {
             if (!running) return 100;         // 종료 상태면 100%
             if (p == 0) return 0;             // 아직 아무것도 안 했으면 0%
@@ -30,7 +30,7 @@ public class ImportProgress {
             return Math.min(95, 20 + (p % 50)); // 진행 중: 20~95% 구간에서 진동
         }
 
-        // ✅ 정상 계산
+        // 정상 계산
         double percent = (p * 100.0) / t;
         if (!running && percent < 100) percent = 100; // 종료 시 강제 100%
         return Math.min(100, (int) Math.round(percent));

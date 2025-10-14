@@ -27,7 +27,7 @@ public class RecipeImportController {
                 .format(DateTimeFormatter.ofPattern("MM/dd HH:mm"));
     }
 
-    // ✅ Spoonacular
+    // Spoonacular
     @PostMapping("/admin/import/spoonacular/run")
     public Map<String, Object> runSpoonacular() {
         String msg = spoonacular.run();
@@ -35,11 +35,11 @@ public class RecipeImportController {
         res.put("status", "ok");
         res.put("source", "Spoonacular");
         res.put("message", msg);
-        res.put("lastSync", nowFormatted()); // ✅ 완료 시각 추가
+        res.put("lastSync", nowFormatted());
         return res;
     }
 
-    // ✅ WF
+    // WF(TheMeal)
     @PostMapping("/admin/import/wf/run")
     public Map<String, Object> runWf() {
         String msg = wf.run();
@@ -47,11 +47,11 @@ public class RecipeImportController {
         res.put("status", "ok");
         res.put("source", "TheMealDB");
         res.put("message", msg);
-        res.put("lastSync", nowFormatted()); // ✅ 완료 시각 추가
+        res.put("lastSync", nowFormatted());
         return res;
     }
 
-    // ✅ DataKo
+    // DataKo(공공데이터포털)
     @PostMapping("/admin/import/datako/run")
     public Map<String, Object> runDataKo() {
         String msg = datako.run();
@@ -59,11 +59,11 @@ public class RecipeImportController {
         res.put("status", "ok");
         res.put("source", "DataKO");
         res.put("message", msg);
-        res.put("lastSync", nowFormatted()); // ✅ 완료 시각 추가
+        res.put("lastSync", nowFormatted());
         return res;
     }
 
-    // ✅ 중지 요청
+    // 중지 요청
     @PostMapping("/admin/import/stop")
     public Map<String, Object> stopAll() {
         spoonacular.stop();
@@ -78,7 +78,7 @@ public class RecipeImportController {
         return res;
     }
 
-    // ✅ 상태 조회
+    // 상태 조회
     @GetMapping("/admin/import/status/{task}")
     public Map<String, Object> getStatus(@PathVariable String task) {
         ImportProgress p = monitor.get(task);

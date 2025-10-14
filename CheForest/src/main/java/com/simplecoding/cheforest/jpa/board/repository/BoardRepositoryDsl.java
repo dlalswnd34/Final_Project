@@ -13,6 +13,7 @@ import com.simplecoding.cheforest.jpa.board.dto.BoardListDto;
 import com.simplecoding.cheforest.jpa.board.entity.QBoard;
 import com.simplecoding.cheforest.jpa.review.entity.QReview;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class BoardRepositoryDsl {
@@ -27,19 +29,18 @@ public class BoardRepositoryDsl {
     private final JPAQueryFactory queryFactory;
 
     // 목록 조회
-    // ✅ [수정] searchType 파라미터 추가
     public Page<BoardListDto> searchBoards(String keyword, String category, String searchType, Pageable pageable) {
         QBoard board = QBoard.board;
         QMember member = QMember.member;
 
         BooleanBuilder builder = new BooleanBuilder();
 
-        // 1. 카테고리 필터링 (필수)
+        // 1) 카테고리 필터링
         if (category != null && !category.isBlank() && !"all".equalsIgnoreCase(category)) {
             builder.and(board.category.eq(category.trim()));
         }
 
-        // 2. 검색어 필터링 (선택): searchType에 따라 조건 분기
+        // 2) 검색어 필터링 : searchType에 따라 조건 분기
         if (keyword != null && !keyword.isBlank()) {
             if ("ingredient".equalsIgnoreCase(searchType)) {
                 // searchType이 ingredient일 때: 재료(prepare) 검색
@@ -76,16 +77,12 @@ public class BoardRepositoryDsl {
                 .where(builder)
                 .fetchOne();
 
-        // ✅ 디버깅을 위해 이 로그를 추가해주세요!
-        System.out.println("==========================================");
-        System.out.println(">>> [searchBoards] Debug Log");
-        System.out.println(">>> Category Param: " + category);
-        System.out.println(">>> Keyword Param: " + keyword);
-        // ✅ [추가] searchType 로그
-        System.out.println(">>> SearchType Param: " + searchType);
-        System.out.println(">>> Total Count from Query: " + total);
-        System.out.println(">>> Content Size from Query: " + content.size());
-        System.out.println("==========================================");
+        log.info(">>> [searchBoards] Debug Log");
+        log.info(">>> Category Param: {}", category);
+        log.info(">>> Keyword Param: {}", keyword);
+        log.info(">>> SearchType Param: {}", searchType);
+        log.info(">>> Total Count from Query: {}", total);
+        log.info(">>> Content Size from Query: {}", content.size());
 
         return new PageImpl<>(content, pageable, total);
     }
@@ -170,7 +167,7 @@ public class BoardRepositoryDsl {
                 .fetch();
     }
 
-    // 카테고리별 최신글 + 댓글수 (limit 지정)
+    // 카테고리별 최신글 + 댓글수
     public List<BoardLatestRowDTO> findLatestByCategory(String category, int limit) {
         QBoard board = QBoard.board;
         QMember member = QMember.member;
@@ -182,7 +179,7 @@ public class BoardRepositoryDsl {
                         board.title.as("title"),
                         member.nickname.coalesce("알 수 없음").as("writerNickname"),
                         board.insertTime.as("insertTime"),
-                        ExpressionUtils.as(   // ← 여기서 alias 붙이기
+                        ExpressionUtils.as(
                                 JPAExpressions.select(review.count())
                                         .from(review)
                                         .where(review.board.boardId.eq(board.boardId)),

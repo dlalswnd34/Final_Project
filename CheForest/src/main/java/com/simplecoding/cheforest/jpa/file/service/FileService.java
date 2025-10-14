@@ -1,4 +1,3 @@
-// src/main/java/com/simplecoding/cheforest/jpa/file/service/FileService.java
 package com.simplecoding.cheforest.jpa.file.service;
 
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
@@ -174,15 +173,6 @@ public class FileService {
                 .orElse(null);
     }
 
-    // ====== 프로필 교체 ======
-    public FileDto replaceProfileImage(Long memberId, MultipartFile profileImage) throws IOException {
-        FileDto oldFile = getProfileFileByMemberId(memberId);
-        if (oldFile != null) {
-            deleteFile(oldFile.getFileId());
-        }
-        return saveFile(profileImage, "MEMBER", memberId, "PROFILE", memberId);
-    }
-
     // ====== 도우미 ======
     public String getMimeType(String extension) {
         if (extension == null) return "application/octet-stream";
@@ -195,6 +185,7 @@ public class FileService {
         };
     }
 
+    // ====== 확장자 추출 ======
     private String getFileExtension(String fileName) {
         if (fileName == null) return "";
         int dot = fileName.lastIndexOf('.');

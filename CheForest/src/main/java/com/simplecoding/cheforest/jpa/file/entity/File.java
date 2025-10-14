@@ -35,7 +35,6 @@ public class File extends BaseTimeEntity {
 
     private String usePosition; // 위치 구분 (썸네일, 본문 등)
 
-
     // 업로더 회원 (FK)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UPLOADER_ID")

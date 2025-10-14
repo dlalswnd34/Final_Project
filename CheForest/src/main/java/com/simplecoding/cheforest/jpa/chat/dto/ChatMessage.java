@@ -17,7 +17,7 @@ public class ChatMessage {
         TEXT, IMAGE
     }
 
-    // 🌟 이 필드가 누락되어 ChatStompController에서 getType() 에러가 발생했습니다.
+    // 이 필드가 누락되어 ChatStompController에서 getType() 에러가 발생했습니다.
     private MessageType type;
 
     private Long senderId; // message 테이블에서 member 테이블로부터 fk로 발신자 식별 (식별용)

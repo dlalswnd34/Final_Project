@@ -1,7 +1,5 @@
 package com.simplecoding.cheforest.jpa.inquiries.controller;
 
-
-import com.simplecoding.cheforest.jpa.auth.security.CustomUserDetails; // ✅ CustomUserDetails 임포트
 import com.simplecoding.cheforest.jpa.inquiries.dto.InquiryWithNicknameDto;
 import com.simplecoding.cheforest.jpa.inquiries.entity.Inquiries;
 import com.simplecoding.cheforest.jpa.inquiries.repository.InquiriesRepository;
@@ -16,16 +14,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
 @Log4j2
 @RequiredArgsConstructor
-@RestController // REST API 전용 컨트롤러
+@RestController
 public class InquiriesController {
 
     private final InquiriesService inquiriesService;
@@ -53,10 +48,12 @@ public class InquiriesController {
     public Long countPendingInquiries() {
         return inquiriesService.countPendingInquiries();
     }
+
     @GetMapping("/api/inquiries/countAnsweredInquiries")
     public Long countAnsweredInquiries() {
         return inquiriesService.countAnsweredInquiries();
     }
+
     @GetMapping("/api/inquiries/countTodayInquiries")
     public Long countTodayInquiries() {
         return inquiriesService.countTodayInquiries();
@@ -67,13 +64,13 @@ public class InquiriesController {
         return inquiriesService.findPendingInquiriesWithNickname();
     }
 
-
     @Getter
     @Setter
     public static class AnswerRequestDto {
         private Long inquiryId;
         private String answerContent;
     }
+
     @PostMapping("/inquiries/answer")
     public ResponseEntity<String> submitAnswer(@RequestBody AnswerRequestDto dto) {
         try {
@@ -100,7 +97,6 @@ public class InquiriesController {
         }
     }
 
-
     @Getter
     @Setter
     public static class InquiryRequestDto  {
@@ -108,6 +104,7 @@ public class InquiriesController {
         private String subject;  // 제목
         private String message;  // 질문 내용
     }
+
     @PostMapping("/inquiries/ask")
     public ResponseEntity<String> submitAsk(@RequestBody InquiryRequestDto requestDto) {
         // 유효성 검사
@@ -131,6 +128,7 @@ public class InquiriesController {
 
         return ResponseEntity.ok().body("문의가 등록되었습니다.");
     }
+
     @GetMapping("/api/searchInquiries")
     public Page<InquiryWithNicknameDto> getInquiries(
             @RequestParam(required = false) String keyword,
@@ -139,6 +137,7 @@ public class InquiriesController {
     ) {
         return inquiriesService.searchInquiries(keyword, status, pageable);
     }
+
     //   FAQ로 등록 및 해제
     @PostMapping("/inquiries/FAQ")
     public ResponseEntity<String> submitFaq(@RequestBody Map<String, Object> payload) {
@@ -174,6 +173,7 @@ public class InquiriesController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
         }
     }
+
     // 문의사항 삭제 (관리자용)
     @PostMapping("/inquiries/delete")
     public ResponseEntity<String> deleteInquiries(@RequestBody Map<String, Object> payload) {
@@ -196,82 +196,4 @@ public class InquiriesController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
         }
     }
-
-
-//    /**
-//     * 마이페이지: 로그인된 사용자의 문의 내역을 페이징하여 조회하는 API
-//     */
-//    @GetMapping("/api/mypage/inquiries")
-//    public ResponseEntity<Map<String, Object>> getMyInquiries(
-//            @AuthenticationPrincipal(expression = "member.memberIdx") Long memberIdx,
-//            @RequestParam(defaultValue = "all") String status,   // ✅ 추가됨
-//            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
-//    ) {
-//        if (memberIdx == null) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//        }
-//
-//        Page<InquiryWithNicknameDto> pageResult = inquiriesService.getMyInquiries(memberIdx, status, pageable);
-//
-//        Map<String, Object> body = new HashMap<>();
-//        body.put("data", pageResult.getContent());
-//        body.put("total", pageResult.getTotalElements());
-//        body.put("totalPages", pageResult.getTotalPages());
-//        body.put("page", pageResult.getNumber() + 1); // 1-based
-//        body.put("size", pageable.getPageSize());
-//        body.put("status", status);
-//
-//        return ResponseEntity.ok(body);
-//    }
-//
-//    /**
-//     * 마이페이지: 사용자가 자신의 문의를 삭제하는 API
-//     */
-//    @PostMapping("/inquiries/my/delete")
-//    public ResponseEntity<String> deleteMyInquiry(
-//            @AuthenticationPrincipal(expression = "member.memberIdx") Long memberIdx,
-//            @RequestBody Map<String, Object> payload
-//    ) {
-//        if (memberIdx == null) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
-//        }
-//
-//        Long inquiryId = Long.valueOf(String.valueOf(payload.get("inquiryId")));
-//        try {
-//            inquiriesService.deleteInquiry(inquiryId, memberIdx);
-//            return ResponseEntity.ok("성공적으로 문의사항이 삭제되었습니다.");
-//        } catch (SecurityException e) {
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-//        } catch (IllegalArgumentException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생: " + e.getMessage());
-//        }
-//    }
-//
-////    마이페이지에서 회원이 작성한 문의내용 수정
-//    @PostMapping("/inquiries/my/update")
-//    public ResponseEntity<String> updateMyInquiry(
-//            @AuthenticationPrincipal(expression = "member.memberIdx") Long memberIdx,
-//            @RequestBody Map<String, Object> payload
-//    ) {
-//        if (memberIdx == null) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
-//        }
-//
-//        Long inquiryId = Long.valueOf(String.valueOf(payload.get("inquiryId")));
-//        String newTitle   = String.valueOf(payload.get("title"));
-//        String newContent = String.valueOf(payload.get("content"));
-//
-//        try {
-//            inquiriesService.updateInquiry(inquiryId, memberIdx, newTitle, newContent);
-//            return ResponseEntity.ok("문의가 수정되었습니다.");
-//        } catch (SecurityException e) {
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("❌ 권한이 없습니다.");
-//        } catch (IllegalArgumentException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("❌ 문의를 찾을 수 없습니다.");
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("❌ 서버 오류: " + e.getMessage());
-//        }
-//    }
 }

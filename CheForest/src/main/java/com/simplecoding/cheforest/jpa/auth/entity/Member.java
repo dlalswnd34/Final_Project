@@ -25,7 +25,7 @@ public class Member extends BaseTimeEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "MEMBER_SEQ_JPA")
-    private Long memberIdx;   // PK (DB 컬럼: MEMBERIDX 로 맞춰야 함)
+    private Long memberIdx;   // PK
 
     @Column(name = "ID", nullable = false, unique = true)
     private String loginId;  // 로그인 ID
@@ -36,7 +36,6 @@ public class Member extends BaseTimeEntity implements Serializable {
     private Role role;        // USER / ADMIN
     private String nickname;
     private String profile;
-    private String tempPasswordYn = "N";  // 기본값 N
     private String socialId;   // 카카오, 구글, 네이버 식별자
     private String provider;   // "KAKAO", "GOOGLE", "NAVER"
     private Long point = 0L;      // 누적 포인트
@@ -54,18 +53,6 @@ public class Member extends BaseTimeEntity implements Serializable {
     @OneToMany(mappedBy = "sender")
     private List<Message> messages = new ArrayList<>();
 
-
-    // 포인트 증가 + 등급 변경 로직
-    public void addPoint(long value) {
-        this.point += value;
-
-        if (point >= 4000) this.grade = "숲";
-        else if (point >= 3000) this.grade = "나무";
-        else if (point >= 2000) this.grade = "새싹";
-        else if (point >= 1000) this.grade = "뿌리";
-        else this.grade = "씨앗";
-    }
-
     /**
      * 현재 회원의 등급에 따라 허용되는 최대 이모티콘 개수를 반환합니다.
      * 이 값은 ChatStompController (서버 검증)와 UserApiController (프론트엔드 UI 검증)에 사용됩니다.
@@ -81,5 +68,4 @@ public class Member extends BaseTimeEntity implements Serializable {
             default -> 4; // 기본값
         };
     }
-
 }

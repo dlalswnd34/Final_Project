@@ -2,8 +2,8 @@ package com.simplecoding.cheforest.jpa.home.service;
 
 import com.simplecoding.cheforest.jpa.board.dto.BoardLatestRowDTO;
 import com.simplecoding.cheforest.jpa.board.repository.BoardRepositoryDsl;
+import com.simplecoding.cheforest.jpa.common.MapStruct;
 import com.simplecoding.cheforest.jpa.recipe.dto.RecipeCardDTO;
-import com.simplecoding.cheforest.jpa.recipe.entity.Recipe;
 import com.simplecoding.cheforest.jpa.recipe.repository.RecipeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,13 +21,14 @@ public class HomeService {
 
     private final RecipeRepository recipeRepository;
     private final BoardRepositoryDsl boardRepositoryDsl;
+    private final MapStruct mapStruct;
 
     // 인기 레시피 TOP4
     public List<RecipeCardDTO> getPopularRecipes() {
         return recipeRepository
                 .findTop4ByLikeCountGreaterThanOrderByLikeCountDescViewCountDescRecipeIdDesc(0L)
                 .stream()
-                .map(this::toRecipeCardDTO)
+                .map(mapStruct::toCardDto)
                 .toList();
     }
 
@@ -40,7 +41,7 @@ public class HomeService {
             List<RecipeCardDTO> top3 = recipeRepository
                     .findTop3ByCategoryKrAndLikeCountGreaterThanOrderByLikeCountDescViewCountDescRecipeIdDesc(category, 0L)
                     .stream()
-                    .map(this::toRecipeCardDTO)
+                    .map(mapStruct::toCardDto)
                     .toList();
             result.put(category, top3);
         }
@@ -65,27 +66,12 @@ public class HomeService {
                     row.setCreatedAgo(ago); // ← DTO에 setter 필요
                 }
             });
-
             result.put(category, latest);
         }
         return result;
     }
 
-    // 엔티티 → DTO 변환
-    private RecipeCardDTO toRecipeCardDTO(Recipe r) {
-        return RecipeCardDTO.builder()
-                .id(r.getRecipeId())
-                .title(r.getTitleKr())
-                .thumbnail(r.getThumbnail())
-                .categoryName(r.getCategoryKr())
-                .writerNickname("CheForest 관리자") // API 데이터엔 작성자 없음
-                .cookTime(r.getCookTime())
-                .difficulty(r.getDifficulty())
-                .viewCount(r.getViewCount())
-                .likeCount(r.getLikeCount())
-                .build();
-    }
-
+    // 날짜 전처리
     private String toAgo(ZonedDateTime created, ZonedDateTime now) {
         long minutes = Duration.between(created, now).toMinutes();
         if (minutes < 1) return "방금 전";

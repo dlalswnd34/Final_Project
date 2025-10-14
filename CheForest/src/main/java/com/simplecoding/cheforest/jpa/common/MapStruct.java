@@ -9,20 +9,15 @@ import com.simplecoding.cheforest.jpa.chatbot.entity.ChatbotFaq;
 import com.simplecoding.cheforest.jpa.file.entity.File;
 import com.simplecoding.cheforest.jpa.board.dto.BoardListDto;
 import com.simplecoding.cheforest.jpa.board.dto.BoardSaveReq;
-import com.simplecoding.cheforest.jpa.like.dto.LikeRes;
-import com.simplecoding.cheforest.jpa.like.dto.LikeSaveReq;
-import com.simplecoding.cheforest.jpa.like.entity.Like;
+import com.simplecoding.cheforest.jpa.recipe.dto.RecipeCardDTO;
 import com.simplecoding.cheforest.jpa.review.dto.ReviewDto;
 import org.mapstruct.*;
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.board.entity.Board;
 import com.simplecoding.cheforest.jpa.review.entity.Review;
-import com.simplecoding.cheforest.jpa.like.dto.LikeDto;
 import com.simplecoding.cheforest.jpa.file.dto.FileDto;
 import com.simplecoding.cheforest.jpa.recipe.dto.RecipeDto;
 import com.simplecoding.cheforest.jpa.recipe.entity.Recipe;
-
-import java.util.List;
 
 @Mapper(componentModel = "spring",
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -34,12 +29,25 @@ public interface MapStruct {
     // Member 엔티티 -> 상세 DTO (세션/조회용)
     MemberDetailDto toDetailDto(Member member);
 
+    // ================= Recipe =================
+    RecipeDto toDto(Recipe entity);
+
+    @Mapping(target = "id", source = "recipeId")
+    @Mapping(target = "title", source = "titleKr")
+    @Mapping(target = "thumbnail", source = "thumbnail")
+    @Mapping(target = "categoryName", source = "categoryKr")
+    @Mapping(target = "writerNickname", constant = "CheForest 관리자")
+    @Mapping(target = "cookTime", source = "cookTime")
+    @Mapping(target = "difficulty", source = "difficulty")
+    @Mapping(target = "viewCount", source = "viewCount")
+    @Mapping(target = "likeCount", source = "likeCount")
+    RecipeCardDTO toCardDto(Recipe entity);
 
     // ================= Board =================
     // 목록 조회 DTO 변환
     @Mapping(target = "nickname", source = "writer.nickname")
     @Mapping(target = "writerIdx", source = "writer.memberIdx")
-    @Mapping(target = "likeCount", source = "likeCount")   // ✅ 좋아요 수 매핑
+    @Mapping(target = "likeCount", source = "likeCount")   // 좋아요 수 매핑
     BoardListDto toListDto(Board board);
 
     // 저장용 DTO → 엔티티
@@ -73,16 +81,6 @@ public interface MapStruct {
     @Mapping(source = "uploader.memberIdx", target = "uploaderIdx")
     @Mapping(source = "uploader.loginId", target = "uploaderLoginId")
     FileDto toDto(File file);
-
-    // DTO → Entity
-    @Mapping(source = "uploaderIdx", target = "uploader.memberIdx")
-    @Mapping(source = "uploaderLoginId", target = "uploader.loginId")
-    File toEntity(FileDto fileDto);
-
-    // Recipe
-    Recipe toEntity(RecipeDto dto);
-    RecipeDto toDto(Recipe entity);
-
 
     //    TODO: 통합검색관련) IntegratedSearch <-> IntegratedSearchDto
     IntegratedSearchDto toDto(IntegratedSearch integratedSearch);

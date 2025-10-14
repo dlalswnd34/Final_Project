@@ -9,27 +9,25 @@ import java.util.List;
 import java.util.Random;
 
 @RestController
-@RequestMapping("/api/recipes")
 @RequiredArgsConstructor
 public class RecipeRestController {
 
     private final RecipeService recipeService;
 
-
-    // ✅ 인기 레시피 Top 5
-    @GetMapping("/popular")
+    // 인기 레시피 Top 5
+    @GetMapping("/api/recipes/popular")
     public List<RecipeDto> getPopularRecipes() {
         return recipeService.findPopularRecipes();
     }
 
-    // ✅ 레시피 검색
-    @GetMapping("/search")
+    // 레시피 검색
+    @GetMapping("/api/recipes/search")
     public List<RecipeDto> searchRecipes(@RequestParam String keyword) {
         return recipeService.searchRecipes(keyword);
     }
 
-    // ✅ 카테고리별 랜덤 레시피 1개
-    @GetMapping("/random")
+    // 카테고리별 랜덤 레시피 1개
+    @GetMapping("/api/recipes/random")
     public RecipeDto getRandomRecipe(@RequestParam String category) {
         List<RecipeDto> candidates = recipeService.getRandomRecipesByCategory(category, 5);
         if (candidates == null || candidates.isEmpty()) {

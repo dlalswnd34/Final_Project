@@ -17,29 +17,29 @@ import java.time.format.DateTimeFormatter;
 public class PointController {
 
     private final PointService pointService;
-    private final RankingService rankingService; // ✅ 추가
+    private final RankingService rankingService;
 
     @GetMapping("/grade")
     public String gradePage(@AuthenticationPrincipal Object principal, Model model) {
 
-        if (principal instanceof AuthUser authUser) { // ✅ 통합 처리 (일반+소셜)
+        if (principal instanceof AuthUser authUser) {
             Member member = authUser.getMember();
 
             if (member != null) {
-                // ✅ 오늘 포인트 / 남은 포인트 계산
+                // 오늘 포인트 / 남은 포인트 계산
                 Long todayPoints = pointService.getTodayPoints(member.getMemberIdx());
                 Long nextGradePoint = pointService.getNextGradePoint(member.getPoint());
 
-                // ✅ 내 순위 계산
+                // 내 순위 계산
                 Long myRank = rankingService.getMyRank(member);
 
-                // ✅ JSP 전달용
+                // JSP 전달용
                 model.addAttribute("m", member);
                 model.addAttribute("todayPoints", todayPoints);
                 model.addAttribute("nextGradePoint", nextGradePoint);
                 model.addAttribute("myRank", myRank); // ✅ 추가
 
-                // ✅ 가입일 표시
+                // 가입일 표시
                 if (member.getInsertTime() != null) {
                     String joinDate = member.getInsertTime()
                             .format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
@@ -49,7 +49,6 @@ public class PointController {
                 }
             }
         }
-
         return "grade";
     }
 }

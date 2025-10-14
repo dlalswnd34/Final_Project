@@ -24,7 +24,6 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.Random;
 
 @Slf4j
 @Service
@@ -59,7 +58,7 @@ public class MemberService {
 
     // ================= 회원가입 =================
     public void register(MemberSignupDto dto, String verifiedEmail) {
-        // 1️⃣ 중복검사
+        // 중복검사
         if (memberRepository.existsByLoginId(dto.getLoginId())) {
             throw new IllegalArgumentException("이미 사용중인 아이디입니다.");
         }
@@ -70,19 +69,18 @@ public class MemberService {
             throw new IllegalArgumentException("이미 사용중인 닉네임입니다.");
         }
 
-        // 2️⃣ 이메일 인증 확인
+        // 이메일 인증 확인
         if (verifiedEmail == null || !verifiedEmail.equals(dto.getEmail())) {
             throw new IllegalArgumentException("이메일 인증이 완료되지 않았습니다.");
         }
 
-        // 3️⃣ 비밀번호 암호화
+        // 비밀번호 암호화
         String encodedPw = passwordEncoder.encode(dto.getPassword());
 
-        // 4️⃣ 엔티티 변환 및 저장
+        // 엔티티 변환 및 저장
         Member member = mapStruct.toEntity(dto);
         member.setPassword(encodedPw);
-        member.setRole(Member.Role.USER); // 기본 권한 USER
-        member.setTempPasswordYn("N");
+        member.setRole(Member.Role.USER);
         member.setPoint(0L);
         member.setGrade("씨앗");
 
@@ -93,11 +91,11 @@ public class MemberService {
     @Transactional
     public Member update(MemberUpdateDto dto, Long memberIdx) {
 
-        // 1. 현재 사용자를 ID로 조회합니다. 없으면 예외를 발생시킵니다.
+        // 1) 현재 사용자를 ID로 조회합니다. 없으면 예외를 발생시킵니다.
         Member member = memberRepository.findById(memberIdx)
                 .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
 
-        // ✅✅✅ 2. [가장 중요] 닉네임 중복 검사 로직 추가 ✅✅✅
+        // 2) 닉네임 중복 검사 로직 추가
         //    변경하려는 닉네임이 현재 내 닉네임과 다를 경우에만 중복 검사를 수행합니다.
         if (!member.getNickname().equals(dto.getNickname())) {
             if (memberRepository.existsByNickname(dto.getNickname())) {
@@ -105,14 +103,14 @@ public class MemberService {
             }
         }
 
-        // 3. DTO의 값으로 회원 정보(Entity)를 업데이트합니다.
+        // 3) DTO의 값으로 회원 정보(Entity)를 업데이트합니다.
         member.setNickname(dto.getNickname());
 
         if (dto.getProfile() != null) {
             member.setProfile(dto.getProfile());
         }
 
-        // 4. @Transactional에 의해 메서드가 종료될 때 변경된 내용이 DB에 자동으로 반영됩니다.
+        // 4) @Transactional에 의해 메서드가 종료될 때 변경된 내용이 DB에 자동으로 반영됩니다.
         return member;
     }
 
@@ -151,15 +149,6 @@ public class MemberService {
         return memberRepository.existsByNickname(nickname);
     }
 
-    @Transactional(readOnly = true)
-    public boolean existsByEmail(String email) {
-        return memberRepository.existsByEmail(email);
-    }
-
-    public String findLoginIdByEmail(String email) {
-        return memberRepository.findIdByEmail(email);
-    }
-
     // ADMIN 통계용 작성한 게시글,댓글수 추가한 전체 회원정보(페이지네이션)
     public Page<MemberAdminDto> adminAllMember(String keyword,Pageable pageable) {
         return memberRepository.findAllWithBoardCounts(keyword, pageable);
@@ -175,7 +164,7 @@ public class MemberService {
         Member member = memberRepository.findById(memberIdx)
                 .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
 
-        // 2. DB 마스킹 처리
+        // DB 마스킹 처리
         member.setLoginId("deleted_" + member.getMemberIdx());
         member.setNickname("탈퇴한 회원_" + member.getMemberIdx());
         member.setEmail("deleted");
@@ -183,24 +172,24 @@ public class MemberService {
 
         if (member.getProvider() != null
                 && !"deleted".equalsIgnoreCase(member.getProvider())) {
-            // ✅ 진짜 소셜 회원일 때만 처리
+            // 진짜 소셜 회원일 때만 처리
             member.setProvider("deleted");
             member.setSocialId("deleted");
-            member.setPassword("SOCIAL_ACCOUNT"); // 🔸 null 금지
+            member.setPassword("SOCIAL_ACCOUNT");
         } else {
-            // ✅ 일반 회원
+            // 일반 회원
             member.setPassword("deleted");
         }
 
         memberRepository.save(member);
 
-        // ✅ 관리자 강제 삭제면 소셜 unlink 건너뜀
+        // 관리자 강제 삭제면 소셜 unlink 건너뜀
         if (accessToken == null) {
             log.info("관리자 강제 삭제 요청 → 소셜 unlink 건너뜀 (memberIdx={})", memberIdx);
             return;
         }
 
-        // 3. 소셜 unlink 호출
+        // 소셜 unlink 호출
         if ("KAKAO".equalsIgnoreCase(member.getProvider())) {
             unlinkKakao(accessToken);
         } else if ("GOOGLE".equalsIgnoreCase(member.getProvider())) {

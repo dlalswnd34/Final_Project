@@ -6,6 +6,7 @@ import com.simplecoding.cheforest.jpa.dust.entity.DustCache;
 import com.simplecoding.cheforest.jpa.dust.repository.DustCacheRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -17,25 +18,27 @@ import java.net.URI;
 @Slf4j
 public class DustService {
 
+    @Value("${api.air.service-key}")
+    private String serviceKey;
+
+    @Value("${api.air.base-url}")
+    private String baseUrl;
+
     private final DustCacheRepository dustCacheRepository;
     private final ObjectMapper om = new ObjectMapper();
 
-    // 인코딩된 서비스키 사용
-    private static final String SERVICE_KEY =
-            "3WEYjbpIjKwt0F0YJNn1HsEtZUeiUTA%2BOTnqYz%2BHPB8X0o29U8OYJIEdTL5b4IMz0G16W1oMj6cVRNp4fnL1dA%3D%3D";
-
-    // ✅ 특정 시/도 미세먼지 조회 (API 호출 → DB 저장)
+    // 특정 시/도 미세먼지 조회 (API 호출 → DB 저장)
     public DustCache getDustInfo(String sido) {
         try {
             URI uri = UriComponentsBuilder
-                    .fromUriString("http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty")
-                    .queryParam("serviceKey", SERVICE_KEY)
+                    .fromUriString(baseUrl)
+                    .queryParam("serviceKey", serviceKey)
                     .queryParam("returnType", "json")
                     .queryParam("numOfRows", "1")
                     .queryParam("pageNo", "1")
                     .queryParam("sidoName", sido) // 자동 인코딩
                     .queryParam("ver", "1.0")
-                    .build(true) // ✅ 반드시 true → 자동 인코딩
+                    .build(true) // 반드시 true → 자동 인코딩
                     .toUri();
 
             RestTemplate restTemplate = new RestTemplate();
@@ -53,12 +56,12 @@ public class DustService {
             cache.setSido(sido);
             cache.setPm10(item.path("pm10Value").asText("-"));
             cache.setPm25(item.path("pm25Value").asText("-"));
-            cache.setPm10Grade(grade(cache.getPm10(), false));
-            cache.setPm25Grade(grade(cache.getPm25(), true));
+            cache.setPm10G(grade(cache.getPm10(), false));
+            cache.setPm25G(grade(cache.getPm25(), true));
             cache.setDataTime(item.path("dataTime").asText("-"));
             cache.setResultCode("OK");
 
-            // ✅ DB 저장 (덮어쓰기)
+            // DB 저장 (덮어쓰기)
             dustCacheRepository.save(cache);
 
             return cache;
@@ -69,7 +72,7 @@ public class DustService {
         }
     }
 
-    // ✅ 등급 변환
+    // 등급 변환
     private String grade(String val, boolean pm25) {
         if (val == null || val.isBlank() || "-".equals(val)) return "정보없음";
         try {
@@ -81,14 +84,14 @@ public class DustService {
         }
     }
 
-    // ✅ 실패 시 더미 캐시
+    // 실패 시 더미 캐시
     private DustCache errorCache(String sido) {
         DustCache cache = new DustCache();
         cache.setSido(sido);
         cache.setPm10("-");
         cache.setPm25("-");
-        cache.setPm10Grade("정보없음");
-        cache.setPm25Grade("정보없음");
+        cache.setPm10G("정보없음");
+        cache.setPm25G("정보없음");
         cache.setDataTime("-");
         cache.setResultCode("EX");
         return cache;

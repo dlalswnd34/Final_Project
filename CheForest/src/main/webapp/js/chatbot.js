@@ -62,7 +62,7 @@ function renderCards(data, type) {
 
     const wrapper = document.getElementById(wrapperId);
 
-    // ✅ 자동 슬라이드 (3초마다 교체)
+    // 자동 슬라이드 (3초마다 교체)
     setInterval(() => {
         index = (index + 1) % data.length;
         wrapper.innerHTML = getCard(data[index]);
@@ -175,7 +175,7 @@ function sendMessage(text) {
         return;
     }
 
-    // ✅ CSRF 토큰 읽기
+    // CSRF 토큰 읽기
     const csrfToken  = document.querySelector("meta[name='_csrf']").getAttribute("content");
     const csrfHeader = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
 
@@ -186,7 +186,7 @@ function sendMessage(text) {
         contentType: "application/json",
         data: JSON.stringify({ question: text }),
         beforeSend: function(xhr) {
-            // ✅ CSRF 헤더 추가
+            // CSRF 헤더 추가
             xhr.setRequestHeader(csrfHeader, csrfToken);
         },
         success: function(res) {

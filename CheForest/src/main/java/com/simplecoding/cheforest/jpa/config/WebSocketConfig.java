@@ -58,9 +58,9 @@ public class WebSocketConfig extends AbstractSecurityWebSocketMessageBrokerConfi
         messages
                 // "/pub/message" 경로로 들어오는 메시지는 인증된 사용자만 허용합니다.
                 .simpDestMatchers("/pub/message").authenticated()
-                // ✅ 구독은 누구나 허용 (읽기 공개)
+                // 구독은 누구나 허용 (읽기 공개)
                 .simpSubscribeDestMatchers("/sub/**").permitAll()
-                // ✅ 연결/심장박동/종료 프레임은 허용
+                // 연결/심장박동/종료 프레임은 허용
                 .simpTypeMatchers(SimpMessageType.CONNECT, SimpMessageType.HEARTBEAT, SimpMessageType.DISCONNECT).permitAll()
                 // 그 외 다른 모든 메시지(CONNECT, SUBSCRIBE 등)는 인증된 사용자라면 모두 허용합니다.
                 .anyMessage().authenticated();

@@ -1,4 +1,3 @@
-
 package com.simplecoding.cheforest.jpa.mypage.dto;
 
 import lombok.Getter;

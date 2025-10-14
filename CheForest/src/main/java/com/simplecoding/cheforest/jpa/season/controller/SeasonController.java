@@ -21,7 +21,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class SeasonController {
 
     private final SeasonIngredientRepository seasonIngredientRepository;
-    private final RecipeRepository recipeRepository; // ✅ Lombok 주입 대상
+    private final RecipeRepository recipeRepository;
 
     @GetMapping("/season")
     public String showSeason(Model model) {
@@ -30,7 +30,7 @@ public class SeasonController {
         List<SeasonIngredient> autumn = seasonIngredientRepository.findBySeasons("autumn");
         List<SeasonIngredient> winter = seasonIngredientRepository.findBySeasons("winter");
 
-        // ✅ 순서 랜덤 섞기
+        // 순서 랜덤 섞기
         Collections.shuffle(spring);
         Collections.shuffle(summer);
         Collections.shuffle(autumn);

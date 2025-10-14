@@ -1,8 +1,8 @@
 package com.simplecoding.cheforest.jpa.board.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.simplecoding.cheforest.es.integratedSearch.entity.IntegratedSearch;
 import com.simplecoding.cheforest.es.integratedSearch.repository.IntegratedSearchRepository;
+import com.simplecoding.cheforest.jpa.auth.security.AuthUser;
 import com.simplecoding.cheforest.jpa.board.dto.*;
 import com.simplecoding.cheforest.jpa.board.entity.Board;
 import com.simplecoding.cheforest.jpa.board.repository.BoardRepository;
@@ -15,11 +15,13 @@ import com.simplecoding.cheforest.jpa.file.service.FileService;
 import com.simplecoding.cheforest.jpa.like.service.LikeService;
 import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.auth.repository.MemberRepository;
-import com.simplecoding.cheforest.jpa.review.service.ReviewService;   // ✅ 추가
+import com.simplecoding.cheforest.jpa.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,7 +46,7 @@ public class BoardService {
     private final IntegratedSearchRepository integratedSearchRepository;
     private final ReviewService reviewService;
 
-    // 1. 목록 조회 (검색 + 페이징)
+    // 목록 조회 (검색 + 페이징)
     @Transactional(readOnly = true)
     public Page<BoardListDto> searchBoards(String keyword, String category, String searchType, Pageable pageable) {
         Page<BoardListDto> result = boardRepositoryDsl.searchBoards(keyword, category, searchType, pageable);
@@ -57,7 +59,7 @@ public class BoardService {
         return result;
     }
 
-    // 2. 상세 조회 (+ 조회수 증가)
+    // 상세 조회 (+ 조회수 증가)
     @Transactional
     public BoardDetailDto getBoardDetail(Long boardId) {
         BoardDetailDto dto = boardRepositoryDsl.findBoardDetail(boardId);
@@ -72,7 +74,7 @@ public class BoardService {
         return dto;
     }
 
-    // 3. 게시글 등록
+    // 게시글 등록
     @Transactional
     public Long create(BoardSaveReq dto, String writerEmail) throws IOException {
         Member writer = memberRepository.findByEmail(writerEmail)
@@ -100,33 +102,38 @@ public class BoardService {
         return boardId;
     }
 
-    // 4. 게시글 수정
+    // 게시글 수정
     @Transactional
     public void update(Long boardId,
                        BoardSaveReq dto,
-                       String writerEmail,
                        List<Long> deleteImageIds) throws IOException {
 
-        // 1️⃣ 기존 게시글 조회
+        // 로그인한 사용자 가져오기
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        AuthUser principal = (AuthUser) auth.getPrincipal();
+        Member currentUser = principal.getMember();
+
+        // 게시글 조회
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + boardId));
 
-        // 2️⃣ 작성자 검증
-        if (!board.getWriter().getEmail().equals(writerEmail)) {
-            throw new SecurityException("작성자만 수정할 수 있습니다.");
+        // 작성자 또는 관리자 권한 확인
+        if (!board.getWriter().getEmail().equals(currentUser.getEmail()) &&
+                currentUser.getRole() != Member.Role.ADMIN) {
+            throw new SecurityException("작성자 또는 관리자만 수정할 수 있습니다.");
         }
 
-        // 3️⃣ 기본 정보 업데이트
+        // 기본 정보 업데이트
         board.setTitle(dto.getTitle());
         board.setCategory(dto.getCategory());
         board.setDifficulty(dto.getDifficulty());
         board.setCookTime(dto.getCookTime());
 
-        // 4️⃣ 재료 문자열 변환
+        // 재료 문자열 변환
         board.setPrepare(StringUtil.joinList(dto.getIngredientName()));
         board.setPrepareAmount(StringUtil.joinList(dto.getIngredientAmount()));
 
-        // 5️⃣ ✅ 기존 조리법 JSON → StepDto 변환 (LinkedHashMap 방지)
+        // 기존 조리법 JSON → StepDto 변환 (LinkedHashMap 방지)
         List<StepDto> originalSteps = new ArrayList<>();
         if (board.getContent() != null && !board.getContent().isBlank()) {
             try {
@@ -135,7 +142,7 @@ public class BoardService {
                         mapper.readValue(board.getContent(), new com.fasterxml.jackson.core.type.TypeReference<>() {});
                 for (Map<String, Object> raw : rawList) {
                     StepDto step = new StepDto();
-                    step.setText((String) raw.getOrDefault("text", ""));   // ✅ text 필드 유지
+                    step.setText((String) raw.getOrDefault("text", ""));
                     step.setImage((String) raw.getOrDefault("image", null));
                     originalSteps.add(step);
                 }
@@ -144,7 +151,7 @@ public class BoardService {
             }
         }
 
-        // 6️⃣ ✅ 새 조리법 + 이미지 병합
+        // 새 조리법 + 이미지 병합
         List<StepDto> newSteps = new ArrayList<>();
         List<String> contents = dto.getInstructionContent();
         List<MultipartFile> images = dto.getInstructionImage();
@@ -179,15 +186,15 @@ public class BoardService {
             }
         }
 
-        // 7️⃣ JSON 저장
+        // JSON 저장
         board.setContent(JsonUtil.toJson(newSteps));
 
-        // 8️⃣ 삭제 요청된 기존 첨부 파일 삭제
+        // 삭제 요청된 기존 첨부 파일 삭제
         if (deleteImageIds != null && !deleteImageIds.isEmpty()) {
             deleteImageIds.forEach(fileService::deleteFile);
         }
 
-        // 9️⃣ ✅ 대표 이미지 교체 로직
+        // 대표 이미지 교체 로직
         if (dto.getMainImage() != null && !dto.getMainImage().isEmpty()) {
             if (board.getThumbnail() != null && !board.getThumbnail().isEmpty()) {
                 try {
@@ -204,20 +211,18 @@ public class BoardService {
             }
         }
 
-        // ✅ JPA 더티체킹으로 자동 update 수행
+        // JPA 더티체킹으로 자동 update 수행
     }
 
-    // 5. 게시글 삭제
+    // 게시글 삭제
     public void delete(Long boardId) {
-        // ✅ 댓글 먼저 삭제
         reviewService.deleteByBoardId(boardId);
-
         likeService.deleteAllByBoardId(boardId);
         fileService.deleteAllByTargetIdAndType(boardId, "BOARD");
         boardRepository.deleteById(boardId);
     }
 
-    // 7. 인기글 조회
+    // 인기글 조회
     @Transactional(readOnly = true)
     public List<BoardListDto> getBestPosts() {
         List<BoardListDto> posts = boardRepositoryDsl.findBestPosts();
@@ -229,6 +234,7 @@ public class BoardService {
         return posts;
     }
 
+    // 카테고리별 인기 게시글 조회
     @Transactional(readOnly = true)
     public List<BoardListDto> getBestPostsByCategory(String category) {
         List<BoardListDto> posts = boardRepositoryDsl.findBestPostsByCategory(category);
@@ -240,29 +246,33 @@ public class BoardService {
         return posts;
     }
 
-    // 8. 썸네일 업데이트
+    // 인기 게시글 (좋아요 수 기준)
+    @Transactional(readOnly = true)
+    public List<BoardListDto> findPopularBoards() {
+        return boardRepository.findTop5ByOrderByLikeCountDesc()
+                .stream()
+                .map(board -> mapStruct.toListDto(board))
+                .toList();
+    }
+
+    // 카테고리별 게시글 수
+    public long getCountByCategory(String category) {
+        return boardRepository.countByCategory(category);
+    }
+
+    // 썸네일 업데이트
     public void updateThumbnail(Long boardId, String thumbnailPath) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + boardId));
         board.setThumbnail(thumbnailPath);
     }
 
-    public Long countMyPosts(Member member) {
-        return boardRepository.countByWriter(member);
-    }
-
-    //    총 게시글 수
+    // 총 게시글 수
     public long getTotalCount() {
         return boardRepository.count();
     }
 
-    //    카테고리별 게시글 수
-    public long getCountByCategory(String category) {
-        return boardRepository.countByCategory(category);
-    }
-
-
-    //    전처리
+    // 날짜표시 전처리
     private String toAgo(java.time.LocalDateTime created) {
         java.time.Duration duration = java.time.Duration.between(created, java.time.LocalDateTime.now());
 
@@ -285,19 +295,10 @@ public class BoardService {
         long years = days / 365;
         return years + "년 전";
     }
-    //   최근 3개 조회
+
+    // 최근 3개 조회
     public List<Board> recentPosts() {
         return boardRepository.findTop3ByOrderByInsertTimeDesc();
-    }
-
-    // 인기 게시글 (좋아요 수 기준)
-    @Transactional(readOnly = true)
-// 인기 게시글
-    public List<BoardListDto> findPopularBoards() {
-        return boardRepository.findTop5ByOrderByLikeCountDesc()
-                .stream()
-                .map(board -> mapStruct.toListDto(board))  // ✅ 이렇게 람다식으로
-                .toList();
     }
 
     // 게시글 검색
@@ -307,7 +308,8 @@ public class BoardService {
                 .map(mapStruct::toListDto)
                 .toList();
     }
-    // ✅ 카테고리별 랜덤 게시글 1개
+
+    // 카테고리별 랜덤 게시글 1개
     public BoardListDto getRandomBoardByCategory(String category) {
         List<Board> candidates = boardRepository.findRandomBoardsByCategory(category, 5);
 
@@ -316,8 +318,6 @@ public class BoardService {
         Board randomBoard = candidates.get(new Random().nextInt(candidates.size()));
         return mapStruct.toListDto(randomBoard);
     }
-
-
 }
 
 

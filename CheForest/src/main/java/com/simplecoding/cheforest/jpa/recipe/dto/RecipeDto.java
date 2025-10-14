@@ -36,8 +36,9 @@ public class RecipeDto {
     private String area;
     private Long likeCount;
     private Long viewCount;
-    private String difficulty; // 난이도 (Easy / Normal / Hard)
+    private String difficulty; // 난이도 (쉬움 / 보통 / 어려움)
     private String cookTime;
+
     // === 편의 메서드 (재료+계량 표시) ===
     public List<String> getIngredientDisplayList() {
         if (ingredientKr == null || ingredientKr.trim().isEmpty()) {
@@ -75,11 +76,10 @@ public class RecipeDto {
                 .toList();
     }
 
-    /**
-     * 영어 재료와 계량을 조합하여 표시할 List<String> 반환 (컬럼 토글링용)
-     */
+    // 영어 재료와 계량을 조합하여 표시할 List<String> 반환 (컬럼 토글링용)
     public List<String> getIngredientEnDisplayList() {
-        // 💡 ingredientEn 필드의 실제 값을 확인합니다.
+
+        // ingredientEn 필드의 실제 값을 확인합니다.
         System.out.println("DEBUG: ingredientEn RAW -> [" + ingredientEn + "]");
 
         // 이 조건문이 true가 되어 emptyList()가 반환되는지 확인
@@ -113,9 +113,7 @@ public class RecipeDto {
         return result;
     }
 
-    /**
-     * 영어 조리법을 줄 단위로 분리하여 List<String> 반환 (컬럼 토글링용)
-     */
+    // 영어 조리법을 줄 단위로 분리하여 List<String> 반환 (컬럼 토글링용)
     public List<String> getInstructionEnSteps() {
         System.out.println("DEBUG: instructionEn RAW -> [" + instructionEn + "]"); // <-- 이미 확인됨
 
@@ -125,11 +123,11 @@ public class RecipeDto {
         }
 
         List<String> steps = Arrays.stream(instructionEn.split("\\r?\\n"))
-                .map(String::trim) // 💡 공백 제거 추가
-                .filter(s -> !s.isEmpty()) // 💡 isBlank() 대신 isEmpty() 사용
+                .map(String::trim) // 공백 제거 추가
+                .filter(s -> !s.isEmpty()) // isBlank() 대신 isEmpty() 사용
                 .toList();
 
-        // 💡 최종 List의 크기를 확인합니다.
+        // 최종 List의 크기를 확인합니다.
         System.out.println("DEBUG: instructionEn steps count -> " + steps.size());
         System.out.println("DEBUG: instructionEn first step -> [" + (steps.isEmpty() ? "N/A" : steps.get(0)) + "]");
 

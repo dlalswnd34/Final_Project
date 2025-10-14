@@ -16,18 +16,13 @@ public class ChatbotFaq {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "faq_seq")
     @SequenceGenerator(
             name = "faq_seq",
-            sequenceName = "SEQ_CHATBOT_FAQ", // ✅ DB 시퀀스명
+            sequenceName = "SEQ_CHATBOT_FAQ",
             allocationSize = 1
     )
-    @Column(name = "FAQ_ID")   // ✅ DB 컬럼명과 매칭
+    @Column(name = "FAQ_ID")
     private Long id;
 
-    @Column(name = "QUESTION", nullable = false, length = 500)
     private String question;
-
-    @Column(name = "ANSWER", nullable = false, length = 2000)
     private String answer;
-
-    @Column(name = "CATEGORY", length = 100)
     private String category;
 }

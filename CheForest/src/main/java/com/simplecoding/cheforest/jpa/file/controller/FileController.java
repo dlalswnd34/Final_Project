@@ -15,7 +15,6 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/file")
 public class FileController {
 
     private final FileService fileService;
@@ -23,7 +22,7 @@ public class FileController {
     /* ==============================
        1. 공통 삭제
     ============================== */
-    @DeleteMapping("/{fileId}")
+    @DeleteMapping("/file/{fileId}")
     public ResponseEntity<Void> deleteFile(@PathVariable Long fileId) {
         fileService.deleteFile(fileId);
         return ResponseEntity.ok().build();
@@ -34,7 +33,7 @@ public class FileController {
     ============================== */
 
     // 프로필 업로드
-    @PostMapping("/profile-upload")
+    @PostMapping("/file/profile-upload")
     public ResponseEntity<FileDto> uploadProfileImage(
             @RequestParam("memberIdx") Long memberIdx,
             @RequestParam("profileImage") MultipartFile file
@@ -53,7 +52,7 @@ public class FileController {
     }
 
     // 프로필 조회
-    @GetMapping("/profile/{fileId}")
+    @GetMapping("/file/profile/{fileId}")
     public ResponseEntity<byte[]> getProfileImage(@PathVariable Long fileId) {
         try {
             FileDto fileDto = fileService.getFile(fileId);
@@ -77,7 +76,7 @@ public class FileController {
     ============================== */
 
     // 게시판 파일 업로드
-    @PostMapping("/board-upload")
+    @PostMapping("/file/board-upload")
     public ResponseEntity<List<FileDto>> uploadBoardFiles(
             @RequestParam("boardId") Long boardId,
             @RequestParam("uploaderId") Long uploaderId,
@@ -89,13 +88,13 @@ public class FileController {
     }
 
     // 게시판 파일 목록 조회
-    @GetMapping("/board/{boardId}")
+    @GetMapping("/file/board/{boardId}")
     public ResponseEntity<List<FileDto>> getBoardFiles(@PathVariable Long boardId) {
         return ResponseEntity.ok(fileService.getFilesByBoardId(boardId));
     }
 
     // 게시판 파일 단건 다운로드
-    @GetMapping("/board/file/{fileId}")
+    @GetMapping("/file/board/file/{fileId}")
     public ResponseEntity<byte[]> downloadBoardFile(@PathVariable Long fileId) {
         try {
             FileDto fileDto = fileService.getFile(fileId);
@@ -113,7 +112,9 @@ public class FileController {
             return ResponseEntity.status(500).build();
         }
     }
-    @GetMapping("/board/preview/{fileId}")
+
+    // 썸네일 미리보기
+    @GetMapping("/file/board/preview/{fileId}")
     public ResponseEntity<byte[]> previewBoardFile(@PathVariable Long fileId) {
         try {
             FileDto fileDto = fileService.getFile(fileId);
@@ -127,7 +128,7 @@ public class FileController {
             String mime = fileService.getMimeType(fileDto.getFileType());
             if (mime == null || mime.isBlank()) mime = MediaType.APPLICATION_OCTET_STREAM_VALUE;
 
-            // ★ inline 으로 내려서 <img src="..."> 에 바로 표시되게
+            // inline 으로 내려서 <img src="..."> 에 바로 표시되게
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_TYPE, mime)
                     .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileDto.getFileName() + "\"")
