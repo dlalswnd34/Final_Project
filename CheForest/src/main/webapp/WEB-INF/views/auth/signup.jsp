@@ -208,7 +208,7 @@
                 <div class="separator"></div>
                 <div class="footer-content">
                     <p class="footer-text">이미 계정이 있으시나요?</p>
-                    <button class="login-link" onclick="goToLogin()">
+                    <button class="login-link" onclick="showPage('login')">
                         로그인하기
                     </button>
                 </div>
@@ -217,7 +217,7 @@
 
         <!-- 등급 안내 링크 -->
         <div class="grade-link">
-            <button onclick="goToGrade()">
+            <button onclick="showPage('grade')">
                 CheForest 등급 시스템 알아보기 →
             </button>
         </div>

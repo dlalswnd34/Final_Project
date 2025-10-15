@@ -1,7 +1,5 @@
 package com.simplecoding.cheforest.es.integratedSearch.service;
 
-
-
 import com.simplecoding.cheforest.es.integratedSearch.dto.IntegratedSearchDto;
 import com.simplecoding.cheforest.es.integratedSearch.entity.IntegratedSearch;
 import com.simplecoding.cheforest.jpa.common.MapStruct;
@@ -63,6 +61,9 @@ public class IntegratedSearchService {
             }
             return b;
         }));
+
+        // 스코어 기준으로 내림차순
+        qb.withSort(s -> s.score(sc -> sc.order(co.elastic.clients.elasticsearch._types.SortOrder.Desc)));
 
         qb.withPageable(pageable);
 
