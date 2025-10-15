@@ -1,4 +1,3 @@
-// src/main/java/com/simplecoding/cheforest/jpa/dust/controller/DustController.java
 package com.simplecoding.cheforest.jpa.dust.controller;
 
 import com.simplecoding.cheforest.jpa.dust.entity.DustCache;

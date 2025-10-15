@@ -165,3 +165,68 @@ body {
     border-radius: 6px;
     cursor: pointer;
 }
+
+/* ✅ 반응형 추가 */
+@media (max-width: 640px) {
+    .login-container {
+        padding: 1rem;
+    }
+
+    .login-content {
+        max-width: 100%;
+    }
+
+    .login-card {
+        border-radius: 0.5rem;
+        padding-top: 0.5rem;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .card-header {
+        padding: 0.75rem 1.5rem;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+    }
+
+    .card-description {
+        font-size: 0.8rem;
+    }
+
+    .card-content {
+        padding: 0 1.5rem 0.75rem;
+    }
+
+    .form-input {
+        font-size: 0.9rem;
+        padding: 0.65rem 0.65rem 0.65rem 2.25rem;
+    }
+
+    .submit-btn {
+        padding: 0.65rem;
+        font-size: 0.95rem;
+    }
+
+    .login-links {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .divider-vertical {
+        display: none;
+    }
+
+    .social-buttons {
+        gap: 0.5rem;
+    }
+
+    .social-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .grade-link {
+        margin-top: 0.5rem;
+    }
+}
