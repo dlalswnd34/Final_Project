@@ -2235,3 +2235,36 @@ body {
 }
 
 .sub-btn:hover{ transform:translateY(-1px); }
+
+.image-container {
+    position: relative;
+    display: inline-block;
+}
+
+.post-image {
+    width: 100px; /* 필요에 맞게 조정 */
+    height: 100px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+/* 🔹 오버레이 상세보기 버튼 */
+.overlay-detail-btn {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    font-size: 11px;
+    padding: 3px 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.85);
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.overlay-detail-btn:hover {
+    background: #f97316;
+    color: white;
+    border-color: #f97316;
+}

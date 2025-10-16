@@ -54,36 +54,37 @@
         <span>게시판으로</span>
       </button>
 
-      <div class="nav-actions">
-        <!-- 작성자 본인에게만 수정 버튼 노출 -->
-          <sec:authorize access="isAuthenticated()">
-              <sec:authentication property="principal.memberIdx" var="currentMemberIdx" scope="request" />
-          </sec:authorize>
-        <c:if test="${not empty currentMemberIdx and currentMemberIdx == board.writerIdx}">
-        <button class="edit-btn" id="editBtn"
-                  onclick="location.href='/board/edition?boardId=${board.boardId}'">
-            <svg class="edit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-              <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
-            수정
-          </button>
-          <form action="/board/delete" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?');">
-            <input type="hidden" name="boardId" value="${board.boardId}">
-            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-            <button class="delete-btn" type="submit">
-              <svg class="delete-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M3 6h18" />
-                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                <line x1="10" y1="11" x2="10" y2="17" />
-                <line x1="14" y1="11" x2="14" y2="17" />
-              </svg>
-              삭제
-            </button>
-          </form>
-        </c:if>
-      </div>
+        <div class="nav-actions">
+            <sec:authorize access="isAuthenticated()">
+                <sec:authentication property="principal.memberIdx" var="currentMemberIdx" scope="request" />
+                <sec:authentication property="principal.authorities" var="authorities" scope="request" />
+            </sec:authorize>
+
+            <c:if test="${not empty currentMemberIdx and (currentMemberIdx == board.writerIdx or fn:contains(authorities, 'ADMIN'))}">
+                <button class="edit-btn" id="editBtn"
+                        onclick="location.href='/board/edition?boardId=${board.boardId}'">
+                    <svg class="edit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                    수정
+                </button>
+                <form action="/board/delete" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                    <input type="hidden" name="boardId" value="${board.boardId}">
+                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                    <button class="delete-btn" type="submit">
+                        <svg class="delete-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M3 6h18"/>
+                            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                            <line x1="10" y1="11" x2="10" y2="17"/>
+                            <line x1="14" y1="11" x2="14" y2="17"/>
+                        </svg>
+                        삭제
+                    </button>
+                </form>
+            </c:if>
+        </div>
     </div>
   </div>
 
