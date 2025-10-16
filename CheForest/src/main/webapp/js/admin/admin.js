@@ -1459,7 +1459,14 @@ const PostManager = {
 
             return `
         <div class="post-management-item">
+          <div class="image-container">
             <img src="${recipe.thumbnail}" alt="${recipe.title}" class="post-image">
+            <button class="overlay-detail-btn" 
+                    data-board-id="${recipe.boardId}" 
+                    onclick="PostManager.viewRecipeDetail(${recipe.boardId})">
+              상세보기
+            </button>
+          </div>
             <div class="post-details">
                 <h4 class="post-main-title">${recipe.title}</h4>
                 <p class="post-description">${shortDescription}</p>
@@ -1528,6 +1535,26 @@ const PostManager = {
         }
 
         pagination.innerHTML = buttons;
+    },
+
+    // 상세조회
+    viewRecipeDetail: async function (boardId) {
+        if (!boardId) {
+            this.showNotification('일치하는 게시글 ID를 찾을 수 없습니다. 다시 시도해주세요.', 'error');
+            return;
+        }
+
+        const button = document.querySelector(`.overlay-detail-btn[data-board-id="${boardId}"]`);
+        const originalHTML = button.innerHTML;
+
+        button.disabled = true;
+        button.innerHTML = `<span class="loading-spinner" style="width:14px; height:14px;"></span>`;
+
+        const url = `/board/view?boardId=${encodeURIComponent(boardId)}`;
+        window.open(url, '_blank');  // 새 탭에서 상세보기 열기
+
+        button.disabled = false;
+        button.innerHTML = originalHTML;
     },
 
     // 수정하기
@@ -1599,13 +1626,9 @@ const PostManager = {
 const AdminAllTabs = {
     // 초기화
     initialize() {
-
-
         this.setupNavigation();
         this.setupTabEvents();
         this.renderCurrentTab();
-
-        setLastSync();
     },
 
     // 네비게이션 설정
@@ -2041,6 +2064,7 @@ const AdminAllTabs = {
             progressFill.style.width = '100%';
             progressText.textContent = '100%';
             this.showNotification(data.message || '통합검색 동기화가 완료되었습니다.', 'success');
+            setLastSync();
         } catch (err) {
             clearInterval(timer);
             this.showNotification(`동기화 실패: ${err.message}`, 'error');

@@ -622,124 +622,124 @@
             </section>
         </div>
 
-        <!-- 이벤트 관리 탭 -->
-        <div id="events-tab" class="tab-content">
-            <section class="management-section">
-                <div class="management-card">
-                    <div class="management-header">
-                        <div class="header-left">
-                            <h3 class="management-title">
-                                <i data-lucide="trophy" class="title-icon"></i>
-                                이벤트 관리
-                            </h3>
-                        </div>
-                        <div class="header-controls">
-                            <div class="search-box">
-                                <i data-lucide="search" class="search-icon"></i>
-                                <input type="text" placeholder="이벤트명, 설명, 태그 검색..." class="search-input" id="event-search">
-                            </div>
-                            <select class="filter-select" id="event-category">
-                                <option value="all">전체 카테고리</option>
-                                <option value="공모전">공모전</option>
-                                <option value="테스트">테스트</option>
-                                <option value="이벤트">이벤트</option>
-                                <option value="워크샵">워크샵</option>
-                            </select>
-                            <select class="filter-select" id="event-status">
-                                <option value="all">전체 상태</option>
-                                <option value="active">진행중</option>
-                                <option value="draft">임시저장</option>
-                                <option value="paused">일시정지</option>
-                                <option value="ended">종료</option>
-                                <option value="cancelled">취소</option>
-                            </select>
-                            <button class="add-btn" onclick="AdminAllTabs.openEventForm()">
-                                <i data-lucide="plus" class="btn-icon"></i>
-                                새 이벤트
-                            </button>
-                        </div>
-                    </div>
+<%--        <!-- 이벤트 관리 탭 -->--%>
+<%--        <div id="events-tab" class="tab-content">--%>
+<%--            <section class="management-section">--%>
+<%--                <div class="management-card">--%>
+<%--                    <div class="management-header">--%>
+<%--                        <div class="header-left">--%>
+<%--                            <h3 class="management-title">--%>
+<%--                                <i data-lucide="trophy" class="title-icon"></i>--%>
+<%--                                이벤트 관리--%>
+<%--                            </h3>--%>
+<%--                        </div>--%>
+<%--                        <div class="header-controls">--%>
+<%--                            <div class="search-box">--%>
+<%--                                <i data-lucide="search" class="search-icon"></i>--%>
+<%--                                <input type="text" placeholder="이벤트명, 설명, 태그 검색..." class="search-input" id="event-search">--%>
+<%--                            </div>--%>
+<%--                            <select class="filter-select" id="event-category">--%>
+<%--                                <option value="all">전체 카테고리</option>--%>
+<%--                                <option value="공모전">공모전</option>--%>
+<%--                                <option value="테스트">테스트</option>--%>
+<%--                                <option value="이벤트">이벤트</option>--%>
+<%--                                <option value="워크샵">워크샵</option>--%>
+<%--                            </select>--%>
+<%--                            <select class="filter-select" id="event-status">--%>
+<%--                                <option value="all">전체 상태</option>--%>
+<%--                                <option value="active">진행중</option>--%>
+<%--                                <option value="draft">임시저장</option>--%>
+<%--                                <option value="paused">일시정지</option>--%>
+<%--                                <option value="ended">종료</option>--%>
+<%--                                <option value="cancelled">취소</option>--%>
+<%--                            </select>--%>
+<%--                            <button class="add-btn" onclick="AdminAllTabs.openEventForm()">--%>
+<%--                                <i data-lucide="plus" class="btn-icon"></i>--%>
+<%--                                새 이벤트--%>
+<%--                            </button>--%>
+<%--                        </div>--%>
+<%--                    </div>--%>
 
-                    <!-- 이벤트 통계 카드 -->
-                    <div class="stats-grid-small">
-<%--                    <div class="stats-grid-large">--%>
-                        <div class="stat-card card-blue">
-                            <div class="stat-content">
-                                <div class="stat-info">
-                                    <h3 class="stat-number">4</h3>
-                                    <p class="stat-label">전체 이벤트</p>
-                                </div>
-                                <div class="iconSize2 stat-labelColor1">
-                                    <i data-lucide="calendar" class="icon"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stat-card card-yellow">
-                            <div class="stat-content">
-                                <div class="stat-info">
-                                    <h3 class="stat-number">2</h3>
-                                    <p class="stat-label">진행중</p>
-                                </div>
-                                <div class="iconSize2 stat-labelColor1">
-                                    <i data-lucide="play" class="icon"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stat-card card-gray">
-                            <div class="stat-content">
-                                <div class="stat-info">
-                                    <h3 class="stat-number">1</h3>
-                                    <p class="stat-label">비공개</p>
-                                </div>
-                                <div class="iconSize2 stat-labelColor1">
-                                    <i data-lucide="edit-3" class="icon"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stat-card card-green">
-                            <div class="stat-content">
-                                <div class="stat-info">
-                                    <h3 class="stat-number">1</h3>
-                                    <p class="stat-label">종료</p>
-                                </div>
-                                <div class="iconSize2 stat-labelColor1">
-                                    <i data-lucide="check-circle" class="icon"></i>
-                                </div>
-                            </div>
-                        </div>
-<%--                        <div class="stat-card card-orange">--%>
+<%--                    <!-- 이벤트 통계 카드 -->--%>
+<%--                    <div class="stats-grid-small">--%>
+<%--&lt;%&ndash;                    <div class="stats-grid-large">&ndash;%&gt;--%>
+<%--                        <div class="stat-card card-blue">--%>
 <%--                            <div class="stat-content">--%>
 <%--                                <div class="stat-info">--%>
-<%--                                    <h3 class="stat-number">5,949</h3>--%>
-<%--                                    <p class="stat-label">총 참가자</p>--%>
-<%--                                    <p class="stat-sub">진행중: 1,703명</p>--%>
+<%--                                    <h3 class="stat-number">4</h3>--%>
+<%--                                    <p class="stat-label">전체 이벤트</p>--%>
 <%--                                </div>--%>
 <%--                                <div class="iconSize2 stat-labelColor1">--%>
-<%--                                    <i data-lucide="users" class="icon"></i>--%>
+<%--                                    <i data-lucide="calendar" class="icon"></i>--%>
 <%--                                </div>--%>
 <%--                            </div>--%>
 <%--                        </div>--%>
-<%--                        <div class="stat-card card-purple">--%>
+<%--                        <div class="stat-card card-yellow">--%>
 <%--                            <div class="stat-content">--%>
 <%--                                <div class="stat-info">--%>
-<%--                                    <h3 class="stat-number">575만원</h3>--%>
-<%--                                    <p class="stat-label">총 예산</p>--%>
-<%--                                    <p class="stat-sub">진행중: 320만원</p>--%>
+<%--                                    <h3 class="stat-number">2</h3>--%>
+<%--                                    <p class="stat-label">진행중</p>--%>
 <%--                                </div>--%>
 <%--                                <div class="iconSize2 stat-labelColor1">--%>
-<%--                                    <i data-lucide="trending-up" class="icon"></i>--%>
+<%--                                    <i data-lucide="play" class="icon"></i>--%>
 <%--                                </div>--%>
 <%--                            </div>--%>
 <%--                        </div>--%>
-                    </div>
+<%--                        <div class="stat-card card-gray">--%>
+<%--                            <div class="stat-content">--%>
+<%--                                <div class="stat-info">--%>
+<%--                                    <h3 class="stat-number">1</h3>--%>
+<%--                                    <p class="stat-label">비공개</p>--%>
+<%--                                </div>--%>
+<%--                                <div class="iconSize2 stat-labelColor1">--%>
+<%--                                    <i data-lucide="edit-3" class="icon"></i>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                        <div class="stat-card card-green">--%>
+<%--                            <div class="stat-content">--%>
+<%--                                <div class="stat-info">--%>
+<%--                                    <h3 class="stat-number">1</h3>--%>
+<%--                                    <p class="stat-label">종료</p>--%>
+<%--                                </div>--%>
+<%--                                <div class="iconSize2 stat-labelColor1">--%>
+<%--                                    <i data-lucide="check-circle" class="icon"></i>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--&lt;%&ndash;                        <div class="stat-card card-orange">&ndash;%&gt;--%>
+<%--&lt;%&ndash;                            <div class="stat-content">&ndash;%&gt;--%>
+<%--&lt;%&ndash;                                <div class="stat-info">&ndash;%&gt;--%>
+<%--&lt;%&ndash;                                    <h3 class="stat-number">5,949</h3>&ndash;%&gt;--%>
+<%--&lt;%&ndash;                                    <p class="stat-label">총 참가자</p>&ndash;%&gt;--%>
+<%--&lt;%&ndash;                                    <p class="stat-sub">진행중: 1,703명</p>&ndash;%&gt;--%>
+<%--&lt;%&ndash;                                </div>&ndash;%&gt;--%>
+<%--&lt;%&ndash;                                <div class="iconSize2 stat-labelColor1">&ndash;%&gt;--%>
+<%--&lt;%&ndash;                                    <i data-lucide="users" class="icon"></i>&ndash;%&gt;--%>
+<%--&lt;%&ndash;                                </div>&ndash;%&gt;--%>
+<%--&lt;%&ndash;                            </div>&ndash;%&gt;--%>
+<%--&lt;%&ndash;                        </div>&ndash;%&gt;--%>
+<%--&lt;%&ndash;                        <div class="stat-card card-purple">&ndash;%&gt;--%>
+<%--&lt;%&ndash;                            <div class="stat-content">&ndash;%&gt;--%>
+<%--&lt;%&ndash;                                <div class="stat-info">&ndash;%&gt;--%>
+<%--&lt;%&ndash;                                    <h3 class="stat-number">575만원</h3>&ndash;%&gt;--%>
+<%--&lt;%&ndash;                                    <p class="stat-label">총 예산</p>&ndash;%&gt;--%>
+<%--&lt;%&ndash;                                    <p class="stat-sub">진행중: 320만원</p>&ndash;%&gt;--%>
+<%--&lt;%&ndash;                                </div>&ndash;%&gt;--%>
+<%--&lt;%&ndash;                                <div class="iconSize2 stat-labelColor1">&ndash;%&gt;--%>
+<%--&lt;%&ndash;                                    <i data-lucide="trending-up" class="icon"></i>&ndash;%&gt;--%>
+<%--&lt;%&ndash;                                </div>&ndash;%&gt;--%>
+<%--&lt;%&ndash;                            </div>&ndash;%&gt;--%>
+<%--&lt;%&ndash;                        </div>&ndash;%&gt;--%>
+<%--                    </div>--%>
 
-                    <!-- 이벤트 그리드 -->
-                    <div class="events-grid" id="events-grid">
-                        <!-- JavaScript로 동적 생성 -->
-                    </div>
-                </div>
-            </section>
-        </div>
+<%--                    <!-- 이벤트 그리드 -->--%>
+<%--                    <div class="events-grid" id="events-grid">--%>
+<%--                        <!-- JavaScript로 동적 생성 -->--%>
+<%--                    </div>--%>
+<%--                </div>--%>
+<%--            </section>--%>
+<%--        </div>--%>
 
         <!-- 문의사항 탭 -->
         <div id="inquiries-tab" class="tab-content">
