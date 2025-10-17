@@ -1,14 +1,3 @@
-/* CheForest - boardview.js (댓글/답글 + 페이지네이션 고정본)
- * - 탭 전환 / 좋아요·북마크 프런트 토글 / Lucide 초기화
- * - 댓글/대댓글 트리 렌더링 (닉네임 정확히 노출, 액션 정렬 고정, 중복 수정폼 방지)
- * - 상위 댓글 페이지네이션(3개/페이지), 대댓글은 그대로 하위에 표시
- * - ReviewController API
- *   · 목록:   GET  /reviews/board/{boardId}
- *   · 등록:   POST /reviews  (body: {boardId, writerIdx, content [,parentId]})
- *   · 수정:   PUT  /reviews/{reviewId} (body: {content})
- *   · 삭제:   DELETE /reviews/{reviewId}
- */
-
 (function () {
     // ========= 전역 값 (JSP에서 내려줌) =========
     const boardId = window.boardId || 0;
@@ -34,8 +23,13 @@
     };
 
     // ========= 유틸 =========
-    const getProfile = (p) => (p && String(p).trim() ? p : "/images/default_profile.png");
-    const esc  = (s) => String(s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+    const getProfile = (p) => {
+        if (!p || !String(p).trim()) return "/images/default_profile.png";
+        const path = String(p).trim();
+        // 이미 절대 경로인 경우 그대로 사용
+        if (path.startsWith("/") || path.startsWith("http")) return path;
+        return `/uploads/${path}`;
+    };    const esc  = (s) => String(s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
     const br   = (s) => esc(s).replaceAll("\n","<br/>");
 
     // 서버 ReviewDto → 화면 모델 정규화 (닉네임 필드 최우선 매핑)
@@ -47,14 +41,9 @@
             createdAt: d.createdAt ?? d.insertTimeStr ?? "",
             writer: {
                 memberIdx: d.writerIdx ?? d.writer?.memberIdx,
-                nickname:
-                    d.writerNickname ??
-                    d.writer?.nickname ??
-                    d.nickname ??
-                    d.memberNickname ??
-                    "익명",
-                profile:   d.writerProfile ?? d.writer?.profile ?? "",
-                grade:     d.writerGrade ?? d.writer?.grade ?? ""
+                nickname: d.writerNickname ?? d.writer?.nickname ?? d.nickname ?? d.memberNickname ?? "익명",
+                profile: d.writerProfile ?? d.profile ?? d.writer?.profile ?? "",
+                grade: d.writerGrade ?? d.grade ?? d.writer?.grade ?? ""
             },
             replies: Array.isArray(d.replies) ? d.replies.map(normalize) : []
         };
@@ -66,7 +55,7 @@
 
     // ========= 렌더러 =========
     function renderReply(r) {
-        const mine = Number(loginUser.memberIdx||0) === Number(r.writer.memberIdx||-1);
+        const mine = Number(loginUser.memberIdx || 0) === Number(r.writer.memberIdx || -1);
         return `
     <div class="reply-item" data-reply-id="${r.id}" data-raw="${esc(r.text)}">
       <div class="reply-border">
@@ -82,7 +71,7 @@
           <div class="reply-text"><div class="reply-plain">${br(r.text)}</div></div>
 
           <div class="reply-actions">
-            <button class="like-vote" data-act="reply-like">${iconThumb}<span class="vote-count">${r.likeCount||0}</span></button>
+            <button class="like-vote" data-act="reply-like">${iconThumb}<span class="vote-count">${r.likeCount || 0}</span></button>
             <div class="right-actions">
               ${mine ? `
                 <button class="edit-btn small" data-act="reply-edit">수정</button>
@@ -95,7 +84,7 @@
     }
 
     function renderComment(c) {
-        const mine = Number(loginUser.memberIdx||0) === Number(c.writer.memberIdx||-1);
+        const mine = Number(loginUser.memberIdx || 0) === Number(c.writer.memberIdx || -1);
         return `
     <div class="comment-item" data-comment-id="${c.id}" data-raw="${esc(c.text)}">
       <div class="comment-header">
@@ -113,7 +102,7 @@
       </div>
 
       <div class="comment-actions">
-        <button class="like-vote" data-act="like">${iconThumb}<span class="vote-count">${c.likeCount||0}</span></button>
+        <button class="like-vote" data-act="like">${iconThumb}<span class="vote-count">${c.likeCount || 0}</span></button>
         <button class="reply-btn" data-act="toggle-reply">${iconReply}답글</button>
         <div class="right-actions">
           ${mine ? `
@@ -166,12 +155,11 @@
         let html = "";
         html += `<button data-page="prev" ${!canPrev ? "disabled": ""}>«</button>`;
         for (let p = 1; p <= totalPages; p++) {
-            html += `<button data-page="${p}" class="${p===CURRENT_PAGE ? "active": ""}">${p}</button>`;
+            html += `<button data-page="${p}" class="${p === CURRENT_PAGE ? "active" : ""}">${p}</button>`;
         }
-        html += `<button data-page="next" ${!canNext ? "disabled": ""}>»</button>`;
+        html += `<button data-page="next" ${!canNext ? "disabled" : ""}>»</button>`;
         $pager.innerHTML = html;
     }
-
 
     function initPagerEvents() {
         if (!$pager) return;
@@ -193,7 +181,6 @@
             renderCurrentPage();
         });
     }
-
 
     // ========= 데이터 통신 =========
     async function loadComments() {

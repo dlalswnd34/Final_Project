@@ -13,8 +13,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // /uploads/**  →  file.upload-dir 실제 폴더
         String location = "file:" + (uploadDir.endsWith("/") ? uploadDir : uploadDir + "/");
+        System.out.println("✅ [WebConfig] uploads location = " + location);
+
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(location);
     }
