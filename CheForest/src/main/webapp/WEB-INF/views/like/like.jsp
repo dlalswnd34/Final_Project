@@ -20,8 +20,6 @@
 <!-- CSS -->
 <link rel="stylesheet" href="/css/like.css"/>
 
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- 좋아요 기능 JS -->
 <script src="/js/like.js"></script>
 

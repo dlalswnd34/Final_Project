@@ -19,4 +19,6 @@ public class LikeRes {     // 좋아요 응답 (조회/출력 컨트롤러용)
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime likeDate;
+    private Long memberIdx;    // 좋아요 누른 회원 ID
+    private String nickname;
 }
