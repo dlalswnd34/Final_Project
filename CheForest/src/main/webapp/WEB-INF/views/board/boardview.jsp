@@ -284,7 +284,14 @@
             <div class="write-content">
               <div class="write-header">
                 <div class="writer-avatar">
-                  <img src="/images/default_profile.png" alt="내 프로필" class="avatar-img">
+                  <c:choose>
+                    <c:when test="${not empty loginUser.profile}">
+                      <img src="<sec:authentication property='principal.profile'/>" alt="내 프로필" class="avatar-img">
+                    </c:when>
+                    <c:otherwise>
+                      <img src="/images/default_profile.png" alt="기본 프로필" class="avatar-img">
+                    </c:otherwise>
+                  </c:choose>
                 </div>
                 <div class="writer-info">
                   <div class="writer-name-line">
