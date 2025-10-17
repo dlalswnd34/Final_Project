@@ -169,7 +169,7 @@
                                 <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
                                     <div class="flex items-center space-x-1">
                                         <i data-lucide="clock" class="w-4 h-4"></i>
-                                        <span><c:out value="${recipe.cookTime}"/>분</span>
+                                        <span><c:out value="${recipe.cookTime}"/></span>
                                     </div>
                                     <span class="text-xs bg-gray-100 px-2 py-1 rounded">
                                         <c:out value="${recipe.difficulty}"/>
