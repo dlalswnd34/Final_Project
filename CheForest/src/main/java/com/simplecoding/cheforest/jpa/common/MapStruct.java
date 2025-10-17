@@ -9,6 +9,8 @@ import com.simplecoding.cheforest.jpa.chatbot.entity.ChatbotFaq;
 import com.simplecoding.cheforest.jpa.file.entity.File;
 import com.simplecoding.cheforest.jpa.board.dto.BoardListDto;
 import com.simplecoding.cheforest.jpa.board.dto.BoardSaveReq;
+import com.simplecoding.cheforest.jpa.like.dto.LikeRes;
+import com.simplecoding.cheforest.jpa.like.dto.LikeSaveReq;
 import com.simplecoding.cheforest.jpa.recipe.dto.RecipeCardDTO;
 import com.simplecoding.cheforest.jpa.review.dto.ReviewDto;
 import org.mapstruct.*;
@@ -18,6 +20,8 @@ import com.simplecoding.cheforest.jpa.review.entity.Review;
 import com.simplecoding.cheforest.jpa.file.dto.FileDto;
 import com.simplecoding.cheforest.jpa.recipe.dto.RecipeDto;
 import com.simplecoding.cheforest.jpa.recipe.entity.Recipe;
+import com.simplecoding.cheforest.jpa.like.entity.Like;
+
 
 @Mapper(componentModel = "spring",
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -93,4 +97,20 @@ public interface MapStruct {
     // Entity <-> DTO
     ChatbotFaqDto toDto(ChatbotFaq chatbotFaq);
     ChatbotFaq toEntity(ChatbotFaqDto chatbotFaqDto);
+
+    // ✅ DTO → Entity 변환
+    @Mapping(target = "likeId", ignore = true)
+    @Mapping(target = "likeDate", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "boardId", source = "req.boardId")
+    @Mapping(target = "recipeId", source = "req.recipeId")
+    @Mapping(target = "likeType", source = "req.likeType")
+    @Mapping(target = "member", source = "member") // ✅ Member 객체 주입
+    Like toEntity(LikeSaveReq req, Member member);
+
+    // ✅ Entity → DTO 변환
+    @Mapping(target = "memberIdx", source = "member.memberIdx")
+    @Mapping(target = "nickname", source = "member.nickname")
+    LikeRes toDto(Like like);
 }
+
+

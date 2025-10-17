@@ -56,4 +56,16 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
     @Modifying
     @Query("UPDATE Recipe r SET r.likeCount = r.likeCount - 1 WHERE r.recipeId = :recipeId")
     void decreaseRecipeLikeCount(String recipeId);
+
+    /** ✅ 전체 좋아요 목록 (회원 기준) */
+    @Query("SELECT l FROM Likes l WHERE l.member = :member ORDER BY l.likeDate DESC")
+    List<Like> findAllByMember(Member member);
+
+    /** ✅ 사용자 작성 레시피 좋아요 (게시판 기반) */
+    @Query("SELECT l FROM Likes l WHERE l.member = :member AND l.boardId IS NOT NULL ORDER BY l.likeDate DESC")
+    List<Like> findAllBoardLikesByMember(Member member);
+
+    /** ✅ CheForest 제공 레시피 좋아요 (레시피 기반) */
+    @Query("SELECT l FROM Likes l WHERE l.member = :member AND l.recipeId IS NOT NULL ORDER BY l.likeDate DESC")
+    List<Like> findAllRecipeLikesByMember(Member member);
 }
