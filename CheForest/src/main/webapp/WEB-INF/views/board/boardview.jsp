@@ -366,9 +366,40 @@
         </sec:authorize>
 
         <!-- 댓글 리스트 -->
+        <!-- 댓글 리스트 -->
         <div class="comments-list" id="commentsList">
-          <div class="empty-box">아직 댓글이 없습니다.</div>
+          <c:choose>
+            <c:when test="${not empty comments}">
+              <c:forEach var="c" items="${comments}">
+                <div class="comment-item">
+                  <div class="comment-avatar">
+                    <c:choose>
+                      <c:when test="${not empty c.profile}">
+                        <img src="/uploads/${c.profile}" alt="작성자 프로필" class="avatar-img">
+                      </c:when>
+                      <c:otherwise>
+                        <img src="/images/default_profile.png" alt="기본 프로필" class="avatar-img">
+                      </c:otherwise>
+                    </c:choose>
+                  </div>
+                  <div class="comment-body">
+                    <div class="comment-header">
+                      <span class="comment-writer"><c:out value="${c.nickname}" default="익명"/></span>
+                      <span class="comment-date"><c:out value="${c.insertTimeStr}" /></span>
+                    </div>
+                    <div class="comment-content">
+                      <c:out value="${c.content}" />
+                    </div>
+                  </div>
+                </div>
+              </c:forEach>
+            </c:when>
+            <c:otherwise>
+              <div class="empty-box">아직 댓글이 없습니다.</div>
+            </c:otherwise>
+          </c:choose>
         </div>
+
 
         <!-- ✅ 페이지네이션 (상위 댓글만) -->
         <div class="comments-pagination" id="commentsPager"></div>
