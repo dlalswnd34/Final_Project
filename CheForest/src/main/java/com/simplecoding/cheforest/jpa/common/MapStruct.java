@@ -103,6 +103,7 @@ public interface MapStruct {
     @Mapping(target = "likeDate", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "boardId", source = "req.boardId")
     @Mapping(target = "recipeId", source = "req.recipeId")
+    @Mapping(target = "reviewId", source = "req.reviewId")
     @Mapping(target = "likeType", source = "req.likeType")
     @Mapping(target = "member", source = "member") // ✅ Member 객체 주입
     Like toEntity(LikeSaveReq req, Member member);

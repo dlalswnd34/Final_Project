@@ -4,6 +4,7 @@ import com.simplecoding.cheforest.jpa.auth.entity.Member;
 import com.simplecoding.cheforest.jpa.auth.repository.MemberRepository;
 import com.simplecoding.cheforest.jpa.board.entity.Board;
 import com.simplecoding.cheforest.jpa.common.MapStruct;
+import com.simplecoding.cheforest.jpa.like.repository.LikeRepository;
 import com.simplecoding.cheforest.jpa.review.dto.ReviewDto;
 import com.simplecoding.cheforest.jpa.review.entity.Review;
 import com.simplecoding.cheforest.jpa.review.repository.ReviewRepository;
@@ -22,6 +23,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final MemberRepository memberRepository;
     private final MapStruct mapStruct;
+    private final LikeRepository likeRepository;
 
     /** 댓글 저장 */
     @Transactional
@@ -34,6 +36,11 @@ public class ReviewService {
             review.setBoard(board);
         } else {
             throw new IllegalArgumentException("boardId가 없습니다.");
+        }
+
+        // likeCount 초기화
+        if (review.getLikeCount() == null) {
+            review.setLikeCount(0L);
         }
 
         Review saved = reviewRepository.save(review);
@@ -112,6 +119,21 @@ public class ReviewService {
     /** 게시글 삭제 시 댓글 전체 삭제 */
     @Transactional
     public void deleteByBoardId(Long boardId) {
+        // 1️⃣ 게시글에 달린 모든 댓글 ID 조회
+        List<Review> reviews = reviewRepository.findByBoard_BoardIdAndParentIdIsNullOrderByInsertTimeAsc(boardId);
+
+        for (Review review : reviews) {
+            // 1-1️⃣ 부모 댓글의 좋아요 삭제
+            likeRepository.deleteAllByReviewId(review.getReviewId());
+
+            // 1-2️⃣ 부모 댓글의 대댓글 목록 조회
+            List<Review> replies = reviewRepository.findByParentIdOrderByInsertTimeAsc(review.getReviewId());
+            for (Review reply : replies) {
+                likeRepository.deleteAllByReviewId(reply.getReviewId()); // ✅ 대댓글 좋아요 삭제
+            }
+        }
+
+        // 2️⃣ 댓글 + 대댓글 전부 삭제
         reviewRepository.deleteByBoard_BoardId(boardId);
     }
 
@@ -121,6 +143,7 @@ public class ReviewService {
         if (!reviewRepository.existsById(reviewId)) {
             throw new IllegalArgumentException("존재하지 않는 댓글입니다. ID=" + reviewId);
         }
+        likeRepository.deleteAllByReviewId(reviewId);
         reviewRepository.deleteById(reviewId);
     }
 }

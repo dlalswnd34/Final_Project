@@ -301,7 +301,7 @@
         if (!res.ok) throw new Error(res.status);
     }
 
-    // ========= 델리게이션 (수정/삭제/답글) =========
+// ========= 델리게이션 (좋아요 / 수정 / 삭제 / 답글) =========
     function initCommentDelegation() {
         if (!$commentsList) return;
 
@@ -317,22 +317,52 @@
                 if ($comment) {
                     const id = Number($comment.dataset.commentId);
 
+                    // ✅ 댓글 좋아요
                     if (act === "like") {
                         const $cnt = $btn.querySelector(".vote-count");
-                        const liked = $btn.classList.toggle("liked"); // 토글
 
-                        if ($cnt) {
-                            let num = Number($cnt.textContent || 0);
-                            $cnt.textContent = String(liked ? num + 1 : Math.max(0, num - 1));
+                        try {
+                            // 1️⃣ 서버에 좋아요 여부 확인
+                            const checkRes = await fetch(
+                                `/like/check?memberIdx=${loginUser.memberIdx}&likeType=REVIEW&reviewId=${id}`
+                            );
+                            const alreadyLiked = await checkRes.json();
+
+                            // 2️⃣ 상태에 따라 add / remove 구분
+                            const url = alreadyLiked ? "/like/remove" : "/like/add";
+
+                            const res = await fetch(url, {
+                                method: "POST",
+                                headers: withCsrf({ "Content-Type": "application/json" }),
+                                body: JSON.stringify({
+                                    likeType: "REVIEW",
+                                    reviewId: id,
+                                    memberIdx: loginUser.memberIdx
+                                })
+                            });
+
+                            if (!res.ok) throw new Error("댓글 좋아요 처리 실패");
+                            const data = await res.json();
+
+                            // 3️⃣ UI 갱신
+                            $btn.classList.toggle("liked", !alreadyLiked);
+                            if ($cnt) $cnt.textContent = data.likeCount ?? 0;
+
+                        } catch (err) {
+                            console.error(err);
+                            alert("댓글 좋아요 처리 중 오류가 발생했습니다.");
                         }
                         return;
                     }
+
+                    // ✅ 답글창 열기
                     if (act === "toggle-reply") {
                         const $p = $comment.querySelector(".reply-write");
                         if ($p) $p.style.display = ($p.style.display === "none" || !$p.style.display) ? "block" : "none";
                         return;
                     }
 
+                    // ✅ 답글 등록
                     if (act === "reply-submit") {
                         const $ta = $comment.querySelector(".reply-textarea");
                         const text = ($ta?.value || "").trim();
@@ -342,25 +372,26 @@
                         return;
                     }
 
+                    // ✅ 답글 취소
                     if (act === "reply-cancel") {
                         const $p = $comment.querySelector(".reply-write");
                         if ($p) $p.style.display = "none";
                         return;
                     }
 
+                    // ✅ 댓글 수정
                     if (act === "edit") {
-                        if ($comment.dataset.editing === "1") return; // 중복 방지
+                        if ($comment.dataset.editing === "1") return;
                         $comment.dataset.editing = "1";
                         const raw = $comment.dataset.raw ?? $comment.querySelector(".comment-plain")?.textContent ?? "";
                         const $body = $comment.querySelector(".comment-body");
-                        // 중복 생성 방지(이미 textarea 있으면 종료)
                         if ($body.querySelector(".edit-textarea")) return;
                         $body.innerHTML = `
-              <textarea class="edit-textarea">${esc(raw)}</textarea>
-              <div class="edit-actions">
-                <button class="cancel-btn" data-act="edit-cancel">취소</button>
-                <button class="save-btn" data-act="edit-save">저장</button>
-              </div>`;
+                        <textarea class="edit-textarea">${esc(raw)}</textarea>
+                        <div class="edit-actions">
+                            <button class="cancel-btn" data-act="edit-cancel">취소</button>
+                            <button class="save-btn" data-act="edit-save">저장</button>
+                        </div>`;
                         return;
                     }
 
@@ -380,6 +411,7 @@
                         return;
                     }
 
+                    // ✅ 댓글 삭제
                     if (act === "delete") {
                         if (!confirm("댓글을 삭제할까요?")) return;
                         await deleteReview(id);
@@ -392,29 +424,57 @@
                 if ($reply) {
                     const rid = Number($reply.dataset.replyId);
 
+                    // ✅ 대댓글 좋아요
                     if (act === "reply-like") {
                         const $cnt = $btn.querySelector(".vote-count");
-                        const liked = $btn.classList.toggle("liked"); // 토글
 
-                        if ($cnt) {
-                            let num = Number($cnt.textContent || 0);
-                            $cnt.textContent = String(liked ? num + 1 : Math.max(0, num - 1));
+                        try {
+                            // 1️⃣ 서버에 좋아요 여부 확인
+                            const checkRes = await fetch(
+                                `/like/check?memberIdx=${loginUser.memberIdx}&likeType=REVIEW&reviewId=${rid}`
+                            );
+                            const alreadyLiked = await checkRes.json();
+
+                            // 2️⃣ 상태에 따라 add / remove 구분
+                            const url = alreadyLiked ? "/like/remove" : "/like/add";
+
+                            const res = await fetch(url, {
+                                method: "POST",
+                                headers: withCsrf({ "Content-Type": "application/json" }),
+                                body: JSON.stringify({
+                                    likeType: "REVIEW",
+                                    reviewId: rid,
+                                    memberIdx: loginUser.memberIdx
+                                })
+                            });
+
+                            if (!res.ok) throw new Error("대댓글 좋아요 처리 실패");
+                            const data = await res.json();
+
+                            // 3️⃣ UI 갱신
+                            $btn.classList.toggle("liked", !alreadyLiked);
+                            if ($cnt) $cnt.textContent = data.likeCount ?? 0;
+
+                        } catch (err) {
+                            console.error(err);
+                            alert("대댓글 좋아요 처리 중 오류가 발생했습니다.");
                         }
                         return;
                     }
 
+                    // ✅ 대댓글 수정
                     if (act === "reply-edit") {
-                        if ($reply.dataset.editing === "1") return; // 중복 방지
+                        if ($reply.dataset.editing === "1") return;
                         $reply.dataset.editing = "1";
                         const raw = $reply.dataset.raw ?? $reply.querySelector(".reply-plain")?.textContent ?? "";
                         const $txt = $reply.querySelector(".reply-text");
-                        if ($txt.querySelector(".edit-textarea")) return; // 중복 방지
+                        if ($txt.querySelector(".edit-textarea")) return;
                         $txt.innerHTML = `
-              <textarea class="edit-textarea">${esc(raw)}</textarea>
-              <div class="edit-actions">
-                <button class="cancel-btn" data-act="reply-edit-cancel">취소</button>
-                <button class="save-btn" data-act="reply-edit-save">저장</button>
-              </div>`;
+                        <textarea class="edit-textarea">${esc(raw)}</textarea>
+                        <div class="edit-actions">
+                            <button class="cancel-btn" data-act="reply-edit-cancel">취소</button>
+                            <button class="save-btn" data-act="reply-edit-save">저장</button>
+                        </div>`;
                         return;
                     }
 
@@ -434,6 +494,7 @@
                         return;
                     }
 
+                    // ✅ 대댓글 삭제
                     if (act === "reply-delete") {
                         if (!confirm("대댓글을 삭제할까요?")) return;
                         await deleteReview(rid);
@@ -448,8 +509,36 @@
         });
     }
 
+    // ========= 초기 좋아요 상태 동기화 =========
+    async function syncInitialLikes() {
+        if (!$commentsList || !loginUser.memberIdx) return;
+
+        // 모든 댓글과 대댓글의 좋아요 버튼 탐색
+        const likeButtons = $commentsList.querySelectorAll(".like-vote");
+        for (const btn of likeButtons) {
+            const comment = btn.closest(".comment-item, .reply-item");
+            if (!comment) continue;
+
+            // 각 버튼의 reviewId 찾기
+            const reviewId = comment.dataset.commentId || comment.dataset.replyId;
+            if (!reviewId) continue;
+
+            try {
+                const res = await fetch(
+                    `/like/check?memberIdx=${loginUser.memberIdx}&likeType=REVIEW&reviewId=${reviewId}`
+                );
+                const liked = await res.json();
+
+                // 좋아요가 되어 있으면 색상 적용
+                btn.classList.toggle("liked", liked === true);
+            } catch (err) {
+                console.error("초기 좋아요 동기화 실패:", err);
+            }
+        }
+    }
+
     // ========= 초기화 =========
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
         initTabs();
         initReactions();
         initIcons();
@@ -458,6 +547,7 @@
         initCommentCreate();
         initCommentDelegation();
 
-        loadComments();
+        await loadComments();
+        await syncInitialLikes();
     });
 })();

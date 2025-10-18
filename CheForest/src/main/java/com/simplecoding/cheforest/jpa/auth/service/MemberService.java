@@ -462,9 +462,15 @@ public class MemberService {
             throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
         }
 
-        // 3. 새 비밀번호 검증 (공백, 길이, 패턴 체크는 프론트에서 하지만 백엔드에서도 최소 보장)
-        if (newPassword == null || newPassword.length() < 8) {
-            throw new IllegalArgumentException("새 비밀번호는 최소 8자 이상이어야 합니다.");
+        // 3. 새 비밀번호 검증 (프론트 규칙 동일 적용)
+        String pwPattern = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9])(?!.*\\s).{10,20}$";
+        if (newPassword == null || !newPassword.matches(pwPattern)) {
+            throw new IllegalArgumentException("비밀번호는 영문, 숫자, 특수문자를 포함해 10~20자로 입력하세요.");
+        }
+
+        // 3-1 새 비밀번호가 기존과 같은지 확인
+        if (passwordEncoder.matches(newPassword, member.getPassword())) {
+            throw new IllegalArgumentException("새 비밀번호는 기존 비밀번호와 달라야 합니다.");
         }
 
         // 4. 비밀번호 변경

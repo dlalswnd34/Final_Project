@@ -410,6 +410,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
             const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
             const formData = new FormData(profileUpdateForm);
+            const submitBtn = profileUpdateForm.querySelector('button[type="submit"]');
 
             fetch('/auth/update', {
                 method: 'POST',
@@ -431,7 +432,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 .catch(error => {
                     console.error('Error:', error);
                     alert('❌ 요청 처리 중 오류가 발생했습니다.');
-                });
+                })
+                .finally(() => {
+                // ✅ 무조건 버튼 잠금 + 회색 처리
+                submitBtn.disabled = true;
+                submitBtn.classList.add("btn-disabled");
+            });
         });
     }
 
@@ -576,7 +582,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert(error.message || '❌ 서버 오류가 발생했습니다.');
                 })
                 .finally(() => {
-                    if (submitBtn) submitBtn.disabled = false;
+                    // ✅ 요청이 끝나면 버튼 잠금 + 회색 처리
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add("btn-disabled");
                 });
         });
     }
@@ -1045,3 +1053,184 @@ function renderMypagePagination(tabType, totalPages, currentPage1Based) {
 
     pagination.innerHTML = html;
 }
+
+/* ======================================================================
+ * [B] 닉네임 실시간 유효성 검사 (회원가입과 동일한 UX, 마이페이지 전용)
+ * ====================================================================== */
+document.addEventListener("DOMContentLoaded", () => {
+    const nicknameInput = document.getElementById("nickname");
+    const nicknameHelp = document.getElementById("nicknameHelp");
+    const nicknameSuccess = document.getElementById("nicknameSuccess");
+    const nicknameError = document.getElementById("nicknameError");
+    const submitBtn = document.querySelector("#profile-update-form button[type='submit']");
+
+    if (!nicknameInput) return; // 안전장치
+
+    let originalNickname = nicknameInput.value.trim();
+    let nicknameTimer;
+    let nicknameValid = true;
+
+    const showHelp = (msg) => {
+        nicknameHelp.textContent = msg;
+        nicknameHelp.style.display = "block";
+        nicknameHelp.style.color = "#6b7280";
+        nicknameSuccess.style.display = "none";
+        nicknameError.style.display = "none";
+    };
+
+    const showSuccess = (msg) => {
+        nicknameSuccess.textContent = msg;
+        nicknameSuccess.style.display = "block";
+        nicknameSuccess.style.color = "#16a34a";
+        nicknameHelp.style.display = "none";
+        nicknameError.style.display = "none";
+    };
+
+    const showError = (msg) => {
+        nicknameError.querySelector("span")
+            ? nicknameError.querySelector("span").textContent = msg
+            : nicknameError.textContent = msg;
+        nicknameError.style.display = "block";
+        nicknameError.style.color = "#dc2626";
+        nicknameHelp.style.display = "none";
+        nicknameSuccess.style.display = "none";
+    };
+
+    const hideAll = () => {
+        nicknameHelp.style.display = "none";
+        nicknameSuccess.style.display = "none";
+        nicknameError.style.display = "none";
+    };
+
+    // ✅ 초기 안내문
+    showHelp("* 변경하실 닉네임은 2자 이상 입력하세요.");
+    if (submitBtn) {
+        submitBtn.disabled = true;             // 비활성화
+        submitBtn.classList.add("btn-disabled"); // 회색 처리
+    }
+
+    nicknameInput.addEventListener("input", () => {
+        clearTimeout(nicknameTimer);
+        nicknameTimer = setTimeout(async () => {
+            const nickname = nicknameInput.value.trim();
+
+            hideAll();
+            nicknameValid = false;
+            submitBtn.disabled = true;
+            submitBtn.classList.add("btn-disabled");
+
+            // 너무 짧음
+            if (nickname.length < 2) {
+                showError("닉네임은 최소 2자 이상이어야 합니다.");
+                return;
+            }
+
+            // 원래 닉네임이면 검사 생략
+            if (nickname === originalNickname) {
+                showHelp("현재 사용 중인 닉네임입니다.");
+                nicknameValid = true;
+                submitBtn.disabled = false;
+                submitBtn.classList.remove("btn-disabled"); // 원래 색 복원
+                return;
+            }
+
+            // 서버 중복검사
+            try {
+                const res = await fetch(`/auth/check-nickname?nickname=${encodeURIComponent(nickname)}`);
+                const result = (await res.text()).trim();
+
+                if (result === "true") {
+                    showSuccess("사용 가능한 닉네임입니다.");
+                    nicknameValid = true;
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove("btn-disabled"); // 원래 색 복원
+                } else {
+                    showError("이미 사용 중인 닉네임입니다.");
+                    nicknameValid = false;
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add("btn-disabled");
+                }
+            } catch (err) {
+                console.error("닉네임 검사 오류:", err);
+                showError("서버 오류가 발생했습니다.");
+                nicknameValid = false;
+                submitBtn.disabled = true;
+                submitBtn.classList.add("btn-disabled");
+            }
+        }, 500);
+    });
+
+    // 폼 제출 시 유효성 확인
+    const form = document.getElementById("profile-update-form");
+    form.addEventListener("submit", (e) => {
+        if (!nicknameValid) {
+            e.preventDefault();
+            showError("유효하지 않은 닉네임입니다.");
+        }
+    });
+});
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const newPwEl = document.getElementById("new-password");
+    const confirmEl = document.getElementById("confirm-password");
+    const submitBtn = document.querySelector("#password-change-form button[type='submit']");
+    const pwHelp = document.getElementById("pwHelp");
+    const pwSuccess = document.getElementById("pwSuccess");
+    const pwError = document.getElementById("pwError");
+    const cpError = document.getElementById("cpError");
+    const curEl = document.getElementById("current-password");
+
+    const PW_PATTERN = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9])(?!.*\s).{10,20}$/;
+
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add("btn-disabled"); // 처음엔 회색 처리
+    }
+
+    function show(el) { el.style.display = "block"; }
+    function hide(el) { el.style.display = "none"; }
+
+    function validateRealtime() {
+        hide(pwHelp); hide(pwSuccess); hide(pwError); hide(cpError);
+
+        const pw = newPwEl.value.trim();
+        const cp = confirmEl.value.trim();
+        let ok = true;
+
+        // 1️⃣ 형식 체크
+        if (!PW_PATTERN.test(pw)) {
+            hide(pwHelp); hide(pwSuccess); show(pwError);
+            pwError.textContent = "형식이 맞지 않습니다. (10~20자, 영문/숫자/특수문자 포함)";
+            ok = false;
+        } else {
+            hide(pwHelp); hide(pwError); show(pwSuccess);
+        }
+
+        // 2️⃣ 현재 PW 동일 체크
+        if (curEl && curEl.value && pw === curEl.value) {
+            hide(pwHelp); hide(pwSuccess); show(pwError);
+            pwError.textContent = "새 비밀번호가 현재 비밀번호와 같습니다.";
+            ok = false;
+        }
+
+        // 3️⃣ 새 비밀번호 확인 일치 체크
+        if (cp && pw !== cp) {
+            show(cpError);
+            ok = false;
+        } else {
+            hide(cpError);
+        }
+
+        // 4️⃣ 버튼 활성화 + 색상 복원
+        submitBtn.disabled = !ok;
+        if (ok) {
+            submitBtn.classList.remove("btn-disabled"); // 원래색 복원
+        } else {
+            submitBtn.classList.add("btn-disabled"); // 회색 처리
+        }
+    }
+
+    newPwEl.addEventListener("input", validateRealtime);
+    confirmEl.addEventListener("input", validateRealtime);
+});
