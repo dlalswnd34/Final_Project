@@ -44,6 +44,8 @@ public class Review {
     @Column(name = "PARENT_ID")
     private Long parentId; // 부모 댓글 (NULL = 댓글, 값 있으면 대댓글)
 
+    private Long likeCount = 0L;
+
     @PrePersist
     protected void onCreate() {
         this.insertTime = LocalDateTime.now();

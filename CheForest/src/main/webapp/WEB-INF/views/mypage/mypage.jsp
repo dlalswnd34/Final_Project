@@ -320,7 +320,19 @@
                                             <div class="form-group">
                                                 <label for="nickname">닉네임</label>
                                                 <input type="text" id="nickname" name="nickname"
-                                                       value="<c:out value='${me.member.nickname}'/>">
+                                                       value="<c:out value='${me.member.nickname}'/>"
+                                                       autocomplete="off" />
+
+                                                <!-- 안내문 / 상태메시지 -->
+                                                <div id="nicknameHelp" class="help-text" style="color:#6b7280; font-size:0.85rem;">
+                                                    * 닉네임은 2자 이상 입력하세요.
+                                                </div>
+                                                <div id="nicknameSuccess" class="success-message" style="display:none; color:#16a34a; font-size:0.85rem;">
+                                                    사용 가능한 닉네임입니다.
+                                                </div>
+                                                <div id="nicknameError" class="field-error" style="display:none; color:#dc2626; font-size:0.85rem;">
+                                                    <span></span>
+                                                </div>
                                             </div>
                                             <!-- 이메일 (읽기 전용) -->
                                             <div class="form-group">
@@ -357,13 +369,28 @@
                                                     <label for="current-password">현재 비밀번호</label>
                                                     <input type="password" id="current-password" name="current-password" required>
                                                 </div>
+                                                <!-- 새 비밀번호 -->
                                                 <div class="form-group">
                                                     <label for="new-password">새 비밀번호</label>
                                                     <input type="password" id="new-password" name="new-password" required>
+                                                    <div id="pwHelp" class="help-text" style="color:#6b7280; font-size:0.85rem;">
+                                                        * 10~20자, 영문, 숫자, 특수문자 포함
+                                                    </div>
+                                                    <div id="pwSuccess" class="success-text" style="display:none; color:#16a34a; font-size:0.85rem;">
+                                                        사용 가능한 비밀번호 형식입니다.
+                                                    </div>
+                                                    <div id="pwError" class="error-text" style="display:none; color:#dc2626; font-size:0.85rem;">
+                                                        형식이 맞지 않습니다. (10~20자, 영문/숫자/특수문자 포함)
+                                                    </div>
                                                 </div>
+
+                                                <!-- 새 비밀번호 확인 -->
                                                 <div class="form-group">
                                                     <label for="confirm-password">새 비밀번호 확인</label>
                                                     <input type="password" id="confirm-password" name="confirm-password" required>
+                                                    <div id="cpError" class="error-text" style="display:none; color:#dc2626; font-size:0.85rem;">
+                                                        비밀번호가 일치하지 않습니다.
+                                                    </div>
                                                 </div>
                                                 <div id="password-message-area" class="form-group" style="min-height: 24px;"></div>
                                                 <button type="submit" class="btn-primary">비밀번호 변경</button>

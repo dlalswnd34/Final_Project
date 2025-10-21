@@ -25,6 +25,7 @@ public class ReviewDto {
     private LocalDateTime insertTime;
     private LocalDateTime updateTime;
     private Long parentId;     // 부모 댓글 ID
+    private Long likeCount;
 
     private List<ReviewDto> replies = new ArrayList<>();
 }

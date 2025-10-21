@@ -1,11 +1,14 @@
 package com.simplecoding.cheforest.jpa.like.controller;
 
+
 import com.simplecoding.cheforest.jpa.like.dto.LikeRes;
 import com.simplecoding.cheforest.jpa.like.dto.LikeSaveReq;
 import com.simplecoding.cheforest.jpa.like.service.LikeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -19,27 +22,6 @@ public class LikeController {
     @PostMapping("/add")
     public LikeRes addLike(@RequestBody LikeSaveReq req) {
         log.info("📥 addLike 요청: {}", req);
-
-        if ("BOARD".equalsIgnoreCase(req.getLikeType())) {
-            if (likeService.existsBoardLike(req.getMemberIdx(), req.getBoardId())) {
-                log.info("⚠️ 이미 좋아요 누름");
-                return LikeRes.builder()
-                        .likeType("BOARD")
-                        .boardId(req.getBoardId())
-                        .likeCount(likeService.countBoardLikes(req.getBoardId()))
-                        .build();
-            }
-        } else if ("RECIPE".equalsIgnoreCase(req.getLikeType())) {
-            if (likeService.existsRecipeLike(req.getMemberIdx(), req.getRecipeId())) {
-                log.info("⚠️ 이미 좋아요 누름");
-                return LikeRes.builder()
-                        .likeType("RECIPE")
-                        .recipeId(req.getRecipeId())
-                        .likeCount(likeService.countRecipeLikes(req.getRecipeId()))
-                        .build();
-            }
-        }
-
         return likeService.addLike(req);
     }
 
@@ -47,27 +29,6 @@ public class LikeController {
     @PostMapping("/remove")
     public LikeRes removeLike(@RequestBody LikeSaveReq req) {
         log.info("📥 removeLike 요청: {}", req);
-
-        if ("BOARD".equalsIgnoreCase(req.getLikeType())) {
-            if (!likeService.existsBoardLike(req.getMemberIdx(), req.getBoardId())) {
-                log.info("⚠️ 취소 요청했지만 좋아요 안 되어 있음");
-                return LikeRes.builder()
-                        .likeType("BOARD")
-                        .boardId(req.getBoardId())
-                        .likeCount(likeService.countBoardLikes(req.getBoardId()))
-                        .build();
-            }
-        } else if ("RECIPE".equalsIgnoreCase(req.getLikeType())) {
-            if (!likeService.existsRecipeLike(req.getMemberIdx(), req.getRecipeId())) {
-                log.info("⚠️ 취소 요청했지만 좋아요 안 되어 있음");
-                return LikeRes.builder()
-                        .likeType("RECIPE")
-                        .recipeId(req.getRecipeId())
-                        .likeCount(likeService.countRecipeLikes(req.getRecipeId()))
-                        .build();
-            }
-        }
-
         return likeService.removeLike(req);
     }
 
@@ -89,12 +50,32 @@ public class LikeController {
     public boolean checkLike(@RequestParam Long memberIdx,
                              @RequestParam String likeType,
                              @RequestParam(required = false) Long boardId,
-                             @RequestParam(required = false) String recipeId) {
+                             @RequestParam(required = false) String recipeId,
+                             @RequestParam(required = false) Long reviewId) {
+
         if ("BOARD".equalsIgnoreCase(likeType) && boardId != null) {
             return likeService.existsBoardLike(memberIdx, boardId);
         } else if ("RECIPE".equalsIgnoreCase(likeType) && recipeId != null) {
             return likeService.existsRecipeLike(memberIdx, recipeId);
+        } else if ("REVIEW".equalsIgnoreCase(likeType) && reviewId != null) {
+            return likeService.existsReviewLike(memberIdx, reviewId);
         }
         return false;
+    }
+
+    /** ✅ CheForest 레시피 좋아요 목록 (마이페이지용) */
+    @GetMapping("/api/mypage/liked/recipes")
+    public List<LikeRes> getLikedRecipes(
+            @RequestParam Long memberIdx
+    ) {
+        return likeService.getLikesByMember(memberIdx, "RECIPE");
+    }
+
+    /** ✅ 사용자 작성 게시글 좋아요 목록 (마이페이지용) */
+    @GetMapping("/api/mypage/liked/posts")
+    public List<LikeRes> getLikedBoards(
+            @RequestParam Long memberIdx
+    ) {
+        return likeService.getLikesByMember(memberIdx, "BOARD");
     }
 }

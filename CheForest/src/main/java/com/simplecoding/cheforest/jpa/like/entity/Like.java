@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Table(name = "BOARD_LIKE",
         uniqueConstraints = {
                 @UniqueConstraint(name="UQ_BOARD_LIKE",
-                        columnNames = {"member_idx", "board_id", "recipe_id"})
+                        columnNames = {"member_idx", "board_id", "recipe_id", "review_id"})
         })
 @SequenceGenerator(
         name = "SEQ_BOARD_LIKE_JPA",
@@ -36,6 +36,8 @@ public class Like {
     private Long boardId;   // 게시글 ID (nullable)
 
     private String recipeId;   // 레시피 ID (nullable)
+
+    private Long reviewId;     // 리뷰 ID (nullable)
 
     private String likeType;   // BOARD / RECIPE
 
