@@ -94,3 +94,11 @@ sourceSets {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+bootWar {
+    archiveFileName = 'cheforest.war' // ✅ WAR 이름 지정
+}
+
+bootJar {
+    enabled = false // ✅ JAR 빌드 비활성화
+}

@@ -109,7 +109,7 @@ public class IntegratedSearchService {
         entity.setTitle(integratedSearch.getTitle());
         entity.setCategory(integratedSearch.getCategory());
         entity.setIngredients(integratedSearch.getIngredients());
-        entity.setType(integratedSearch.getType());
+        entity.setType("board");
         entity.setThumbnail(integratedSearch.getThumbnail());
         entity.setCooktime(integratedSearch.getCooktime());
         entity.setDifficulty(integratedSearch.getDifficulty());
