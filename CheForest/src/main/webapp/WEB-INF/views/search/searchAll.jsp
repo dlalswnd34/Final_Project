@@ -118,7 +118,14 @@
                             </c:choose>
                             <a class="result-card" href="${detailUrl}">
                                 <div class="card-image-container">
-                                    <img src="${item.thumbnail}" alt="${fn:escapeXml(item.title)}" class="card-image">
+                                    <c:choose>
+                                        <c:when test="${empty item.thumbnail}">
+                                            <img src="/images/no-image.png" alt="빈이미지" class="card-image">
+                                        </c:when>
+                                        <c:otherwise>
+                                            <img src="${item.thumbnail}" alt="${fn:escapeXml(item.title)}" class="card-image">
+                                        </c:otherwise>
+                                    </c:choose>
                                     <div class="card-badges">
                 <span class="badge ${item.type == 'recipe' ? 'badge-recipe' : 'badge-board'}">
                         ${item.type == 'recipe' ? '레시피' : '게시글'}

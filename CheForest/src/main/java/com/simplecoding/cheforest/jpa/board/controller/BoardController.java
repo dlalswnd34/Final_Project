@@ -156,6 +156,7 @@ public class BoardController {
         // E/S 넘기기
         IntegratedSearch searchDoc = mapStruct.boardToEntity(dto);
         searchDoc.setId(boardId.toString());
+        searchDoc.setCooktime(dto.getCookTime());
         integratedSearchService.saveData(searchDoc);
 
         // 4️⃣ 포인트 적립

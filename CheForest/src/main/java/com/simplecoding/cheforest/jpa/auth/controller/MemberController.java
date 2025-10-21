@@ -415,12 +415,8 @@ public ResponseEntity<String> changePassword(
 
         return ResponseEntity.ok(Map.of(
                 "authenticated", true,
-                "memberIdx", member.getMemberIdx(),
-                "nickname", member.getNickname(),
-                "email", member.getEmail(),
-                "grade", member.getGrade(),
-                "profile", member.getProfile(),
-                "role", member.getRole().name()
+                "memberIdx", member.getMemberIdx()
+
         ));
     }
 }
